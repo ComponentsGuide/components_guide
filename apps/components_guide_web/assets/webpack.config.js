@@ -37,8 +37,18 @@ module.exports = (env, options) => ({
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          // 'vue-style-loader',
-          'css-loader'
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              indent: 'postcss',
+              plugins: [
+                require('tailwindcss'),
+                require('autoprefixer')
+              ]
+            }
+          },
+          // 'vue-style-loader'
         ]
       }
     ]
