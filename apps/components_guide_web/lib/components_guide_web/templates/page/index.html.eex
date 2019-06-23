@@ -1,36 +1,59 @@
-<section class="phx-hero">
-  <h1><%= "Great apps start with great components. Learn how here." %></h1>
-  <p><%= "SwiftUI · React · Preact · lit-html · Figma · Sketch" %></p>
-  <p><%= "Maintainable · Clarity · Performance · Responsive · Design Teams" %></p>
-</section>
+<%= if false do %>
+<div class="bg-purple-700 text-white">
+  <section class="container px-6 pt-12 pb-16">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center leading-snug font-bold text-shadow">
+      <%= "Great apps need great components. Learn how to make them in SwiftUI and React." %>
+    </h1>
+    <p class="mt-6 mb-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-purple-100 text-shadow">
+      <%= "Learn the techniques that have worked best across a range of component systems." %>
+    </p>
+    <p class="mx-auto py-2 max-w-4xl text-xl text-center">
+      Topics include:
+      <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-red-500 hover:bg-red-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
+      <% end  %>
+    </p>
+  </section>
+</div>
+<% else %>
+<div class="bg-purple-100 text-purple-700">
+  <section class="container px-6 pt-12 pb-16">
+    <h1 class="mx-auto max-w-5xl text-5xl text-center leading-snug font-bold">
+      <%= "Great apps need great components. Learn how to make them in SwiftUI & React." %>
+    </h1>
+    <p class="mt-6 mb-8 mx-auto max-w-3xl text-4xl text-center italic leading-snug text-purple-700">
+      <%#= "Learn the techniques that have worked best across a range of component systems." %>
+      <%= "Learn the techniques that have worked best for modern component systems." %>
+    </p>
+    <p class="mx-auto py-2 max-w-4xl text-xl text-center">
+      Topics include:
+      <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-red-500 hover:bg-red-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
+      <% end  %>
+    </p>
+  </section>
+</div>
+<% end %>
 
-<section class="row">
-  <article class="column">
-    <h2>SwiftUI</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.4/CHANGELOG.md">v1.4 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>React</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-    </ul>
-  </article>
-</section>
+<div class="bg-purple-800">
+  <section class="pt-12 pb-12 flex items-center justify-center">
+    <a href="/swiftui" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-orange-100 text-orange-700 border border-orange-800 hover:bg-orange-600 hover:text-white rounded shadow-xl">
+      <%= "Learn SwiftUI" %>
+    </a>
+  </section>
+  <section class="pt-12 pb-12 flex items-center justify-center">
+    <a href="#" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-red-100 text-red-700 border border-red-800 hover:bg-red-600 hover:text-white rounded shadow-xl">
+      <%= "Learn Combine" %>
+    </a>
+  </section>
+  <section class="pt-12 pb-12 flex items-center justify-center">
+    <a href="#" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-blue-100 text-blue-700 border border-blue-800 hover:bg-blue-600 hover:text-white rounded shadow-xl">
+      <%= "Learn React" %>
+    </a>
+  </section>
+  <section class="pt-12 pb-12 flex items-center justify-center">
+    <a href="#" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-indigo-100 text-indigo-700 border border-indigo-800 hover:bg-indigo-600 hover:text-white rounded shadow-xl">
+      <%= "Learn TypeScript" %>
+    </a>
+  </section>
+</div>

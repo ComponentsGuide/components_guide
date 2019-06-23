@@ -1,26 +1,88 @@
-<section class="phx-hero">
-  <img src="<%= Routes.static_path(@conn, "/images/swiftui-96x96_2x.png") %>" alt="SwiftUI logo" width=96 height=96>
-  <h1>
-    <%#= "Guides to well-designed components using SwiftUI & app architecture using Combine" %>
-    <%= "Thinking in components with SwiftUI & Combine best practices for app architecture" %>
-  </h1>
-  <p>
-    <%# The past five years I’ve used React and RxJS to build professional apps. %>
-    React and RxJS have been my web tools of choice for the past five years.
-    <br>Learn how these lessons can be applied to the Swift world.
-  </p>
-</section>
+<div class="bg-purple-900 text-white">
+  <section class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <img class="inline-block mr-2" src="<%= Routes.static_path(@conn, "/images/swiftui-96x96_2x.png") %>" alt="SwiftUI logo" width=96 height=96>
+      <%= "Learn SwiftUI & Combine" %>
+    </h1>
+    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-purple-100 text-shadow">
+      <%= "Learnings from five years of component systems applied to the Swift world." %>
+    </p>
+    <p class="py-2 text-xl text-center">
+      Topics include:
+      <%= for text <- ["SwiftUI", "Combine", "Component Design", "Data Flow", "APIs", "Composing", "Testing", "Performance", "Clarity", "Documentation", "Device Adapting"] do %>
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white text-blue-600 hover:bg-blue-500 hover:text-white rounded shadow-xl"><%= text %></a>  
+      <% end  %>
+    </p>
+  </section>
+</div>
 
-<h2>Topics covered include:</h2>
-
-<ul>
-  <li>Atomic design</li>
-  <li>Styling approaches</li>
-  <li>Reusability trade-offs</li>
-  <li>Testing components</li>
-  <li>Testing data flow</li>
-  <li>Composable component patterns</li>
-  <li>Handling errors</li>
-  <li>Caching data</li>
-  <li>Improving performance in the right areas</li>
-</ul>
+<div class="bg-white">
+  <section class="container pt-8 pb-16">
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Atomic design</h2>
+      <p>
+        Learn how to name components. Apply the single responsibility principle. Find the indivisible component units, and compose them together into larger molecules.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Styling approaches</h2>
+      <p>
+        Extract common styles. Define a style guide. How do you keep styles consistent?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Reusability trade-offs</h2>
+      <p>
+        What sort of components should be resuable? How granular should you go?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Pattern libraries</h2>
+      <p>
+        When do you need a pattern library? Who are they for? How should you manage them?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Testing components</h2>
+      <p>
+        Unit test components. Test the behaviours that matter first. Use type-safety to remove impossible states.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Testing data flow</h2>
+      <p>
+        Test your data flow in isolation. Use test-driven design. Mock APIs and other sources.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Composable component patterns</h2>
+      <p>
+        Components are <em>really</em> composable. Can we reduce boilerplate? What useful component utilities can we make?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Handling errors</h2>
+      <p>
+        Handle errors from publishers. What and when should you show users?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Caching data</h2>
+      <p>
+        Learn how to name components. Apply the single responsibility principle. Find the atomic units, and compose them together.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Improving performance in the right areas</h2>
+      <p>
+        Learn when you should focus on performance. Measure to be informed. Apply optimization techniques.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-2xl leading-normal text-purple-800">Automating repetitive tasks</h2>
+      <p>
+        Produce screenshots across many devices.
+      </p>
+    </article>
+  </section>
+</div>
