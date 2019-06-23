@@ -1,0 +1,26 @@
+<section class="phx-hero">
+  <img src="<%= Routes.static_path(@conn, "/images/swiftui-96x96_2x.png") %>" alt="SwiftUI logo" width=96 height=96>
+  <h1>
+    <%#= "Guides to well-designed components using SwiftUI & app architecture using Combine" %>
+    <%= "Thinking in components with SwiftUI & Combine best practices for app architecture" %>
+  </h1>
+  <p>
+    <%# The past five years I’ve used React and RxJS to build professional apps. %>
+    React and RxJS have been my web tools of choice for the past five years.
+    <br>Learn how these lessons can be applied to the Swift world.
+  </p>
+</section>
+
+<h2>Topics covered include:</h2>
+
+<ul>
+  <li>Atomic design</li>
+  <li>Styling approaches</li>
+  <li>Reusability trade-offs</li>
+  <li>Testing components</li>
+  <li>Testing data flow</li>
+  <li>Composable component patterns</li>
+  <li>Handling errors</li>
+  <li>Caching data</li>
+  <li>Improving performance in the right areas</li>
+</ul>
