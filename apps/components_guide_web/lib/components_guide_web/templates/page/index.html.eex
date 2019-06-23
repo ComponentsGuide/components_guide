@@ -19,7 +19,8 @@
 <div class="bg-purple-100 text-purple-700">
   <section class="container px-6 pt-12 pb-16">
     <h1 class="mx-auto max-w-5xl text-5xl text-center leading-snug font-bold">
-      <%= "Great apps need great components. Learn how to make them in SwiftUI & React." %>
+      <%#= "Great apps need great components. Learn how to make them in SwiftUI & React." %>
+      <%= "Great apps need great components. Learn how in SwiftUI, Combine, React & RxJS." %>
     </h1>
     <p class="mt-6 mb-8 mx-auto max-w-3xl text-4xl text-center italic leading-snug text-purple-700">
       <%#= "Learn the techniques that have worked best across a range of component systems." %>
@@ -35,25 +36,40 @@
 </div>
 <% end %>
 
-<div class="bg-purple-800">
-  <section class="pt-12 pb-12 flex items-center justify-center">
-    <a href="/swiftui" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-orange-100 text-orange-700 border border-orange-800 hover:bg-orange-600 hover:text-white rounded shadow-xl">
-      <%= "Learn SwiftUI" %>
+<div class="py-4 bg-purple-900">
+  <section class="m-8 flex items-center justify-center">
+    <a href="/swiftui" class="block max-w-md w-full mx-1 mb-3 px-8 py-4 font-bold bg-orange-100 text-orange-700 border border-orange-800 hover:bg-white hover:text-orange-600 hover:border-white rounded shadow-xl hover:shadow-lg">
+      <span class="text-3xl"><%= "Learn SwiftUI" %></span>
+      <br>
+      The future of UI from Apple
     </a>
   </section>
-  <section class="pt-12 pb-12 flex items-center justify-center">
-    <a href="#" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-red-100 text-red-700 border border-red-800 hover:bg-red-600 hover:text-white rounded shadow-xl">
-      <%= "Learn Combine" %>
+  <section class="m-8 flex items-center justify-center">
+    <a href="#" class="block max-w-md w-full mx-1 mb-3 px-8 py-4 font-bold bg-red-100 text-red-700 border border-red-800 hover:bg-white hover:text-red-600 hover:border-white rounded shadow-xl hover:shadow-lg">
+      <span class="text-3xl"><%= "Learn Combine" %></span>
+      <br>
+      Swift async data flow refined
     </a>
   </section>
-  <section class="pt-12 pb-12 flex items-center justify-center">
-    <a href="#" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-blue-100 text-blue-700 border border-blue-800 hover:bg-blue-600 hover:text-white rounded shadow-xl">
-      <%= "Learn React" %>
+  <section class="m-8 flex items-center justify-center">
+    <a href="#" class="block max-w-md w-full mx-1 mb-3 px-8 py-4 font-bold bg-blue-100 text-blue-700 border border-blue-800 hover:bg-white hover:text-blue-600 hover:border-white rounded shadow-xl hover:shadow-lg">
+      <span class="text-3xl"><%= "Learn React" %></span>
+      <br>
+      The venerable component library
     </a>
   </section>
-  <section class="pt-12 pb-12 flex items-center justify-center">
-    <a href="#" class="inline-block mx-1 mb-3 px-8 py-4 text-3xl font-bold bg-indigo-100 text-indigo-700 border border-indigo-800 hover:bg-indigo-600 hover:text-white rounded shadow-xl">
-      <%= "Learn TypeScript" %>
+  <section class="m-8 flex items-center justify-center">
+    <a href="#" class="block max-w-md w-full mx-1 mb-3 px-8 py-4 font-bold bg-indigo-100 text-indigo-700 border border-indigo-800 hover:bg-white hover:text-indigo-600 hover:border-white rounded shadow-xl hover:shadow-lg">
+      <span class="text-3xl"><%= "Learn TypeScript" %></span>
+      <br>
+      Safer, more expressive code
+    </a>
+  </section>
+  <section class="m-8 flex items-center justify-center">
+    <a href="#" class="block max-w-md w-full mx-1 mb-3 px-8 py-4 font-bold bg-pink-100 text-pink-700 border border-pink-800 hover:bg-white hover:text-pink-600 hover:border-white rounded shadow-xl hover:shadow-lg">
+      <span class="text-3xl"><%= "Learn RxJS" %></span>
+      <br>
+      Reusable, testable data models
     </a>
   </section>
 </div>
