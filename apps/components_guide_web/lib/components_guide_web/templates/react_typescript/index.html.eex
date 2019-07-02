@@ -1,0 +1,92 @@
+<div class="bg-yellow-500 text-white">
+  <section class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <div class="pb-4 flex items-center justify-center">
+        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@618de63f309bbf56b67364fd6a441cbbf79403cc/logos/react.svg" %>" alt="React logo" width=96 height=96>
+        <span class="mr-2 text-3xl">♥️</span>
+        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@02e637e09b55966e802dfe0bc93595594e0214bb/logos/typescript-icon.svg" %>" alt="TypeScript logo" width=96 height=96>
+      </div>
+      <%= "Learn React & TypeScript" %>
+    </h1>
+    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
+      <%= "Express clear components more robustly with the live feedback of TypeScript." %>
+    </p>
+    <p class="py-2 text-xl text-center">
+      Topics include:
+      <%= for text <- ["React", "Hooks", "Reducers", "Data Flow", "Loading APIs", "Composing", "Testing", "Performance", "Clarity", "Documentation", "Device Adapting"] do %>
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white text-blue-600 hover:bg-blue-500 hover:text-white rounded shadow-xl"><%= text %></a>  
+      <% end  %>
+    </p>
+  </section>
+</div>
+
+<div class="bg-white">
+  <section class="container pt-8 pb-16 text-2xl">
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Atomic design</h2>
+      <p>
+        Learn how to name components. Apply the single responsibility principle. Find the indivisible component units, and compose them together into larger molecules.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Styling approaches</h2>
+      <p>
+        Extract common styles. Define a style guide. How do you keep styles consistent?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Reusability trade-offs</h2>
+      <p>
+        What sort of components should be resuable? How granular should you go?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Pattern libraries</h2>
+      <p>
+        When do you need a pattern library? Who are they for? How should you manage them?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Testing components</h2>
+      <p>
+        Unit test components. Test the behaviours that matter first. Use type-safety to remove impossible states.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Testing data flow</h2>
+      <p>
+        Test your data flow in isolation. Use test-driven design. Mock APIs and other sources.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Composable component patterns</h2>
+      <p>
+        Components are <em>really</em> composable. Can we reduce boilerplate? What useful component utilities can we make?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Handling errors</h2>
+      <p>
+        Handle errors from publishers. What and when should you show users?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Caching data</h2>
+      <p>
+        Learn how to name components. Apply the single responsibility principle. Find the atomic units, and compose them together.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Improving performance in the right areas</h2>
+      <p>
+        Learn when you should focus on performance. Measure to be informed. Apply optimization techniques.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Automating repetitive tasks</h2>
+      <p>
+        Produce screenshots across many devices.
+      </p>
+    </article>
+  </section>
+</div>

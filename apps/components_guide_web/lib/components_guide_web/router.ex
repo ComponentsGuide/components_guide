@@ -20,6 +20,7 @@ defmodule ComponentsGuideWeb.Router do
     get "/", PageController, :index
 
     get "/swiftui", SwiftUIController, :index
+    get "/react+typescript", ReactTypescriptController, :index
 
     resources "/text", TextController
     get "/text/:id/text/:format", TextController, :show_text_format
