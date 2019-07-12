@@ -1,11 +1,12 @@
-<%= if false do %>
-<div class="bg-purple-700 text-white">
+<%= if true do %>
+<div class="bg-purple-700 text-white" style="background: linear-gradient(-32deg, #840000 0%, #E0003C 30%, #FF493F 50%, #FF584A 50%, #FF6F86 90%, #FF584A 120%);">
   <section class="container px-6 pt-12 pb-16">
     <h1 class="mx-auto max-w-4xl text-5xl text-center leading-snug font-bold text-shadow">
-      <%= "Great apps need great components. Learn how to make them in SwiftUI and React." %>
+      <%#= "Great apps need great components. Learn how to make them in SwiftUI and React." %>
+      <%= "Great apps need great components. Learn by making in SwiftUI or React." %>
     </h1>
     <p class="mt-6 mb-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-purple-100 text-shadow">
-      <%= "Learn the techniques that have worked best across a range of component systems." %>
+      <%= "Learn the techniques that work best across a range of component systems." %>
     </p>
     <p class="mx-auto py-2 max-w-4xl text-xl text-center">
       Topics include:
@@ -16,7 +17,7 @@
   </section>
 </div>
 <% else %>
-<div class="bg-purple-100 text-purple-700">
+<div class="bg-purple-100 text-purple-700" style="background: linear-gradient(-60deg, #006DB1 -20%, #AB29CF 50%, #00C6FF 120%);">
   <section class="container px-6 pt-12 pb-16">
     <h1 class="mx-auto max-w-5xl text-5xl text-center leading-snug font-bold">
       <%#= "Great apps need great components. Learn how to make them in SwiftUI & React." %>

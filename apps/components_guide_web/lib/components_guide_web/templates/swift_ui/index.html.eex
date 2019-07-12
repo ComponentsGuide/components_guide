@@ -1,4 +1,4 @@
-<div class="bg-purple-900 text-white">
+<div class="bg-purple-600 text-white" style="background: linear-gradient(-60deg, #006DB1 -20%, #AB29CF 50%, #00C6FF 120%);">
   <section class="container px-6 pt-12 pb-12">
     <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
       <img class="inline-block mr-2" src="<%= Routes.static_path(@conn, "/images/swiftui-96x96_2x.png") %>" alt="SwiftUI logo" width=96 height=96>

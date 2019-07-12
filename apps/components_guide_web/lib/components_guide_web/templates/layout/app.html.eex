@@ -16,8 +16,9 @@
         <nav role="navigation" class="flex-grow px-16 text-lg">
           <ul class="flex flex-row justify-around">
             <li><a href="/swiftui" class="block py-4 font-bold"><%= "SwiftUI + Combine" %></a></li>
-            <li><a href="/react+typescript" class="block py-4 font-bold"><%= "React + TypeScript" %></a></li>
-            <li><a href="/rxjs" class="block py-4 font-bold">RxJS</a></li>
+            <li><a href="/rxjs" class="block py-4 font-bold"><%= "React + TS + RxJS" %></a></li>
+            <% if false do %><li><a href="/react+typescript" class="block py-4 font-bold"><%= "React + TypeScript" %></a></li><% end %>
+            <li><a href="/css+typescript" class="block py-4 font-bold"><%= "CSS + TypeScript" %></a></li>
           </ul>
         </nav>
       </section>
