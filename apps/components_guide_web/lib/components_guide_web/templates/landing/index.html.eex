@@ -1,6 +1,6 @@
 <%= if true do %>
 <div class="text-white" style="background: linear-gradient(-32deg, #840000 0%, #E0003C 30%, #FF493F 50%, #FF584A 50%, #FF6F86 90%, #FF584A 120%);">
-  <section class="container px-6 pt-12 pb-16">
+  <section class="container px-6 pt-12 pb-8">
     <h1 class="mx-auto max-w-4xl text-5xl text-center leading-snug font-bold text-shadow">
       <%#= "Great apps need great components. Learn how to make them in SwiftUI and React." %>
       <%= "Great apps need great components. Learn by making in SwiftUI or React." %>
@@ -11,9 +11,23 @@
     <p class="mx-auto py-2 max-w-4xl text-xl text-center">
       Topics include:
       <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
-        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-red-500 hover:bg-red-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-indigo-500 hover:bg-indigo-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
       <% end  %>
     </p>
+    <div class="max-w-3xl mx-auto mt-8 flex flex-row justify-around">
+      <figure class="flex flex-col items-center">
+        <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white" width=92 height=92>
+        <figcaption class="text-xl font-bold">Watch video lessons</figcaption>
+      </figure>
+      <figure class="flex flex-col items-center">
+        <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/swift.svg?defaultFill=white" width=92 height=92>
+        <figcaption class="text-xl font-bold">Learn SwiftUI & Combine</figcaption>
+      </figure>
+      <figure class="flex flex-col items-center">
+        <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/react.svg?defaultFill=white" width=92 height=92>
+        <figcaption class="text-xl font-bold">Learn React</figcaption>
+      </figure>
+    </div>
   </section>
 </div>
 <% else %>
@@ -37,8 +51,8 @@
 </div>
 <% end %>
 
-<div class="py-4 bg-white">
-  <% if false do %>
+<div class="py-4 text-white bg-gray-800">
+  <% if true do %>
   <section class="mt-8 flex flex-col items-center justify-center">
     <div class="w-full max-w-md border border-gray-900 rounded overflow-hidden shadow-lg">
       <a href="/swiftui" class="block w-full px-8 py-4 font-bold bg-orange-800 text-white hover:bg-white hover:text-orange-600 hover:border-white shadow-xl hover:shadow-lg">
