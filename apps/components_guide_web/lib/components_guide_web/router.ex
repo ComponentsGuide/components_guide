@@ -19,6 +19,8 @@ defmodule ComponentsGuideWeb.Router do
 
     get "/", LandingController, :index
 
+    get "/links", LinksController, :index
+
     get "/swiftui", SwiftUIController, :index
     get "/react+typescript", ReactTypescriptController, :index
 

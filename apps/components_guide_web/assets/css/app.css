@@ -10,6 +10,18 @@ html {
     @apply bg-gray-900;
 }
 
+article a:hover {
+    text-decoration: underline;
+}
+
+.a\{font-bold\} a {
+    font-weight: bold;
+}
+
+input {
+    outline: none;
+}
+
 .container {
     @apply max-w-5xl mx-auto px-4;
 }

@@ -9,7 +9,7 @@
         <li><a href="/links" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:border-red-400"><%= "Links" %></a></li>
         <li><a href="/about" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:border-red-400"><%= "About" %></a></li>
         <li class="py-1">
-          <a href="/about" class="inline-block md:block px-4 py-2 md:py-2 font-bold text-white bg-red-700 rounded" style="background: linear-gradient(0deg, #E0003C 0%, #FF493F 50%, #FF584A 100%);">
+          <a href="/signin/github" class="inline-block md:block px-4 py-2 md:py-2 font-bold text-white bg-red-700 rounded" style="background: linear-gradient(0deg, #E0003C 0%, #FF493F 50%, #FF584A 100%);">
             <%= "Sign in with GitHub" %>
           </a>
         </li>

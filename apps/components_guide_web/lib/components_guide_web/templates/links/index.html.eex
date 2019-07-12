@@ -1,0 +1,91 @@
+<div class="text-white bg-purple-600" style2="background: linear-gradient(-60deg, rgba(206,60,0,1) 0%, rgba(255,0,147,1) 50%, rgba(255,187,50,1) 100%);">
+  <section class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <%= "Links to Talks, Articles & Courses" %>
+    </h1>
+    <div class="mt-8 px-4 text-center">
+      <input class="mb-4 md:mr-2 block w-full md:inline-block md:w-2/5 p-2 text-2xl leading-tight text-black rounded-lg md:mb-0 border-4 border-white focus:border-purple-300">
+      <a href="/signin/github" class="inline-block px-6 py-3 text-2xl leading-tight font-bold text-white bg-gray-900 rounded-lg">
+            <%= "Suggest Link" %>
+          </a>
+    </div>
+  </section>
+</div>
+
+<div class="bg-white">
+  <section class="container pt-8 text-2xl italic text-purple-600">
+    <p>Fave the links you recommend. Create playlists and share with others.</p>
+  </section>
+
+  <section class="container pt-8 pb-16 text-2xl">
+    <article class="mb-8 text-orange-700 a{font-bold}">
+      <h2 class="text-4xl leading-normal font-bold text-orange-800 border-b-4 border-orange-200">SwiftUI</h2>
+
+      <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
+      <ul class="list-disc">
+        <li><%= link "204: Introducing SwiftUI: Building Your First App", to: "https://developer.apple.com/videos/play/wwdc2019/204/" %></li>
+        <li><%= link "216: SwiftUI Essentials", to: "https://developer.apple.com/videos/play/wwdc2019/216/" %></li>
+        <li><%= link "226: Data Flow Through SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/226/" %></li>
+        <li><%= link "231: Integrating SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/231/" %></li>
+        <li><%= link "237: Building Custom Views with SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/237/" %></li>
+        <li><%= link "240: SwiftUI On All Devices", to: "https://developer.apple.com/videos/play/wwdc2019/240/" %></li>
+        <li><%= link "219: SwiftUI on watchOS", to: "https://developer.apple.com/videos/play/wwdc2019/219/" %></li>
+      </ul>
+
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Handy references</h3>
+      <ul class="list-disc">
+        <li><%= link "Gosh Darn SwiftUI: a curated list of questions and answers about SwiftUI", to: "https://goshdarnswiftui.com/" %></li>
+      </ul>
+    </article>
+
+    <article class="mb-8 text-red-700 a{font-bold}">
+      <h2 class="text-4xl leading-normal font-bold text-red-800 border-b-4 border-red-200">Combine</h2>
+      
+      <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
+      <ul class="list-disc">
+        <li><%= link "415: Modern Swift API Design", to: "https://developer.apple.com/videos/play/wwdc2019/415/" %></li>
+        <li><%= link "722: Introducing Combine", to: "https://developer.apple.com/videos/play/wwdc2019/722/" %></li>
+        <li><%= link "721: Combine in Practice", to: "https://developer.apple.com/videos/play/wwdc2019/721/" %></li>
+        <li><%= link "712: Advances in Networking, Part 1", to: "https://developer.apple.com/videos/play/wwdc2019/712/" %></li>
+      </ul>
+
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
+      <ul class="list-disc">
+        <li><%= link "Entwine: Testing tools and utilities for Apple's Combine framework.", to: "https://github.com/tcldr/Entwine" %></li>
+      </ul>
+    </article>
+
+    <article class="mb-8 text-blue-700 a{font-bold}">
+      <h2 class="text-4xl leading-normal font-bold text-blue-800 border-b-4 border-blue-200">React</h2>
+      
+      <h3 class="mt-4 mb-2 text-2xl leading-normal italic">Overreacted by Dan Abramov</h3>
+      <ul class="list-disc">
+        <li><%= link "204: Introducing SwiftUI: Building Your First App", to: "https://developer.apple.com/videos/play/wwdc2019/204/" %></li>
+        <li><%= link "216: SwiftUI Essentials", to: "https://developer.apple.com/videos/play/wwdc2019/216/" %></li>
+        <li><%= link "226: Data Flow Through SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/226/" %></li>
+        <li><%= link "231: Integrating SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/231/" %></li>
+        <li><%= link "237: Building Custom Views with SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/237/" %></li>
+        <li><%= link "240: SwiftUI On All Devices", to: "https://developer.apple.com/videos/play/wwdc2019/240/" %></li>
+        <li><%= link "219: SwiftUI on watchOS", to: "https://developer.apple.com/videos/play/wwdc2019/219/" %></li>
+      </ul>
+
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
+      <ul class="list-disc">
+        <li><%= link "Entwine: Testing tools and utilities for Apple's Combine framework.", to: "https://github.com/tcldr/Entwine" %></li>
+      </ul>
+    </article>
+    
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">RxJS</h2>
+      <p>
+        What sort of components should be resuable? How granular should you go?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">TypeScript</h2>
+      <p>
+        What sort of components should be resuable? How granular should you go?
+      </p>
+    </article>
+  </section>
+</div>
