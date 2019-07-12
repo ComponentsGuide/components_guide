@@ -17,7 +17,7 @@ defmodule ComponentsGuideWeb.Router do
   scope "/", ComponentsGuideWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", LandingController, :index
 
     get "/swiftui", SwiftUIController, :index
     get "/react+typescript", ReactTypescriptController, :index

@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.PageController do
+defmodule ComponentsGuideWeb.LandingController do
   use ComponentsGuideWeb, :controller
 
   def index(conn, _params) do
