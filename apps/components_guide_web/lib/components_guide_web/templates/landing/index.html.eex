@@ -51,35 +51,20 @@
 </div>
 <% end %>
 
-<div class="py-4 text-white bg-gray-800">
-  <% if true do %>
-  <section class="mt-8 flex flex-col items-center justify-center">
-    <div class="w-full max-w-md border border-gray-900 rounded overflow-hidden shadow-lg">
-      <a href="/swiftui" class="block w-full px-8 py-4 font-bold bg-orange-800 text-white hover:bg-white hover:text-orange-600 hover:border-white shadow-xl hover:shadow-lg">
-        <span class="text-3xl"><%= "Learn SwiftUI" %></span>
-        <br>
-        The future of UI from Apple
-      </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-red-800 text-white border-t border-red-900 hover:bg-white hover:text-red-600 shadow-xl hover:shadow-lg">
-        <span class="text-3xl"><%= "Learn Combine" %></span>
-        <br>
-        Swift async data flow refined
-      </a>
-    </div>
-  </section>
-  <% end %>
-
-  <section class="mt-8">
+<div class="text-white bg-gray-800">
+  <section class="pt-20">
     <header class="mb-8 mx-auto max-w-4xl text-center">
-      <h2 class="text-4xl font-bold">Learn to make modern iOS and macOS apps using components, async data flow.</h2>
+      <h2 class="text-4xl font-bold leading-snug">
+        Make modern iOS and macOS apps using reusable components, async data flow.
+      </h2>
     </header>
-    <div class="w-full max-w-md mx-auto border border-gray-300 rounded overflow-hidden shadow-lg">
-      <a href="/swiftui" class="block w-full px-8 py-4 font-bold bg-orange-100 text-orange-700 hover:bg-white hover:text-orange-600 hover:border-white shadow-xl hover:shadow-lg">
+    <div class="w-full max-w-md mx-auto rounded overflow-hidden shadow-lg">
+      <a href="/swiftui" class="block w-full px-8 py-4 font-bold bg-orange-100 text-orange-600 border-l-4 border-orange-500 hover:bg-orange-200 hover:text-orange-700 shadow-xl">
         <span class="text-3xl"><%= "Learn SwiftUI" %></span>
         <br>
         The future of UI from Apple
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-red-100 text-red-700 border-t border-red-200 hover:bg-white hover:text-red-600 shadow-xl hover:shadow-lg">
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-red-100 text-red-600 border-t border-l-4 border-red-500 hover:bg-red-200 hover:text-red-700 shadow-xl">
         <span class="text-3xl"><%= "Learn Combine" %></span>
         <br>
         Swift async data flow refined
@@ -87,22 +72,22 @@
     </div>
   </section>
 
-  <section class="m-16">
+  <section class="pt-20 pb-16">
     <header class="mb-8 mx-auto max-w-4xl text-center">
       <h2 class="text-4xl font-bold">Learn to make modern web apps using components, hooks, async data flow.</h2>
     </header>
-    <div class="w-full max-w-md mx-auto border border-gray-300 rounded overflow-hidden shadow-lg">
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-blue-100 text-blue-700 hover:bg-white hover:text-blue-600 shadow-xl hover:shadow-lg">
+    <div class="w-full max-w-md mx-auto rounded overflow-hidden shadow-lg">
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-blue-100 text-blue-600  border-l-4 border-blue-500 hover:bg-blue-200 hover:text-blue-700 shadow-xl hover:shadow-lg">
         <span class="text-3xl"><%= "Learn React" %></span>
         <br>
         The venerable component-first library
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-indigo-100 text-indigo-700 border-t border-indigo-200 hover:bg-white hover:text-indigo-600 shadow-xl hover:shadow-lg">
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-indigo-100 text-indigo-600 border-t border-l-4 border-indigo-500 hover:bg-indigo-200 hover:text-indigo-700 shadow-xl hover:shadow-lg">
         <span class="text-3xl"><%= "Learn TypeScript" %></span>
         <br>
         Safer, more expressive code
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-700 border-t border-pink-200 hover:bg-white hover:text-pink-600 shadow-xl hover:shadow-lg">
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg">
         <span class="text-3xl"><%= "Learn RxJS" %></span>
         <br>
         Reusable, testable data models
