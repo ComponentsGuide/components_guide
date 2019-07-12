@@ -22,19 +22,24 @@
       <h2 class="text-4xl leading-normal font-bold text-orange-800 border-b-4 border-orange-200">SwiftUI</h2>
 
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
-      <ul class="list-disc">
+      <ul class="list-disc nums-tabular">
         <li><%= link "204: Introducing SwiftUI: Building Your First App", to: "https://developer.apple.com/videos/play/wwdc2019/204/" %></li>
         <li><%= link "216: SwiftUI Essentials", to: "https://developer.apple.com/videos/play/wwdc2019/216/" %></li>
         <li><%= link "226: Data Flow Through SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/226/" %></li>
         <li><%= link "231: Integrating SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/231/" %></li>
+        <li><%= link "238: Accessibility in SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/238/" %></li>
         <li><%= link "237: Building Custom Views with SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/237/" %></li>
         <li><%= link "240: SwiftUI On All Devices", to: "https://developer.apple.com/videos/play/wwdc2019/240/" %></li>
         <li><%= link "219: SwiftUI on watchOS", to: "https://developer.apple.com/videos/play/wwdc2019/219/" %></li>
+        <li><%= link "233: Mastering Xcode Previews", to: "https://developer.apple.com/videos/play/wwdc2019/219/" %></li>
       </ul>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Handy references</h3>
       <ul class="list-disc">
         <li><%= link "Gosh Darn SwiftUI: a curated list of questions and answers about SwiftUI", to: "https://goshdarnswiftui.com/" %></li>
+        <li><%= link "About SwiftUI: Gathering all info published, both by Apple and by others, about new framework SwiftUI", to: "https://github.com/Juanpe/About-SwiftUI" %></li>
+        <li><%= link "SwiftUI by Example: free quick start tutorials for Swift developers", to: "https://www.hackingwithswift.com/quick-start/swiftui" %></li>
+        <li><%= link "SwiftUI Hub", to: "https://swiftuihub.com/" %></li>
       </ul>
     </article>
 
@@ -42,7 +47,7 @@
       <h2 class="text-4xl leading-normal font-bold text-red-800 border-b-4 border-red-200">Combine</h2>
       
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
-      <ul class="list-disc">
+      <ul class="list-disc nums-tabular">
         <li><%= link "415: Modern Swift API Design", to: "https://developer.apple.com/videos/play/wwdc2019/415/" %></li>
         <li><%= link "722: Introducing Combine", to: "https://developer.apple.com/videos/play/wwdc2019/722/" %></li>
         <li><%= link "721: Combine in Practice", to: "https://developer.apple.com/videos/play/wwdc2019/721/" %></li>
@@ -60,32 +65,56 @@
       
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">Overreacted by Dan Abramov</h3>
       <ul class="list-disc">
-        <li><%= link "204: Introducing SwiftUI: Building Your First App", to: "https://developer.apple.com/videos/play/wwdc2019/204/" %></li>
-        <li><%= link "216: SwiftUI Essentials", to: "https://developer.apple.com/videos/play/wwdc2019/216/" %></li>
-        <li><%= link "226: Data Flow Through SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/226/" %></li>
-        <li><%= link "231: Integrating SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/231/" %></li>
-        <li><%= link "237: Building Custom Views with SwiftUI", to: "https://developer.apple.com/videos/play/wwdc2019/237/" %></li>
-        <li><%= link "240: SwiftUI On All Devices", to: "https://developer.apple.com/videos/play/wwdc2019/240/" %></li>
-        <li><%= link "219: SwiftUI on watchOS", to: "https://developer.apple.com/videos/play/wwdc2019/219/" %></li>
+        <li><%= link "The Elements of UI Engineering", to: "https://overreacted.io/the-elements-of-ui-engineering/" %></li>
+        <li><%= link "Writing Resilient Components", to: "https://overreacted.io/writing-resilient-components/" %></li>
+        <li><%= link "Making setInterval Declarative with React Hooks", to: "https://overreacted.io/making-setinterval-declarative-with-react-hooks/" %></li>
+        <li><%= link "React as a UI Runtime", to: "https://overreacted.io/react-as-a-ui-runtime/" %></li>
       </ul>
 
-      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Official Docs</h3>
       <ul class="list-disc">
-        <li><%= link "Entwine: Testing tools and utilities for Apple's Combine framework.", to: "https://github.com/tcldr/Entwine" %></li>
+        <li><%= link "Thinking in React", to: "https://reactjs.org/docs/thinking-in-react.html" %></li>
+        <li><%= link "Introducing Hooks", to: "https://reactjs.org/docs/hooks-intro.html" %></li>
+        <li><%= link "Hooks API Reference", to: "https://reactjs.org/docs/hooks-reference.html" %></li>
+        <li><%= link "Hooks FAQ", to: "https://reactjs.org/docs/hooks-faq.html" %></li>
+        <li><%= link "Context", to: "https://reactjs.org/docs/context.html" %></li>
+        <li><%= link "Forms", to: "https://reactjs.org/docs/forms.html" %></li>
+        <li><%= link "Accessibility", to: "https://reactjs.org/docs/accessibility.html" %></li>
+        <li><%= link "Error Boundaries", to: "https://reactjs.org/docs/error-boundaries.html" %></li>
+        <li><%= link "Uncontrolled Components", to: "https://reactjs.org/docs/uncontrolled-components.html" %></li>
+        <li><%= link "Reconciliation", to: "https://reactjs.org/docs/reconciliation.html" %></li>
       </ul>
     </article>
-    
-    <article class="mb-8">
-      <h2 class="mb-2 text-4xl leading-normal text-teal-800">RxJS</h2>
-      <p>
-        What sort of components should be resuable? How granular should you go?
-      </p>
+
+    <article class="mb-8 text-pink-700 a{font-bold}">
+      <h2 class="text-4xl leading-normal font-bold text-pink-800 border-b-4 border-pink-200">RxJS</h2>
+
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Official Docs</h3>
+      <ul class="list-disc">
+        <li><%= link "Overview", to: "https://rxjs.dev/guide/overview" %></li>
+        <li><%= link "API Reference", to: "https://rxjs.dev/api" %></li>
+        <li><%= link "Marble Testing", to: "https://rxjs.dev/guide/testing/marble-testing" %></li>
+      </ul>
+
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Handy references</h3>
+      <ul class="list-disc">
+        <li><%= link "The introduction to Reactive Programming you've been missing", to: "https://gist.github.com/staltz/868e7e9bc2a7b8c1f754" %></li>
+        <li><%= link "Introduction to Reactive Programming Videos", to: "https://egghead.io/courses/introduction-to-reactive-programming" %></li>
+        <li><%= link "Rx Visualizer", to: "https://rxviz.com/" %></li>
+        <li><%= link "Thinking reactive with the SIP principle", to: "https://blog.strongbrew.io/the-sip-principle/" %></li>
+        <li><%= link "LearnRxJS.io", to: "https://www.learnrxjs.io/" %></li>
+      </ul>
     </article>
-    <article class="mb-8">
-      <h2 class="mb-2 text-4xl leading-normal text-teal-800">TypeScript</h2>
-      <p>
-        What sort of components should be resuable? How granular should you go?
-      </p>
+
+    <article class="mb-8 text-indigo-700 a{font-bold}">
+      <h2 class="text-4xl leading-normal font-bold text-indigo-800 border-b-4 border-indigo-200">TypeScript</h2>
+
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Handy references</h3>
+      <ul class="list-disc">
+        <li><%= link "TypeScript in 5 minutes", to: "https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html" %></li>
+        <li><%= link "The TypeScript Handbook", to: "https://www.typescriptlang.org/docs/handbook/basic-types.html" %></li>
+        <li><%= link "TypeScript Deep Dive", to: "https://basarat.gitbooks.io/typescript/" %></li>
+      </ul>
     </article>
   </section>
 </div>
