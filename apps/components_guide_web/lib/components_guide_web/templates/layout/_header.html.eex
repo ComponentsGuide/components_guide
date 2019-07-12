@@ -1,0 +1,20 @@
+<header class="bg-gray-900 text-white">
+  <section class="container flex flex-row items-center">
+    <a href="/" class="block py-4 text-base font-bold text-red-100 tracking-wide">
+      <span class="py-1 border-b-4 border-red-400">Components.Guide</span>
+    </a>
+    <nav role="navigation" class="flex-grow px-16 text-lg">
+      <ul class="flex flex-row justify-around">
+        <li><a href="/learn-by-building" class="block py-4 font-bold"><%= "Learn by Building" %></a></li>
+        <li><a href="/links" class="block py-4 font-bold"><%= "Recommended Links" %></a></li>
+        <li><a href="/about" class="block py-4 font-bold"><%= "Who?" %></a></li>
+        <% if false do %>
+          <li><a href="/swiftui" class="block py-4 font-bold"><%= "SwiftUI + Combine" %></a></li>
+          <li><a href="/rxjs" class="block py-4 font-bold"><%= "React + TS + RxJS" %></a></li>
+          <% if false do %><li><a href="/react+typescript" class="block py-4 font-bold"><%= "React + TypeScript" %></a></li><% end %>
+          <li><a href="/css+typescript" class="block py-4 font-bold"><%= "CSS + TypeScript" %></a></li>
+        <% end %>
+      </ul>
+    </nav>
+  </section>
+</header>
