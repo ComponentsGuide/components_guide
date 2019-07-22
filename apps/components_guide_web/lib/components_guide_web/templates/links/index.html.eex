@@ -56,8 +56,9 @@
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
       <ul class="list-disc">
-        <li><%= link "Joe Heck’s in-depth Combine notes.", to: "https://heckj.github.io/swiftui-notes/" %></li>
-        <li><%= link "Entwine: Testing tools and utilities for Apple's Combine framework.", to: "https://github.com/tcldr/Entwine" %></li>
+        <li><%= link "Joe Heck’s in-depth Combine notes", to: "https://heckj.github.io/swiftui-notes/" %></li>
+        <li><%= link "RxSwift to Combine Cheat Sheet", to: "https://github.com/freak4pc/rxswift-to-combine-cheatsheet" %></li>
+        <li><%= link "Entwine: Testing tools and utilities for Apple's Combine framework", to: "https://github.com/tcldr/Entwine" %></li>
       </ul>
     </article>
 
