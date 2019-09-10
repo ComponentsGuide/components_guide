@@ -54,6 +54,12 @@
         <li><%= link "712: Advances in Networking, Part 1", to: "https://developer.apple.com/videos/play/wwdc2019/712/" %></li>
       </ul>
 
+      <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Articles</h3>
+      <ul class="list-disc">
+        <li><%= link "22 short tests of Combine – Part 1: Protocols", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-1.html" %></li>
+        <li><%= link "22 short tests of Combine – Part 2: Sharing", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-2.html" %></li>
+      </ul>
+
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
       <ul class="list-disc">
         <li><%= link "Joe Heck’s in-depth Combine notes", to: "https://heckj.github.io/swiftui-notes/" %></li>
