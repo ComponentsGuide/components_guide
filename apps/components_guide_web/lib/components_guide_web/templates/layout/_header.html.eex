@@ -1,7 +1,7 @@
 <header class="bg-gray-900 text-white">
   <section class="container flex flex-col md:flex-row items-center">
-    <a href="/" class="block py-4 text-base md:text-xl md:text-base font-bold text-red-100 tracking-wide">
-      <span class="py-1 border-b-4 border-red-400">Components.Guide</span>
+    <a href="/" class="block py-4 text-right text-base font-bold italic uppercase text-red-100 leading-tight tracking-wide">
+      <span>Components <br>·Guide</span>
     </a>
     <nav role="navigation" class="flex-grow sm:pl-8 lg:px-16 text-base md:text-xl">
       <ul class="flex flex-col md:flex-row justify-around pt-2 pb-2">
