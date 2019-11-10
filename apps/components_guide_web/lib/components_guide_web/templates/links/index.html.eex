@@ -18,7 +18,7 @@
   </section>
 
   <section class="container pt-8 pb-16 text-2xl">
-    <article class="mb-8 text-orange-700 a{font-bold}">
+    <%= article class: "text-orange-700" do %>
       <h2 class="text-4xl leading-normal font-bold text-orange-800 border-b-4 border-orange-200">SwiftUI</h2>
 
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
@@ -41,34 +41,41 @@
         <li><%= link "SwiftUI by Example: free quick start tutorials for Swift developers", to: "https://www.hackingwithswift.com/quick-start/swiftui" %></li>
         <li><%= link "SwiftUI Hub", to: "https://swiftuihub.com/" %></li>
       </ul>
-    </article>
+    <% end %>
 
-    <article class="mb-8 text-red-700 a{font-bold}">
+    <%= article class: "text-red-700" do %>
       <h2 class="text-4xl leading-normal font-bold text-red-800 border-b-4 border-red-200">Combine</h2>
       
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
-      <ul class="list-disc nums-tabular">
-        <li><%= link "415: Modern Swift API Design", to: "https://developer.apple.com/videos/play/wwdc2019/415/" %></li>
-        <li><%= link "722: Introducing Combine", to: "https://developer.apple.com/videos/play/wwdc2019/722/" %></li>
-        <li><%= link "721: Combine in Practice", to: "https://developer.apple.com/videos/play/wwdc2019/721/" %></li>
-        <li><%= link "712: Advances in Networking, Part 1", to: "https://developer.apple.com/videos/play/wwdc2019/712/" %></li>
-      </ul>
+      <%= list [
+        link(span("415: Modern Swift API Design", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/415/"),
+        link(span("722: Introducing Combine", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/722/"),
+        link(span("721: Combine in Practice", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/721/"),
+        link(span("712: Advances in Networking, Part 1", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/712/"),
+      ] %>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Articles</h3>
-      <ul class="list-disc">
-        <li><%= link "22 short tests of Combine – Part 1: Protocols", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-1.html" %></li>
-        <li><%= link "22 short tests of Combine – Part 2: Sharing", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-2.html" %></li>
-      </ul>
+      <%= list [
+        link("22 short tests of Combine – Part 1: Protocols", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-1.html"),
+        link("22 short tests of Combine – Part 2: Sharing", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-2.html"),
+        link("22 short tests of Combine – Part 3: Asynchrony", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-3.html"),
+      ] %>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
-      <ul class="list-disc">
-        <li><%= link "Joe Heck’s in-depth Combine notes", to: "https://heckj.github.io/swiftui-notes/" %></li>
-        <li><%= link "RxSwift to Combine Cheat Sheet", to: "https://github.com/freak4pc/rxswift-to-combine-cheatsheet" %></li>
-        <li><%= link "Entwine: Testing tools and utilities for Apple's Combine framework", to: "https://github.com/tcldr/Entwine" %></li>
-      </ul>
-    </article>
+      <%= list [
+        {
+          link("Joe Heck’s in-depth notes", to: "https://heckj.github.io/swiftui-notes/"),
+          [
+            link("Tests for Publishers & Subscribers", to: "https://github.com/heckj/swiftui-notes/tree/master/UsingCombineTests")
+          ]
+        },
+        link("RxSwift to Combine cheat sheet", to: "https://github.com/freak4pc/rxswift-to-combine-cheatsheet"),
+        link("Entwine: Testing tools and utilities", to: "https://github.com/tcldr/Entwine"),
+      ] %>
 
-    <article class="mb-8 text-blue-700 a{font-bold}">
+    <% end %>
+
+    <%= article class: "text-blue-700" do %>
       <h2 class="text-4xl leading-normal font-bold text-blue-800 border-b-4 border-blue-200">React</h2>
       
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">Overreacted by Dan Abramov</h3>
@@ -92,9 +99,9 @@
         <li><%= link "Uncontrolled Components", to: "https://reactjs.org/docs/uncontrolled-components.html" %></li>
         <li><%= link "Reconciliation", to: "https://reactjs.org/docs/reconciliation.html" %></li>
       </ul>
-    </article>
+    <% end %>
 
-    <article class="mb-8 text-pink-700 a{font-bold}">
+    <%= article class: "text-pink-700" do %>
       <h2 class="text-4xl leading-normal font-bold text-pink-800 border-b-4 border-pink-200">RxJS</h2>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Official Docs</h3>
@@ -112,9 +119,9 @@
         <li><%= link "Thinking reactive with the SIP principle", to: "https://blog.strongbrew.io/the-sip-principle/" %></li>
         <li><%= link "LearnRxJS.io", to: "https://www.learnrxjs.io/" %></li>
       </ul>
-    </article>
+    <% end %>
 
-    <article class="mb-8 text-indigo-700 a{font-bold}">
+    <%= article class: "text-indigo-700" do %>
       <h2 class="text-4xl leading-normal font-bold text-indigo-800 border-b-4 border-indigo-200">TypeScript</h2>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Handy references</h3>
@@ -123,6 +130,6 @@
         <li><%= link "The TypeScript Handbook", to: "https://www.typescriptlang.org/docs/handbook/basic-types.html" %></li>
         <li><%= link "TypeScript Deep Dive", to: "https://basarat.gitbooks.io/typescript/" %></li>
       </ul>
-    </article>
+    <% end %>
   </section>
 </div>

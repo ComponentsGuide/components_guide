@@ -34,4 +34,11 @@ input {
     text-shadow: 0.0625em 0.0625em 0.125em rgba(0,0,0,0.25);
 }
 
+ul:not([class]) {
+    @apply list-disc;
+}
+ul:not([class]) > li > ul:not([class]) {
+    @apply pl-8;
+}
+
 /* @import "./phoenix.css"; */
