@@ -1,18 +1,20 @@
 <header class="bg-gray-900 text-white">
   <section class="container flex flex-col md:flex-row items-center">
-    <a href="/" class="block py-4 text-right text-base font-bold italic uppercase text-red-100 leading-tight tracking-wide">
+    <a href="/" class="block px-3 py-4 text-right text-base font-bold italic uppercase text-red-100 leading-tight tracking-wide hover:bg-gray-800">
       <span>Components <br>·Guide</span>
     </a>
-    <nav role="navigation" class="flex-grow sm:pl-8 lg:px-16 text-base md:text-xl">
+    <nav role="navigation" class="flex-grow sm:pl-8 lg:px-16 text-base md:text-base">
       <ul class="flex flex-col md:flex-row justify-around pt-2 pb-2">
-        <li><a href="/lessons" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:border-red-400"><%= "Lessons" %></a></li>
-        <li><a href="/links" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:border-red-400"><%= "Links" %></a></li>
-        <li><a href="/about" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:border-red-400"><%= "About" %></a></li>
+        <li><a href="/react+typescript" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "React + TypeScript" %></a></li>
+        <li><a href="/swiftui" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "SwiftUI + Combine" %></a></li>
+        <li><a href="/links" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "Community Resources" %></a></li>
+        <% if false do %>
         <li class="py-1">
           <a href="/signin/github" class="inline-block md:block px-4 py-2 md:py-2 font-bold text-white bg-red-700 rounded" style="background: linear-gradient(0deg, #E0003C 0%, #FF493F 50%, #FF584A 100%);">
             <%= "Sign in with GitHub" %>
           </a>
         </li>
+        <% end %>
         <% if false do %>
           <li><a href="/swiftui" class="block py-4 font-bold"><%= "SwiftUI + Combine" %></a></li>
           <li><a href="/rxjs" class="block py-4 font-bold"><%= "React + TS + RxJS" %></a></li>

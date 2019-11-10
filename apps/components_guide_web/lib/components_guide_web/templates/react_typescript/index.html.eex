@@ -1,4 +1,4 @@
-<div class="text-white" style="background: linear-gradient(-60deg, rgba(206,60,0,1) 0%, rgba(255,0,147,1) 50%, rgba(255,187,50,1) 100%);">
+<div class="text-white" style="background: linear-gradient(-60deg, rgba(206,60,0,1) 0%, rgba(255,40,147,1) 50%, rgba(255,187,50,1) 100%);">
   <section class="container px-6 pt-12 pb-12">
     <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
       <div class="pb-4 flex items-center justify-center">
@@ -6,7 +6,7 @@
         <span class="mr-2 text-3xl">❤️</span>
         <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@02e637e09b55966e802dfe0bc93595594e0214bb/logos/typescript-icon.svg" %>" alt="TypeScript logo" width=96 height=96>
       </div>
-      <%= "Learn React, RxJS & TypeScript" %>
+      <%= "Learn React & TypeScript" %>
     </h1>
     <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
       <%= "Express clear components and data flow more robustly with the live feedback of TypeScript." %>

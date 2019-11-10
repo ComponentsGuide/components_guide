@@ -1,7 +1,7 @@
 <div class="text-white bg-purple-600" style2="background: linear-gradient(-60deg, rgba(206,60,0,1) 0%, rgba(255,0,147,1) 50%, rgba(255,187,50,1) 100%);">
   <section class="container px-6 pt-12 pb-12">
     <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
-      <%= "Links to Talks, Articles & Courses" %>
+      <%= "Links to Articles, Talks & Courses" %>
     </h1>
     <div class="mt-8 px-4 text-center">
       <input class="mb-4 md:mr-2 block w-full md:inline-block md:w-2/5 p-2 text-2xl leading-tight text-black rounded-lg md:mb-0 border-4 border-white focus:border-purple-300">
@@ -14,7 +14,7 @@
 
 <div class="bg-white">
   <section class="container pt-8 text-2xl italic text-purple-600">
-    <p>Fave the links you recommend. Create playlists and share with others.</p>
+    <p>Coming soon: Fave the links you recommend. Create playlists and share with others.</p>
   </section>
 
   <section class="container pt-8 pb-16 text-2xl">
