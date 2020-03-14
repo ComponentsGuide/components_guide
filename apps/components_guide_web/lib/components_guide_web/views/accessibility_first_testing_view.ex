@@ -11,26 +11,6 @@ defmodule ComponentsGuideWeb.AccessibilityFirstTestingView do
     ])
   end
 
-  # def_E :topic_article, quote(do: ~E"""
-  # <article class="mb-8">
-  #   <h2 class="mb-2 text-4xl leading-normal text-teal-800"><%= @title %></h2>
-  #   <%= block[:do] %>
-  # </article>
-  # """)
-
-  # EEx.function_from_string(
-  #   :def,
-  #   :topic_article,
-  #   """
-  #   <article class="mb-8">
-  #     <h2 class="mb-2 text-4xl leading-normal text-teal-800"><%= @title %></h2>
-  #     <%= block[:do] %>
-  #   </article>
-  #   """,
-  #   [:assigns, :block],
-  #   engine: Phoenix.HTML.Engine
-  # )
-
   def topic_article(assigns, block) do
     ~E"""
     <article class="mb-8">
@@ -39,13 +19,4 @@ defmodule ComponentsGuideWeb.AccessibilityFirstTestingView do
     </article>
     """
   end
-
-  # def topic_article(title, content_html) do
-  #   <article class="mb-8">
-  #     <h2 class="mb-2 text-4xl leading-normal text-teal-800">Atomic design</h2>
-  #     <p>
-  #       Learn how to name components. Apply the single responsibility principle. Find the indivisible component units, and compose them together into larger molecules.
-  #     </p>
-  #   </article>
-  # end
 end
