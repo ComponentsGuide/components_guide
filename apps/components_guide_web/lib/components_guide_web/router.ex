@@ -21,6 +21,7 @@ defmodule ComponentsGuideWeb.Router do
 
     get "/links", LinksController, :index
 
+    get "/accessibility-first-testing", AccessibilityFirstTestingController, :index
     get "/swiftui", SwiftUIController, :index
     get "/react+typescript", ReactTypescriptController, :index
 

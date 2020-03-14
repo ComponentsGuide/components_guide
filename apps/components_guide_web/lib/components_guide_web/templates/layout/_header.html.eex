@@ -5,9 +5,10 @@
     </a>
     <nav role="navigation" class="flex-grow sm:pl-8 lg:px-16 text-base md:text-base">
       <ul class="flex flex-col md:flex-row justify-around pt-2 pb-2">
+        <li><a href="/accessibility-first-testing" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "A11Y-First Testing" %></a></li>
         <li><a href="/react+typescript" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "React + TypeScript" %></a></li>
         <li><a href="/swiftui" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "SwiftUI + Combine" %></a></li>
-        <li><a href="/links" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "Community Resources" %></a></li>
+        <li><a href="/links" class="block px-4 py-2 md:py-3 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= "Other Resources" %></a></li>
         <% if false do %>
         <li class="py-1">
           <a href="/signin/github" class="inline-block md:block px-4 py-2 md:py-2 font-bold text-white bg-red-700 rounded" style="background: linear-gradient(0deg, #E0003C 0%, #FF493F 50%, #FF584A 100%);">

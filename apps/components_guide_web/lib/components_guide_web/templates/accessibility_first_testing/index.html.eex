@@ -1,0 +1,52 @@
+<%
+topics = [
+  "Landmarks",
+  "Roles",
+  "Widgets",
+  "States",
+  "Forms",
+  "Tables",
+  "ARIA",
+  "Keyboard Navigation",
+  "TDD",
+  "BDD",
+  "Integration Testing",
+  "Jest",
+  "Atomic Design",
+]
+%>
+
+<header class="text-white" style="background: <%= header_background %>;">
+  <section class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <%= "🥇 Accessibility-First Testing" %>
+    </h1>
+    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
+      <%#= "Write simpler, more robust tests using accessibility affordances." %>
+      <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
+    </p>
+    <p class="py-2 text-xl text-center">
+      Topics include:
+      <%= for topic <- topics do %>
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white text-blue-600 hover:bg-blue-500 hover:text-white rounded shadow-xl"><%= topic %></a>  
+      <% end  %>
+    </p>
+  </section>
+</header>
+
+<div class="bg-white">
+  <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
+    <%= topic_article(title: "Landmarks and roles") do %>
+      <p>Define what your elements are using a clear standard. Let your users quickly jump around the key parts of your page (better UX), and leverage those in your tests (better DX).</p>
+    <% end %>
+    <%= topic_article(title: "Widgets, Attributes & States") do %>
+      <p>Learn the standards for interactive widgets usable by touch, mouse, and keyboard. Let users know which page is current or which sub-control is selected.</p>
+    <% end %>
+    <%= topic_article(title: "BDD with Jest & React Testing Library") do %>
+      <p>Learn a consistent pattern to write your component tests in Jest. Use @testing-library to find elements in a realistic way. Describe your contexts and scenarios with plain language.</p>
+    <% end %>
+    <%= topic_article(title: "Atomic Design") do %>
+      <p>Organize your components into distict folders. Break them up at the right level, then compose them. Test them differently. Incorporate ARIA roles into the atomic design approach.</p>
+    <% end %>
+  <% end %>
+</div>
