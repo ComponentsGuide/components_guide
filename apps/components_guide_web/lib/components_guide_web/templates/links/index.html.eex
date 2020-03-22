@@ -53,11 +53,11 @@
         link(span("722: Introducing Combine", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/722/"),
         link(span("721: Combine in Practice", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/721/"),
         link(span("712: Advances in Networking, Part 1", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/712/"),
-        link(span("Understanding Combine by Matt Neuberg", []), to: "https://www.apeth.com/UnderstandingCombine/toc.html"),
       ] %>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Articles</h3>
       <%= list [
+        link(span("Understanding Combine by Matt Neuberg", []), to: "https://www.apeth.com/UnderstandingCombine/toc.html"),
         link("22 short tests of Combine – Part 1: Protocols", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-1.html"),
         link("22 short tests of Combine – Part 2: Sharing", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-2.html"),
         link("22 short tests of Combine – Part 3: Asynchrony", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-3.html"),
