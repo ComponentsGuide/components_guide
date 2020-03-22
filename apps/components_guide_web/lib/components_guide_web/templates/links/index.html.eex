@@ -53,7 +53,7 @@
         link(span("722: Introducing Combine", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/722/"),
         link(span("721: Combine in Practice", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/721/"),
         link(span("712: Advances in Networking, Part 1", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/712/"),
-        link(span("Understanding Combine by Matt Neuberg"), to: "https://www.apeth.com/UnderstandingCombine/toc.html"),
+        link(span("Understanding Combine by Matt Neuberg", []), to: "https://www.apeth.com/UnderstandingCombine/toc.html"),
       ] %>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Articles</h3>
