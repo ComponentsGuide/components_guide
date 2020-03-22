@@ -36,6 +36,7 @@
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Handy references</h3>
       <ul class="list-disc">
+        <li><%= link "Thinking in SwiftUI by Chris Eidhof & Florian Kugler", to: "https://www.objc.io/books/thinking-in-swiftui/" %></li>
         <li><%= link "Gosh Darn SwiftUI: a curated list of questions and answers about SwiftUI", to: "https://goshdarnswiftui.com/" %></li>
         <li><%= link "About SwiftUI: Gathering all info published, both by Apple and by others, about new framework SwiftUI", to: "https://github.com/Juanpe/About-SwiftUI" %></li>
         <li><%= link "SwiftUI by Example: free quick start tutorials for Swift developers", to: "https://www.hackingwithswift.com/quick-start/swiftui" %></li>
