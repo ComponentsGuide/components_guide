@@ -15,7 +15,7 @@
       <%= render @view_module, @view_template, assigns %>
     </main>
     <footer class="container pt-4 pb-6 text-gray-600">
-      <p><small>Copyright © 2019 Patrick Smith</small></p>
+      <p><small>Copyright © 2020 Patrick Smith</small></p>
     </footer>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
