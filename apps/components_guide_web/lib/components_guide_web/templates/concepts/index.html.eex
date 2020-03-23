@@ -1,0 +1,58 @@
+<header class="text-white bg-purple-600" style="background: <%= header_background %>;">
+  <div class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <%= "Learn the concepts that are essential, no matter your stack." %>
+    </h1>
+    <p class="mt-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
+      <%= "Compare robust techniques across different technologies." %>
+    </p>
+  </div>
+</header>
+
+<div class="bg-white">
+  <section aria-label="Concepts" class="container pt-8 pb-16 text-2xl">
+    <%= topic_article title: "Naming" do %>
+      <ul class="list-disc nums-tabular">
+        <li>Semantics vs presentation
+        <li>Sharing a design language
+        <li>Structuring modules and files
+        <li>Better documentation with clearer concepts
+      </ul>
+    <% end %>
+
+    <%= topic_article title: "Testing" do %>
+      <ul class="list-disc nums-tabular">
+        <li>Isolated unit tests
+        <li>Integration tests
+        <li>Acceptance tests
+        <li>Accessibility tests
+      </ul>
+    <% end %>
+
+    <%= topic_article title: "Accessibility" do %>
+      <ul class="list-disc nums-tabular">
+        <li>In the browser
+        <li>On iOS & Mac
+        <li>HTML semantics
+      </ul>
+    <% end %>
+    
+    <%= topic_article title: "Performance" do %>
+      <ul class="list-disc nums-tabular">
+        <li>Inform first by measuring data
+        <li>Fast loading as a priority
+        <li>Using assets and performance budgets
+        <li>Reducing bloat and waste
+      </ul>
+    <% end %>
+  </section>
+</div>
+
+<section class="text-white bg-purple-600" style="background: <%= header_background %>;">
+  <div aria-label="Submit" class="container px-6 pt-12 pb-12 text-center">
+    <input class="mb-4 md:mr-2 block w-full md:inline-block md:w-2/5 p-2 text-2xl leading-tight text-black rounded-lg md:mb-0 border-4 border-white focus:border-purple-300">
+    <button href="/signin/github" class="inline-block px-6 py-3 text-2xl leading-tight font-bold text-white bg-gray-900 rounded-lg" style="background: rgba(0,0,0,0.5);">
+      <%= "Suggest Link" %>
+    </button>
+  </div>
+</section>

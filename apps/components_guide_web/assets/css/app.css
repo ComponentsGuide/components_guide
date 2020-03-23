@@ -41,4 +41,12 @@ ul:not([class]) > li > ul:not([class]) {
     @apply pl-8;
 }
 
+/* Navigation links */
+a[aria-current=page].hover\:bg-gray-800 {
+    @apply bg-gray-800;
+}
+a[aria-current=page][class*="hover\:border-"] {
+    border-color: currentColor;
+}
+
 /* @import "./phoenix.css"; */

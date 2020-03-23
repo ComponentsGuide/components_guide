@@ -8,14 +8,18 @@
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   </head>
   <body>
-    <%= render ComponentsGuideWeb.LayoutView, "_header.html" %>
+    <%= render ComponentsGuideWeb.LayoutView, "_header.html", path_info: @conn.path_info %>
     <main role="main">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= render @view_module, @view_template, assigns %>
     </main>
-    <footer class="container pt-4 pb-6 text-gray-600">
-      <p><small>Copyright © 2020 Patrick Smith</small></p>
+    <footer class="container pt-4 pb-6 text-gray-600 tracking-wide">
+      <p><small class="text-xs">Copyright © 2020 Patrick Smith</small></p>
+      <ul class="list-none text-xs mt-4 leading-loose">
+        <li><a href="https://github.com/ComponentsTV/components_guide">Source on GitHub</a>
+        <li><a href="https://github.com/ComponentsTV/components_guide/blob/master/LICENSE">License</a>
+      </ul>
     </footer>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
