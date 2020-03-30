@@ -23,7 +23,10 @@ defmodule ComponentsGuideWeb.Router do
 
     get "/links", LinksController, :index
 
-    get "/accessibility-first-testing", AccessibilityFirstTestingController, :index
+    resources "/accessibility-first-testing",
+              AccessibilityFirstTestingController,
+              only: [:index, :show]
+
     get "/swiftui", SwiftUIController, :index
     get "/react+typescript", ReactTypescriptController, :index
 

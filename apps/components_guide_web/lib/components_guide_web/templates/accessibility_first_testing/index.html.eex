@@ -26,9 +26,9 @@ topics = [
       <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
     </p>
     <p class="py-2 text-xl text-center">
-      Topics include:
+      <span>Topics include:</span>
       <%= for topic <- topics do %>
-        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white text-blue-600 hover:bg-blue-500 hover:text-white rounded shadow-xl"><%= topic %></a>  
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 text-white rounded shadow-xl" style="background-color: rgba(255,255,255,0.1)"><%= topic %></a>  
       <% end  %>
     </p>
   </section>

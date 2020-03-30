@@ -1,0 +1,23 @@
+<header class="text-white" style="background: <%= header_background %>;">
+  <section class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <%= "Roles Cheatsheet" %>
+    </h1>
+    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
+      <%= "Find the role and copy the tests for a particular UI widget." %>
+    </p>
+  </section>
+</header>
+
+<div class="bg-white">
+<section aria-label="Roles Cheatsheet" class="container pt-8 pb-16 text-2xl">
+
+<article>
+  <h2 class="mb-2 text-4xl leading-normal text-teal-800">Link</h2>
+  <pre><code>
+    getByRole('link')
+  </code></pre>
+</article>
+
+</section>
+</div>
