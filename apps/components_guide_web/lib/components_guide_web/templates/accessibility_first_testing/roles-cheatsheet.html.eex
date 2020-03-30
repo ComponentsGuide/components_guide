@@ -1,23 +1,83 @@
 <header class="text-white" style="background: <%= header_background %>;">
-  <section class="container px-6 pt-12 pb-12">
-    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+  <section class="container px-6 pt-6 pb-6">
+    <h1 class="mx-auto max-w-4xl text-4xl text-center font-bold leading-tight text-shadow">
       <%= "Roles Cheatsheet" %>
     </h1>
-    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
+    <p class="mt-4 mx-auto max-w-3xl text-3xl text-center leading-snug italic text-yellow-100 text-shadow">
       <%= "Find the role and copy the tests for a particular UI widget." %>
     </p>
   </section>
 </header>
 
-<div class="bg-white">
-<section aria-label="Roles Cheatsheet" class="container pt-8 pb-16 text-2xl">
+<div class="flex items-stretch bg-white">
+  <nav class="w-64 p-4 pl-6 text-xl bg-gray-100 border-r border-gray-200">
+    <ul class="fixed list-none leading-loose">
+      <li><%= link "Link", to: "#link" %>
+      <li><%= link "Button", to: "#button" %>
+      <li><%= link "Checkbox", to: "#checkbox" %>
+      <li><%= link "Radio", to: "#radio" %>
+      <li><%= link "Tab", to: "#tab" %>
+    </ul>
+  </nav>
+  <div class="ml-64">
+    <section aria-label="Roles Cheatsheet" class="container px-4 pt-8 pb-16 text-2xl">
 
-<article>
-  <h2 class="mb-2 text-4xl leading-normal text-teal-800">Link</h2>
-  <pre><code>
-    getByRole('link')
-  </code></pre>
-</article>
+      <article>
+        <h2 id="link" class="mb-2 text-4xl leading-normal text-teal-800">Link</h2>
+        <%=
+        """
+        getByRole('link', { name: 'About' });
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <a href="/about">About</a>
+        """ |> code_block(:html)
+        %>
+      </article>
 
-</section>
+      <article>
+        <h2 id="button" class="mb-2 text-4xl leading-normal text-teal-800">Button</h2>
+        <%=
+        """
+        getByRole('button', { name: 'Click me' });
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <button>Click me</button>
+        """ |> code_block(:html)
+        %>
+      </article>
+
+      <article>
+        <h2 id="checkbox" class="mb-2 text-4xl leading-normal text-teal-800">Checkbox</h2>
+        <%=
+        """
+        getByRole('button', { name: 'Click me' });
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <button>Click me</button>
+        """ |> code_block(:html)
+        %>
+      </article>
+
+      <article>
+        <h2 id="radio" class="mb-2 text-4xl leading-normal text-teal-800">Radio</h2>
+        <%=
+        """
+        getByRole('button', { name: 'Click me' });
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <button>Click me</button>
+        """ |> code_block(:html)
+        %>
+      </article>
+
+    </section>
+  </div>
 </div>

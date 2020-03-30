@@ -19,4 +19,10 @@ defmodule ComponentsGuideWeb.AccessibilityFirstTestingView do
     </article>
     """
   end
+
+  def code_block(code, type) do
+    ~E"""
+    <pre><code class='<%= "lang-#{type}" %>'><%= code %></code></pre>
+    """
+  end
 end
