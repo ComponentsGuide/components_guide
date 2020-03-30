@@ -8,6 +8,7 @@ defmodule ComponentsGuideWeb.LayoutView do
   @nav_links [
     {"By Concept", to: "/concepts"},
     {"By Technology", to: "/links"},
+    {"Patterns", to: "/patterns"},
     {"Live Feed", to: "/feed"},
     {"About", to: "/about"}
   ]
