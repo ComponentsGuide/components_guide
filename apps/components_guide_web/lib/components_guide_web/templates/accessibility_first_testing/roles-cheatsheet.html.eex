@@ -22,6 +22,8 @@
   <div class="ml-64">
     <section aria-label="Roles Cheatsheet" class="container px-4 pt-8 pb-16 text-2xl">
 
+      <%= link_to("List of roles", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques") %>
+
       <article>
         <h2 id="link" class="mb-2 text-4xl leading-normal text-teal-800">Link</h2>
         <%=
@@ -54,12 +56,12 @@
         <h2 id="checkbox" class="mb-2 text-4xl leading-normal text-teal-800">Checkbox</h2>
         <%=
         """
-        getByRole('button', { name: 'Click me' });
+        getByRole('checkbox', { name: 'Remember me' });
         """ |> code_block(:js)
         %>
         <%=
         """
-        <button>Click me</button>
+        <label><input type=checkbox> Remember me</label>
         """ |> code_block(:html)
         %>
       </article>
@@ -68,12 +70,14 @@
         <h2 id="radio" class="mb-2 text-4xl leading-normal text-teal-800">Radio</h2>
         <%=
         """
-        getByRole('button', { name: 'Click me' });
+        getByRole('radio', { name: 'Blue' });
         """ |> code_block(:js)
         %>
         <%=
         """
-        <button>Click me</button>
+        <label><input type=radio> Purple</label>
+        <label><input type=radio> Blue</label>
+        <label><input type=radio> Orange</label>
         """ |> code_block(:html)
         %>
       </article>
