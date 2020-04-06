@@ -1,5 +1,6 @@
 <%
   theme = %Theme{text_color: "blue"}
+  [h2, h3] = Theme.headings(theme)
 %>
 <header class="text-white" style="background: <%= header_background %>;">
   <section class="container px-6 pt-6 pb-6">
@@ -12,21 +13,24 @@
   </section>
 </header>
 
-<div class="flex items-stretch bg-white">
-  <nav class="w-64 p-4 pl-6 text-xl bg-gray-100 border-r border-gray-200">
-    <ul class="fixed list-none leading-loose">
+<div class="text-base lg:text-xl flex items-stretch bg-gray-900">
+  <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
+    <ul class="sticky top-0 p-4 pl-6 list-none leading-loose">
       <li><%= link "Link", to: "#link" %>
       <li><%= link "Button", to: "#button" %>
       <li><%= link "Checkbox", to: "#checkbox" %>
+      <li><%= link "Textbox", to: "#textbox" %>
       <li><%= link "Radio", to: "#radio" %>
-      <li><%= link "Tab", to: "#tab" %>
+      <li><%= link "Tabs", to: "#tabs" %>
       <li><%= link("List of roles 🔗", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques") %>
+      <li><%= link("Queries 🔗", to: "https://testing-library.com/docs/dom-testing-library/api-queries") %>
+      <li><%= link("Matchers 🔗", to: "https://github.com/testing-library/jest-dom") %>
     </ul>
   </nav>
-  <div class="ml-64">
-    <section aria-label="Roles Cheatsheet" class="px-4 pt-8 pb-16 text-xl">
+  <div class="mx-auto flex-shrink">
+    <section aria-label="Roles Cheatsheet" class="max-w-xl lg:max-w-3xl px-4 pt-8 pb-16 text-white">
       <article>
-        <%= theme |> Theme.h2("Link", id: "link") %>
+        <%= h2.("Link", id: "link") %>
 
         <%=
         """
@@ -41,42 +45,79 @@
       </article>
 
       <article>
-        <h2 id="button" class="mb-2 text-4xl leading-normal text-teal-800">Button</h2>
+        <%= h2.("Button", id: "button") %>
         <%=
-        """
-        getByRole('button', { name: 'Click me' });
-        """ |> code_block(:js)
+        [
+          """
+          const saveButton = getByRole('button', { name: 'Save' });
+          """ |> code_block(:js),
+          "<button>Save</button>" |> code_block(:html)
+        ]
         %>
+
+        <%= h3.("It is focused", []) %>
         <%=
-        """
-        <button>Click me</button>
-        """ |> code_block(:html)
+        [
+          """
+          expect(saveButton).toHaveFocus();
+          """ |> code_block(:js)
+        ]
+        %>
+
+        <%= h3.("It changes text to ‘Saving’", []) %>
+        <%=
+        [
+          "expect(saveButton).toHaveTextContent('Saving');" |> code_block(:js),
+          "<button>Saving</button>" |> code_block(:html)
+        ]
+        %>
+
+        <%= h3.("When save is clicked", []) %>
+        <%=
+        [
+          """
+          beforeEach(() => {
+            userEvent.click(saveButton);
+          });
+          """ |> code_block(:js)
+        ]
         %>
       </article>
 
       <article>
-        <h2 id="checkbox" class="mb-2 text-4xl leading-normal text-teal-800">Checkbox</h2>
-        <%=
-        """
-        getByRole('checkbox', { name: 'Remember me' });
+        <%= h2.("Checkbox", id: "checkbox") %>
 
-        const rememberMe = getByRole('checkbox', { name: 'Remember me' });
-        expect(rememberMe).toBeChecked();
-        """ |> code_block(:js)
+        <%=
+        [
+          """
+          const rememberMe = getByRole('checkbox', { name: 'Remember me' });
+          """ |> code_block(:js),
+          """
+          <label>
+            <input type="checkbox">
+            Remember me
+          </label>
+          """ |> code_block(:html)
+        ]
         %>
 
-        <h3>HTML example</h3>
+        <%= h3.("It is checked", []) %>
         <%=
-        """
-        <label><input type="checkbox">Remember me</label>
-        """ |> code_block(:html)
+        [
+          """
+          expect(rememberMe).toBeChecked();
+          """ |> code_block(:js),
+          """
+          <label><input type="checkbox">Remember me</label>
+          """ |> code_block(:html)
+        ]
         %>
       </article>
 
       <article>
-        <%= theme |> Theme.h2("Textbox", id: "textbox") %>
+        <%= h2.("Textbox", id: "textbox") %>
 
-        <h3>It has Bio text field</h3>
+        <%= h3.("It has Bio text field", []) %>
         <%=
         """
         getByLabelText('Bio');
@@ -84,23 +125,29 @@
         %>
         <%=
         """
-        <label>Bio<input></label>
+        <label>
+          Bio
+          <input>
+        </label>
         """ |> code_block(:html)
         %>
 
-        <h3>It has Bio text field</h3>
+        <%= h3.("It has Bio text field", []) %>
         <%=
-        """
-        getByLabelText('Bio');
-        """ |> code_block(:js)
-        %>
-        <%=
-        """
-        <label>Bio<textarea></textarea></label>
-        """ |> code_block(:html)
+        [
+          """
+          getByLabelText('Bio');
+          """ |> code_block(:js),
+          """
+          <label>
+            Bio
+            <textarea></textarea>
+          </label>
+          """ |> code_block(:html)
+        ]
         %>
 
-        <h3>It is valid</h3>
+        <%= h3.("It is valid", []) %>
         <%=
         """
         expect(getByLabelText('Bio')).toBeValid();
@@ -108,11 +155,14 @@
         %>
         <%=
         """
-        <label>Bio<textarea aria-invalid=false></textarea></label>
+        <label>
+          Bio
+          <input aria-invalid="false">
+        </label>
         """ |> code_block(:html)
         %>
 
-        <h3>It is invalid</h3>
+        <%= h3.("It is invalid", []) %>
         <%=
         """
         expect(getByLabelText('Bio')).toBeInvalid();
@@ -120,24 +170,58 @@
         %>
         <%=
         """
-        <label>Bio<textarea aria-invalid=true></textarea></label>
+        <label>
+          Bio
+          <input aria-invalid="true">
+        </label>
         """ |> code_block(:html)
+        %>
+
+        <%= h3.("When ‘Painter’ is typed", []) %>
+        <%=
+        [
+          """
+          beforeEach(() => {
+            userEvent.type(getByLabelText('Bio'), 'Painter');
+          });
+          """ |> code_block(:js)
+        ]
         %>
       </article>
 
       <article>
-        <h2 id="radio" class="mb-2 text-4xl leading-normal text-teal-800">Radio</h2>
+        <%= h2.("Radio", id: "radio") %>
+
+        <%= h3.("It is checked", []) %>
         <%=
-        """
-        getByRole('radio', { name: 'Blue' });
-        """ |> code_block(:js)
+        [
+          """
+          expect(getByRole('radio', { name: 'Blue' })).toBeChecked();
+          """ |> code_block(:js),
+          """
+          <label><input type="radio">Purple</label>
+          <label><input type="radio" checked>Blue</label>
+          <label><input type="radio">Orange</label>
+          """ |> code_block(:html)
+        ]
         %>
+      </article>
+
+      <article>
+        <%= h2.("Tabs", id: "tabs") %>
+
+        <%= h3.("It is checked", []) %>
         <%=
-        """
-        <label><input type="radio">Purple</label>
-        <label><input type="radio">Blue</label>
-        <label><input type="radio">Orange</label>
-        """ |> code_block(:html)
+        [
+          """
+          expect(getByRole('radio', { name: 'Blue' })).toBeChecked();
+          """ |> code_block(:js),
+          """
+          <label><input type="radio">Purple</label>
+          <label><input type="radio" checked>Blue</label>
+          <label><input type="radio">Orange</label>
+          """ |> code_block(:html)
+        ]
         %>
       </article>
 
