@@ -25,7 +25,7 @@
         <li>Isolated unit tests
         <li>Integration tests
         <li>Acceptance tests
-        <li>Accessibility tests
+        <li><%= link 'Accessibility-first tests', to: Routes.accessibility_first_testing_path(@conn, :index) %>
       </ul>
     <% end %>
 

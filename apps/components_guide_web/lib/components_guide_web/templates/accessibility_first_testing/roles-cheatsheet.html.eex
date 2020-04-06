@@ -1,10 +1,13 @@
+<%
+  theme = %Theme{text_color: "blue"}
+%>
 <header class="text-white" style="background: <%= header_background %>;">
   <section class="container px-6 pt-6 pb-6">
     <h1 class="mx-auto max-w-4xl text-4xl text-center font-bold leading-tight text-shadow">
-      <%= "Roles Cheatsheet" %>
+      <%= "Widgets Cheatsheet" %>
     </h1>
     <p class="mt-4 mx-auto max-w-3xl text-3xl text-center leading-snug italic text-yellow-100 text-shadow">
-      <%= "Find the role and copy the tests for a particular UI widget." %>
+      <%= "UI roles and their pre-written tests." %>
     </p>
   </section>
 </header>
@@ -17,15 +20,14 @@
       <li><%= link "Checkbox", to: "#checkbox" %>
       <li><%= link "Radio", to: "#radio" %>
       <li><%= link "Tab", to: "#tab" %>
+      <li><%= link("List of roles 🔗", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques") %>
     </ul>
   </nav>
   <div class="ml-64">
-    <section aria-label="Roles Cheatsheet" class="container px-4 pt-8 pb-16 text-2xl">
-
-      <%= link_to("List of roles", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques") %>
-
+    <section aria-label="Roles Cheatsheet" class="px-4 pt-8 pb-16 text-xl">
       <article>
-        <h2 id="link" class="mb-2 text-4xl leading-normal text-teal-800">Link</h2>
+        <%= theme |> Theme.h2("Link", id: "link") %>
+
         <%=
         """
         getByRole('link', { name: 'About' });
@@ -57,11 +59,68 @@
         <%=
         """
         getByRole('checkbox', { name: 'Remember me' });
+
+        const rememberMe = getByRole('checkbox', { name: 'Remember me' });
+        expect(rememberMe).toBeChecked();
+        """ |> code_block(:js)
+        %>
+
+        <h3>HTML example</h3>
+        <%=
+        """
+        <label><input type="checkbox">Remember me</label>
+        """ |> code_block(:html)
+        %>
+      </article>
+
+      <article>
+        <%= theme |> Theme.h2("Textbox", id: "textbox") %>
+
+        <h3>It has Bio text field</h3>
+        <%=
+        """
+        getByLabelText('Bio');
         """ |> code_block(:js)
         %>
         <%=
         """
-        <label><input type=checkbox> Remember me</label>
+        <label>Bio<input></label>
+        """ |> code_block(:html)
+        %>
+
+        <h3>It has Bio text field</h3>
+        <%=
+        """
+        getByLabelText('Bio');
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <label>Bio<textarea></textarea></label>
+        """ |> code_block(:html)
+        %>
+
+        <h3>It is valid</h3>
+        <%=
+        """
+        expect(getByLabelText('Bio')).toBeValid();
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <label>Bio<textarea aria-invalid=false></textarea></label>
+        """ |> code_block(:html)
+        %>
+
+        <h3>It is invalid</h3>
+        <%=
+        """
+        expect(getByLabelText('Bio')).toBeInvalid();
+        """ |> code_block(:js)
+        %>
+        <%=
+        """
+        <label>Bio<textarea aria-invalid=true></textarea></label>
         """ |> code_block(:html)
         %>
       </article>
@@ -75,9 +134,9 @@
         %>
         <%=
         """
-        <label><input type=radio> Purple</label>
-        <label><input type=radio> Blue</label>
-        <label><input type=radio> Orange</label>
+        <label><input type="radio">Purple</label>
+        <label><input type="radio">Blue</label>
+        <label><input type="radio">Orange</label>
         """ |> code_block(:html)
         %>
       </article>

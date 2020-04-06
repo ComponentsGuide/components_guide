@@ -36,7 +36,7 @@ topics = [
 
 <div class="bg-white">
   <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
-    <%= topic_article(title: "Landmarks and roles") do %>
+    <%= topic_article(title: "Landmarks and roles", link: Routes.accessibility_first_testing_path(@conn, :show, "roles-cheatsheet")) do %>
       <p>Define what your elements are using a clear standard. Let your users quickly jump around the key parts of your page (better UX), and leverage those in your tests (better DX).</p>
     <% end %>
     <%= topic_article(title: "Widgets, Attributes & States") do %>
