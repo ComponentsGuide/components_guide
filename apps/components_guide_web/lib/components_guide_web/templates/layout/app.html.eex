@@ -22,5 +22,19 @@
       </ul>
     </footer>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+
+    <!-- Prism syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/prism.min.js" integrity="sha256-NFZVyNmS1YlmiklazBA+TALYJlJtZj/y/i/oADk6CVE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-css.min.js" integrity="sha256-49Y45o2obU1Yv4zkYDpMDyAa+D9sgKNbNy4ZYGRl/ls=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-jsx.min.js" integrity="sha256-oKM5pXZjDLVh12SHSa1wtIJV0zF49TOwu+jbqkDfYZA=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-typescript.min.js" integrity="sha256-4ZOSQ1LXG14Swa26SUt2L/IfrwVPjrsvQNLxQiIPi8U=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-tsx.min.js" integrity="sha256-Lu/zMuTtme4f+TbQrXMjj8OQwAb0x4RApaysYdeJBN0=" crossorigin="anonymous"></script>
+    <!--<link href="https://cdn.jsdelivr.net/gh/PrismJS/prism-themes@8a0b50bd5cef0c86154c22b8b17d97348323b343/themes/prism-a11y-dark.css" rel="stylesheet">-->
+    <link rel="stylesheet" href="https://unpkg.com/prism-theme-night-owl@1.0.1/style.min.css">
+    <script>
+    //document.querySelectorAll('.post.category-javascript pre code').forEach(el => el.classList.add('language-jsx'));
+    window.Prism.highlightAll();
+    </script>
+    
   </body>
 </html>
