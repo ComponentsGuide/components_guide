@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.AccessibilityFirstTestingView do
+defmodule ComponentsGuideWeb.AccessibilityFirstView do
   use ComponentsGuideWeb, :view
   require EEx
   use ComponentsGuideWeb.Snippets

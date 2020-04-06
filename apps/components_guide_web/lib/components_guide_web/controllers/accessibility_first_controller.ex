@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.AccessibilityFirstTestingController do
+defmodule ComponentsGuideWeb.AccessibilityFirstController do
   use ComponentsGuideWeb, :controller
 
   def index(conn, _params) do
