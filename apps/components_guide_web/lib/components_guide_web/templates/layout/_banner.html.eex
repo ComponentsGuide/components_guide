@@ -4,7 +4,7 @@
       <span>Components <br>·Guide</span>
     </a>
     <nav role="navigation" class="flex-grow sm:pl-8 lg:px-16 text-base md:text-lg text-center">
-      <ul class="h-full grid grid-cols-2 flex flex-col md:flex-row justify-around items-stretch tracking-wide">
+      <ul class="h-full grid grid-cols-2 md:grid-cols-3 flex flex-col md:flex-row justify-around items-stretch tracking-wide">
         <%= nav_items(@path_info) %>
         
         <% if false do %>

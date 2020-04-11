@@ -8,15 +8,28 @@ defmodule ComponentsGuideWeb.LayoutView do
   @nav_links [
     {"By Concept", to: "/concepts"},
     {"By Technology", to: "/links"},
-    {"Patterns", to: "/patterns"},
+    {:search},
+    # {"Patterns", to: "/patterns"},
     {"Live Feed", to: "/feed"},
     {"About", to: "/about"}
   ]
 
+  defp search_form do
+    ~E"""
+    <li>
+      <form role=search action="/research" class="flex h-full px-2 items-center">
+        <input type=text name=q placeholder="Search" class="w-full py-1 px-2 bg-white text-black">
+      </form>
+    """
+  end
+
   def nav_items(path_info) do
-    Enum.map(@nav_links, fn
-      {title, to: to} -> nav_link_item(title: title, to: to, path_info: path_info)
-    end)
+    [
+      Enum.map(@nav_links, fn
+        {:search} -> search_form()
+        {title, to: to} -> nav_link_item(title: title, to: to, path_info: path_info)
+      end)
+    ]
   end
 
   def nav_link_item(assigns) do
@@ -29,7 +42,7 @@ defmodule ComponentsGuideWeb.LayoutView do
       end
 
     ~E"""
-    <li><a href="<%= @to %>" aria-current="<%= current %>" class="flex h-full px-4 py-2 md:py-4 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-red-400"><%= @title %></a>
+    <li><a href="<%= @to %>" aria-current="<%= current %>" class="flex h-full px-4 py-2 md:py-2 font-bold border-4 border-transparent hover:bg-gray-800 hover:border-white"><%= @title %></a>
     """
   end
 end
