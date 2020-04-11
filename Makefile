@@ -10,3 +10,6 @@ install_assets:
 
 dev:
 	iex -S mix phx.server
+
+clean:
+	rm -rf ./_build

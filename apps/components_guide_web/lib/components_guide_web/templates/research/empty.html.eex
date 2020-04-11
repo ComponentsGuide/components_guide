@@ -1,0 +1,13 @@
+<header class="text-white">
+  <section class="container px-6 pt-12 pb-12">
+    <h2 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <%= "Research 🔍 specs and implementations" %>
+    </h2>
+  </section>
+</header>
+
+<div class="bg-white py-16">
+  <div class="container px-6">
+    <h1>No query</h1>
+  </div>
+</div>

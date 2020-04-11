@@ -19,6 +19,8 @@ defmodule ComponentsGuideWeb.Router do
 
     get "/", LandingController, :index
 
+    get "/research", ResearchController, :index
+
     get "/concepts", ConceptsController, :index
 
     get "/links", LinksController, :index
