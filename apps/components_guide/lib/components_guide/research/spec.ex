@@ -7,9 +7,8 @@ defmodule ComponentsGuide.Research.Spec do
 
   defp read_cache(key) do
     value = Cachex.get(@cache_name, key)
-    IO.puts("reading")
+    IO.puts("reading #{if value == nil, do: "nil", else: "present"}")
     IO.inspect(key)
-    # IO.inspect(value)
     value
   end
 
@@ -17,21 +16,11 @@ defmodule ComponentsGuide.Research.Spec do
     Cachex.put(@cache_name, key, value)
   end
 
-  # defp fetch_url(url) when is_binary(url) do
-  #   key = {:fetch, url}
-  #   write_cache(key, :pending)
-  #   result = HTTPClient.get(url)
-  #   {:ok, response} = result
-  #   html = response.body
-  #   write_cache(key, {:html, html})
-  #   html
-  # end
-
   defp body({:fetch, url}) do
-    result = HTTPClient.get(url)
-    {:ok, response} = result
-    html = response.body
-    {:ok, html}
+    with {:ok, response} <- HTTPClient.get(url) do
+      html = response.body
+      {:ok, html}
+    end
   end
 
   defp body({:html_document, url}) do
@@ -58,43 +47,6 @@ defmodule ComponentsGuide.Research.Spec do
         other
     end
   end
-
-  # defp html_string_for_url(url) when is_binary(url) do
-  #   with {:ok, result} <- read_cache({:fetch, url}),
-  #        {:html, value} <- result do
-  #     value
-  #   else
-  #     # Not in cache
-  #     {:ok, nil} ->
-  #       IO.puts("not in cache, fetching")
-  #       # fetch_url(url)
-  #       {:ok, html} = process({:fetch, url})
-  #       write_cache({:fetch, url}, {:html, html})
-  #       {:ok, html}
-
-  #     _ ->
-  #       :err
-  #   end
-  # end
-
-  # defp html_document_for_url(url) when is_binary(url) do
-    # case read_cache({:html_document, url}) do
-    #   # Not in cache
-    #   {:ok, nil} ->
-    #     IO.puts("not in cache, parsing")
-    #     html = html_string_for_url(url)
-    #     document = Meeseeks.parse(html)
-    #     # :crypto.hash(:sha256,"I love Elixir")
-    #     write_cache({:html_document, url}, document)
-    #     document
-
-    #   {:ok, document} ->
-    #     document
-
-    #   _ ->
-    #     nil
-    # end
-  # end
 
   def clear_search_cache() do
     Cachex.clear(@cache_name)
