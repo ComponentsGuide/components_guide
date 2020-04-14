@@ -12,6 +12,7 @@
       Results for
       <strong><%= @query %></strong>:
     </h1>
+    <%#= raw @results %>
     <%= @results %>
   </div>
 </div>

@@ -1,7 +1,7 @@
 defmodule ComponentsGuideWeb.ResearchController do
   use ComponentsGuideWeb, :controller
 
-  alias ComponentsGuide.HTTPClient
+  alias ComponentsGuide.Research.Spec
 
   def index(conn, %{"q" => query}) do
     query = query |> String.trim()
@@ -21,10 +21,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp load_results(query) when is_binary(query) do
-    url = "https://html.spec.whatwg.org/"
-    result = HTTPClient.get(url)
-    {:ok, response} = result
-    html = response.body
-    html
+    # Spec.clear_search_cache()
+    Spec.search_for(:whatwg_html_spec, query)
   end
 end

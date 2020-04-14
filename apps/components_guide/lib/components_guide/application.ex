@@ -12,6 +12,10 @@ defmodule ComponentsGuide.Application do
       %{
         id: :content_cache,
         start: {Cachex, :start_link, [:content_cache, []]}
+      },
+      %{
+        id: :research_spec_cache,
+        start: {Cachex, :start_link, [:research_spec_cache, []]}
       }
       # ComponentsGuide.Worker
     ]
