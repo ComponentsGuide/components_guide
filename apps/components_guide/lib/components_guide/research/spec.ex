@@ -45,4 +45,10 @@ defmodule ComponentsGuide.Research.Spec do
     # |> Floki.find("#id-#{query}")
     |> Floki.raw_html()
   end
+
+  def search_for(:bundlephobia, query) when is_binary(query) do
+    {:ok, data} = Source.json_at("https://bundlephobia.com/api/size?package=#{query}")
+
+    inspect(data)
+  end
 end

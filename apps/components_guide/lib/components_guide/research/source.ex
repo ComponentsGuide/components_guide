@@ -57,9 +57,16 @@ defmodule ComponentsGuide.Research.Source do
     def get(url) do
       uri = URI.parse(url)
 
-      IO.puts("fetching URL #{uri} #{uri.host} #{uri.path}")
       {:ok, conn} = Mint.HTTP.connect(:https, uri.host, 443)
-      {:ok, conn, request_ref} = Mint.HTTP.request(conn, "GET", uri.path, [], nil)
+
+      path =
+        case uri do
+          %{query: nil, path: path} -> path
+          %{query: query, path: path} -> path <> "?" <> query
+        end
+
+        IO.puts("fetching URL #{uri} #{uri.host} #{path}")
+      {:ok, conn, request_ref} = Mint.HTTP.request(conn, "GET", path, [], nil)
 
       receive_mint_response(%Fetch{}, conn, request_ref)
     end

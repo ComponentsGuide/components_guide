@@ -37,8 +37,12 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp load_results(query) when is_binary(query) do
-    # Spec.clear_search_cache()
+    # ComponentsGuide.Research.Source.clear_cache()
     [
+      content_tag(:article, [
+        h2("Bundlephobia"),
+        Spec.search_for(:bundlephobia, query) |> present_results()
+      ]),
       content_tag(:article, [
         h2("Can I Use"),
         Spec.search_for(:caniuse, query) |> present_results()
