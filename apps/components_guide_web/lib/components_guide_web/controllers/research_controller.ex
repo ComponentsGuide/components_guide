@@ -1,5 +1,6 @@
 defmodule ComponentsGuideWeb.ResearchController do
   use ComponentsGuideWeb, :controller
+  use Phoenix.HTML
 
   alias ComponentsGuide.Research.Spec
 
@@ -20,8 +21,21 @@ defmodule ComponentsGuideWeb.ResearchController do
     index(conn, %{"q" => ""})
   end
 
+  defp h2(text) do
+    content_tag(:h2, text, class: "font-bold")
+  end
+
   defp load_results(query) when is_binary(query) do
     # Spec.clear_search_cache()
-    Spec.search_for(:whatwg_html_spec, query)
+    [
+      content_tag(:article, [
+        h2("HTML spec"),
+        Spec.search_for(:whatwg_html_spec, query)
+      ]),
+      content_tag(:article, [
+        h2("Can I Use"),
+        Spec.search_for(:caniuse, query)
+      ])
+    ]
   end
 end
