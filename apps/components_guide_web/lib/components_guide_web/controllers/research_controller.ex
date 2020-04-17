@@ -25,16 +25,27 @@ defmodule ComponentsGuideWeb.ResearchController do
     content_tag(:h2, text, class: "font-bold")
   end
 
+  defp present_results(results) when is_binary(results) do
+    results
+  end
+
+  defp present_results(results) when is_list(results) do
+    items = results
+    |> Enum.map(fn result -> content_tag(:li, result) end)
+
+    content_tag(:ul, items)
+  end
+
   defp load_results(query) when is_binary(query) do
     # Spec.clear_search_cache()
     [
       content_tag(:article, [
         h2("HTML spec"),
-        Spec.search_for(:whatwg_html_spec, query)
+        Spec.search_for(:whatwg_html_spec, query) |> present_results()
       ]),
       content_tag(:article, [
         h2("Can I Use"),
-        Spec.search_for(:caniuse, query)
+        Spec.search_for(:caniuse, query) |> present_results()
       ])
     ]
   end

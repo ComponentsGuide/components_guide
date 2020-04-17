@@ -3,6 +3,9 @@
     <h2 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
       <%= "Research 🔍 specs and implementations" %>
     </h2>
+    <form role=search action="/research" class="flex h-full pt-8 px-2 items-center">
+      <input type=text name=q placeholder="Search" class="w-full py-1 px-2 bg-white text-black text-xl" value="<%= @query %>">
+    </form>
   </section>
 </header>
 

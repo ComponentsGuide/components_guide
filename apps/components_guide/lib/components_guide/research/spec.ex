@@ -5,11 +5,22 @@ defmodule ComponentsGuide.Research.Spec do
     url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001042/data.json"
     {:ok, data} = Source.json_at(url)
     table = data["data"]
+
     if false do
       keys = Map.keys(table)
       inspect(keys)
     else
-      table["documenthead"] |> inspect()
+      matching_keywords =
+        table
+        |> Enum.flat_map(fn {key, value} ->
+          case value["keywords"] |> String.contains?(query) do
+            true -> [value["description"]]
+            false -> []
+          end
+        end)
+
+      # table["documenthead"] |> inspect()
+      matching_keywords
     end
   end
 
@@ -32,7 +43,7 @@ defmodule ComponentsGuide.Research.Spec do
 
     document
     |> Floki.find("body")
-    |> Floki.find("a:fl-contains('form')")
+    |> Floki.find("a:fl-contains('#{query}')")
     |> Floki.raw_html()
 
     # html
