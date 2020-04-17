@@ -46,6 +46,10 @@ defmodule ComponentsGuideWeb.ResearchController do
       content_tag(:article, [
         h2("Can I Use"),
         Spec.search_for(:caniuse, query) |> present_results()
+      ]),
+      content_tag(:article, [
+        h2("HTML ARIA"),
+        Spec.search_for(:html_aria_spec, query) |> present_results()
       ])
     ]
   end

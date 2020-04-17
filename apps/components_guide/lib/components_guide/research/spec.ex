@@ -25,27 +25,24 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   def search_for(:whatwg_html_spec, query) when is_binary(query) do
-    IO.puts("searching whatwg html spec")
-
     # url = "https://html.spec.whatwg.org/"
     url = "https://html.spec.whatwg.org/dev/"
 
-    # {:ok, html} = body({:fetch, url})
-    # {:ok, html} = read({:fetch, url})
     {:ok, document} = Source.html_document_at(url)
-
-    # IO.puts("document size #{:erts_debug.flat_size(document)}")
-
-    # selector = css("#contents")
-    # selector = xpath("//*[@id='contents']/following-sibling::ol[1]")
-    # result = Meeseeks.one(document, selector)
-    # Meeseeks.html(result)
 
     document
     |> Floki.find("body")
     |> Floki.find("a:fl-contains('#{query}')")
     |> Floki.raw_html()
+  end
 
-    # html
+  def search_for(:html_aria_spec, query) when is_binary(query) do
+    url = "https://www.w3.org/TR/html-aria/"
+    {:ok, document} = Source.html_document_at(url)
+
+    document
+    |> Floki.find("#document-conformance-requirements-for-use-of-aria-attributes-in-html table tbody tr")
+    # |> Floki.find("#id-#{query}")
+    |> Floki.raw_html()
   end
 end
