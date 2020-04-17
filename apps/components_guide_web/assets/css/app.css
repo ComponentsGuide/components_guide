@@ -21,6 +21,10 @@ article a:hover {
     font-weight: bold;
 }
 
+a {
+    padding: var(--links-padding);
+}
+
 input {
     outline: none;
 }

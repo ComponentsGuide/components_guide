@@ -40,12 +40,12 @@ defmodule ComponentsGuideWeb.ResearchController do
     # Spec.clear_search_cache()
     [
       content_tag(:article, [
-        h2("HTML spec"),
-        Spec.search_for(:whatwg_html_spec, query) |> present_results()
-      ]),
-      content_tag(:article, [
         h2("Can I Use"),
         Spec.search_for(:caniuse, query) |> present_results()
+      ]),
+      content_tag(:article, [
+        h2("HTML spec"),
+        Spec.search_for(:whatwg_html_spec, query) |> present_results()
       ]),
       content_tag(:article, [
         h2("HTML ARIA"),
