@@ -13,3 +13,6 @@ dev:
 
 clean:
 	rm -rf ./_build
+
+deploy:
+	git push gigalixir master
