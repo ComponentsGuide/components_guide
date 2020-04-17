@@ -41,7 +41,9 @@ defmodule ComponentsGuide.MixProject do
       {:httpotion, "~> 3.1.0"},
       {:jason, "~> 1.0"},
       {:tesla, "~> 1.3.0"},
-      {:meeseeks, "~> 0.15.0"},
+      {:mojito, "~> 0.6.1"},
+      {:mint, "~> 1.0"},
+      {:floki, "~> 0.26.0"},
     ]
   end
 

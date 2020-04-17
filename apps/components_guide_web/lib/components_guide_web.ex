@@ -42,7 +42,8 @@ defmodule ComponentsGuideWeb do
       import ComponentsGuideWeb.ErrorHelpers
       import ComponentsGuideWeb.Gettext
       alias ComponentsGuideWeb.Router.Helpers, as: Routes
-      import Phoenix.LiveView, only: [live_render: 2, live_render: 3]
+      import Phoenix.LiveView.Helpers
+      # import Phoenix.LiveView, only: [live_render: 2, live_render: 3]
       alias ComponentsGuideWeb.StylingHelpers, as: Styling
     end
   end
