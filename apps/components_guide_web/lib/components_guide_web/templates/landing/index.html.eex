@@ -65,7 +65,7 @@ subhead = "Learn more of the why than the how."
         <li class="text-green-300"><%= "TDD & BDD" %>
         <li class="text-yellow-100"><%= "Thinking about state" %>
         <li class="text-orange-300"><%= "Modular styling with modern CSS" %>
-        <li class="text-purple-300"><%= "Preferring built-in first" %>
+        <li class="text-purple-300"><%= "Leveraging what’s built-in first" %>
       </ul>
 
       <p>
