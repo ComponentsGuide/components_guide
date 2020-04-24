@@ -8,11 +8,17 @@ install_mix:
 install_assets:
 	cd apps/components_guide_web/assets/ && npm ci
 
-dev:
+dev: clean install
 	iex -S mix phx.server
+
+build:
+	mix phx.digest
 
 clean:
 	rm -rf ./_build
 
 deploy:
 	git push gigalixir master
+
+status:
+	gigalixir ps
