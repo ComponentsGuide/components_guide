@@ -52,6 +52,10 @@ defmodule ComponentsGuideWeb.ResearchController do
         Spec.search_for(:whatwg_html_spec, query) |> present_results()
       ]),
       content_tag(:article, [
+        h2("ARIA Practices"),
+        Spec.search_for(:wai_aria_practices, query) |> present_results()
+      ]),
+      content_tag(:article, [
         h2("HTML ARIA"),
         Spec.search_for(:html_aria_spec, query) |> present_results()
       ])

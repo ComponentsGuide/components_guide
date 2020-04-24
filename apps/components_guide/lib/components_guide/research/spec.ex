@@ -46,6 +46,16 @@ defmodule ComponentsGuide.Research.Spec do
     |> Floki.raw_html()
   end
 
+  def search_for(:wai_aria_practices, query) when is_binary(query) do
+    url = "https://www.w3.org/TR/wai-aria-practices/"
+    {:ok, document} = Source.html_document_at(url)
+
+    document
+    |> Floki.find("#toc li a")
+    # |> Floki.find("#id-#{query}")
+    |> Floki.raw_html()
+  end
+
   def search_for(:bundlephobia, query) when is_binary(query) do
     {:ok, data} = Source.json_at("https://bundlephobia.com/api/size?package=#{query}")
 
