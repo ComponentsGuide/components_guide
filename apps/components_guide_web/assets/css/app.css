@@ -10,6 +10,10 @@ html {
     @apply bg-gray-900;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 article a {
     text-decoration: underline;
 }
@@ -42,7 +46,8 @@ input {
 }
 
 ul:not([class]) {
-    @apply list-disc;
+    list-style: disc;
+    padding-left: 1em;
 }
 ul:not([class]) > li > ul:not([class]) {
     @apply pl-8;

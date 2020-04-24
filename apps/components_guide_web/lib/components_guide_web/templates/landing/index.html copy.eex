@@ -1,0 +1,103 @@
+<%= if true do %>
+<div class="text-white" style="background: linear-gradient(-32deg, #840000 0%, #E0003C 30%, #FF493F 50%, #FF584A 50%, #FF6F86 90%, #FF584A 120%);">
+  <section class="container px-6 pt-12 pb-8">
+    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center leading-snug font-bold text-shadow">
+      <%#= "Great apps need great components. Learn how to make them in SwiftUI and React." %>
+      <%= "Great apps need great components. Learn by making in SwiftUI or React." %>
+    </h1>
+    <p class="mt-6 mb-8 mx-auto max-w-3xl text-2xl sm:text-3xl md:text-4xl text-center leading-snug italic text-red-100 text-shadow">
+      <%= "Learn the techniques that work best across a range of component systems." %>
+    </p>
+    <p class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
+      Topics include:
+      <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
+        <a href="#" class="inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-indigo-500 hover:bg-indigo-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
+      <% end  %>
+    </p>
+    <div class="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row justify-around">
+      <figure class="pb-4 flex flex-col items-center">
+        <div style="height: 92px;">
+          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white" width=92 height=92>
+        </div>
+        <figcaption class="text-lg md:text-xl font-bold">Watch video lessons</figcaption>
+      </figure>
+      <figure class="pb-4 flex flex-col items-center">
+        <div style="height: 92px;">
+          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/swift.svg?defaultFill=white" width=92 height=92>
+        </div>
+        <figcaption class="text-lg md:text-xl font-bold">Learn SwiftUI & Combine</figcaption>
+      </figure>
+      <figure class="pb-4 flex flex-col items-center">
+        <div style="height: 92px;">
+          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/react.svg?defaultFill=white" width=92 height=92>
+        </div>
+        <figcaption class="text-lg md:text-xl font-bold">Learn React</figcaption>
+      </figure>
+    </div>
+  </section>
+</div>
+<% else %>
+<div class="text-white"  style="background: linear-gradient(-32deg, #840000 0%, #E0003C 30%, #FF493F 50%, #FF584A 50%, #FF6F86 90%, #FF584A 120%);">
+  <section class="container px-6 pt-12 pb-16">
+    <h1 class="mx-auto max-w-5xl text-5xl text-center leading-snug font-bold">
+      <%#= "Great apps need great components. Learn how to make them in SwiftUI & React." %>
+      <%= "Great apps need great components. Learn how in SwiftUI, Combine, React & RxJS." %>
+    </h1>
+    <p class="mt-6 mb-8 mx-auto max-w-3xl text-4xl text-center italic leading-snug text-orange-100">
+      <%#= "Learn the techniques that have worked best across a range of component systems." %>
+      <%= "Learn the techniques that have worked best for modern component systems." %>
+    </p>
+    <p class="mx-auto py-2 max-w-4xl text-xl text-center">
+      Topics include:
+      <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
+        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-red-500 hover:bg-red-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
+      <% end  %>
+    </p>
+  </section>
+</div>
+<% end %>
+
+<div class="text-white bg-gray-800">
+  <section class="pt-20">
+    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
+      <h2 class="text-4xl font-bold leading-snug">
+        Make modern iOS and macOS apps using reusable components, async data flow.
+      </h2>
+    </header>
+    <div class="w-full max-w-md mx-auto rounded overflow-hidden shadow-lg">
+      <a href="/swiftui" class="block w-full px-8 py-4 font-bold bg-orange-100 text-orange-600 border-l-4 border-orange-500 hover:bg-orange-200 hover:text-orange-700 shadow-xl">
+        <span class="text-3xl"><%= "Learn SwiftUI" %></span>
+        <br>
+        The future of UI from Apple
+      </a>
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-red-100 text-red-600 border-t border-l-4 border-red-500 hover:bg-red-200 hover:text-red-700 shadow-xl">
+        <span class="text-3xl"><%= "Learn Combine" %></span>
+        <br>
+        Swift async data flow refined
+      </a>
+    </div>
+  </section>
+
+  <section class="pt-20 pb-16">
+    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
+      <h2 class="text-4xl font-bold">Learn to make modern web apps using components, hooks, async data flow.</h2>
+    </header>
+    <div class="w-full max-w-md mx-auto rounded overflow-hidden shadow-lg">
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-blue-100 text-blue-600  border-l-4 border-blue-500 hover:bg-blue-200 hover:text-blue-700 shadow-xl hover:shadow-lg">
+        <span class="text-3xl"><%= "Learn React" %></span>
+        <br>
+        The venerable component-first library
+      </a>
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-indigo-100 text-indigo-600 border-t border-l-4 border-indigo-500 hover:bg-indigo-200 hover:text-indigo-700 shadow-xl hover:shadow-lg">
+        <span class="text-3xl"><%= "Learn TypeScript" %></span>
+        <br>
+        Safer, more expressive code
+      </a>
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg">
+        <span class="text-3xl"><%= "Learn RxJS" %></span>
+        <br>
+        Reusable, testable data models
+      </a>
+    </div>
+  </section>
+</div>

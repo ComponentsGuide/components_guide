@@ -1,20 +1,28 @@
-<%= if true do %>
-<div class="text-white" style="background: linear-gradient(-32deg, #840000 0%, #E0003C 30%, #FF493F 50%, #FF584A 50%, #FF6F86 90%, #FF584A 120%);">
+<%
+
+heading = "Great apps start with great components"
+heading = "Want to learn more of the why than the how?"
+heading = "Want to learn more of the why than the how?"
+
+subhead = "Learn more of the why than the how."
+
+%>
+
+<div class="text-white" style="<%= header_styles(2) %>">
   <section class="container px-6 pt-12 pb-8">
-    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center leading-snug font-bold text-shadow">
-      <%#= "Great apps need great components. Learn how to make them in SwiftUI and React." %>
-      <%= "Great apps need great components. Learn by making in SwiftUI or React." %>
+    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-6xl text-center leading-tight font-bold text-shadow">
+      <%= heading %>
     </h1>
     <p class="mt-6 mb-8 mx-auto max-w-3xl text-2xl sm:text-3xl md:text-4xl text-center leading-snug italic text-red-100 text-shadow">
-      <%= "Learn the techniques that work best across a range of component systems." %>
+      <%= subhead %>
     </p>
-    <p class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
+    <p hidden class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
       Topics include:
       <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
-        <a href="#" class="inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-indigo-500 hover:bg-indigo-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
+        <a href="#" class="inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-indigo-500 hover:bg-indigo-600" %> hover:text-white rounded shadow-xl"><%= text %></a>
       <% end  %>
     </p>
-    <div class="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row justify-around">
+    <div hidden class="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row justify-around">
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
           <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white" width=92 height=92>
@@ -36,29 +44,76 @@
     </div>
   </section>
 </div>
-<% else %>
-<div class="text-white"  style="background: linear-gradient(-32deg, #840000 0%, #E0003C 30%, #FF493F 50%, #FF584A 50%, #FF6F86 90%, #FF584A 120%);">
-  <section class="container px-6 pt-12 pb-16">
-    <h1 class="mx-auto max-w-5xl text-5xl text-center leading-snug font-bold">
-      <%#= "Great apps need great components. Learn how to make them in SwiftUI & React." %>
-      <%= "Great apps need great components. Learn how in SwiftUI, Combine, React & RxJS." %>
-    </h1>
-    <p class="mt-6 mb-8 mx-auto max-w-3xl text-4xl text-center italic leading-snug text-orange-100">
-      <%#= "Learn the techniques that have worked best across a range of component systems." %>
-      <%= "Learn the techniques that have worked best for modern component systems." %>
-    </p>
-    <p class="mx-auto py-2 max-w-4xl text-xl text-center">
-      Topics include:
-      <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
-        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-red-500 hover:bg-red-600" %> hover:text-white rounded shadow-xl"><%= text %></a>  
-      <% end  %>
-    </p>
-  </section>
-</div>
-<% end %>
 
-<div class="text-white bg-gray-800">
-  <section class="pt-20">
+<div class="text-white">
+  <aside class="py-20">
+    <div class="w-full max-w-4xl mx-auto space-y-6 text-3xl rounded overflow-hidden shadow-lg">
+      <p>
+        There’s a lot of learning materials on specific technologies out there. But technologies change — rapidly.
+
+      <p>
+        Frameworks will come and go.
+        React might be the hotness today, but in a few years another framework might well rule the roost.
+
+      <p>
+        The guides here cover what will remain relevant for decades to come:
+
+      <ul class="list-disc pl-8 font-bold">
+        <li class="text-red-300"><%= "Great UX and performance" %>
+        <li class="text-teal-300"><%= "Accessibility" %>
+        <li class="text-blue-300"><%= "Component naming & responsibility" %>
+        <li class="text-green-300"><%= "TDD & BDD" %>
+        <li class="text-yellow-100"><%= "Thinking about state" %>
+        <li class="text-orange-300"><%= "Modular styling with modern CSS" %>
+        <li class="text-purple-300"><%= "Preferring built-in first" %>
+      </ul>
+
+      <p>
+        It’s all free to read and share.
+    </div>
+  </aside>
+
+  <section class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
+    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
+      <h2 class="text-4xl font-bold leading-snug">
+        Learn why accessibility is essential for a great UX, and use the same affordances to improve your own Developer Experience.
+      </h2>
+    </header>
+    <%= stack_list([
+      %{ title: "Landmarks", description: "Ensure your web pages have these familiar regions.", to: "#", color: "indigo" },
+      %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "#", color: "orange" },
+      %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
+      %{ title: "Keyboard Navigation Acceptance Tests", description: "Ensure your forms are keyboard accessibility.", to: "/accessibility-first", color: "blue" },
+    ]) %>
+  </section>
+
+  <section class="pt-20 pb-20 text-blue-800" style="<%= sections_styles(:cool_light) %>">
+    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
+      <h2 class="text-4xl font-bold leading-snug">
+        Write friendly tests using Jest and BDD.
+      </h2>
+    </header>
+    <%= stack_list([
+      %{ title: "Contexts", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
+      %{ title: "Isolated Component Unit Tests", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "blue" },
+
+    ]) %>
+  </section>
+
+  <section class="pt-20 pb-20 text-blue-800" style="<%= sections_styles(:cool_light) %>">
+    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
+      <h2 class="text-4xl font-bold leading-snug">
+        Write friendly tests using Jest and BDD.
+      </h2>
+    </header>
+    <%= stack_list([
+      %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
+      %{ title: "Isolated Component Unit Tests", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "blue" },
+
+    ]) %>
+  </section>
+
+  <section class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
         Make modern iOS and macOS apps using reusable components, async data flow.
@@ -78,7 +133,7 @@
     </div>
   </section>
 
-  <section class="pt-20 pb-16">
+  <section class="pt-20 pb-16" style="<%= sections_styles(:warm) %>">
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold">Learn to make modern web apps using components, hooks, async data flow.</h2>
     </header>
