@@ -82,7 +82,7 @@ subhead = "Learn more of the why than the how."
     <%= stack_list([
       %{ title: "Landmarks", description: "Ensure your web pages have these familiar regions.", to: "#", color: "indigo" },
       %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "#", color: "orange" },
-      %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
+      %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first/roles-cheatsheet", color: "green" },
       %{ title: "Keyboard Navigation Acceptance Tests", description: "Ensure your forms are keyboard accessibility.", to: "/accessibility-first", color: "blue" },
     ]) %>
   </section>

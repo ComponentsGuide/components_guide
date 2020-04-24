@@ -19,9 +19,9 @@ topics = [
 <header class="text-white" style="background: <%= header_background() %>;">
   <section class="container px-6 pt-12 pb-12">
     <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
-      <%= "🥇 Accessibility-First Testing" %>
+      <%= "🥇 Accessibility-First Development" %>
     </h1>
-    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
+    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-shadow">
       <%#= "Write simpler, more robust tests using accessibility affordances." %>
       <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
     </p>
@@ -37,6 +37,9 @@ topics = [
 <div class="bg-white">
   <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
     <%= topic_article(title: "Landmarks and roles", link: Routes.accessibility_first_path(@conn, :show, "roles-cheatsheet")) do %>
+      <ul>
+        <li><%= link("Orienting web visitors using landmarks", to: "#") %>
+      </ul>
       <p>Define what your elements are using a clear standard. Let your users quickly jump around the key parts of your page (better UX), and leverage those in your tests (better DX).</p>
     <% end %>
     <%= topic_article(title: "Widgets, Attributes & States") do %>
