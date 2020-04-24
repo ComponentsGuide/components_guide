@@ -8,7 +8,7 @@ install_mix:
 install_assets:
 	cd apps/components_guide_web/assets/ && npm ci
 
-dev: clean install
+dev:
 	iex -S mix phx.server
 
 build:
