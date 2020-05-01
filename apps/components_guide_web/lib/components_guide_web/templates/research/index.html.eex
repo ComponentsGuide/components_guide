@@ -3,19 +3,34 @@
     <h2 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
       <%= "Research 🔍 specs and implementations" %>
     </h2>
-    <form role=search action="/research" class="flex h-full pt-8 px-2 items-center">
+    <form role=search action="/research" class="flex h-full pt-8 items-center">
       <input type=text name=q placeholder="Search" class="w-full py-1 px-3 text-3xl bg-white text-black rounded" value="<%= @query %>">
     </form>
-    <ul class="list-none flex pt-4 text-xl italic" style="--links-padding: 0.75em">
-      <li><%= link("form", to: "?q=form") %>
-      <li><%= link("button", to: "?q=button") %>
-      <li><%= link("dialog", to: "?q=dialog") %>
-      <li><%= link("contentinfo", to: "?q=contentinfo") %>
-      <li><%= link("transition", to: "?q=transition") %>
-      <li><%= link("react-dom", to: "?q=react-dom") %>
-      <li><%= link("preact", to: "?q=preact") %>
-      <li><%= link("error", to: "?q=error") %>
-    </ul>
+    <dl class="text-xl grid items-center" style="grid-template-columns: auto 1fr;">
+      <dt>HTML & Roles</dt>
+      <dd>
+        <ul class="list-none flex flex-wrap pt-4 italic" style="--links-padding: 0.75em">
+          <li><%= link("form", to: "?q=form") %>
+          <li><%= link("button", to: "?q=button") %>
+          <li><%= link("contentinfo", to: "?q=contentinfo") %>
+          <li><%= link("dialog", to: "?q=dialog") %>
+          <li><%= link("menuitem", to: "?q=menuitem") %>
+        </ul>
+      </dd>
+      <dt>Third-party</dt>
+      <dd>
+        <ul class="list-none flex flex-wrap pt-4 italic" style="--links-padding: 0.75em">
+          <li><%= link("react-dom", to: "?q=react-dom") %>
+          <li><%= link("preact", to: "?q=preact") %>
+        </ul>
+      </dd>
+      <dt>Concepts</dt>
+      <dd>
+        <ul class="list-none flex flex-wrap pt-4 italic" style="--links-padding: 0.75em">
+          <li><%= link("error", to: "?q=error") %>
+        </ul>
+      </dd>
+    </dl>
   </section>
 </header>
 
