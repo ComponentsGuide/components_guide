@@ -40,12 +40,48 @@ defmodule ComponentsGuide.Research.Spec do
     url = "https://www.w3.org/TR/html-aria/"
     {:ok, document} = Source.html_document_at(url)
 
-    document
-    |> Floki.find(
-      "#document-conformance-requirements-for-use-of-aria-attributes-in-html table tbody tr"
-    )
-    # |> Floki.find("#id-#{query}")
-    |> Floki.raw_html()
+    html_elements =
+      document
+      |> Floki.find(
+        "#document-conformance-requirements-for-use-of-aria-attributes-in-html table tbody"
+      )
+      |> Floki.find("tr")
+
+    # |> Floki.find("[id*='#{query}']")
+    # |> Floki.find("tr:fl-contains('#{query}')")
+
+    html_elements =
+      Enum.filter(html_elements, fn
+        el = {"tr", _attrs, _children} ->
+          Floki.text(el) |> String.contains?(query)
+
+        _ ->
+          false
+      end)
+
+    # html_elements =
+    #   Floki.traverse_and_update(html_elements, fn
+    #     el = {"tr", _attrs, _children} ->
+    #       case Floki.text(el) |> String.contains?(query) do
+    #         true -> el
+    #         false -> nil
+    #       end
+
+    #     el ->
+    #       el
+    #   end)
+
+    results =
+      Enum.map(html_elements, fn el ->
+        html_feature = Floki.find(el, "td:first-of-type")
+        implicit_semantics = Floki.find(el, "td:nth-of-type(2)")
+
+        %{
+          heading: html_feature |> Floki.text(),
+          implicit_semantics: implicit_semantics |> Floki.text(),
+          html: el
+        }
+      end)
   end
 
   def search_for(:wai_aria_practices, query) when is_binary(query) do

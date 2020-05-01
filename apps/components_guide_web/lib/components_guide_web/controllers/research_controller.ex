@@ -72,6 +72,9 @@ defmodule ComponentsGuideWeb.ResearchController do
       %{"error" => %{"code" => "PackageNotFoundError"}} ->
         content_tag(:p, "Not found")
 
+      %{"error" => _} ->
+        []
+
       other ->
         inspect(other)
     end
@@ -132,6 +135,24 @@ defmodule ComponentsGuideWeb.ResearchController do
     end
   end
 
+  defp html_aria(query) do
+    case Spec.search_for(:html_aria_spec, query) do
+      results ->
+        Enum.map(results, fn %{heading: heading, implicit_semantics: implicit_semantics} ->
+          Section.card([
+            content_tag(:h3, heading, class: "text-2xl"),
+            content_tag(
+              :dl,
+              [
+                content_tag(:dt, "Implicit semantics", class: "font-bold"),
+                content_tag(:dd, "#{implicit_semantics}")
+              ]
+            )
+          ])
+        end)
+    end
+  end
+
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
@@ -153,7 +174,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       ]),
       content_tag(:article, [
         h2("HTML ARIA"),
-        Spec.search_for(:html_aria_spec, query) |> present_results()
+        html_aria(query)
       ])
     ]
   end

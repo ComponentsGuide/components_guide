@@ -14,7 +14,7 @@
           <li><%= link("button", to: "?q=button") %>
           <li><%= link("contentinfo", to: "?q=contentinfo") %>
           <li><%= link("dialog", to: "?q=dialog") %>
-          <li><%= link("menuitem", to: "?q=menuitem") %>
+          <li><%= link("menu", to: "?q=menu") %>
         </ul>
       </dd>
       <dt>Third-party</dt>
