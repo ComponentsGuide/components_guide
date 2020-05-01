@@ -30,10 +30,21 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp present_results(results) when is_list(results) do
-    items = results
-    |> Enum.map(fn result -> content_tag(:li, result) end)
+    items =
+      results
+      |> Enum.map(fn result -> content_tag(:li, result) end)
 
     content_tag(:ul, items)
+  end
+
+  defmodule Section do
+    def card(children) do
+      content_tag(
+        :article,
+        children,
+        class: "text-xl p-4 bg-gray-100 rounded spacing-y-4"
+      )
+    end
   end
 
   defp bundlephobia(query) do
@@ -41,20 +52,69 @@ defmodule ComponentsGuideWeb.ResearchController do
       # %{"assets" => [%{"gzip" => 3920, "name" => "main", "size" => 10047, "type" => "js"}], "dependencyCount" => 0, "dependencySizes" => [%{"approximateSize" => 9537, "name" => "preact"}], "description" => "Fast 3kb React-compatible Virtual DOM library.", "gzip" => 3920, "hasJSModule" => "dist/preact.module.js", "hasJSNext" => false, "hasSideEffects" => true, "name" => "preact", "repository" => "https://github.com/preactjs/preact.git", "scoped" => false, "size" => 10047, "version" => "10.4.1"}
       %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
         emerging_3g_ms = floor(size_gzip / 50)
-        content_tag(:article, [
+
+        Section.card([
           content_tag(:h3, "#{name}@#{version}", class: "text-2xl"),
-          content_tag(:dl, [
-            content_tag(:dt, "Minified", class: "font-bold"),
-            content_tag(:dd, "#{size}"),
-            content_tag(:dt, "Minified + Gzipped", class: "font-bold"),
-            content_tag(:dd, "#{size_gzip}"),
-            content_tag(:dt, "Emerging 3G (50kB/s)", class: "font-bold"),
-            content_tag(:dd, "#{emerging_3g_ms}ms"),
-          ], class: "grid grid-flow-col grid-rows-2")
-        ], class: "text-xl")
+          content_tag(
+            :dl,
+            [
+              content_tag(:dt, "Minified", class: "font-bold"),
+              content_tag(:dd, "#{size}"),
+              content_tag(:dt, "Minified + Gzipped", class: "font-bold"),
+              content_tag(:dd, "#{size_gzip}"),
+              content_tag(:dt, "Emerging 3G (50kB/s)", class: "font-bold"),
+              content_tag(:dd, "#{emerging_3g_ms}ms")
+            ],
+            class: "grid grid-flow-col grid-rows-2"
+          )
+        ])
 
       other ->
         inspect(other)
+    end
+  end
+
+  defmodule CanIUse do
+    alias ComponentsGuideWeb.ResearchController.Section
+
+    def present(results) when is_list(results) do
+      Enum.map(results, &item/1)
+    end
+
+    defp item(
+           item = %{
+             "title" => title,
+             "description" => description,
+             "notes" => notes,
+             "categories" => _categories,
+             "stats" => stats,
+             "status" => _status
+           }
+         ) do
+      Section.card([
+        content_tag(:h3, "#{title}", class: "text-2xl"),
+        content_tag(
+          :dl,
+          [
+            content_tag(:dt, "Description", class: "font-bold"),
+            content_tag(:dd, "#{description}"),
+            content_tag(:dt, "Notes", class: "font-bold"),
+            content_tag(:dd, "#{notes}"),
+            content_tag(:dt, "Internet Explorer", class: "font-bold"),
+            content_tag(:dd, "#{inspect(stats["ie"])}")
+            # content_tag(:dd, "#{inspect(item)}")
+          ],
+          class: "grid grid-flow-col gap-4",
+          style: "grid-template-rows: repeat(2, auto);"
+        )
+      ])
+    end
+  end
+
+  defp caniuse(query) do
+    case Spec.search_for(:caniuse, query) do
+      result ->
+        CanIUse.present(result)
     end
   end
 
@@ -67,7 +127,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       ]),
       content_tag(:article, [
         h2("Can I Use"),
-        Spec.search_for(:caniuse, query) |> present_results()
+        caniuse(query)
       ]),
       content_tag(:article, [
         h2("HTML spec"),

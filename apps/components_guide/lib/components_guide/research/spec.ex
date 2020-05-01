@@ -14,7 +14,7 @@ defmodule ComponentsGuide.Research.Spec do
         table
         |> Enum.flat_map(fn {key, value} ->
           case value["keywords"] |> String.contains?(query) do
-            true -> [value["description"]]
+            true -> [value]
             false -> []
           end
         end)
