@@ -92,7 +92,7 @@ defmodule ComponentsGuideWeb.ResearchController do
            }
          ) do
       Section.card([
-        content_tag(:h3, "#{title}", class: "text-2xl"),
+        content_tag(:h3, title, class: "text-2xl"),
         content_tag(
           :dl,
           [
@@ -113,8 +113,19 @@ defmodule ComponentsGuideWeb.ResearchController do
 
   defp caniuse(query) do
     case Spec.search_for(:caniuse, query) do
-      result ->
-        CanIUse.present(result)
+      results ->
+        CanIUse.present(results)
+    end
+  end
+
+  defp aria_practices(query) do
+    case Spec.search_for(:wai_aria_practices, query) do
+      results ->
+        Enum.map(results, fn %{heading: heading} ->
+          Section.card([
+            content_tag(:h3, heading)
+          ])
+        end)
     end
   end
 
@@ -135,7 +146,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       ]),
       content_tag(:article, [
         h2("ARIA Practices"),
-        Spec.search_for(:wai_aria_practices, query) |> present_results()
+        aria_practices(query)
       ]),
       content_tag(:article, [
         h2("HTML ARIA"),

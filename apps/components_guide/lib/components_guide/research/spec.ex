@@ -41,7 +41,9 @@ defmodule ComponentsGuide.Research.Spec do
     {:ok, document} = Source.html_document_at(url)
 
     document
-    |> Floki.find("#document-conformance-requirements-for-use-of-aria-attributes-in-html table tbody tr")
+    |> Floki.find(
+      "#document-conformance-requirements-for-use-of-aria-attributes-in-html table tbody tr"
+    )
     # |> Floki.find("#id-#{query}")
     |> Floki.raw_html()
   end
@@ -50,10 +52,25 @@ defmodule ComponentsGuide.Research.Spec do
     url = "https://www.w3.org/TR/wai-aria-practices/"
     {:ok, document} = Source.html_document_at(url)
 
-    document
-    |> Floki.find("#toc li a")
-    # |> Floki.find("#id-#{query}")
-    |> Floki.raw_html()
+    html_elements = document |> Floki.find("[id*='#{query}']")
+
+    results =
+      Enum.map(html_elements, fn el ->
+        heading = Floki.find(el, "h1, h2, h3, h4")
+
+        %{
+          heading: heading |> Floki.text(),
+          html: el
+        }
+      end)
+
+    results
+
+    # document
+    # # |> Floki.find("#toc li a")
+    # # |> Floki.find("[href*='#{query}']")
+    # |> Floki.find("[id*='#{query}']")
+    # |> Floki.raw_html()
   end
 
   def search_for(:bundlephobia, query) when is_binary(query) do
