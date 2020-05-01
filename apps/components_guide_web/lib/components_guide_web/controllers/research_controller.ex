@@ -69,6 +69,9 @@ defmodule ComponentsGuideWeb.ResearchController do
           )
         ])
 
+      %{"error" => %{"code" => "PackageNotFoundError"}} ->
+        content_tag(:p, "Not found")
+
       other ->
         inspect(other)
     end
