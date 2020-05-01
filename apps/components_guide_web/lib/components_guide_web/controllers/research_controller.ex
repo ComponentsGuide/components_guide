@@ -22,7 +22,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp h2(text) do
-    content_tag(:h2, text, class: "font-bold")
+    content_tag(:h2, text, class: "text-2xl font-bold")
   end
 
   defp present_results(results) when is_binary(results) do
@@ -36,12 +36,34 @@ defmodule ComponentsGuideWeb.ResearchController do
     content_tag(:ul, items)
   end
 
+  defp bundlephobia(query) do
+    case Spec.search_for(:bundlephobia, query) do
+      # %{"assets" => [%{"gzip" => 3920, "name" => "main", "size" => 10047, "type" => "js"}], "dependencyCount" => 0, "dependencySizes" => [%{"approximateSize" => 9537, "name" => "preact"}], "description" => "Fast 3kb React-compatible Virtual DOM library.", "gzip" => 3920, "hasJSModule" => "dist/preact.module.js", "hasJSNext" => false, "hasSideEffects" => true, "name" => "preact", "repository" => "https://github.com/preactjs/preact.git", "scoped" => false, "size" => 10047, "version" => "10.4.1"}
+      %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
+        emerging_3g_ms = floor(size_gzip / 50)
+        content_tag(:article, [
+          content_tag(:h3, "#{name}@#{version}", class: "text-2xl"),
+          content_tag(:dl, [
+            content_tag(:dt, "Minified", class: "font-bold"),
+            content_tag(:dd, "#{size}"),
+            content_tag(:dt, "Minified + Gzipped", class: "font-bold"),
+            content_tag(:dd, "#{size_gzip}"),
+            content_tag(:dt, "Emerging 3G (50kB/s)", class: "font-bold"),
+            content_tag(:dd, "#{emerging_3g_ms}ms"),
+          ], class: "grid grid-flow-col grid-rows-2")
+        ], class: "text-xl")
+
+      other ->
+        inspect(other)
+    end
+  end
+
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
       content_tag(:article, [
         h2("Bundlephobia"),
-        Spec.search_for(:bundlephobia, query) |> present_results()
+        bundlephobia(query)
       ]),
       content_tag(:article, [
         h2("Can I Use"),

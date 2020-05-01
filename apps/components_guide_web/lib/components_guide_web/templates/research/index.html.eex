@@ -4,12 +4,15 @@
       <%= "Research 🔍 specs and implementations" %>
     </h2>
     <form role=search action="/research" class="flex h-full pt-8 px-2 items-center">
-      <input type=text name=q placeholder="Search" class="w-full py-1 px-2 bg-white text-black text-xl" value="<%= @query %>">
+      <input type=text name=q placeholder="Search" class="w-full py-1 px-3 text-3xl bg-white text-black rounded" value="<%= @query %>">
     </form>
-    <ul class="list-none flex pt-4" style="--links-padding: 1em">
+    <ul class="list-none flex pt-4 text-xl italic" style="--links-padding: 0.75em">
       <li><%= link("form", to: "?q=form") %>
       <li><%= link("button", to: "?q=button") %>
       <li><%= link("transition", to: "?q=transition") %>
+      <li><%= link("react-dom", to: "?q=react-dom") %>
+      <li><%= link("preact", to: "?q=preact") %>
+      <li><%= link("error", to: "?q=error") %>
     </ul>
   </section>
 </header>

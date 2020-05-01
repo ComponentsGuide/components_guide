@@ -59,6 +59,6 @@ defmodule ComponentsGuide.Research.Spec do
   def search_for(:bundlephobia, query) when is_binary(query) do
     {:ok, data} = Source.json_at("https://bundlephobia.com/api/size?package=#{query}")
 
-    inspect(data)
+    data
   end
 end
