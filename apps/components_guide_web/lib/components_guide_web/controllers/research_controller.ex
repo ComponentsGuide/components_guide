@@ -53,24 +53,27 @@ defmodule ComponentsGuideWeb.ResearchController do
       %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
         emerging_3g_ms = floor(size_gzip / 50)
 
-        Section.card([
-          content_tag(:h3, "#{name}@#{version}", class: "text-2xl"),
-          content_tag(
-            :dl,
-            [
-              content_tag(:dt, "Minified", class: "font-bold"),
-              content_tag(:dd, "#{size}"),
-              content_tag(:dt, "Minified + Gzipped", class: "font-bold"),
-              content_tag(:dd, "#{size_gzip}"),
-              content_tag(:dt, "Emerging 3G (50kB/s)", class: "font-bold"),
-              content_tag(:dd, "#{emerging_3g_ms}ms")
-            ],
-            class: "grid grid-flow-col grid-rows-2"
-          )
+        content_tag(:article, [
+          h2("Bundlephobia"),
+          Section.card([
+            content_tag(:h3, "#{name}@#{version}", class: "text-2xl"),
+            content_tag(
+              :dl,
+              [
+                content_tag(:dt, "Minified", class: "font-bold"),
+                content_tag(:dd, "#{size}"),
+                content_tag(:dt, "Minified + Gzipped", class: "font-bold"),
+                content_tag(:dd, "#{size_gzip}"),
+                content_tag(:dt, "Emerging 3G (50kB/s)", class: "font-bold"),
+                content_tag(:dd, "#{emerging_3g_ms}ms")
+              ],
+              class: "grid grid-flow-col grid-rows-2"
+            )
+          ])
         ])
 
-      %{"error" => %{"code" => "PackageNotFoundError"}} ->
-        content_tag(:p, "Not found")
+      # %{"error" => %{"code" => "PackageNotFoundError"}} ->
+      #   content_tag(:p, "Not found")
 
       %{"error" => _} ->
         []
@@ -119,63 +122,79 @@ defmodule ComponentsGuideWeb.ResearchController do
 
   defp caniuse(query) do
     case Spec.search_for(:caniuse, query) do
+      [] ->
+        []
+
       results ->
-        CanIUse.present(results)
+        content_tag(:article, [
+          h2("Can I Use"),
+          CanIUse.present(results)
+        ])
+    end
+  end
+
+  defp html_spec(query) do
+    case Spec.search_for(:whatwg_html_spec, query) do
+      [] ->
+        []
+
+      results ->
+        content_tag(:article, [
+          h2("HTML spec"),
+          results |> present_results()
+        ])
     end
   end
 
   defp aria_practices(query) do
     case Spec.search_for(:wai_aria_practices, query) do
+      [] ->
+        []
+
       results ->
-        Enum.map(results, fn %{heading: heading} ->
-          Section.card([
-            content_tag(:h3, heading)
-          ])
-        end)
+        content_tag(:article, [
+          h2("ARIA Practices"),
+          Enum.map(results, fn %{heading: heading} ->
+            Section.card([
+              content_tag(:h3, heading)
+            ])
+          end)
+        ])
     end
   end
 
   defp html_aria(query) do
     case Spec.search_for(:html_aria_spec, query) do
+      [] ->
+        []
+
       results ->
-        Enum.map(results, fn %{heading: heading, implicit_semantics: implicit_semantics} ->
-          Section.card([
-            content_tag(:h3, heading, class: "text-2xl"),
-            content_tag(
-              :dl,
-              [
-                content_tag(:dt, "Implicit semantics", class: "font-bold"),
-                content_tag(:dd, "#{implicit_semantics}")
-              ]
-            )
-          ])
-        end)
+        content_tag(:article, [
+          h2("HTML ARIA"),
+          Enum.map(results, fn %{heading: heading, implicit_semantics: implicit_semantics} ->
+            Section.card([
+              content_tag(:h3, heading, class: "text-2xl"),
+              content_tag(
+                :dl,
+                [
+                  content_tag(:dt, "Implicit semantics", class: "font-bold"),
+                  content_tag(:dd, "#{implicit_semantics}")
+                ]
+              )
+            ])
+          end)
+        ])
     end
   end
 
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
-      content_tag(:article, [
-        h2("Bundlephobia"),
-        bundlephobia(query)
-      ]),
-      content_tag(:article, [
-        h2("Can I Use"),
-        caniuse(query)
-      ]),
-      content_tag(:article, [
-        h2("HTML spec"),
-        Spec.search_for(:whatwg_html_spec, query) |> present_results()
-      ]),
-      content_tag(:article, [
-        h2("ARIA Practices"),
-        aria_practices(query)
-      ]),
-      content_tag(:article, [
-        h2("HTML ARIA"),
-        html_aria(query)
-      ])
+      bundlephobia(query),
+      caniuse(query),
+      html_spec(query),
+      aria_practices(query),
+      html_aria(query)
     ]
   end
 end
