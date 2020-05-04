@@ -177,7 +177,7 @@ defmodule ComponentsGuideWeb.ResearchController do
               content_tag(
                 :dl,
                 [
-                  content_tag(:dt, "Implicit semantics", class: "font-bold"),
+                  content_tag(:dt, "Implicit semantics"),
                   content_tag(:dd, "#{implicit_semantics}")
                 ]
               )

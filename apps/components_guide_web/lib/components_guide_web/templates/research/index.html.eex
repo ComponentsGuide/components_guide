@@ -1,15 +1,19 @@
-<header class="text-white">
-  <section class="container px-6 pt-12 pb-12">
-    <h2 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
-      <%= "Research 🔍 specs and implementations" %>
+<%
+  heading = "Research 🔍 specs and implementations"
+  heading = "Search Can I Use, BundlePhobia, W3 & WhatWG specs"
+%>
+<header class="text-black bg-white">
+  <section class="container px-6 pt-8 pb-8">
+    <h2 class="mx-auto max-w-4xl text-xl text-center italic leading-tight">
+      <%= heading %>
     </h2>
     <form role=search action="/research" class="flex h-full pt-8 items-center">
-      <input type=text name=q placeholder="Search" class="w-full py-1 px-3 text-3xl bg-white text-black rounded" value="<%= @query %>">
+      <input type=text name=q placeholder="Search" class="w-full py-1 px-6 text-3xl bg-white text-black border rounded-full" value="<%= @query %>">
     </form>
-    <dl class="text-xl grid items-center" style="grid-template-columns: auto 1fr;">
+    <dl class="text-xl grid gap-2 items-center pt-4 px-6" style="grid-template-columns: auto 1fr;">
       <dt>HTML & Roles</dt>
       <dd>
-        <ul class="list-none flex flex-wrap pt-4 italic" style="--links-padding: 0.75em">
+        <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
           <li><%= link("form", to: "?q=form") %>
           <li><%= link("button", to: "?q=button") %>
           <li><%= link("contentinfo", to: "?q=contentinfo") %>
@@ -19,14 +23,14 @@
       </dd>
       <dt>Third-party</dt>
       <dd>
-        <ul class="list-none flex flex-wrap pt-4 italic" style="--links-padding: 0.75em">
+        <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
           <li><%= link("react-dom", to: "?q=react-dom") %>
           <li><%= link("preact", to: "?q=preact") %>
         </ul>
       </dd>
       <dt>Concepts</dt>
       <dd>
-        <ul class="list-none flex flex-wrap pt-4 italic" style="--links-padding: 0.75em">
+        <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
           <li><%= link("error", to: "?q=error") %>
         </ul>
       </dd>
@@ -34,8 +38,10 @@
   </section>
 </header>
 
-<div class="bg-white py-16">
-  <div class="container px-6">
-    <%= @results %>
+<div class="bg-white py-8">
+  <div class="container">
+    <div class="px-6">
+      <%= @results %>
+    </div>
   </div>
 </div>
