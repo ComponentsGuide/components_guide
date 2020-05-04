@@ -84,6 +84,28 @@ defmodule ComponentsGuideWeb.ResearchController do
     end
   end
 
+  defp npm_downloads(query) do
+    case Spec.search_for(:npm_downloads_last_month, query) do
+      %{downloads_count: downloads_count, name: name} ->
+        content_tag(:article, [
+          h2("NPM packages"),
+          Section.card([
+            content_tag(:h3, link(name, to: "https://www.npmjs.com/package/#{name}"), class: "text-2xl"),
+            content_tag(
+              :dl,
+              [
+                content_tag(:dt, "Monthly downloads", class: "text-base font-bold"),
+                content_tag(:dd, "#{downloads_count}")
+              ]
+            )
+          ])
+        ])
+
+      _ ->
+        []
+    end
+  end
+
   defmodule CanIUse do
     alias ComponentsGuideWeb.ResearchController.Section
 
@@ -109,7 +131,9 @@ defmodule ComponentsGuideWeb.ResearchController do
             content_tag(:dt, "Description", class: "font-bold"),
             content_tag(:dd, "#{description}"),
             case notes do
-              "" -> []
+              "" ->
+                []
+
               notes ->
                 [
                   content_tag(:dt, "Notes", class: "font-bold"),
@@ -198,6 +222,7 @@ defmodule ComponentsGuideWeb.ResearchController do
     # ComponentsGuide.Research.Source.clear_cache()
     [
       bundlephobia(query),
+      npm_downloads(query),
       caniuse(query),
       html_spec(query),
       aria_practices(query),

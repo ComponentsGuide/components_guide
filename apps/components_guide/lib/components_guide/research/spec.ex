@@ -24,6 +24,23 @@ defmodule ComponentsGuide.Research.Spec do
     end
   end
 
+  def search_for(:npm_downloads_last_month, query) when is_binary(query) do
+    query = String.trim(query)
+    url = "https://api.npmjs.org/downloads/point/last-month/#{query}"
+    {:ok, data} = Source.json_at(url)
+
+    case data do
+      %{"downloads" => downloads_count, "package" => name} ->
+        %{downloads_count: downloads_count, name: name}
+
+      %{"error" => _error_message} ->
+        nil
+
+      _ ->
+        nil
+    end
+  end
+
   def search_for(:whatwg_html_spec, query) when is_binary(query) do
     # url = "https://html.spec.whatwg.org/"
     url = "https://html.spec.whatwg.org/dev/"
