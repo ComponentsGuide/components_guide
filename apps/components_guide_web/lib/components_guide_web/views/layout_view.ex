@@ -6,11 +6,11 @@ defmodule ComponentsGuideWeb.LayoutView do
   # end
 
   @nav_links [
+    {:search},
     {"By Concept", to: "/concepts"},
     {"By Technology", to: "/links"},
-    {:search},
     # {"Patterns", to: "/patterns"},
-    {"Live Feed", to: "/feed"},
+    {"News Feed", to: "/feed"},
     {"About", to: "/about"}
   ]
 
@@ -18,7 +18,7 @@ defmodule ComponentsGuideWeb.LayoutView do
     ~E"""
     <li>
       <form role=search action="/research" class="flex h-full px-2 items-center">
-        <input type=text name=q placeholder="Search specs, libraries, blog posts" class="w-full py-1 px-2 bg-white text-black">
+        <input type=text name=q placeholder="Search" class="w-full py-1 px-4 bg-white text-black rounded-full">
       </form>
     """
   end

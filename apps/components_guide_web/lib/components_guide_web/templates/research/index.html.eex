@@ -32,6 +32,10 @@
           <li><%= link("react-dom", to: "?q=react-dom") %>
           <li><%= link("preact", to: "?q=preact") %>
           <li><%= link("vue", to: "?q=vue") %>
+          <li><%= link("lit-html", to: "?q=lit-html") %>
+          <li><%= link("xstate", to: "?q=xstate") %>
+          <li><%= link("mobx", to: "?q=mobx") %>
+          <li><%= link("lodash", to: "?q=lodash") %>
         </ul>
       </dd>
       <dt>Concepts</dt>
