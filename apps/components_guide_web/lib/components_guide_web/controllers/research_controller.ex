@@ -108,8 +108,14 @@ defmodule ComponentsGuideWeb.ResearchController do
           [
             content_tag(:dt, "Description", class: "font-bold"),
             content_tag(:dd, "#{description}"),
-            content_tag(:dt, "Notes", class: "font-bold"),
-            content_tag(:dd, "#{notes}"),
+            case notes do
+              "" -> []
+              notes ->
+                [
+                  content_tag(:dt, "Notes", class: "font-bold"),
+                  content_tag(:dd, "#{notes}")
+                ]
+            end,
             content_tag(:dt, "Internet Explorer", class: "font-bold"),
             content_tag(:dd, "#{inspect(stats["ie"])}")
             # content_tag(:dd, "#{inspect(item)}")
