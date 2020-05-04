@@ -3,6 +3,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   use Phoenix.HTML
 
   alias ComponentsGuide.Research.Spec
+  alias ComponentsGuideWeb.ResearchView, as: View
 
   def index(conn, %{"q" => query}) do
     query = query |> String.trim()
@@ -69,9 +70,9 @@ defmodule ComponentsGuideWeb.ResearchController do
               :dl,
               [
                 content_tag(:dt, "Minified", class: "text-base font-bold"),
-                content_tag(:dd, "#{size}"),
+                content_tag(:dd, View.humanize_bytes(size)),
                 content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
-                content_tag(:dd, "#{size_gzip}"),
+                content_tag(:dd, View.humanize_bytes(size_gzip)),
                 content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
                 content_tag(:dd, "#{emerging_3g_ms}ms")
               ],

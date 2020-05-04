@@ -27,6 +27,7 @@ defmodule ComponentsGuideWeb.TextControllerTest do
   end
 
   describe "create text" do
+    @tag :skip
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.text_path(conn, :create), text: @create_attrs)
 
@@ -46,6 +47,7 @@ defmodule ComponentsGuideWeb.TextControllerTest do
   describe "edit text" do
     setup [:create_text]
 
+    @tag :skip
     test "renders form for editing chosen text", %{conn: conn, text: text} do
       conn = get(conn, Routes.text_path(conn, :edit, text))
       assert html_response(conn, 200) =~ "Edit Text"
@@ -55,6 +57,7 @@ defmodule ComponentsGuideWeb.TextControllerTest do
   describe "update text" do
     setup [:create_text]
 
+    @tag :skip
     test "redirects when data is valid", %{conn: conn, text: text} do
       conn = put(conn, Routes.text_path(conn, :update, text), text: @update_attrs)
       assert redirected_to(conn) == Routes.text_path(conn, :show, text)
@@ -63,6 +66,7 @@ defmodule ComponentsGuideWeb.TextControllerTest do
       assert html_response(conn, 200)
     end
 
+    @tag :skip
     test "renders errors when data is invalid", %{conn: conn, text: text} do
       conn = put(conn, Routes.text_path(conn, :update, text), text: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Text"
