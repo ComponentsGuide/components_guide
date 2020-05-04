@@ -60,14 +60,15 @@ defmodule ComponentsGuideWeb.ResearchController do
             content_tag(
               :dl,
               [
-                content_tag(:dt, "Minified", class: "font-bold"),
+                content_tag(:dt, "Minified", class: "text-base font-bold"),
                 content_tag(:dd, "#{size}"),
-                content_tag(:dt, "Minified + Gzipped", class: "font-bold"),
+                content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
                 content_tag(:dd, "#{size_gzip}"),
-                content_tag(:dt, "Emerging 3G (50kB/s)", class: "font-bold"),
+                content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
                 content_tag(:dd, "#{emerging_3g_ms}ms")
               ],
-              class: "grid grid-flow-col grid-rows-2"
+              class: "grid grid-flow-col",
+              style: "grid-template-rows: repeat(2, auto);"
             )
           ])
         ])

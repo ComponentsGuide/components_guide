@@ -1,16 +1,21 @@
 <%
   heading = "Research 🔍 specs and implementations"
-  heading = "Search Can I Use, BundlePhobia, W3 & WhatWG specs"
+  heading = "Search across Can I Use, BundlePhobia, W3 & WhatWG specs"
 %>
 <header class="text-black bg-white">
-  <section class="container px-6 pt-8 pb-8">
-    <h2 class="mx-auto max-w-4xl text-xl text-center italic leading-tight">
+  <div class="bg-purple-100">
+    <h2 class="mx-auto max-w-4xl py-4 text-2xl text-center italic leading-tight text-purple-600">
       <%= heading %>
     </h2>
+  </div>
+  <section class="container px-6 pb-8">
     <form role=search action="/research" class="flex h-full pt-8 items-center">
       <input type=text name=q placeholder="Search" class="w-full py-1 px-6 text-3xl bg-white text-black border rounded-full" value="<%= @query %>">
     </form>
-    <dl class="text-xl grid gap-2 items-center pt-4 px-6" style="grid-template-columns: auto 1fr;">
+    <dl
+      class="text-xl grid gap-2 items-center pt-4 px-6"
+      style="grid-template-columns: auto 1fr; --links-color: #1c64f2; --hover\:links-decoration: underline;"
+    >
       <dt>HTML & Roles</dt>
       <dd>
         <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">

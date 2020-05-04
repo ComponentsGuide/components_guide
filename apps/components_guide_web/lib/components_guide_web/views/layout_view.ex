@@ -42,7 +42,7 @@ defmodule ComponentsGuideWeb.LayoutView do
       end
 
     ~E"""
-    <li><a href="<%= @to %>" aria-current="<%= current %>" class="flex h-full px-4 py-2 md:py-2 font-bold border-4 border-transparent hover:bg-gray-800 hover:border-white"><%= @title %></a>
+    <li><a href="<%= @to %>" aria-current="<%= current %>" class="flex h-full px-4 py-2 md:py-2 font-bold border-b-4 border-transparent hover:bg-gray-800 hover:border-current"><%= @title %></a>
     """
   end
 end

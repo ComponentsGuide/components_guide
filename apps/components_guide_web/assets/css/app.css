@@ -26,7 +26,12 @@ article a:hover {
 }
 
 a {
+    color: var(--links-color);
     padding: var(--links-padding);
+    text-decoration: var(--links-decoration);
+}
+a:hover {
+    text-decoration: var(--hover\:links-decoration);
 }
 
 input {
@@ -54,9 +59,6 @@ ul:not([class]) > li > ul:not([class]) {
 }
 
 /* Navigation links */
-a[aria-current=page].hover\:bg-gray-800 {
-    @apply bg-gray-800;
-}
 a[aria-current=page][class*="hover\:border-"] {
     border-color: currentColor;
 }
