@@ -53,10 +53,18 @@ defmodule ComponentsGuideWeb.ResearchController do
       %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
         emerging_3g_ms = floor(size_gzip / 50)
 
+        # bundlephobia_url_query = URI.encode_query(%{"p" => "#{name}@#{version}"})
+        bundlephobia_url_query = "p=#{name}@#{version}"
+        bundlephobia_url = "https://bundlephobia.com/result?#{bundlephobia_url_query}"
+
         content_tag(:article, [
           h2("Bundlephobia"),
           Section.card([
-            content_tag(:h3, "#{name}@#{version}", class: "text-2xl"),
+            content_tag(
+              :h3,
+              link("#{name}@#{version}", to: bundlephobia_url),
+              class: "text-2xl"
+            ),
             content_tag(
               :dl,
               [
@@ -90,7 +98,11 @@ defmodule ComponentsGuideWeb.ResearchController do
         content_tag(:article, [
           h2("NPM packages"),
           Section.card([
-            content_tag(:h3, link(name, to: "https://www.npmjs.com/package/#{name}"), class: "text-2xl"),
+            content_tag(
+              :h3,
+              link(name, to: "https://www.npmjs.com/package/#{name}"),
+              class: "text-2xl"
+            ),
             content_tag(
               :dl,
               [
