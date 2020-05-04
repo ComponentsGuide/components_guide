@@ -42,7 +42,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       content_tag(
         :article,
         children,
-        class: "text-xl p-4 bg-gray-100 rounded spacing-y-4"
+        class: "mb-4 text-xl spacing-y-4 p-4 bg-blue-100 border border-blue-200 rounded shadow-lg"
       )
     end
   end
