@@ -108,7 +108,7 @@ defmodule ComponentsGuideWeb.ResearchController do
               :dl,
               [
                 content_tag(:dt, "Monthly downloads", class: "text-base font-bold"),
-                content_tag(:dd, "#{downloads_count}")
+                content_tag(:dd, View.humanize_count(downloads_count))
               ]
             )
           ])

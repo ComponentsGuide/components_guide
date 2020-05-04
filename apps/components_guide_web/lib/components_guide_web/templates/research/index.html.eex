@@ -31,6 +31,7 @@
         <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
           <li><%= link("react-dom", to: "?q=react-dom") %>
           <li><%= link("preact", to: "?q=preact") %>
+          <li><%= link("vue", to: "?q=vue") %>
         </ul>
       </dd>
       <dt>Concepts</dt>

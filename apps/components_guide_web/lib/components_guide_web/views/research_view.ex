@@ -22,4 +22,18 @@ defmodule ComponentsGuideWeb.ResearchView do
   def humanize_bytes(count) when is_integer(count) do
     "#{count} B"
   end
+
+  def humanize_count(count) when count >= 1_000_000 do
+    formatted = count / 1_000_000
+    "#{float_to_string(formatted, decimals: 1)}M"
+  end
+
+  def humanize_count(count) when count >= 1000 do
+    formatted = count / 1000
+    "#{float_to_string(formatted, decimals: 1)}K"
+  end
+
+  def humanize_count(count) when is_integer(count) do
+    "#{count}"
+  end
 end
