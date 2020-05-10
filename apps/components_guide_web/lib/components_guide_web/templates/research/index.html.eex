@@ -36,6 +36,7 @@
           <li><%= link("xstate", to: "?q=xstate") %>
           <li><%= link("mobx", to: "?q=mobx") %>
           <li><%= link("lodash", to: "?q=lodash") %>
+          <li><%= link("wonka", to: "?q=wonka") %>
         </ul>
       </dd>
       <dt>Concepts</dt>
