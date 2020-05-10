@@ -2,18 +2,18 @@
 
 heading = "Great apps start with great components"
 heading = "Want to learn more of the why than the how?"
-heading = "Want to learn more of the why than the how?"
+heading = raw("Improve the user experience <em>and</em> developer experience of your components")
 
-subhead = "Learn more of the why than the how."
+subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the latest browser features."
 
 %>
 
-<div class="text-white" style="<%= header_styles(2) %>">
+<div class="text-white" style="<%= header_styles(3) %>">
   <section class="container px-6 pt-12 pb-8">
     <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-6xl text-center leading-tight font-bold text-shadow">
       <%= heading %>
     </h1>
-    <p class="mt-6 mb-8 mx-auto max-w-3xl text-2xl sm:text-3xl md:text-4xl text-center leading-snug italic text-red-100 text-shadow">
+    <p class="mt-6 mb-8 mx-auto max-w-3xl text-2xl sm:text-3xl md:text-4xl text-center leading-snug italic text-gray-100 text-shadow">
       <%= subhead %>
     </p>
     <p hidden class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
