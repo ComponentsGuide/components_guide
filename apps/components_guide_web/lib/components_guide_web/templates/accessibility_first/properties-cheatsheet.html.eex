@@ -15,16 +15,16 @@
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
   <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
-    <h2 class="pt-4 pl-4">I want to:</h2>
+    <h2 class="pt-4 pl-4 italic">I want to make an element:</h2>
     <ul class="sticky top-0 p-2 pl-8 list-none leading-loose">
-      <li><%= link "Hide", to: "#hide" %>
+      <li><%= link "Hidden", to: "#hide" %>
       <li><%= link "Current", to: "#current" %>
       <li><%= link "Selected", to: "#selected" %>
       <li><%= link "Invalid", to: "#invalid" %>
       <li><%= link "Required", to: "#required" %>
       <li><%= link "Readonly", to: "#readonly" %>
-      <li><%= link("Queries 🔗", to: "https://testing-library.com/docs/dom-testing-library/api-queries") %>
-      <li><%= link("Matchers 🔗", to: "https://github.com/testing-library/jest-dom") %>
+      <li><%= link("All Queries 🔗", to: "https://testing-library.com/docs/dom-testing-library/api-queries") %>
+      <li><%= link("All Matchers 🔗", to: "https://github.com/testing-library/jest-dom") %>
     </ul>
   </nav>
   <div class="mx-auto flex-shrink">
