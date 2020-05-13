@@ -80,8 +80,11 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
       </h2>
     </header>
     <%= stack_list([
-      %{ title: "Landmarks", description: "Ensure your web pages have these familiar regions.", to: "#", color: "indigo" },
-      %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "#", color: "orange" },
+      %{ title: "Landmarks", description: "Ensure your web pages have these familiar regions.", to: "/accessibility-first/landmarks", color: "purple" },
+      %{ title: "Labels and Descriptions", description: "Make sure every region of interest is labelled.", to: "/accessibility-first/properties-cheatsheet", color: "indigo" },
+      %{ title: "Properties", description: "Selected state, current page, hidden, and more.", to: "/accessibility-first/properties-cheatsheet", color: "teal" },
+      %{ title: "Form controls", description: "Inputs, checkboxes, radio buttons, comboboxes, and more.", to: "/accessibility-first/properties-cheatsheet", color: "red" },
+      %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "/accessibility-first/roles-cheatsheet", color: "orange" },
       %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first/roles-cheatsheet", color: "green" },
       %{ title: "Keyboard Navigation Acceptance Tests", description: "Ensure your forms are keyboard accessibility.", to: "/accessibility-first", color: "blue" },
     ]) %>

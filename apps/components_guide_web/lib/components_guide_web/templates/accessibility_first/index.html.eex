@@ -42,7 +42,7 @@ topics = [
       </ul>
       <p>Define what your elements are using a clear standard. Let your users quickly jump around the key parts of your page (better UX), and leverage those in your tests (better DX).</p>
     <% end %>
-    <%= topic_article(title: "Widgets, Attributes & States") do %>
+    <%= topic_article(title: "Widgets, Attributes & States", link: Routes.accessibility_first_path(@conn, :show, "properties-cheatsheet")) do %>
       <p>Learn the standards for interactive widgets usable by touch, mouse, and keyboard. Let users know which page is current or which sub-control is selected.</p>
     <% end %>
     <%= topic_article(title: "BDD with Jest & React Testing Library") do %>

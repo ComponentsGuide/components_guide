@@ -17,10 +17,14 @@ defmodule ComponentsGuideWeb.ConceptsView do
 
   def topic_article(assigns, block) do
     ~E"""
-    <article class="mb-8">
-      <h2 class="mb-2 text-4xl leading-normal font-bold text-red-700"><%= @title %></h2>
-      <%= block[:do] %>
-    </article>
+    <%= link to: @link do %>
+      <article class="pl-8 py-4 mb-8 text-red-700 bg-red-100 border-l-4 border-current rounded hover:text-red-800 hover:bg-red-200 shadow-lg hover:shadow-xl">
+        <h2 class="mb-2 text-4xl leading-normal font-bold">
+          <%= @title %>
+        </h2>
+        <%= block[:do] %>
+      </article>
+    <%= end %>
     """
   end
 end

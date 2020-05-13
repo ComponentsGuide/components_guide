@@ -11,8 +11,8 @@
 
 <div class="bg-white">
   <section aria-label="Concepts" class="container pt-8 pb-16 text-2xl">
-    <%= topic_article title: "Naming" do %>
-      <ul class="list-disc nums-tabular">
+    <%= topic_article title: "Naming", link: "/naming" do %>
+      <ul class="list-none">
         <li>Semantics vs presentation
         <li>Sharing a design language
         <li>Structuring modules and files
@@ -20,25 +20,25 @@
       </ul>
     <% end %>
 
-    <%= topic_article title: "Testing" do %>
-      <ul class="list-disc nums-tabular">
+    <%= topic_article title: "Testing", link: "/testing" do %>
+      <ul class="list-none">
         <li>Isolated unit tests
         <li>Integration tests
         <li>Acceptance tests
-        <li><%= link 'Accessibility-first tests', to: Routes.accessibility_first_path(@conn, :index) %>
+        <li>Accessibility-first tests
       </ul>
     <% end %>
 
-    <%= topic_article title: "Accessibility" do %>
-      <ul class="list-disc nums-tabular">
+    <%= topic_article title: "Accessibility-First", link: Routes.accessibility_first_path(@conn, :index) do %>
+      <ul class="list-none">
         <li>In the browser
         <li>On iOS & Mac
         <li>HTML semantics
       </ul>
     <% end %>
-    
-    <%= topic_article title: "Performance" do %>
-      <ul class="list-disc nums-tabular">
+
+    <%= topic_article title: "Performance", link: "/performance" do %>
+      <ul class="list-none">
         <li>Inform first by measuring data
         <li>Fast loading as a priority
         <li>Using assets and performance budgets
