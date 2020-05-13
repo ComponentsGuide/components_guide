@@ -14,6 +14,10 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "roles-cheatsheet.html")
   end
 
+  def show(conn, %{"id" => "properties-cheatsheet"}) do
+    render(conn, "properties-cheatsheet.html")
+  end
+
   def show(conn, _params) do
     raise Phoenix.Router.NoRouteError, conn: conn, router: ComponentsGuideWeb.Router
   end

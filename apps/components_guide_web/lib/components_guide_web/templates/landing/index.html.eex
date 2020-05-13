@@ -153,6 +153,11 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
         <br>
         Reusable, testable data models
       </a>
+      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg">
+        <span class="text-3xl"><%= "Learn Wonka" %></span>
+        <br>
+        Reusable, testable data models
+      </a>
     </div>
   </section>
 </div>
