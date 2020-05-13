@@ -1,6 +1,6 @@
 <%
   theme = %Theme{text_color: "blue"}
-  [h2, h3] = Theme.headings(theme)
+  [h2, h3, h4] = Theme.headings(theme)
 %>
 <header class="text-white" style="background: <%= header_background %>;">
   <section class="container px-6 pt-6 pb-6">

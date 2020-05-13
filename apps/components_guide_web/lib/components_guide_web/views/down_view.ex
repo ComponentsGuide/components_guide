@@ -1,6 +1,5 @@
+# Paredown: simplified Markdown subset
 defmodule ComponentsGuideWeb.DownView do
-  use ComponentsGuideWeb, :view
-
   defmodule ParserState do
     defstruct html: [], italics: nil, bold: nil, link: nil, link_references: %{}
 

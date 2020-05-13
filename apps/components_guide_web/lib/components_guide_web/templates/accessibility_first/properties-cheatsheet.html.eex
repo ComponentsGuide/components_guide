@@ -1,17 +1,19 @@
 <%
   theme = %Theme{text_color: "blue"}
-  [h2, h3] = Theme.headings(theme)
+  [h2, h3, h4] = Theme.headings(theme)
 %>
 <header class="text-white" style="background: <%= header_background %>;">
-  <section class="container px-6 pt-6 pb-6">
+  <div class="container px-6 pt-6 pb-6">
     <h1 class="mx-auto max-w-4xl text-4xl text-center font-bold leading-tight text-shadow">
       <%= "Accessible Properties Cheatsheet" %>
     </h1>
-    <p class="mt-4 mx-auto max-w-3xl text-3xl text-center leading-snug italic text-gray-100 text-shadow">
-      <%= "Learn properties." %>
+    <p class="mt-4 text-3xl text-center leading-snug italic text-gray-100 text-shadow">
+      <%= "Learn one way that works for testing, accessibility, and styling." %>
     </p>
-  </section>
+    <%= render @view_module, "_nav.html" %>
+  </div>
 </header>
+
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
   <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
@@ -29,19 +31,20 @@
   </nav>
   <div class="mx-auto flex-shrink">
     <section aria-label="Roles Cheatsheet" class="max-w-xl lg:max-w-4xl px-6 pt-8 pb-16 text-white">
-      <article>
+      <article aria-labelledby="hidden" class="space-y-4">
         <%= h2.("I want to hide an element", id: "hidden") %>
 
         <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
 
         <ul>
-          <li>Hide to all users.
-          <li>Hide to sighted users, but show to screen reader users.
-          <li>Hide to screen reader users, but show to sighted users.
+          <li><%= down "Hide to **everyone**." %>
+          <li><%= down "**Screen reader affordance:** hide to sighted users, but show to screen reader users." %>
+          <li><%= down "**Visual affordance:** hide to screen reader users, but show to sighted users." %>
         </ul>
 
         <section aria-labelledby="hidden-all-heading">
-          <%= h3.("Hide to all users", id: "hidden-all-heading") %>
+          <%= h3.("Hide to everyone", id: "hidden-all-heading") %>
+          <%= h4.("Test") %>
           <%=
           """
           it("is hidden", () => {
@@ -49,46 +52,59 @@
           })
           """ |> code_block(:js)
           %>
+          <%= h4.("Markup") %>
           <%=
           """
-          {{ if .ShowSignIn }}
-            <a href="/signin">Sign In</a>
-          {{ end }}
+          <a href="/signin" hidden>Sign In</a>
           """ |> code_block(:html)
+          %>
+          <%= h4.("Styling") %>
+          <%=
+          """
+          [hidden] {
+            display: none !important;
+          }
+          """ |> code_block(:css)
           %>
         </section>
 
         <section aria-labelledby="hidden-visually-heading">
-          <%= h3.("Hide only visually", id: "hidden-visually-heading") %>
+          <%= h3.("Screen reader affordance: hide visually", id: "hidden-visually-heading") %>
+          <%= h4.("Test") %>
           <%=
           """
-          it("is shown to non-visual users", () => {
+          it("can still be found by our tests and by screen readers", () => {
             expect(
               screen.getByRole('link', { name: 'Sign In' })
             ).toBeInTheDocument();
           })
           """ |> code_block(:js)
           %>
+          <%= h4.("Markup") %>
           <%=
           """
           <a href="/signin" class="visually-hidden">Sign In</a>
           """ |> code_block(:html)
           %>
+          <%= h4.("Styling") %>
           <%=
           """
           .visually-hidden {
             position: absolute;
             overflow: hidden;
             clip: rect(0 0 0 0);
-            height: 1px; width: 1px;
-            margin: -1px; padding: 0; border: 0;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            border: 0;
           }
           """ |> code_block(:css)
           %>
         </section>
 
         <section aria-labelledby="hidden-screen-heading">
-          <%= h3.("Hide to screen-reader users", id: "hidden-screen-heading") %>
+          <%= h3.("Visual affordance: hide to screen reader users", id: "hidden-screen-heading") %>
           <%=
           """
           it("ignores emoji in accessible name", () => {
@@ -115,6 +131,12 @@
             <li><%= link("Places it’s tempting to use `display: none;`, but don’t ", to: "https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/") %>
           </ul>
         </section>
+      </article>
+
+      <article aria-labelledby="current" class="space-y-4">
+        <%= h2.(down("I want to make an element **current**"), id: "current") %>
+
+        <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
       </article>
 
     </section>

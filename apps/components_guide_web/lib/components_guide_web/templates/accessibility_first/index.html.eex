@@ -1,23 +1,5 @@
-<%
-topics = [
-  "Landmarks",
-  "Roles",
-  "Widgets",
-  "States",
-  "Forms",
-  "Tables",
-  "ARIA",
-  "Keyboard Navigation",
-  "TDD",
-  "BDD",
-  "Integration Testing",
-  "Jest",
-  "Atomic Design",
-]
-%>
-
 <header class="text-white" style="background: <%= header_background() %>;">
-  <section class="container px-6 pt-12 pb-12">
+  <div class="container px-6 pt-12 pb-12">
     <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
       <%= "🥇 Accessibility-First Development" %>
     </h1>
@@ -25,18 +7,13 @@ topics = [
       <%#= "Write simpler, more robust tests using accessibility affordances." %>
       <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
     </p>
-    <p class="py-2 text-xl text-center">
-      <span>Topics include:</span>
-      <%= for topic <- topics do %>
-        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 text-white rounded shadow-xl" style="background-color: rgba(255,255,255,0.1)"><%= topic %></a>
-      <% end  %>
-    </p>
-  </section>
+    <%= render @view_module, "_nav.html" %>
+  </div>
 </header>
 
 <div class="bg-white">
   <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
-    <%= topic_article(title: "Landmarks and roles", link: Routes.accessibility_first_path(@conn, :show, "roles-cheatsheet")) do %>
+    <%= topic_article(title: "Landmarks", link: Routes.accessibility_first_path(@conn, :show, "landmarks")) do %>
       <ul>
         <li><%= link("Orienting web visitors using landmarks", to: "#") %>
       </ul>

@@ -10,8 +10,8 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "landmarks.html")
   end
 
-  def show(conn, %{"id" => "roles-cheatsheet"}) do
-    render(conn, "roles-cheatsheet.html")
+  def show(conn, %{"id" => "widgets-cheatsheet"}) do
+    render(conn, "widgets-cheatsheet.html")
   end
 
   def show(conn, %{"id" => "properties-cheatsheet"}) do

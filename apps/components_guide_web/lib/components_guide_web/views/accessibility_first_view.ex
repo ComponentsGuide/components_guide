@@ -46,10 +46,16 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
       content_tag(:h3, content, [{:class, class} | attrs])
     end
 
+    def h4(theme = %Theme{}, content) do
+      class = "mt-4 mb-2 text-lg leading-normal text-#{theme.text_color}-300"
+      content_tag(:h4, content, [{:class, class}])
+    end
+
     def headings(theme = %Theme{}) do
       [
         fn content, attrs -> h2(theme, content, attrs) end,
-        fn content, attrs -> h3(theme, content, attrs) end
+        fn content, attrs -> h3(theme, content, attrs) end,
+        fn content -> h4(theme, content) end
       ]
     end
   end
