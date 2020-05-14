@@ -45,7 +45,7 @@ defmodule ComponentsGuideWeb do
       # import Phoenix.LiveView.Helpers
       import Phoenix.LiveView, only: [live_render: 2, live_render: 3]
 
-      import ComponentsGuideWeb.DownView
+      import Paredown
       alias ComponentsGuideWeb.StylingHelpers, as: Styling
     end
   end

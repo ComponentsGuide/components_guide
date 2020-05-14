@@ -9,7 +9,7 @@ install_assets:
 	cd apps/components_guide_web/assets/ && npm ci
 
 test_watch:
-  watchexec -e ex,exs mix test
+	watchexec -e ex,exs mix test
 
 dev:
 	iex -S mix phx.server

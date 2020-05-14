@@ -37,9 +37,9 @@
         <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
 
         <ul>
-          <li><%= down "Hide to **everyone**." %>
-          <li><%= down "**Screen reader affordance:** hide to sighted users, but show to screen reader users." %>
-          <li><%= down "**Visual affordance:** hide to screen reader users, but show to sighted users." %>
+          <li><%= line "Hide to **everyone**." %>
+          <li><%= line "**Screen reader affordance:** hide to sighted users, but show to screen reader users." %>
+          <li><%= line "**Visual affordance:** hide to screen reader users, but show to sighted users." %>
         </ul>
 
         <section aria-labelledby="hidden-all-heading">
@@ -134,7 +134,7 @@
       </article>
 
       <article aria-labelledby="current" class="space-y-4">
-        <%= h2.(down("I want to make an element **current**"), id: "current") %>
+        <%= h2.(line("I want to make an element **current**"), id: "current") %>
 
         <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
       </article>

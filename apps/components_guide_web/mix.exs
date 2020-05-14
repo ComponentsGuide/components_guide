@@ -39,7 +39,7 @@ defmodule ComponentsGuideWeb.MixProject do
     [
       {:phoenix, "~> 1.4.6"},
       {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_html, "~> 2.11"},
+      {:phoenix_html, "~> 2.13"},
       {:phoenix_ecto, "~> 4.0"},
       {:phoenix_live_view, github: "phoenixframework/phoenix_live_view"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -47,6 +47,7 @@ defmodule ComponentsGuideWeb.MixProject do
       {:components_guide, in_umbrella: true},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:paredown, "~> 0.1.0"},
       {:benchee, "~> 1.0", only: :dev}
     ]
   end

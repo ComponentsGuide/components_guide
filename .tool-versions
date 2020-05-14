@@ -1,4 +1,4 @@
 nodejs 12.16.1
-elixir 1.8.2
+elixir 1.10.3-otp-22
 erlang 22.3.3
 python 3.7.3
