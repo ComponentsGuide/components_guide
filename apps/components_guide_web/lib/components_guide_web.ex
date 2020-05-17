@@ -23,6 +23,7 @@ defmodule ComponentsGuideWeb do
 
       import Plug.Conn
       import ComponentsGuideWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias ComponentsGuideWeb.Router.Helpers, as: Routes
     end
   end

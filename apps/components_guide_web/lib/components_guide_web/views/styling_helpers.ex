@@ -66,7 +66,14 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     convert(input, :xyz) |> convert(:srgb)
   end
 
-  def to_css({:srgb, r, g, b}) do
+  defp clamp_0_1(n) when is_number(n), do: n |> max(0) |> min(1)
+
+  def clamp({:srgb, r, g, b}) do
+    {:srgb, r |> clamp_0_1(), g |> clamp_0_1(), b |> clamp_0_1()}
+  end
+
+  def to_css(color = {:srgb, _, _, _}) do
+    {:srgb, r, g, b} = clamp(color)
     "rgba(#{(r * 255) |> round},#{(g * 255) |> round},#{(b * 255) |> round},1)"
   end
 
@@ -87,7 +94,7 @@ defmodule ComponentsGuideWeb.StylingHelpers do
       :array.foldr(
         fn index, color, list ->
           percentage = "#{index / max * 100}%"
-          ["#{color |> to_css} #{percentage}" | list]
+          ["#{color |> to_css()} #{percentage}" | list]
         end,
         [],
         colors_array
