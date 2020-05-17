@@ -8,6 +8,10 @@ defmodule ComponentsGuideWeb.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
+      # Start the Telemetry supervisor
+      ComponentsGuideWeb.Telemetry,
+      # Start the PubSub system
+      {Phoenix.PubSub, name: ComponentsGuide.PubSub},
       # Start the endpoint when the application starts
       ComponentsGuideWeb.Endpoint
       # Starts a worker by calling: ComponentsGuideWeb.Worker.start_link(arg)

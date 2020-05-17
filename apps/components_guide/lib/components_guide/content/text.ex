@@ -11,9 +11,7 @@ defmodule ComponentsGuide.Content.Text do
       |> cast(params, [:content])
       |> validate_required([:content])
   end
-end
 
-defimpl Phoenix.Param, for: ComponentsGuide.Content.Text do
   def to_param(%ComponentsGuide.Content.Text{id: id}) do
     Base.url_encode64(id)
   end
@@ -22,3 +20,13 @@ defimpl Phoenix.Param, for: ComponentsGuide.Content.Text do
     Base.url_encode64(:crypto.hash(:sha256, content))
   end
 end
+
+# defimpl Phoenix.Param, for: ComponentsGuide.Content.Text do
+#   def to_param(%ComponentsGuide.Content.Text{id: id}) do
+#     Base.url_encode64(id)
+#   end
+
+#   def to_param(%ComponentsGuide.Content.Text{content: content}) when is_binary(content) do
+#     Base.url_encode64(:crypto.hash(:sha256, content))
+#   end
+# end

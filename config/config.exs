@@ -19,13 +19,8 @@ config :components_guide_web, ComponentsGuideWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "GIQzLogQXRdH7r9im+a6kEsZIbX6FmAvCt8bj+BYSkBahfkl6u9oRHSPs7Go81at",
   render_errors: [view: ComponentsGuideWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: ComponentsGuideWeb.PubSub, adapter: Phoenix.PubSub.PG2]
-
-# LiveView
-config :components_guide_web, ComponentsGuideWeb.Endpoint,
-  live_view: [
-    signing_salt: "7TXxs3RrJpb1o6FrVm8fU56M88zeqsU6"
-  ]
+  pubsub_server: ComponentsGuide.PubSub,
+  live_view: [signing_salt: "JNYbgmOL"]
 
 # Configures Elixir's Logger
 config :logger, :console,

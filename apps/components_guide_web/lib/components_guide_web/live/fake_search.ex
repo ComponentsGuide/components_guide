@@ -28,7 +28,7 @@ defmodule ComponentsGuideWeb.FakeSearchLive do
     Ecto.UUID.generate()
   end
 
-  def mount(%{}, socket) do
+  def mount(%{}, _session, socket) do
     #if connected?(socket), do: :timer.send_interval(5000, self(), :update)
 
     items = FakeSearch.list()

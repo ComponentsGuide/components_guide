@@ -1,11 +1,17 @@
 defmodule ComponentsGuideWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :components_guide_web
 
-  socket "/live", Phoenix.LiveView.Socket
+  @session_options [
+    store: :cookie,
+    key: "_components_guide_web_key",
+    signing_salt: "BfF2quM8"
+  ]
 
   socket "/socket", ComponentsGuideWeb.UserSocket,
     websocket: true,
     longpoll: false
+
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -25,8 +31,12 @@ defmodule ComponentsGuideWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
+  plug Phoenix.LiveDashboard.RequestLogger,
+    param_key: "request_logger",
+    cookie_key: "request_logger"
+
   plug Plug.RequestId
-  plug Plug.Logger
+  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -35,14 +45,6 @@ defmodule ComponentsGuideWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  plug Plug.Session,
-    store: :cookie,
-    key: "_components_guide_web_key",
-    signing_salt: "VQAmPv+f"
-
+  plug Plug.Session, @session_options
   plug ComponentsGuideWeb.Router
 end

@@ -6,6 +6,8 @@
 
 @tailwind utilities;
 
+@import "../node_modules/nprogress/nprogress.css";
+
 html {
     @apply bg-gray-900;
 }
