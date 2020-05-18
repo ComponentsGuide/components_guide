@@ -31,6 +31,7 @@ defmodule ComponentsGuideWeb.Router do
 
     live "/color", ColorLive, :index
     live "/color/:definition", ColorLive, :show
+    live "/color/lab/:definition", ColorLive, :lab
 
     get "/swiftui", SwiftUIController, :index
     get "/react+typescript", ReactTypescriptController, :index

@@ -5,7 +5,7 @@ defmodule ComponentsGuideWeb.ColorLive do
   defmodule State do
     defstruct color: {:lab, 50, 100, -128}
 
-    def from_input(
+    def decode(
           "#" <>
             <<r1::utf8>> <>
             <<r2::utf8>> <> <<g1::utf8>> <> <<g2::utf8>> <> <<b1::utf8>> <> <<b2::utf8>>
@@ -23,6 +23,19 @@ defmodule ComponentsGuideWeb.ColorLive do
 
       IO.puts("INPUT #{r} #{g} #{b} OUTPUT #{inspect(color)}")
       %State{color: color}
+    end
+
+    def decode(:lab, input) when is_binary(input) do
+      {l, <<","::utf8>> <> rest} = Integer.parse(input)
+      {a, <<","::utf8>> <> rest} = Integer.parse(rest)
+      {b, ""} = Integer.parse(rest)
+
+      %__MODULE__{color: {:lab, l, a, b}}
+    end
+
+    def encode(%__MODULE__{color: color})  do
+      {:lab,l,a,b} = color
+      "#{l},#{a},#{b}"
     end
 
     def set_color(state = %__MODULE__{}, color), do: %{state | color: color}
@@ -103,7 +116,7 @@ defmodule ComponentsGuideWeb.ColorLive do
   end
 
   def handle_params(%{"definition" => definition}, _path, socket) do
-    state = State.from_input(definition)
+    state = State.decode(:lab, definition)
     {:noreply, socket |> assign(:state, state)}
   end
 
@@ -118,11 +131,12 @@ defmodule ComponentsGuideWeb.ColorLive do
     b = b |> String.to_integer()
 
     state = socket.assigns.state |> State.set_color({:lab, l, a, b})
-    hex = state |> State.hex()
+    encoded = State.encode(state)
 
+    # TODO: throttle for Safari’s
+    # SecurityError: Attempt to use history.replaceState() more than 100 times per 30 seconds
     {:noreply,
      socket
-     |> assign(:state, state)
-     |> push_patch(to: Routes.color_path(socket, :show, hex), replace: true)}
+     |> push_patch(to: Routes.color_path(socket, :lab, encoded), replace: true)}
   end
 end
