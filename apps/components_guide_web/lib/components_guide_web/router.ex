@@ -29,7 +29,8 @@ defmodule ComponentsGuideWeb.Router do
               AccessibilityFirstController,
               only: [:index, :show]
 
-    get "/color", ColorController, :index
+    live "/color", ColorLive, :index
+    live "/color/:definition", ColorLive, :show
 
     get "/swiftui", SwiftUIController, :index
     get "/react+typescript", ReactTypescriptController, :index

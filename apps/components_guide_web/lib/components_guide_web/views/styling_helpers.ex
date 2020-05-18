@@ -13,6 +13,14 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     end
   end
 
+  defp convert_component({:srgb, c}, :linear_srgb) do
+    if c < 0.04045 do
+      c / 12.92
+    else
+      :math.pow((c + 0.055) / 1.055, 2.4)
+    end
+  end
+
   def convert({:linear_srgb, r, g, b}, :srgb) do
     {
       :srgb,
@@ -22,14 +30,41 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     }
   end
 
-  def convert({:xyz, x, y, z}, :srgb) do
+  def convert({:xyz, x, y, z}, :linear_srgb) do
     {
       :linear_srgb,
       x * 3.1338561 - y * 1.6168667 - 0.4906146 * z,
       x * -0.9787684 + y * 1.9161415 + 0.0334540 * z,
       x * 0.0719453 - y * 0.2289914 + 1.4052427 * z
     }
+  end
+
+  def convert({:xyz, _, _, _} = input, :srgb) do
+    input
+    |> convert(:linear_srgb)
     |> convert(:srgb)
+  end
+
+  def convert({:srgb, r, g, b}, :linear_srgb) do
+    {
+      :linear_srgb,
+      convert_component({:srgb, r}, :linear_srgb),
+      convert_component({:srgb, g}, :linear_srgb),
+      convert_component({:srgb, b}, :linear_srgb)
+    }
+  end
+
+  def convert({:linear_srgb, r, g, b}, :xyz) do
+    {
+      :xyz,
+      0.4360747 * r + 0.3850649 * g + 0.1430804 * b,
+      0.2225045 * r + 0.7168786 * g + 0.0606169 * b,
+      0.0139322 * r + 0.0971045 * g + 0.7141733 * b
+    }
+  end
+
+  def convert({:srgb, _, _, _} = input, :xyz) do
+    input |> convert(:linear_srgb) |> convert(:xyz)
   end
 
   @xn 0.96422
@@ -62,8 +97,33 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     }
   end
 
+  def convert({:xyz, x, y, z}, :lab) do
+    converter = fn v ->
+      if v > @e do
+        :math.pow(v, 1.0 / 3.0)
+      else
+        (@k * v + 16) / 116
+      end
+    end
+
+    f0 = converter.(x / @xn)
+    f1 = converter.(y / @yn)
+    f2 = converter.(z / @zn)
+
+    {
+      :lab,
+      116 * f1 - 16,
+      500 * (f0 - f1),
+      200 * (f1 - f2)
+    }
+  end
+
   def convert({:lab, _l, _a, _b} = input, :srgb) do
-    convert(input, :xyz) |> convert(:srgb)
+    input |> convert(:xyz) |> convert(:srgb)
+  end
+
+  def convert({:srgb, _, _, _} = input, :lab) do
+    input |> convert(:xyz) |> convert(:lab)
   end
 
   defp clamp_0_1(n) when is_number(n), do: n |> max(0) |> min(1)
