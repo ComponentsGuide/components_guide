@@ -33,6 +33,16 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
     """
   end
 
+  def list(items) do
+    ~E"""
+    <ul>
+    <%= for item <- items do %>
+      <li><%= line(item) %>
+    <% end %>
+    </ul>
+    """
+  end
+
   defmodule Theme do
     defstruct text_color: "blue"
 

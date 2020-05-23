@@ -2,7 +2,7 @@
   theme = %Theme{text_color: "blue"}
   [h2, h3, h4] = Theme.headings(theme)
 %>
-<header class="text-white" style="background: <%= header_background %>;">
+<header class="text-white" style="background: <%= header_background() %>;">
   <div class="container px-6 pt-6 pb-6">
     <h1 class="mx-auto max-w-4xl text-4xl text-center font-bold leading-tight text-shadow">
       <%= "Accessible Properties Cheatsheet" %>
@@ -36,11 +36,11 @@
 
         <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
 
-        <ul>
-          <li><%= line "Hide to **everyone**." %>
-          <li><%= line "**Screen reader affordance:** hide to sighted users, but show to screen reader users." %>
-          <li><%= line "**Visual affordance:** hide to screen reader users, but show to sighted users." %>
-        </ul>
+        <%= list [
+          "Hide to **everyone**.",
+          "**Screen reader affordance:** hide to sighted users, but show to screen reader users.",
+          "**Visual affordance:** hide to screen reader users, but show to sighted users."
+        ] %>
 
         <section aria-labelledby="hidden-all-heading">
           <%= h3.("Hide to everyone", id: "hidden-all-heading") %>

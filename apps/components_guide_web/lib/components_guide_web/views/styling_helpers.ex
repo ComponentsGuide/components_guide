@@ -3,6 +3,8 @@ defmodule ComponentsGuideWeb.StylingHelpers do
   Conveniences for creating gradient backgrounds
   """
 
+  use Phoenix.HTML
+
   # Source: https://github.com/Evercoder/culori
 
   defp convert_component({:linear_srgb, c}, :srgb) do
@@ -132,14 +134,20 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     {:srgb, r |> clamp_0_1(), g |> clamp_0_1(), b |> clamp_0_1()}
   end
 
-  def to_css(color = {:srgb, _, _, _}) do
+  def to_css(color = {:srgb, _, _, _}, :srgb) do
     {:srgb, r, g, b} = clamp(color)
     "rgba(#{(r * 255) |> round},#{(g * 255) |> round},#{(b * 255) |> round},1)"
   end
 
-  def to_css(color_tuple) when is_tuple(color_tuple) and elem(color_tuple, 0) in [:lab] do
-    color_tuple |> convert(:srgb) |> to_css()
+  def to_css(color, :srgb) do
+    color |> convert(:srgb) |> to_css(:srgb)
   end
+
+  def to_css({:lab, l, a, b}, nil) do
+    "lab(#{l |> round}% #{a |> round} #{b |> round})"
+  end
+
+  def to_css(color), do: to_css(color, :srgb)
 
   def linear_gradient(angle, colors) when is_list(colors) do
     linear_gradient(angle, :array.from_list(colors))
@@ -154,13 +162,46 @@ defmodule ComponentsGuideWeb.StylingHelpers do
       :array.foldr(
         fn index, color, list ->
           percentage = "#{index / max * 100}%"
-          ["#{color |> to_css()} #{percentage}" | list]
+          ["#{color |> to_css(:srgb)} #{percentage}" | list]
         end,
         [],
         colors_array
       )
-      |> Enum.join(",")
+      |> Enum.join(", ")
 
     "linear-gradient(#{angle}, #{colors_css})"
+  end
+
+  def svg_linear_gradient(angle, colors) when is_list(colors) do
+    svg_linear_gradient(angle, :array.from_list(colors))
+  end
+
+  def svg_linear_gradient(angle, colors_array) do
+    true = :array.is_array(colors_array)
+
+    max = :array.size(colors_array) - 1
+
+    stops =
+      :array.foldr(
+        fn index, color, list ->
+          percentage = "#{index / max * 100}%"
+
+          xml = ~E"""
+          <stop offset="<%= percentage %>" stop-color="<%= to_css(color, :srgb) %>" />
+          """
+
+          [
+            xml | list
+          ]
+        end,
+        [],
+        colors_array
+      )
+
+    ~E"""
+    <linearGradient id="myGradient" gradientTransform="scale(1.414) <%= angle %>">
+      <%= stops %>
+    </linearGradient>
+    """
   end
 end

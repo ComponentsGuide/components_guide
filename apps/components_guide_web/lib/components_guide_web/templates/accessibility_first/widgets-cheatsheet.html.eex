@@ -25,6 +25,8 @@
       <li><%= link "Radio", to: "#radio" %>
       <li><%= link "Range", to: "#range" %>
       <li><%= link "Tabs", to: "#tabs" %>
+      <li><%= link "Modal Dialog", to: "#dialog" %>
+      <li role=separator>
       <li><%= link("List of roles 🔗", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques") %>
       <li><%= link("Queries 🔗", to: "https://testing-library.com/docs/dom-testing-library/api-queries") %>
       <li><%= link("Matchers 🔗", to: "https://github.com/testing-library/jest-dom") %>
