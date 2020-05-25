@@ -156,7 +156,7 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
   </section>
 
   <aside class="py-20">
-    <div class="w-full max-w-4xl mx-auto px-4 space-y-6 text-2xl md:text-3xl rounded overflow-hidden shadow-lg">
+    <div class="container space-y-6 text-2xl md:text-3xl rounded">
       <p>
         There’s a lot of learning materials on specific technologies out there. But technologies change — rapidly.
 
