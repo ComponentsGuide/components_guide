@@ -11,12 +11,12 @@ defmodule ComponentsGuideWeb.LayoutView do
     {"By Technology", to: "/links"},
     # {"Patterns", to: "/patterns"},
     {"News Feed", to: "/feed"},
-    {"About", to: "/about"}
+    # {"About", to: "/about"}
   ]
 
   defp search_form do
     ~E"""
-    <li>
+    <li class=row-span-3>
       <form role=search action="/research" class="flex h-full px-2 items-center">
         <input type=text name=q placeholder="Search" class="w-full py-1 px-4 bg-white text-black rounded-full">
       </form>
