@@ -46,33 +46,6 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
 </div>
 
 <div class="text-white">
-  <aside class="py-20">
-    <div class="w-full max-w-4xl mx-auto space-y-6 text-3xl rounded overflow-hidden shadow-lg">
-      <p>
-        There’s a lot of learning materials on specific technologies out there. But technologies change — rapidly.
-
-      <p>
-        Frameworks will come and go.
-        React might be the hotness today, but in a few years another framework might well rule the roost.
-
-      <p>
-        The guides here cover what will remain relevant for decades to come:
-
-      <ul class="list-disc pl-8 font-bold">
-        <li class="text-red-300"><%= "Great UX and performance" %>
-        <li class="text-teal-300"><%= "Accessibility" %>
-        <li class="text-blue-300"><%= "Component naming & responsibility" %>
-        <li class="text-green-300"><%= "TDD & BDD" %>
-        <li class="text-yellow-100"><%= "Thinking about state" %>
-        <li class="text-orange-300"><%= "Modular styling with modern CSS" %>
-        <li class="text-purple-300"><%= "Leveraging what’s built into browsers first" %>
-      </ul>
-
-      <p>
-        It’s all free to read and share.
-    </div>
-  </aside>
-
   <section class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
@@ -163,4 +136,31 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
       </a>
     </div>
   </section>
+
+  <aside class="py-20">
+    <div class="w-full max-w-4xl mx-auto px-4 space-y-6 text-2xl md:text-3xl rounded overflow-hidden shadow-lg">
+      <p>
+        There’s a lot of learning materials on specific technologies out there. But technologies change — rapidly.
+
+      <p>
+        Frameworks will come and go.
+        React might be the hotness today, but in a few years another framework might well rule the roost.
+
+      <p>
+        The guides here cover what will remain relevant for decades to come:
+
+      <ul class="list-disc pl-8 font-bold">
+        <li class="text-red-300"><%= "Great UX and performance" %>
+        <li class="text-teal-300"><%= "Accessibility" %>
+        <li class="text-blue-300"><%= "Component naming & responsibility" %>
+        <li class="text-green-300"><%= "TDD & BDD" %>
+        <li class="text-yellow-100"><%= "Thinking about state" %>
+        <li class="text-orange-300"><%= "Modular styling with modern CSS" %>
+        <li class="text-purple-300"><%= "Leveraging what’s built into browsers first" %>
+      </ul>
+
+      <p>
+        It’s all free to read and share.
+    </div>
+  </aside>
 </div>

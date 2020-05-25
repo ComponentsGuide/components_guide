@@ -14,13 +14,7 @@
 
     <%= @inner_content %>
 
-    <footer role="contentinfo" class="container pt-4 pb-6 text-gray-600 tracking-wide">
-      <p><small class="text-xs">Copyright © 2020 Patrick Smith</small></p>
-      <ul class="list-none text-xs mt-4 leading-loose">
-        <li><a href="https://github.com/ComponentsTV/components_guide">Source on GitHub</a>
-        <li><a href="https://github.com/ComponentsTV/components_guide/blob/master/LICENSE">License</a>
-      </ul>
-    </footer>
+    <%= render ComponentsGuideWeb.LayoutView, "_contentinfo.html" %>
 
     <!-- Prism syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/prism.min.js" integrity="sha256-NFZVyNmS1YlmiklazBA+TALYJlJtZj/y/i/oADk6CVE=" crossorigin="anonymous"></script>

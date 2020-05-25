@@ -10,6 +10,8 @@
 
 html {
     @apply bg-gray-900;
+
+    --links-color: currentColor;
 }
 
 [hidden] {
