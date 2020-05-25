@@ -7,8 +7,6 @@ defmodule ComponentsGuideWeb.LandingView do
     w-full max-w-md mx-auto
     rounded overflow-hidden
     shadow-xl
-    transform hover:scale-105
-    transition ease-in-out duration-1000
     ">
       <%= for item <- items do %>
         <%= stack_item(item) %>
@@ -27,14 +25,13 @@ defmodule ComponentsGuideWeb.LandingView do
     <li>
       <a href="<%= to %>" class="
       block max-w-md w-full px-8 py-4 space-y-2
-      font-bold
       text-<%= color %>-500 bg-<%= color %>-50
       border-t border-l-4 border-current
       hover:text-<%= color %>-600 hover:bg-<%= color %>-100
       hover:shadow-lg
       ">
-        <h2 class="text-3xl leading-tight"><%= title %></h2>
-        <p><%= description %></p>
+        <h2 class="text-3xl font-bold leading-tight"><%= title %></h2>
+        <p class="text-xl"><%= description %></p>
       </a>
     """
   end
@@ -108,6 +105,18 @@ defmodule ComponentsGuideWeb.LandingView do
       {:lab, l + 20, -40, -40},
       {:lab, l, -20, -80},
       {:lab, l - 5, 20, -80},
+    ])
+
+    "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
+  end
+
+  def sections_styles(:dark) do
+    color = {:lab, 10, 1, -23}
+
+    gradient = Styling.linear_gradient("150grad", [
+      color,
+      color,
+      color,
     ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"

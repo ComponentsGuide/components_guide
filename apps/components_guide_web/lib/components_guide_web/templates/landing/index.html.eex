@@ -46,20 +46,20 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
 </div>
 
 <div class="text-white">
-  <section class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
-    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
-      <h2 class="text-4xl font-bold leading-snug">
+  <section class="pt-20 pb-20" style="<%= sections_styles(:dark) %>">
+    <header class="mb-8 mx-auto max-w-4xl px-2 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold leading-snug">
         Learn why accessibility is essential for a great UX, and use the same affordances to improve your own Developer Experience.
       </h2>
     </header>
     <%= stack_list([
       %{ title: "Landmarks", description: "Ensure your web pages have these familiar regions.", to: "/accessibility-first/landmarks", color: "purple" },
-      %{ title: "Labels and Descriptions", description: "Make sure every region of interest is labelled.", to: "/accessibility-first/properties-cheatsheet", color: "indigo" },
-      %{ title: "Properties", description: "Selected state, current page, hidden, and more.", to: "/accessibility-first/properties-cheatsheet", color: "teal" },
+      %{ title: "Labels and Descriptions", description: "Ensure every region of interest is labelled.", to: "/accessibility-first/properties-cheatsheet", color: "indigo" },
+      %{ title: "Properties", description: "Presenting selected state, current page, hiding, and more.", to: "/accessibility-first/properties-cheatsheet", color: "teal" },
       %{ title: "Form controls", description: "Inputs, checkboxes, radio buttons, comboboxes, and more.", to: "/accessibility-first/properties-cheatsheet", color: "red" },
-      %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "/accessibility-first/roles-cheatsheet", color: "orange" },
+      %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "/accessibility-first/widgets-cheatsheet", color: "orange" },
       %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first/roles-cheatsheet", color: "green" },
-      %{ title: "Keyboard Navigation Acceptance Tests", description: "Ensure your forms are keyboard accessibility.", to: "/accessibility-first", color: "blue" },
+      %{ title: "Keyboard Navigation Acceptance Tests", description: "Ensure your forms are keyboard accessibility.", to: "/accessibility-first/keyboard", color: "blue" },
     ]) %>
   </section>
 
@@ -71,7 +71,23 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
     </header>
     <%= stack_list([
       %{ title: "Contexts", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
-      %{ title: "Isolated Component Unit Tests", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "blue" },
+      %{ title: "Atomic Component Unit Tests", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "blue" },
+      %{ title: "Scenarios", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "indigo" },
+      %{ title: "Error Handling", description: "Cover unhappy paths too.", to: "/accessibility-first", color: "orange" },
+
+    ]) %>
+  </section>
+
+  <section class="pt-20 pb-20" style="<%= sections_styles(:warm) %>">
+    <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
+      <h2 class="text-4xl font-bold leading-snug">
+        Naming is hard. Let’s make it easier.
+      </h2>
+    </header>
+    <%= stack_list([
+      %{ title: "Look up synonyms", description: "The right word can unlock everything.", to: "/accessibility-first", color: "green" },
+      %{ title: "What’s most popular?", description: "Compare open source systems.", to: "/accessibility-first", color: "blue" },
+      %{ title: "Domain driven", description: "Look to your user’s world first.", to: "/accessibility-first", color: "orange" },
 
     ]) %>
   </section>
@@ -79,17 +95,19 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
   <section class="pt-20 pb-20 text-blue-800" style="<%= sections_styles(:cool_light) %>">
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
-        Write friendly tests using Jest and BDD.
+        Find the right home for your state.
       </h2>
     </header>
     <%= stack_list([
-      %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
-      %{ title: "Isolated Component Unit Tests", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "blue" },
+      %{ title: "URL as source of truth", description: "The shareable, serializable, canonical standard.", to: "/accessibility-first", color: "green" },
+      %{ title: "Modelling with state machines", description: "Systems to reliably think about state.", to: "/accessibility-first", color: "blue" },
+      %{ title: "Connecting the pipes", description: "Use a library like Wonka to connect your app.", to: "/accessibility-first", color: "orange" },
+      %{ title: "Never puts secrets where JavaScript can read", description: "Use cookies over local storage for anything private.", to: "/accessibility-first", color: "yellow" },
 
     ]) %>
   </section>
 
-  <section class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
+  <section hidden class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
         Make modern iOS and macOS apps using reusable components, async data flow.
