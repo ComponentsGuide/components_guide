@@ -23,7 +23,6 @@ defmodule ComponentsGuideWeb.ColorLive do
 
       color = {:srgb, r, g, b} |> Styling.convert(:lab)
 
-      IO.puts("INPUT #{r} #{g} #{b} OUTPUT #{inspect(color)}")
       %State{color: color}
     end
 
@@ -75,49 +74,33 @@ defmodule ComponentsGuideWeb.ColorLive do
   end
 
   def render(assigns) do
-    swatch_size = 100
+    swatch_size = 160
     {:lab, l, a, b} = assigns.state.color
 
-    l_steps = 10
+    gradient_steps = 20
 
     l_gradient =
       Styling.linear_gradient(
         "150grad",
-        for(n <- 0..l_steps, do: {:lab, n * (100 / l_steps), a, b})
+        for(n <- 0..gradient_steps, do: {:lab, n * (100 / gradient_steps), a, b})
       )
 
     l_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..l_steps, do: {:lab, interpolate(n / l_steps, {0.0, 100.0}), a, b})
-      )
-
-    a_steps = 10
-
-    a_gradient =
-      Styling.linear_gradient(
-        "150grad",
-        for(n <- 0..a_steps, do: {:lab, l, interpolate(n / a_steps, {-127.0, 127.0}), b})
+        for(n <- 0..gradient_steps, do: {:lab, interpolate(n / gradient_steps, {0.0, 100.0}), a, b})
       )
 
     a_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..a_steps, do: {:lab, l, interpolate(n / a_steps, {-127.0, 127.0}), b})
-      )
-
-    b_steps = 10
-
-    b_gradient =
-      Styling.linear_gradient(
-        "150grad",
-        for(n <- 0..b_steps, do: {:lab, l, a, interpolate(n / b_steps, {-127.0, 127.0})})
+        for(n <- 0..gradient_steps, do: {:lab, l, interpolate(n / gradient_steps, {-127.0, 127.0}), b})
       )
 
     b_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..b_steps, do: {:lab, l, a, interpolate(n / b_steps, {-127.0, 127.0})})
+        for(n <- 0..gradient_steps, do: {:lab, l, a, interpolate(n / gradient_steps, {-127.0, 127.0})})
       )
 
     ~L"""
@@ -126,34 +109,26 @@ defmodule ComponentsGuideWeb.ColorLive do
         <rect fill="<%= State.css_srgb(@state) %>" width="1" height="1" />
       </svg>
       <div class="flex">
-        <svg viewBox="0 0 1 1" width="100" height="100">
+        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=l>
           <defs>
             <%= l_gradient_svg %>
           </defs>
           <rect width="1" height="1" fill="url('#myGradient')" />
-          <circle cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
+          <circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
-        <svg viewBox="0 0 1 1" width="100" height="100">
+        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=a>
           <defs>
             <%= a_gradient_svg %>
           </defs>
           <rect width="1" height="1" fill="url('#myGradient')" />
           <circle cx="<%= (a / 127.0) / 2.0 + 0.5 %>" cy="<%= (a / 127.0) / 2.0 + 0.5 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
-        <svg viewBox="0 0 1 1" width="100" height="100">
+        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=b>
           <defs>
             <%= b_gradient_svg %>
           </defs>
           <rect width="1" height="1" fill="url('#myGradient')" />
           <circle cx="<%= (b / 127.0) / 2.0 + 0.5 %>" cy="<%= (b / 127.0) / 2.0 + 0.5 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
-        </svg>
-        <!--<div style="width: 100px; height: 100px; background-image: <%= l_gradient %>"></div>-->
-        <!--<div style="width: 100px; height: 100px; background-image: <%= a_gradient %>"></div>-->
-        <div style="width: 100px; height: 100px; background-image: <%= b_gradient %>"></div>
-        <svg width="100" height="100">
-          <foreignObject>
-            <div style="width: 100px; height: 100px; background-image: <%= b_gradient %>"></div>
-          </foreignObject>
         </svg>
       </div>
       <form phx-change="lab_changed" class="flex flex-col">
@@ -209,12 +184,8 @@ defmodule ComponentsGuideWeb.ColorLive do
      |> push_patch(to: Routes.color_path(socket, :lab, encoded), replace: true)}
   end
 
-  def handle_event("lab_changed", %{"l" => l, "a" => a, "b" => b}, socket) do
-    l = l |> String.to_integer()
-    a = a |> String.to_integer()
-    b = b |> String.to_integer()
-
-    state = socket.assigns.state |> State.set_color({:lab, l, a, b})
+  def change_color(color, socket) do
+    state = socket.assigns.state |> State.set_color(color)
 
     case socket.assigns.tref do
       nil -> nil
@@ -231,5 +202,31 @@ defmodule ComponentsGuideWeb.ColorLive do
       |> assign(:state, state)
       |> assign(:tref, tref)
     }
+  end
+
+  def handle_event("lab_changed", %{"l" => l, "a" => a, "b" => b}, socket) do
+    l = l |> String.to_integer()
+    a = a |> String.to_integer()
+    b = b |> String.to_integer()
+
+    {:lab, l, a, b} |> change_color(socket)
+  end
+
+  def handle_event("color_property_changed", %{"l" => l}, socket) do
+    l = (String.to_float(l) * 100) |> round()
+    {:lab, _, a, b} = socket.assigns.state.color
+    {:lab, l, a, b} |> change_color(socket)
+  end
+
+  def handle_event("color_property_changed", %{"a" => a}, socket) do
+    a = ((String.to_float(a) * 2 - 1.0) * 127) |> round()
+    {:lab, l, _, b} = socket.assigns.state.color
+    {:lab, l, a, b} |> change_color(socket)
+  end
+
+  def handle_event("color_property_changed", %{"b" => b}, socket) do
+    b = ((String.to_float(b) * 2 - 1.0) * 127) |> round()
+    {:lab, l, a, _} = socket.assigns.state.color
+    {:lab, l, a, b} |> change_color(socket)
   end
 end

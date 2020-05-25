@@ -18,7 +18,28 @@ let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
-  params: { _csrf_token: csrfToken }
+  params: { _csrf_token: csrfToken },
+  hooks: {
+    SwatchInput: {
+      mounted() {
+        const mouseEventHandler = (e) => {
+          if (e.which !== 0) {
+            const x = e.offsetX,
+              y = e.offsetY;
+            const maxX = this.el.width.baseVal.value;
+            const maxY = this.el.height.baseVal.value;
+            const xFraction = x / maxX;
+            const yFraction = y / maxY;
+            const value = (xFraction + yFraction) / 2;
+            const { colorProperty } = this.el.dataset;
+            this.pushEvent("color_property_changed", { [colorProperty]: `${value}` });
+          }
+        }
+        this.el.addEventListener("mousedown", mouseEventHandler);
+        this.el.addEventListener("mousemove", mouseEventHandler);
+      }
+    }
+  }
 });
 
 // Show progress bar on live navigation and form submits

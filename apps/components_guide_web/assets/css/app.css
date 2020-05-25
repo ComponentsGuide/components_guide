@@ -65,4 +65,9 @@ a[aria-current=page][class*="hover\:border-"] {
     border-color: currentColor;
 }
 
+[phx-hook=SwatchInput] {
+   user-select: none;
+   cursor: default;
+}
+
 /* @import "./phoenix.css"; */
