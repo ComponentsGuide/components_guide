@@ -8,10 +8,21 @@
 
 @import "../node_modules/nprogress/nprogress.css";
 
-html {
+:root {
     @apply bg-gray-900;
 
     --links-color: currentColor;
+
+    --size-xs: .75rem;
+    --size-sm: .875rem;
+    --size-base: 1rem;
+    --size-lg: 1.125rem;
+    --size-xl: 1.25rem;
+    --size-2xl: 1.5rem;
+    --size-3xl: 1.875rem;
+    --size-4xl: 2.25rem;
+    --size-5xl: 3rem;
+    --size-6xl: 4rem;
 }
 
 [hidden] {
@@ -38,8 +49,45 @@ a:hover {
     text-decoration: var(--hover\:links-decoration);
 }
 
+h2, p, li {
+  margin-left: var(--item-spacing-left);
+  margin-right: var(--item-spacing-right);
+}
+h2 {
+  font-size: var(--heading-2-size);
+}
+p {
+  padding: var(--paragraph-padding);
+}
+li {
+  padding: var(--listitem-padding);
+}
+:not(pre) > code {
+  padding: var(--code-padding);
+  border-radius: var(--code-radius);
+}
+
 input {
-    outline: none;
+  outline: none;
+}
+
+:not(pre) > code, pre {
+  color: white;
+  background-color: #011627;
+}
+
+.content {
+  --item-spacing-left: 1rem;
+  --item-spacing-right: 1rem;
+  --heading-2-size: var(--size-3xl);
+  --paragraph-padding: 0.5rem 0;
+  --listitem-padding: 0.5rem 0;
+  --code-padding: 0 0.1875em;
+  --code-radius: 0.125em;
+}
+
+.row {
+  @apply flex justify-center items-center;
 }
 
 .container {
@@ -60,6 +108,11 @@ ul:not([class]) {
 }
 ul:not([class]) > li > ul:not([class]) {
     @apply pl-8;
+}
+
+ol:not([class]) {
+  list-style: decimal;
+  padding-left: 1em;
 }
 
 /* Navigation links */

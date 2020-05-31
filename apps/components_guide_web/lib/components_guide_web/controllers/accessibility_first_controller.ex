@@ -6,6 +6,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "index.html")
   end
 
+  @spec show(Plug.Conn.t(), map) :: Plug.Conn.t()
   def show(conn, %{"id" => "landmarks"}) do
     render(conn, "landmarks.html")
   end

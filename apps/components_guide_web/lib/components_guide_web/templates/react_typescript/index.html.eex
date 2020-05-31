@@ -1,26 +1,23 @@
-<div class="text-white" style="background: linear-gradient(-60deg, rgba(206,60,0,1) 0%, rgba(255,40,147,1) 50%, rgba(255,187,50,1) 100%);">
-  <section class="container px-6 pt-12 pb-12">
-    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
-      <div class="pb-4 flex items-center justify-center">
-        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@618de63f309bbf56b67364fd6a441cbbf79403cc/logos/react.svg" %>" alt="React logo" width=96 height=96>
+<div class="text-white" style="<%= header_styles() %>">
+  <section class="pt-8 pb-8">
+    <h1 class="mx-auto max-w-4xl row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+      <div class="row">
+        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@618de63f309bbf56b67364fd6a441cbbf79403cc/logos/react.svg" %>" alt="React logo" width=48 height=48>
         <span class="mr-2 text-3xl">❤️</span>
-        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@02e637e09b55966e802dfe0bc93595594e0214bb/logos/typescript-icon.svg" %>" alt="TypeScript logo" width=96 height=96>
+        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@02e637e09b55966e802dfe0bc93595594e0214bb/logos/typescript-icon.svg" %>" alt="TypeScript logo" width=48 height=48>
       </div>
-      <%= "Learn React & TypeScript" %>
+      <span><%= "React & TypeScript Guide" %></span>
     </h1>
-    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-yellow-100 text-shadow">
-      <%= "Express clear components and data flow more robustly with the live feedback of TypeScript." %>
-    </p>
-    <p class="py-2 text-xl text-center">
-      Topics include:
-      <%= for text <- ["React", "Hooks", "Reducers", "Data Flow", "Loading APIs", "Composing", "Testing", "Performance", "Clarity", "Documentation", "Device Adapting"] do %>
-        <a href="#" class="inline-block mx-1 mb-3 px-4 py-2 font-bold bg-white text-blue-600 hover:bg-blue-500 hover:text-white rounded shadow-xl"><%= text %></a>  
-      <% end  %>
-    </p>
   </section>
 </div>
 
 <div class="bg-white">
+  <div class="content max-w-4xl mx-auto py-8 text-lg">
+    <%= render(@view_module, "tips.html") %>
+  </div>
+</div>
+
+<div class="bg-white" hidden>
   <section class="container pt-8 pb-16 text-2xl">
     <article class="mb-8">
       <h2 class="mb-2 text-4xl leading-normal text-teal-800">Atomic design</h2>

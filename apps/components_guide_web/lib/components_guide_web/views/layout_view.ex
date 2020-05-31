@@ -7,10 +7,10 @@ defmodule ComponentsGuideWeb.LayoutView do
 
   @nav_links [
     {:search},
-    {"By Concept", to: "/concepts"},
-    {"By Technology", to: "/links"},
+    # {"By Concept", to: "/concepts"},
+    # {"By Technology", to: "/links"},
     # {"Patterns", to: "/patterns"},
-    {"News Feed", to: "/feed"},
+    # {"News Feed", to: "/feed"},
     # {"About", to: "/about"}
   ]
 

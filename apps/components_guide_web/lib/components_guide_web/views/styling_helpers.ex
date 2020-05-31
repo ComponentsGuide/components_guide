@@ -172,11 +172,13 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     "linear-gradient(#{angle}, #{colors_css})"
   end
 
-  def svg_linear_gradient(angle, colors) when is_list(colors) do
-    svg_linear_gradient(angle, :array.from_list(colors))
+  def svg_linear_gradient(angle, colors, id \\ "myGradient")
+
+  def svg_linear_gradient(angle, colors, id) when is_list(colors) do
+    svg_linear_gradient(angle, :array.from_list(colors), id)
   end
 
-  def svg_linear_gradient(angle, colors_array) do
+  def svg_linear_gradient(angle, colors_array, id) do
     true = :array.is_array(colors_array)
 
     max = :array.size(colors_array) - 1
@@ -199,7 +201,7 @@ defmodule ComponentsGuideWeb.StylingHelpers do
       )
 
     ~E"""
-    <linearGradient id="myGradient" gradientTransform="scale(1.414) <%= angle %>">
+    <linearGradient id="<%= id %>" gradientTransform="scale(1.414) <%= angle %>">
       <%= stops %>
     </linearGradient>
     """
