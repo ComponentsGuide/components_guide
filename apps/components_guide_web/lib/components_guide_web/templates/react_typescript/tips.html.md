@@ -95,7 +95,7 @@ function Button({
 
 There’s not much difference, but I prefer the latter as:
 - The `function` keyword clearly says *I am a function* whereas the `=>` whispers.
-- Using function adds a [`name` property](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name), which is both useful for debugging and is also used in presenting in [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en). Arrow functions need an additional [babel plugin]((https://babeljs.io/docs/en/babel-plugin-transform-function-name) to make this happen.
+- Using function adds a [`name` property](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name), which is both useful for debugging and is also used in presenting in [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en). Arrow functions need an additional [babel plugin](https://babeljs.io/docs/en/babel-plugin-transform-function-name) to make this happen.
 - We don’t need to decide between implicit and explicit returns — we always need to write `return` which makes refactoring quicker as we can quickly add new statements.
 - Just because arrow functions are newer doesn’t mean we have to use them all the time.
 
