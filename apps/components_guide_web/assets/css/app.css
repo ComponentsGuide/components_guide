@@ -11,7 +11,7 @@
 :root {
     @apply bg-gray-900;
 
-    --links-color: currentColor;
+    --link-color: currentColor;
 
     --size-xs: .75rem;
     --size-sm: .875rem;
@@ -41,9 +41,9 @@ article a:hover {
 }
 
 a {
-    color: var(--links-color);
-    padding: var(--links-padding);
-    text-decoration: var(--links-decoration);
+    color: var(--link-color);
+    padding: var(--link-padding);
+    text-decoration: var(--link-decoration);
 }
 a:hover {
     text-decoration: var(--hover\:links-decoration);
@@ -55,6 +55,7 @@ h2, p, li {
 }
 h2 {
   font-size: var(--heading-2-size);
+  padding: var(--heading-2-padding);
 }
 p {
   padding: var(--paragraph-padding);
@@ -80,6 +81,7 @@ input {
   --item-spacing-left: 1rem;
   --item-spacing-right: 1rem;
   --heading-2-size: var(--size-3xl);
+  --heading-2-padding: var(--size-base) 0;
   --paragraph-padding: 0.5rem 0;
   --listitem-padding: 0.5rem 0;
   --code-padding: 0 0.1875em;

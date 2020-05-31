@@ -313,4 +313,14 @@ function Card({ title, children }: CardProps): JSX.Element {
 
 For this reason, I would recommend that components are functions that are declared at the top level of a file. A function declared nested inside another will be different each time that outer function is called — so either call these functions yourself or extract them out.
 
-## Once props are passed to a component, they mustn’t be mutated
+## Once elements & props are given to React, they mustn’t be mutated
+
+When you return an element tree from a component, it might be used immediately or it might be scheduled for use later.
+
+If you kept a reference to an element you returned and mutated it later, React might see an inconsistent view, causing the result to be unpredictable or for it to crash.
+
+React relies on immutability. It avoids creating defensive copies of elements and props, as that would just be overhead.
+
+## Test behavior and markup over implementation detail
+
+## Test roles

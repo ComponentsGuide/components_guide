@@ -14,11 +14,11 @@
     </form>
     <dl
       class="text-xl grid gap-2 items-center pt-4 px-6"
-      style="grid-template-columns: auto 1fr; --links-color: #1c64f2; --hover\:links-decoration: underline;"
+      style="grid-template-columns: auto 1fr; --link-color: #1c64f2; --hover\:link-decoration: underline;"
     >
       <dt>HTML & Roles</dt>
       <dd>
-        <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
+        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
           <li><%= link("form", to: "?q=form") %>
           <li><%= link("button", to: "?q=button") %>
           <li><%= link("contentinfo", to: "?q=contentinfo") %>
@@ -28,7 +28,7 @@
       </dd>
       <dt>Third-party</dt>
       <dd>
-        <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
+        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
           <li><%= link("react-dom", to: "?q=react-dom") %>
           <li><%= link("preact", to: "?q=preact") %>
           <li><%= link("vue", to: "?q=vue") %>
@@ -41,7 +41,7 @@
       </dd>
       <dt>Concepts</dt>
       <dd>
-        <ul class="list-none flex flex-wrap italic" style="--links-padding: 0.75em">
+        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
           <li><%= link("error", to: "?q=error") %>
         </ul>
       </dd>
