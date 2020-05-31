@@ -88,19 +88,22 @@ defmodule ComponentsGuideWeb.ColorLive do
     l_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..gradient_steps, do: {:lab, interpolate(n / gradient_steps, {0.0, 100.0}), a, b})
+        for(n <- 0..gradient_steps, do: {:lab, interpolate(n / gradient_steps, {0.0, 100.0}), a, b}),
+        "lab-l-gradient"
       )
 
     a_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..gradient_steps, do: {:lab, l, interpolate(n / gradient_steps, {-127.0, 127.0}), b})
+        for(n <- 0..gradient_steps, do: {:lab, l, interpolate(n / gradient_steps, {-127.0, 127.0}), b}),
+        "lab-a-gradient"
       )
 
     b_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..gradient_steps, do: {:lab, l, a, interpolate(n / gradient_steps, {-127.0, 127.0})})
+        for(n <- 0..gradient_steps, do: {:lab, l, a, interpolate(n / gradient_steps, {-127.0, 127.0})}),
+        "lab-b-gradient"
       )
 
     ~L"""
@@ -113,21 +116,21 @@ defmodule ComponentsGuideWeb.ColorLive do
           <defs>
             <%= l_gradient_svg %>
           </defs>
-          <rect width="1" height="1" fill="url('#myGradient')" />
+          <rect width="1" height="1" fill="url('#lab-l-gradient')" />
           <circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
         <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=a>
           <defs>
             <%= a_gradient_svg %>
           </defs>
-          <rect width="1" height="1" fill="url('#myGradient')" />
+          <rect width="1" height="1" fill="url('#lab-a-gradient')" />
           <circle cx="<%= (a / 127.0) / 2.0 + 0.5 %>" cy="<%= (a / 127.0) / 2.0 + 0.5 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
         <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=b>
           <defs>
             <%= b_gradient_svg %>
           </defs>
-          <rect width="1" height="1" fill="url('#myGradient')" />
+          <rect width="1" height="1" fill="url('#lab-b-gradient')" />
           <circle cx="<%= (b / 127.0) / 2.0 + 0.5 %>" cy="<%= (b / 127.0) / 2.0 + 0.5 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
       </div>
