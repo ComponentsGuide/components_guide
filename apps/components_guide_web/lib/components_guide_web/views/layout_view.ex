@@ -18,7 +18,7 @@ defmodule ComponentsGuideWeb.LayoutView do
     ~E"""
     <li class=row-span-3>
       <form role=search action="/research" class="flex h-full px-2 items-center">
-        <input type=text name=q placeholder="Search" class="w-full py-1 px-4 bg-white text-black rounded-full">
+        <input type=text name=q placeholder="Search specs, packages, features" class="w-full py-1 px-4 bg-white text-black rounded-full">
       </form>
     """
   end

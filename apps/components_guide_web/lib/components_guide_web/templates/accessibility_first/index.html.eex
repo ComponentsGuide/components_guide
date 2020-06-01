@@ -1,3 +1,23 @@
+<div class="text-white" style="<%= header_styles() %>">
+  <header class="mx-auto max-w-4xl">
+    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+      <div class="row">
+        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
+      </div>
+      <span><%= "Accessibility-First Development" %></span>
+    </h1>
+    <nav class="pt-6 pb-4">
+      <ul class="list-none row font-bold" style="--link-padding: 0.75em">
+        <li><%= link("Landmarks", to: '/accessibility-first/widgets-cheatsheet') %>
+        <li><%= link("Widgets", to: '/accessibility-first/widgets-cheatsheet') %>
+        <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
+        <li><%= link("Forms", to: '/accessibility-first/properties-cheatsheet') %>
+        <li><%= link("Keyboard Navigation", to: '/accessibility-first/properties-cheatsheet') %>
+      </ul>
+    </nav>
+  </header>
+</div>
+
 <header class="text-white" style="background: <%= header_background() %>;">
   <div class="container px-6 pt-12 pb-12">
     <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">

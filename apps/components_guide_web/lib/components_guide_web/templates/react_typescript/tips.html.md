@@ -1,3 +1,76 @@
+## Structural vs nominal types
+
+Most statically typed languages use the concept of nominal types.
+
+If I create two structs in a language like C:
+
+```c
+struct Point2D {
+  float x;
+  float y;
+};
+
+struct Point3D {
+  float x;
+  float y;
+  float z;
+};
+```
+
+I can’t cast value of one to the other:
+
+```c
+Point3D a = Point3D{ x: 2.0, y: 3.0, z: 1.0 };
+Point2D b = (Point2D)a;
+```
+
+In TypeScript, the equivalent is perfectly valid:
+
+```ts
+interface Point2D {
+  x: float;
+  y: float;
+}
+
+interface Point3D {
+  x: float;
+  y: float;
+  z: float;
+}
+
+const pointA: Point3D = { x: 2.0, y: 3.0, z: 1.0 };
+const pointB: Point2D = pointA;
+```
+
+This is because the properties of `Point2D` and `Point3D` overlap, or more specifically the type of `Point2D` is a subset of `Point3D`.
+
+This works because TypeScript is concerned with the shape of a type, not the name. What a type *has* not what it *is*. Types are essentially explicit declarations of duck typing.
+
+We can use this to our advantage, and declare types in multiple places (say the model and the view), and the TypeScript compiler will check for us that the values we use are all in agreement with those types.
+
+## Interfaces vs type aliases
+
+There’s some differences between types and interfaces in TypeScript. As this chart shows though, they offer very similar capabilities:
+![](https://i.stack.imgur.com/6Tjyp.png)
+
+I prefer to default interfaces for declaring shapes for inputs and outputs. They work with declaring shapes of objects, classes, and even functions.
+
+If I am combining types, then I generally will switch to using the `type` keyword and it’s ability to intersect `&` and union `|` types together. Or if I simply want an alias to an existing type, I will write: `type BlockID = string`.
+
+## Declaring React prop types with TypeScript
+
+Use an interface named after the component with a `Props` suffix. Remember to export it too as your tests probably want it.
+
+```tsx
+export interface ButtonProps {
+  title: string;
+  onClick: () => void;
+}
+export function Button({ title, onClick }: ButtonProps): JSX.Element {
+ // ...
+}
+```
+
 ## Use the `function` keyword for top level functions
 
 Compare these two ways of declaring a function component in JavaScript:
@@ -52,79 +125,6 @@ The top version using `function` has these benefits:
 - The stuff I care about is front and centre: the component name, the name of the props.
 - Adding the `JSX.Element` return type ensures I remember to `return` a React element, as not returning something will be a compile time error.
 
-## Structural vs nominal types
-
-Most statically typed languages use the concept of nominal types.
-
-If I create two structs in a language like C or Go:
-
-```go
-type Point2D struct {
-  x float32
-  y float32
-}
-
-type Point3D struct {
-  x float32
-  y float32
-  z float32
-}
-```
-
-I can’t cast value of one to the other:
-
-```go
-pointA := Point3D{x: 2.0, y: 3.0, z: 1.0}
-pointB := Point2D(point)
-// Compile error: cannot convert point (type Point3D) to type Point2D
-```
-
-In TypeScript, the equivalent is perfectly valid:
-
-```ts
-interface Point2D {
-  x: float;
-  y: float;
-}
-
-interface Point3D {
-  x: float;
-  y: float;
-  z: float;
-}
-
-const pointA: Point3D = { x: 2.0, y: 3.0, z: 1.0 };
-const pointB: Point2D = pointA;
-```
-
-This is because the properties of `Point2D` and `Point3D` overlap, or more specifically the type of `Point2D` is a subset of `Point3D`.
-
-This works because TypeScript is concerned with the shape of a type, not the name. What a type *has* not what it *is*. Types are essentially explicit declarations of duck typing.
-
-We can use this to our advantage, and declare types in multiple places (say the model and the view), and the TypeScript compiler will check for us that the values we use are all in agreement with those types.
-
-## Interfaces vs type aliases
-
-There’s some differences between types and interfaces in TypeScript. As this chart shows though, they offer very similar capabilities:
-![](https://i.stack.imgur.com/6Tjyp.png)
-
-I prefer to default interfaces for declaring shapes for inputs and outputs. They work with declaring shapes of objects, classes, and even functions.
-
-If I am combining types, then I generally will switch to using the `type` keyword and it’s ability to intersect `&` and union `|` types together. Or if I simply want an alias to an existing type, I will write: `type BlockID = string`.
-
-## Declaring React prop types with TypeScript
-
-Use an interface named after the component with a `Props` suffix. Remember to export it too as your tests probably want it.
-
-```tsx
-export interface ButtonProps {
-  title: string;
-  onClick: () => void;
-}
-export function Button({ title, onClick }: ButtonProps): JSX.Element {
- // ...
-}
-```
 
 ## Prefer functions to classes
 
@@ -248,13 +248,33 @@ Composition has the following benefits:
 
 We can compose functions. We can compose function components. We can compose hooks.
 
+## Handy React types
+
+```tsx
+// React <Element />
+JSX.Element
+
+// Component accepting children
+interface ComponentAcceptingChildren {
+  children: React.ReactNode;
+}
+
+// Props of a built-in HTML element
+React.ComponentProps<'button'>
+React.ComponentProps<'a'>
+React.ComponentProps<'textarea'>
+
+// Ref attached via <input ref={inputRef} />
+const inputRef = React.useRef<HTMLInputElement | null>(null);
+```
+
 ## Components must have consistent identity
 
-React uses the identity of a function component to know whether the implementation is the same. If the function identity changes from render to render, then React will entirely destroy then recreate the produced DOM elements.
+React uses the identity of a function component to know whether the implementation is the same. If the function identity changes from render to render, then React will entirely destroy-then-recreate that subtree of the DOM.
 
 Consider these two components.
 
-This one uses a nested component, which it asks React to render (`<Body />`):
+This one uses a nested component, which we ask React to render (`<Body />`):
 
 ```tsx
 interface CardProps {
@@ -273,7 +293,7 @@ function Card({ title, children }: CardProps): JSX.Element {
 }
 ```
 
-This one uses a nested function, which we call:
+This one uses a nested function, which we call (`renderBody()`):
 
 ```tsx
 interface CardProps {
@@ -321,6 +341,6 @@ If you kept a reference to an element you returned and mutated it later, React m
 
 React relies on immutability. It avoids creating defensive copies of elements and props, as that would just be overhead.
 
-## Test behavior and markup over implementation detail
+Use `React.cloneElement()` to create a copy of an existing React element with changed props.
 
-## Test roles
+Use `React.Children.map()` to work with children.

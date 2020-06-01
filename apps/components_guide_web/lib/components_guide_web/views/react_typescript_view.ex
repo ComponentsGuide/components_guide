@@ -2,7 +2,6 @@ defmodule ComponentsGuideWeb.ReactTypescriptView do
   use ComponentsGuideWeb, :view
 
   def header_styles() do
-    l = 50
     l = 0
     a = -60
     b = -90

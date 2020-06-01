@@ -1,5 +1,5 @@
 <header role=banner class="bg-gray-900 text-white">
-  <div class="container px-0 flex flex-col md:flex-row items-stretch text-center md:text-left">
+  <div class="px-4 flex flex-col md:flex-row items-stretch text-center md:text-left">
     <a href="/" class="block px-3 py-2 md:py-4 md:text-right text-sm md:text-base font-bold italic uppercase leading-tight tracking-wide hover:bg-gray-800">
       <span>Components <br>·Guide</span>
     </a>
