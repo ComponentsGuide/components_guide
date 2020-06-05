@@ -26,12 +26,18 @@ You can find a list of roles here [in the spec](https://www.w3.org/TR/wai-aria/#
       <th>HTML example</th>
     </tr>
   </thead>
-  <tbody>
-    <tr>
-      <td>Button</td>
-      <td>Perform action here</td>
-      <td>`<button>`</td>
-    </tr>
+  <tbody class="border">
+    <%= table_rows([
+      ["Button", "Perform action here", "`<button>`"],
+      ["Checkbox", "Enable something", "`<input type=checkbox>`"],
+      ["Textbox", "Type in something", "`<input type=text>` *or* `<textarea>`"],
+      ["Radio & Radiogroup", "Choose from a list", "`<input type=radio>`"],
+      ["Combobox", "Choose or type from a list", "`<select>` *or* `<div role=combobox> <input>`"],
+      ["Slider", "Choose from a range", "`<input type=range aria-valuemin=1 …>`"],
+      ["Menu & Menuitem", "Choose action", "`<ul role=menu> <li role=menuitem>…`"],
+      ["Dialog", "Focus on this separate content", "`<div role=dialog>`"],
+      ["Alert", "Alert to live information, errors", "`<div role=alert>`"],
+    ]) %>
   </tbody>
 </table>
 
