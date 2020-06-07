@@ -35,6 +35,9 @@ article a {
 article a:hover {
     text-decoration: underline;
 }
+article figcaption {
+  font-style: italic;
+}
 
 .a\{font-bold\} a {
     font-weight: bold;
@@ -49,22 +52,34 @@ a:hover {
     text-decoration: var(--hover\:links-decoration);
 }
 
-h2, p, li {
+h2, h3, p, li, table {
   margin-left: var(--item-spacing-left);
   margin-right: var(--item-spacing-right);
 }
+table {
+  width: calc(100% - var(--item-spacing-left) - var(--item-spacing-right));
+}
 h2 {
   font-size: var(--heading-2-size);
-  padding: var(--heading-2-padding);
+  padding: var(--heading-2-spacing);
+}
+h3 {
+  font-size: var(--heading-3-size);
+  padding: var(--heading-3-spacing);
 }
 p {
-  padding: var(--paragraph-padding);
+  padding: var(--paragraph-spacing);
 }
 li {
-  padding: var(--listitem-padding);
+  padding: var(--listitem-spacing);
+}
+table {
+  margin: var(--table-spacing);
+  margin-left: var(--item-spacing-left);
+  margin-right: var(--item-spacing-right);
 }
 :not(pre) > code {
-  padding: var(--code-padding);
+  padding: var(--code-spacing);
   border-radius: var(--code-radius);
 }
 
@@ -81,10 +96,13 @@ input {
   --item-spacing-left: 1rem;
   --item-spacing-right: 1rem;
   --heading-2-size: var(--size-3xl);
-  --heading-2-padding: var(--size-base) 0;
-  --paragraph-padding: 0.5rem 0;
-  --listitem-padding: 0.5rem 0;
-  --code-padding: 0 0.1875em;
+  --heading-2-spacing: var(--size-base) 0;
+  --heading-3-size: var(--size-2xl);
+  --heading-3-spacing: var(--size-base) 0;
+  --paragraph-spacing: 0.5rem 0;
+  --listitem-spacing: 0.5rem 0;
+  --table-spacing: var(--size-xl) 0;
+  --code-spacing: 0 0.1875em;
   --code-radius: 0.125em;
 }
 

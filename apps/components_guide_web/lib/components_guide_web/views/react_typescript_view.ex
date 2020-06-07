@@ -7,13 +7,20 @@ defmodule ComponentsGuideWeb.ReactTypescriptView do
     b = -90
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.1, a * 1.1, b * 1.4},
-      color,
-      {:lab, l * 1.3, a * 0.5, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.1, a * 1.1, b * 1.4},
+        color,
+        {:lab, l * 1.3, a * 0.5, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
+  end
+
+  def collected_image(conn, name) do
+    %{static_path: path_to_image, width: width, height: height} = render(name)
+    url = Routes.static_path(conn, "/" <> path_to_image)
+    tag(:img, src: url, width: width / 2, height: height / 2)
   end
 
   def table_rows(rows_content) do

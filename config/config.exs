@@ -32,7 +32,9 @@ config :phoenix, :json_library, Jason
 
 # Allow rendering markdown templates
 config :phoenix, :template_engines,
-  md: ComponentsGuideWeb.MarkdownEngine
+  md: ComponentsGuideWeb.TemplateEngines.MarkdownEngine,
+  png: ComponentsGuideWeb.TemplateEngines.ImageEngine,
+  collected: ComponentsGuideWeb.TemplateEngines.ImageEngine
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

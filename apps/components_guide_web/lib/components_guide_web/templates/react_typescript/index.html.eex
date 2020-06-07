@@ -17,11 +17,13 @@
   </header>
 </div>
 
-<div class="bg-white">
-  <div class="content max-w-4xl mx-auto py-8 text-lg">
-    <%= render(@view_module, @article <> ".html") %>
+<article>
+  <div class="bg-white">
+    <div class="content max-w-4xl mx-auto py-8 text-lg">
+      <%= render(@view_module, @article <> ".html", conn: @conn) %>
+    </div>
   </div>
-</div>
+</article>
 
 <div class="bg-white" hidden>
   <section class="container pt-8 pb-16 text-2xl">

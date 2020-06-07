@@ -21,7 +21,7 @@ defmodule ComponentsGuideWeb.Endpoint do
     at: "/",
     from: :components_guide_web,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: ~w(css fonts images js favicon.ico robots.txt collected)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

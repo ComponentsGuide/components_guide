@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.MarkdownEngine do
+defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
   @moduledoc false
 
   @behaviour Phoenix.Template.Engine
