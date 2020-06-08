@@ -1,0 +1,8 @@
+cd "${phoenix_dir}/assets/"
+
+npm run deploy
+
+cd $phoenix_dir
+
+mix template_assets
+mix "${phoenix_ex}.digest"
