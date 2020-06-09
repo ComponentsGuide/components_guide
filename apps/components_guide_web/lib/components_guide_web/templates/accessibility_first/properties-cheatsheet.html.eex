@@ -37,7 +37,7 @@
         <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
 
         <%= list [
-          "Hide to **everyone**.",
+          "Hide from **everyone**.",
           "**Screen reader affordance:** hide to sighted users, but show to screen reader users.",
           "**Visual affordance:** hide to screen reader users, but show to sighted users."
         ] %>

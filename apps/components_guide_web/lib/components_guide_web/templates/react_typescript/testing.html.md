@@ -1,15 +1,41 @@
-## Behavior and markup > implementation details
+## Use Roles First
 
-## Accessibility-first testing: a standard-based approach
+Most semantic HTML elements have an implicit role. This role is used by accessibility tools such as screen readers. But as we’ll explain, ou can also use it to write easy-to-understand tests.
 
-- Build components
-- Test components work as expected
-- Test-drive components
-- Learnable & deterministic
+Because the ARIA specs are more recent than HTML 1.0, it clarifies HTML and provides improved names for a lot of the traditional HTML elements. The names used are more what everyday users would use too, such as `link` rather than `a`.
 
-## Build components
+### Roles are better than Tag Names
 
-Most semantic HTML elements have a role.
+Roles are better than tag names, as they generalize towards the user behaviour not the nitty-gritty of HTML specifics.
+
+As an example, `<input type="text">` and `<textarea></textarea>` both have the role **textbox**. A user probably does not care for the difference — it’s just a text field that they can type into.
+
+These roles allow us to think in the language that our users would use:
+
+- The **save** _button_
+- The **email** _text field_
+- The **primary** _navigation_
+- The **notifications** _icon image_
+- The _**search** field_
+- The **remember me** _checkbox_
+
+### Roles are better than Test IDs
+
+Test IDs are something that allow us to find specific elements on the page. They can seem especially necessary in a component system, since our component structure is not surfaced if we render our component tree to HTML.
+
+The problem is that Test IDs are _only_ used for automated testing — they don’t affect the user’s experience at all.
+
+So something that relies on Test IDs to work might still pass, but still produce an issue for end users! So using them does not give us that much more confidence that what we are implementing actually works.
+
+It would be better if we could test the same experience as our users. If we could take the same path they use when first coming to a page and they begin to understand what’s there.
+
+A screen reader user has this exact experience. They arrive at a page, and are able to hear what sections and elements are available. They are able to jump to a specific section or element and interact with it. And they get feedback telling them exactly what the state of the world is as they interact.
+
+This sounds exactly what we would desire for our automated tests! We want to find elements on the page, interact with them, and get feedback that they are working correctly.
+
+This is what accessibility-first testing allows us to achieve. And as a massive bonus, it lets us create an accessible experience from day one. We can be on a path to creating a fantastic user experience too.
+
+## Available Roles
 
 <table class="text-left table-fixed">
   <thead>
@@ -18,7 +44,7 @@ Most semantic HTML elements have a role.
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="border text-white bg-teal-900">
+  <tbody class="text-white bg-teal-900 border border-teal-700">
     <%= table_rows([
       ["**link**", "`<a href=…>`"],
       ["_none_", "`<a>`"],
@@ -43,7 +69,7 @@ Most semantic HTML elements have a role.
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="border text-white bg-teal-900">
+  <tbody class="text-white bg-teal-900 border border-teal-700">
     <%= table_rows([
       ["**main**", "`<main>`"],
       ["**navigation**", "`<nav>`"],
@@ -61,7 +87,7 @@ Most semantic HTML elements have a role.
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="border text-white bg-teal-900">
+  <tbody class="text-white bg-teal-900 border border-teal-700">
     <%= table_rows([
       ["**link**", "`<a href=…>`"],
       ["_none_", "`<a>`"],
@@ -90,7 +116,7 @@ Most semantic HTML elements have a role.
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="border text-white bg-teal-900">
+  <tbody class="text-white bg-teal-900 border border-teal-700">
     <%= table_rows([
       ["**form**", "`<form>`"],
       ["**button**", "`<button>`"],
@@ -116,15 +142,15 @@ Most semantic HTML elements have a role.
   </tbody>
 </table>
 
-<table class="text-left">
+<table class="text-left table-fixed">
   <caption class="text-2xl">Tables</caption>
   <thead>
     <tr>
-      <th>Role name</th>
+      <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="border text-white bg-teal-900">
+  <tbody class="text-white bg-teal-900 border border-teal-700">
     <%= table_rows([
       ["**table**", "`<table>`"],
       ["**rowgroup**", "`<tbody>`, `<thead>`, `<tfoot>`"],
@@ -135,6 +161,25 @@ Most semantic HTML elements have a role.
     ]) %>
   </tbody>
 </table>
+
+## Accessible names
+
+Accessible elements don’t just have a role. They have a name too, which differentiates them from things with the same role.
+
+These names are provided by HTML in a number of ways:
+
+- `<label>` relationship
+- `aria-labelledby` attribute
+- `aria-label` attribute
+
+## Behavior and markup > implementation details
+
+## Accessibility-first testing: a standard-based approach
+
+- Build components
+- Test components work as expected
+- Test-drive components
+- Learnable & deterministic
 
 ## Test components work as expected
 
