@@ -82,6 +82,10 @@ table {
   padding: var(--code-spacing);
   border-radius: var(--code-radius);
 }
+hr {
+  margin: var(--separator-spacing);
+  color: var(--separator-color);
+}
 
 input {
   outline: none;
@@ -104,6 +108,8 @@ input {
   --table-spacing: var(--size-xl) 0;
   --code-spacing: 0 0.1875em;
   --code-radius: 0.125em;
+  --separator-spacing: var(--size-5xl) 0;
+  --separator-color: currentColor;
 }
 
 .row {

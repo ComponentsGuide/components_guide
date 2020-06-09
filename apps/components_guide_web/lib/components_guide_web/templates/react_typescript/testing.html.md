@@ -44,7 +44,7 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-teal-900 border border-teal-700">
+  <tbody class="text-white bg-purple-900 border border-purple-700">
     <%= table_rows([
       ["**link**", "`<a href=…>`"],
       ["_none_", "`<a>`"],
@@ -69,10 +69,14 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-teal-900 border border-teal-700">
+  <tbody class="text-white bg-purple-900 border border-purple-700">
     <%= table_rows([
       ["**main**", "`<main>`"],
       ["**navigation**", "`<nav>`"],
+      ["**banner**", "`<header role=banner>`"],
+      ["**contentinfo**", "`<footer role=contentinfo>`"],
+      ["**search**", "`<form role=search>`"],
+      ["**form**", "`<form>`"],
       ["**complementary**", "`<aside>`"],
       ["**region**", "`<section>`"],
     ]) %>
@@ -87,7 +91,7 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-teal-900 border border-teal-700">
+  <tbody class="text-white bg-purple-900 border border-purple-700">
     <%= table_rows([
       ["**link**", "`<a href=…>`"],
       ["_none_", "`<a>`"],
@@ -116,7 +120,7 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-teal-900 border border-teal-700">
+  <tbody class="text-white bg-purple-900 border border-purple-700">
     <%= table_rows([
       ["**form**", "`<form>`"],
       ["**button**", "`<button>`"],
@@ -126,17 +130,17 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       ["**textbox**", "`<input type=email>`"],
       ["**textbox**", "`<input type=tel>`"],
       ["**textbox**", "`<input type=url>`"],
-      ["**searchbox**", "`<input type=search>` with no `list` attribute"],
+      ["**searchbox**", "`<input type=search>` without `list` attribute"],
       ["**radio**", "`<input type=radio>`"],
       ["**checkbox**", "`<input type=checkbox>`"],
-      ["**combobox**", "`<select>`"],
+      ["**combobox**", "`<select>` without `multiple` attribute"],
       ["**listbox**", "`<select>` with `multiple` attribute"],
       ["**option**", "`<option>`"],
       ["**slider**", "`<input type=range>`"],
       ["_none_", "`<input type=password>`"],
       ["progressbar", "`<progress>`"],
-      ["group", "`<fieldset>`"],
       ["status", "`<output>`"],
+      ["group", "`<fieldset>`"],
       ["_none_", "`<legend>`"],
     ]) %>
   </tbody>
@@ -150,7 +154,7 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-teal-900 border border-teal-700">
+  <tbody class="text-white bg-purple-900 border border-purple-700">
     <%= table_rows([
       ["**table**", "`<table>`"],
       ["**rowgroup**", "`<tbody>`, `<thead>`, `<tfoot>`"],
@@ -162,19 +166,113 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
   </tbody>
 </table>
 
+<table class="text-left table-fixed">
+  <caption class="text-2xl">Tabs</caption>
+  <thead>
+    <tr>
+      <th style="width: 12em">Role name</th>
+      <th>HTML element</th>
+    </tr>
+  </thead>
+  <tbody class="text-white bg-purple-900 border border-purple-700">
+    <%= table_rows([
+      ["**tablist**", "`<ul role=tablist>`"],
+      ["**tab**", "`<button role=tab>`"],
+      ["**tabpanel**", "`<section role=tabpanel>`"],
+    ]) %>
+  </tbody>
+  <tfoot class="text-purple-100 bg-purple-900 border border-purple-700">
+    <tr>
+      <td colspan=2 class="px-3 py-1"><em>Should</em> manage focus with JavaScript.</td>
+    </tr>
+  </tfoot>
+</table>
+
+<table class="text-left table-fixed">
+  <caption class="text-2xl">Menus</caption>
+  <thead>
+    <tr>
+      <th style="width: 12em">Role name</th>
+      <th>HTML element</th>
+    </tr>
+  </thead>
+  <tbody class="text-white bg-purple-900 border border-purple-700">
+    <%= table_rows([
+      ["**menu**", "`<ul role=menu>`"],
+      ["**menuitem**", "`<button role=menuitem>`"],
+      ["**menuitemcheckbox**", "`<button role=menuitemcheckbox>`"],
+      ["**menuitemradio**", "`<button role=menuitemradio>`"],
+      ["**menubar**", "`<nav role=menubar>`"],
+    ]) %>
+  </tbody>
+  <tfoot class="text-purple-100 bg-purple-900 border border-purple-700">
+    <tr>
+      <td colspan=2 class="px-3 py-1"><em>Should</em> manage focus with JavaScript.</td>
+    </tr>
+  </tfoot>
+</table>
+
 ## Accessible names
 
-Accessible elements don’t just have a role. They have a name too, which differentiates them from things with the same role.
+Accessible elements don’t just have a role. They can have a ‘name’ too, which helps the user tell elements with the same role apart.
 
 These names are provided by HTML in a number of ways:
 
 - `<label>` relationship
 - `aria-labelledby` attribute
 - `aria-label` attribute
+- The displayed value
+- The text content
 
-## Behavior and markup > implementation details
+The algorithm is specified in [W3C’s Accessible Name and Description Computation](https://www.w3.org/TR/accname-1.1/#mapping_additional_nd_te).
 
-## Accessibility-first testing: a standard-based approach
+### Examples of accessible names
+
+```html
+<button>Save</button>
+```
+
+```html
+<label>Email: <input type=email></label>
+```
+
+```html
+<label><input type=checkbox> Receive email alerts</label>
+```
+
+```html
+<article aria-labelledby="faq-heading">
+  <h2 id="faq-heading">Frequently Asked Questions</h2>
+</article>
+```
+
+```html
+<nav aria-label="Primary">
+  …
+</nav>
+```
+
+```html
+<svg role="img">
+  <title>New document</title>
+  …
+</svg>
+```
+
+You could query these elements using Testing Library:
+
+```ts
+getByRole('button', { name: 'Save' });
+getByRole('textbox', { name: /Email/ });
+getByRole('checkbox', { name: /Receive email alerts/i });
+getByRole('article', { name: 'Frequently asked questions' });
+getByRole('navigation', { name: 'Primary' });
+getByRole('img', { name: 'New document' });
+```
+
+----
+
+## Accessibility-first testing: a standards-based approach
 
 - Build components
 - Test components work as expected
