@@ -2,14 +2,14 @@
   theme = %Theme{text_color: "blue"}
   [h2, h3, h4] = Theme.headings(theme)
 %>
-<header class="text-white" style="background: <%= header_background() %>;">
-  <div class="container px-6 pt-6 pb-6">
-    <h1 class="mx-auto max-w-4xl text-4xl text-center font-bold leading-tight text-shadow">
-      <%= "Accessible Properties Cheatsheet" %>
+<header class="text-white" style="<%= header_styles() %>">
+  <div class="mx-auto max-w-4xl">
+    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+      <div class="row">
+        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
+      </div>
+      <span><%= "Accessibility-First" %></span>
     </h1>
-    <p class="mt-4 text-3xl text-center leading-snug italic text-gray-100 text-shadow">
-      <%= "Learn one way that works for testing, accessibility, and styling." %>
-    </p>
     <%= render @view_module, "_nav.html" %>
   </div>
 </header>
@@ -127,6 +127,7 @@
         <section aria-labelledby="hidden-notes-heading">
           <%= h3.("Notes", id: "hidden-notes-heading") %>
           <ul>
+            <li><%= link("Scott O’Hara: Inclusively Hidden", to: "https://www.scottohara.me/blog/2017/04/14/inclusively-hidden.html") %>
             <li><%= link("MDN: Using the aria-hidden attribute", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-hidden_attribute") %>
             <li><%= link("Places it’s tempting to use `display: none;`, but don’t ", to: "https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/") %>
           </ul>

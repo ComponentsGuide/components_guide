@@ -1,52 +1,90 @@
-<div class="text-white" style="<%= header_styles() %>">
-  <header class="mx-auto max-w-4xl">
+<header class="text-white" style="<%= header_styles() %>">
+  <div class="mx-auto max-w-4xl">
     <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
       <div class="row">
         <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
       </div>
-      <span><%= "Accessibility-First Development" %></span>
+      <span><%= "Accessibility-First" %></span>
     </h1>
-    <nav class="pt-6 pb-4">
-      <ul class="list-none row font-bold" style="--link-padding: 0.75em">
-        <li><%= link("Landmarks", to: '/accessibility-first/widgets-cheatsheet') %>
-        <li><%= link("Widgets", to: '/accessibility-first/widgets-cheatsheet') %>
-        <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
-        <li><%= link("Forms", to: '/accessibility-first/properties-cheatsheet') %>
-        <li><%= link("Keyboard Navigation", to: '/accessibility-first/properties-cheatsheet') %>
-      </ul>
-    </nav>
-  </header>
-</div>
-
-<header class="text-white" style="background: <%= header_background() %>;">
-  <div class="container px-6 pt-12 pb-12">
-    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
-      <%= "🥇 Accessibility-First Development" %>
-    </h1>
-    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-shadow">
-      <%#= "Write simpler, more robust tests using accessibility affordances." %>
-      <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
-    </p>
     <%= render @view_module, "_nav.html" %>
   </div>
 </header>
 
-<div class="bg-white">
-  <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
-    <%= topic_article(title: "Landmarks", link: Routes.accessibility_first_path(@conn, :show, "landmarks")) do %>
-      <ul>
-        <li><%= link("Orienting web visitors using landmarks", to: "#") %>
-      </ul>
-      <p>Define what your elements are using a clear standard. Let your users quickly jump around the key parts of your page (better UX), and leverage those in your tests (better DX).</p>
-    <% end %>
-    <%= topic_article(title: "Widgets, Attributes & States", link: Routes.accessibility_first_path(@conn, :show, "properties-cheatsheet")) do %>
-      <p>Learn the standards for interactive widgets usable by touch, mouse, and keyboard. Let users know which page is current or which sub-control is selected.</p>
-    <% end %>
-    <%= topic_article(title: "BDD with Jest & React Testing Library") do %>
-      <p>Learn a consistent pattern to write your component tests in Jest. Use @testing-library to find elements in a realistic way. Describe your contexts and scenarios with plain language.</p>
-    <% end %>
-    <%= topic_article(title: "Atomic Design") do %>
-      <p>Organize your components into distict folders. Break them up at the right level, then compose them. Test them differently. Incorporate ARIA roles into the atomic design approach.</p>
-    <% end %>
-  <% end %>
+<article>
+  <div class="text-white bg-gray-900">
+    <div class="content max-w-4xl mx-auto py-8 text-xl">
+      <%= render(@view_module, @article <> ".html", conn: @conn) %>
+    </div>
+  </div>
+</article>
+
+<div class="bg-white" hidden>
+  <section class="container pt-8 pb-16 text-2xl">
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Atomic design</h2>
+      <p>
+        Learn how to name components. Apply the single responsibility principle. Find the indivisible component units, and compose them together into larger molecules.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Styling approaches</h2>
+      <p>
+        Extract common styles. Define a style guide. How do you keep styles consistent?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Reusability trade-offs</h2>
+      <p>
+        What sort of components should be resuable? How granular should you go?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Pattern libraries</h2>
+      <p>
+        When do you need a pattern library? Who are they for? How should you manage them?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Testing components</h2>
+      <p>
+        Unit test components. Test the behaviours that matter first. Use type-safety to remove impossible states.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Testing data flow</h2>
+      <p>
+        Test your data flow in isolation. Use test-driven design. Mock APIs and other sources.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Composable component patterns</h2>
+      <p>
+        Components are <em>really</em> composable. Can we reduce boilerplate? What useful component utilities can we make?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Handling errors</h2>
+      <p>
+        Handle errors from publishers. What and when should you show users?
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Caching data</h2>
+      <p>
+        Learn how to name components. Apply the single responsibility principle. Find the atomic units, and compose them together.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Improving performance in the right areas</h2>
+      <p>
+        Learn when you should focus on performance. Measure to be informed. Apply optimization techniques.
+      </p>
+    </article>
+    <article class="mb-8">
+      <h2 class="mb-2 text-4xl leading-normal text-teal-800">Automating repetitive tasks</h2>
+      <p>
+        Produce screenshots across many devices.
+      </p>
+    </article>
+  </section>
 </div>

@@ -1,0 +1,52 @@
+<div class="text-white" style="<%= header_styles() %>">
+  <header class="mx-auto max-w-4xl">
+    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+      <div class="row">
+        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
+      </div>
+      <span><%= "Accessibility-First Development" %></span>
+    </h1>
+    <nav class="pt-6 pb-4">
+      <ul class="list-none row font-bold" style="--link-padding: 0.75em">
+        <li><%= link("Landmarks", to: '/accessibility-first/widgets-cheatsheet') %>
+        <li><%= link("Widgets", to: '/accessibility-first/widgets-cheatsheet') %>
+        <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
+        <li><%= link("Forms", to: '/accessibility-first/properties-cheatsheet') %>
+        <li><%= link("Keyboard Navigation", to: '/accessibility-first/properties-cheatsheet') %>
+      </ul>
+    </nav>
+  </header>
+</div>
+
+<header class="text-white" style="background: <%= header_background() %>;">
+  <div class="container px-6 pt-12 pb-12">
+    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
+      <%= "🥇 Accessibility-First Development" %>
+    </h1>
+    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-shadow">
+      <%#= "Write simpler, more robust tests using accessibility affordances." %>
+      <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
+    </p>
+    <%= render @view_module, "_nav.html" %>
+  </div>
+</header>
+
+<div class="bg-white">
+  <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
+    <%= topic_article(title: "Landmarks", link: Routes.accessibility_first_path(@conn, :show, "landmarks")) do %>
+      <ul>
+        <li><%= link("Orienting web visitors using landmarks", to: "#") %>
+      </ul>
+      <p>Define what your elements are using a clear standard. Let your users quickly jump around the key parts of your page (better UX), and leverage those in your tests (better DX).</p>
+    <% end %>
+    <%= topic_article(title: "Widgets, Attributes & States", link: Routes.accessibility_first_path(@conn, :show, "properties-cheatsheet")) do %>
+      <p>Learn the standards for interactive widgets usable by touch, mouse, and keyboard. Let users know which page is current or which sub-control is selected.</p>
+    <% end %>
+    <%= topic_article(title: "BDD with Jest & React Testing Library") do %>
+      <p>Learn a consistent pattern to write your component tests in Jest. Use @testing-library to find elements in a realistic way. Describe your contexts and scenarios with plain language.</p>
+    <% end %>
+    <%= topic_article(title: "Atomic Design") do %>
+      <p>Organize your components into distict folders. Break them up at the right level, then compose them. Test them differently. Incorporate ARIA roles into the atomic design approach.</p>
+    <% end %>
+  <% end %>
+</div>

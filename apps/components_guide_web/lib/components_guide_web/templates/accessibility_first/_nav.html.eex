@@ -1,27 +1,9 @@
-<%
-topics = [
-  "Landmarks",
-  {"Widgets", "/accessibility-first/widgets-cheatsheet"},
-  {"Properties", "/accessibility-first/properties-cheatsheet"},
-  "Forms",
-  "Tables",
-  "ARIA",
-  "Keyboard Navigation",
-  "TDD",
-  "BDD with Jest",
-  "Integration Testing",
-  "Atomic Design",
-]
-link_class = "inline-block mx-1 mb-2 px-4 py-2 text-white rounded shadow-xl"
-link_style = "background-color: rgba(255,255,255,0.1)"
-%>
-<nav class="py-2 text-xl text-center">
-  <%= for topic <- topics do
-    case topic do
-      {text, url} ->
-        link(text, to: url, class: link_class, style: link_style)
-      text ->
-        link(text, to: "#", class: link_class, style: link_style)
-    end
-  end %>
+<nav class="pt-6 pb-4">
+  <ul class="list-none row font-bold" style="--link-padding: 0.75em">
+    <li><%= link("Intro", to: '/accessibility-first') %>
+    <li><%= link("Navigation", to: '/accessibility-first/navigation') %>
+    <li><%= link("Content", to: '/accessibility-first/content') %>
+    <li><%= link("Forms", to: '/accessibility-first/forms') %>
+    <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
+  </ul>
 </nav>

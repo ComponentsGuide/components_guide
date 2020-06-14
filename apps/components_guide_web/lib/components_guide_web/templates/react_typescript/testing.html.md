@@ -1,6 +1,6 @@
 ## Use Roles First
 
-Most semantic HTML elements have an implicit role. This role is used by accessibility tools such as screen readers. But as we’ll explain, ou can also use it to write easy-to-understand tests.
+Most semantic HTML elements have an implicit role. This role is used by accessibility tools such as screen readers. But as we’ll explain, you can also use it to write easy-to-understand tests.
 
 Because the ARIA specs are more recent than HTML 1.0, it clarifies HTML and provides improved names for a lot of the traditional HTML elements. The names used are more what everyday users would use too, such as `link` rather than `a`.
 
@@ -15,7 +15,7 @@ These roles allow us to think in the language that our users would use:
 - The **save** _button_
 - The **email** _text field_
 - The **primary** _navigation_
-- The **notifications** _icon image_
+- The **notifications** icon _image_
 - The _**search** field_
 - The **remember me** _checkbox_
 
@@ -107,6 +107,7 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       ["_none_", "`<p>`"],
       ["_none_", "`<div>`"],
       ["_none_", "`<span>`"],
+      ["**group**", "`<details>`"],
       ["**button**", "`<summary>`"],
     ]) %>
   </tbody>
@@ -123,14 +124,18 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
   <tbody class="text-white bg-purple-900 border border-purple-700">
     <%= table_rows([
       ["**form**", "`<form>`"],
+      ["**group**", "`<fieldset>`"],
+      ["**search**", "`<form role=search>`"],
       ["**button**", "`<button>`"],
       ["**button**", "`<input type=button>`"],
+      ["**button**", "`<button type=submit>`, `<input type=submit>`"],
       ["**textbox**", "`<textarea>`"],
       ["**textbox**", "`<input type=text>`"],
       ["**textbox**", "`<input type=email>`"],
       ["**textbox**", "`<input type=tel>`"],
       ["**textbox**", "`<input type=url>`"],
       ["**searchbox**", "`<input type=search>` without `list` attribute"],
+      ["**radiogroup**", "`<fieldset role=radiogroup>`"],
       ["**radio**", "`<input type=radio>`"],
       ["**checkbox**", "`<input type=checkbox>`"],
       ["**combobox**", "`<select>` without `multiple` attribute"],
@@ -140,8 +145,6 @@ This is what accessibility-first testing allows us to achieve. And as a massive 
       ["_none_", "`<input type=password>`"],
       ["progressbar", "`<progress>`"],
       ["status", "`<output>`"],
-      ["group", "`<fieldset>`"],
-      ["_none_", "`<legend>`"],
     ]) %>
   </tbody>
 </table>
@@ -241,6 +244,15 @@ The algorithm is specified in [W3C’s Accessible Name and Description Computati
 ```
 
 ```html
+<fieldset>
+  <legend>Alert settings</legend>
+  <label><input type=checkbox> Receive push notifications</label>
+  <label><input type=checkbox> Receive email alerts</label>
+  <label><input type=checkbox> Receive text messages</label>
+</fieldset>
+```
+
+```html
 <article aria-labelledby="faq-heading">
   <h2 id="faq-heading">Frequently Asked Questions</h2>
 </article>
@@ -265,7 +277,8 @@ You could query these elements using Testing Library:
 getByRole('button', { name: 'Save' });
 getByRole('textbox', { name: /Email/ });
 getByRole('checkbox', { name: /Receive email alerts/i });
-getByRole('article', { name: 'Frequently asked questions' });
+getByRole('fieldset', { name: /Alert settings/i });
+getByRole('article', { name: /Frequently asked questions/i });
 getByRole('navigation', { name: 'Primary' });
 getByRole('img', { name: 'New document' });
 ```

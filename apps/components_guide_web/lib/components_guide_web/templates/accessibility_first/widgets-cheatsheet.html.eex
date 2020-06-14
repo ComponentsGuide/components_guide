@@ -2,18 +2,17 @@
   theme = %Theme{text_color: "blue"}
   [h2, h3, h4] = Theme.headings(theme)
 %>
-<header class="text-white" style="background: <%= header_background %>;">
-  <div class="container px-6 pt-6 pb-6">
-    <h1 class="mx-auto max-w-4xl text-4xl text-center font-bold leading-tight text-shadow">
-      <%= "Accessible Widgets Cheatsheet" %>
+<header class="text-white" style="<%= header_styles() %>">
+  <div class="mx-auto max-w-4xl">
+    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+      <div class="row">
+        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
+      </div>
+      <span><%= "Accessibility-First" %></span>
     </h1>
-    <p class="mt-4 mx-auto max-w-3xl text-3xl text-center leading-snug italic text-gray-100 text-shadow">
-      <%= "UI roles and their pre-written tests." %>
-    </p>
     <%= render @view_module, "_nav.html" %>
   </div>
 </header>
-
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
   <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
