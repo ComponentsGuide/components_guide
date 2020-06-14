@@ -110,7 +110,7 @@ expect(
 ```
 
 
-## Radio
+## Radio & Radiogroup
 
 ```html
 <fieldset role=radiogroup>
