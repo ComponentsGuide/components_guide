@@ -12,6 +12,7 @@
       <ul class="list-none row font-bold" style="--link-padding: 0.75em">
         <li><%= link("Fundamentals", to: '/react+typescript') %>
         <li><%= link("Testing", to: '/react+typescript/testing') %>
+        <li><%= link("Forms", to: '/react+typescript/forms') %>
       </ul>
     </nav>
   </header>

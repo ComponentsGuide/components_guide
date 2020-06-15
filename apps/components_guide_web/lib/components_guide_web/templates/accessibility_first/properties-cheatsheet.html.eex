@@ -43,19 +43,19 @@
         ] %>
 
         <section aria-labelledby="hidden-all-heading">
-          <%= h3.("Hide to everyone", id: "hidden-all-heading") %>
+          <%= h3.("Hidden to everyone", id: "hidden-all-heading") %>
           <%= h4.("Test") %>
           <%=
           """
           it("is hidden", () => {
-            expect(screen.queryByRole('link', { name: 'Sign In' })).toBeNull();
+            expect(screen.queryByRole('link', { name: 'Profile' })).toBeNull();
           })
           """ |> code_block(:js)
           %>
           <%= h4.("Markup") %>
           <%=
           """
-          <a href="/signin" hidden>Sign In</a>
+          <a href="/profile" hidden>Profile</a>
           """ |> code_block(:html)
           %>
           <%= h4.("Styling") %>
@@ -69,13 +69,13 @@
         </section>
 
         <section aria-labelledby="hidden-visually-heading">
-          <%= h3.("Screen reader affordance: hide visually", id: "hidden-visually-heading") %>
+          <%= h3.("Visually hidden (assistive technology affordance)", id: "hidden-visually-heading") %>
           <%= h4.("Test") %>
           <%=
           """
           it("can still be found by our tests and by screen readers", () => {
             expect(
-              screen.getByRole('link', { name: 'Sign In' })
+              screen.getByRole('link', { name: 'Profile' })
             ).toBeInTheDocument();
           })
           """ |> code_block(:js)
@@ -83,13 +83,16 @@
           <%= h4.("Markup") %>
           <%=
           """
-          <a href="/signin" class="visually-hidden">Sign In</a>
+          <a href="/profile">
+            <span class="fas fa-user"></span>
+            <span visually-hidden>Profile</span>
+          </a>
           """ |> code_block(:html)
           %>
           <%= h4.("Styling") %>
           <%=
           """
-          .visually-hidden {
+          [visually-hidden] {
             position: absolute;
             overflow: hidden;
             clip: rect(0 0 0 0);
@@ -105,20 +108,22 @@
 
         <section aria-labelledby="hidden-screen-heading">
           <%= h3.("Visual affordance: hide to screen reader users", id: "hidden-screen-heading") %>
+          <%= h4.("Test") %>
           <%=
           """
           it("ignores emoji in accessible name", () => {
             expect(
-              screen.getByRole('link', { name: 'Sign In' })
+              screen.getByRole('link', { name: 'Profile' })
             ).toBeInTheDocument();
           })
           """ |> code_block(:js)
           %>
+          <%= h4.("Markup") %>
           <%=
           """
-          <a href="/signin">
-            <span aria-hidden="true">👉</span>
-            Sign In
+          <a href="/profile">
+            <span aria-hidden=true>👤</span>
+            Profile
           </a>
           """ |> code_block(:html)
           %>
@@ -128,6 +133,7 @@
           <%= h3.("Notes", id: "hidden-notes-heading") %>
           <ul>
             <li><%= link("Scott O’Hara: Inclusively Hidden", to: "https://www.scottohara.me/blog/2017/04/14/inclusively-hidden.html") %>
+            <li><%= link("Scott O’Hara: Know your ARIA: ‘Hidden’ vs ‘None’", to: "https://www.scottohara.me/blog/2018/05/05/hidden-vs-none.html") %>
             <li><%= link("MDN: Using the aria-hidden attribute", to: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-hidden_attribute") %>
             <li><%= link("Places it’s tempting to use `display: none;`, but don’t ", to: "https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/") %>
           </ul>

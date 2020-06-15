@@ -18,7 +18,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "properties-cheatsheet.html")
   end
 
-  @articles ["navigation", "forms"]
+  @articles ["navigation", "forms", "content"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)
