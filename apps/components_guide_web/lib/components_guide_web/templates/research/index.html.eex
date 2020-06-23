@@ -2,9 +2,9 @@
   heading = "Research 🔍 specs and implementations"
   heading = "Search across Can I Use, BundlePhobia, W3 & WhatWG specs"
 %>
-<header class="text-black bg-white">
-  <div class="bg-purple-100">
-    <h2 class="mx-auto max-w-4xl py-4 text-2xl text-center italic leading-tight text-purple-600">
+<header class="text-white bg-gray-900">
+  <div class="bg-indigo-900">
+    <h2 class="mx-auto max-w-4xl py-4 text-2xl text-center italic leading-tight text-indigo-100">
       <%= heading %>
     </h2>
   </div>
@@ -14,7 +14,10 @@
     </form>
     <dl
       class="text-xl grid gap-2 items-center pt-4 px-6"
-      style="grid-template-columns: auto 1fr; --link-color: #1c64f2; --hover\:link-decoration: underline;"
+      style="
+      grid-template-columns: auto 1fr;
+      --link-color: #76a9fa;
+      --hover\:link-decoration: underline;"
     >
       <dt>HTML & Roles</dt>
       <dd>
@@ -49,7 +52,7 @@
   </section>
 </header>
 
-<div class="bg-white py-8">
+<div class="text-white bg-gray-900 py-8">
   <div class="container">
     <div class="px-6">
       <%= @results %>
