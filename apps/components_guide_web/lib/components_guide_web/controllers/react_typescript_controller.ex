@@ -5,7 +5,7 @@ defmodule ComponentsGuideWeb.ReactTypescriptController do
     render(conn, "index.html", article: "tips")
   end
 
-  @articles ["testing"]
+  @articles ["testing", "forms"]
 
   def show(conn, %{"article" => article}) when article in @articles do
     render(conn, "index.html", article: article)
