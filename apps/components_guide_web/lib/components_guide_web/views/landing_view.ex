@@ -138,17 +138,16 @@ defmodule ComponentsGuideWeb.LandingView do
   end
 
   def sections_styles(:warm) do
-    color = {:lab, 30, 90, 20} |> Styling.to_css()
+    color = {:lab, 47, 10, -44}
 
     gradient = Styling.linear_gradient("150grad", [
-      {:lab, 65, 40, 50},
-      {:lab, 50, 90, 40},
-      {:lab, 30, 90, 20},
-      {:lab, 30, 90, 10},
-      {:lab, 50, 70, 60},
+      {:lab, 47, 5, -44},
+      {:lab, 47, -24, -44},
+      color,
+      {:lab, 47, 53, -44}
     ])
 
-    "background-color: #{color}; background-image: #{gradient};"
+    "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
 
   # def header_background do

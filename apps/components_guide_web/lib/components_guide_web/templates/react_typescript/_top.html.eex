@@ -1,0 +1,17 @@
+<div class="mx-auto max-w-4xl text-white">
+  <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+    <div class="row">
+      <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@618de63f309bbf56b67364fd6a441cbbf79403cc/logos/react.svg" %>" alt="React logo" width=48 height=48>
+      <span class="mr-2 text-3xl">❤️</span>
+      <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@02e637e09b55966e802dfe0bc93595594e0214bb/logos/typescript-icon.svg" %>" alt="TypeScript logo" width=48 height=48>
+    </div>
+    <span><%= "React & TypeScript Guide" %></span>
+  </h1>
+  <nav class="pt-6 pb-4">
+    <ul class="list-none row font-bold" style="--link-padding: 0.75em">
+      <li><%= link("Fundamentals", to: '/react+typescript') %>
+      <li><%= link("Testing", to: '/react+typescript/testing') %>
+      <li><%= link("Forms", to: '/react+typescript/forms') %>
+    </ul>
+  </nav>
+</div>

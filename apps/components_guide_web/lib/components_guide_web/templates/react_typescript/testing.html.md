@@ -35,6 +35,36 @@ This sounds exactly what we would desire for our automated tests! We want to fin
 
 This is what accessibility-first testing allows us to achieve. And as a massive bonus, it lets us create an accessible experience from day one. We can be on a path to creating a fantastic user experience too.
 
+## Component test boilerplate
+
+```tsx
+import SignInForm from "./SignInForm";
+
+import React from "react";
+import { lazy, freshFn } from "jest-zest";
+import { render } from "@testing-library/react";
+import user from "@testing-library/react";
+
+const onSignIn = freshFn();
+const { getByRole } = lazy(() => render(
+  <SignInForm onSignIn={onSignIn} />
+));
+
+it("renders an email textbox", () => {
+  expect(getByRole('textbox', { name: /Email/i })).toBeInTheDocument();
+});
+
+describe("when Sign In button is clicked", () => {
+  beforeEach(() => {
+    user.click(getByRole('button', { name: /Sign In/i }));
+  });
+
+  it("calls onSignIn prop", () => {
+    expect(onSignIn).toHaveBeenCalled();
+  });
+})
+```
+
 ## Available Roles
 
 <table class="text-left table-fixed">

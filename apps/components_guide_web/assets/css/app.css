@@ -29,7 +29,7 @@
     display: none !important;
 }
 
-article a {
+article a:not(nav *) {
     text-decoration: underline;
 }
 article a:hover {

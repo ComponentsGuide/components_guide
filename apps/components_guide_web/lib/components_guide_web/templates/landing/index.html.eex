@@ -45,46 +45,15 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
   </section>
 </div>
 
-<div class="text-white" style="<%= sections_styles(:blue) %>">
-  <header class="mx-auto max-w-4xl">
-    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
-      <div class="row">
-        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@618de63f309bbf56b67364fd6a441cbbf79403cc/logos/react.svg" %>" alt="React logo" width=48 height=48>
-        <span class="mr-2 text-3xl">❤️</span>
-        <img class="inline-block mr-2" src="<%= "https://cdn.jsdelivr.net/gh/gilbarbara/logos@02e637e09b55966e802dfe0bc93595594e0214bb/logos/typescript-icon.svg" %>" alt="TypeScript logo" width=48 height=48>
-      </div>
-      <span><%= "React & TypeScript Guide" %></span>
-    </h1>
-    <nav class="pt-6 pb-4">
-      <ul class="list-none row font-bold" style="--link-padding: 0.75em">
-        <li><%= link("Fundamentals", to: '/react+typescript') %>
-        <li><%= link("Testing", to: '/react+typescript/testing') %>
-      </ul>
-    </nav>
-  </header>
-</div>
+<article class="text-white" style="<%= sections_styles(:blue) %>">
+  <%= render ComponentsGuideWeb.ReactTypescriptView, "_top.html" %>
+</article>
 
-<div class="text-white" style="<%= sections_styles(:blue) %>">
-  <header class="mx-auto max-w-4xl">
-    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
-      <div class="row">
-        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
-      </div>
-      <span><%= "Accessibility-First Development" %></span>
-    </h1>
-    <nav class="pt-6 pb-4">
-      <ul class="list-none row font-bold" style="--link-padding: 0.75em">
-        <li><%= link("Landmarks", to: '/accessibility-first/landmarks') %>
-        <li><%= link("Widgets", to: '/accessibility-first/widgets-cheatsheet') %>
-        <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
-        <li><%= link("Forms", to: '/accessibility-first/forms') %>
-        <li><%= link("Keyboard Navigation", to: '/accessibility-first/keyboard-navigation') %>
-      </ul>
-    </nav>
-  </header>
-</div>
+<article class="text-white" style="<%= sections_styles(:warm) %>">
+  <%= render ComponentsGuideWeb.AccessibilityFirstView, "_top.html" %>
+</article>
 
-<div class="text-white">
+<div hidden class="text-white">
   <section class="pt-20 pb-20" style="<%= sections_styles(:dark) %>">
     <header class="mb-8 mx-auto max-w-4xl px-2 text-center">
       <h2 class="text-3xl sm:text-4xl font-bold leading-snug">
@@ -194,6 +163,9 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
     </div>
   </section>
 
+</div>
+
+<div class="text-white">
   <aside class="py-20">
     <div class="container space-y-6 text-2xl md:text-3xl rounded">
       <p>
