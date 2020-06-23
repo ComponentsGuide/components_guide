@@ -45,7 +45,7 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
   </section>
 </div>
 
-<article class="text-white" style="<%= sections_styles(:blue) %>">
+<article class="text-white py-4" style="<%= sections_styles(:blue) %>">
   <%= render ComponentsGuideWeb.ReactTypescriptView, "_top.html" %>
 </article>
 
