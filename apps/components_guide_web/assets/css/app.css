@@ -52,12 +52,17 @@ a:hover {
     text-decoration: var(--hover\:links-decoration);
 }
 
-h2, h3, p, li, table {
+h1, h2, h3, p, li, table {
   margin-left: var(--item-spacing-left);
   margin-right: var(--item-spacing-right);
 }
 table {
   width: calc(100% - var(--item-spacing-left) - var(--item-spacing-right));
+}
+h1 {
+  font-size: var(--heading-1-size);
+  padding: var(--heading-1-spacing);
+  text-align: var(--heading-1-align);
 }
 h2 {
   font-size: var(--heading-2-size);
@@ -99,6 +104,9 @@ input {
 .content {
   --item-spacing-left: 1rem;
   --item-spacing-right: 1rem;
+  --heading-1-size: var(--size-5xl);
+  --heading-1-spacing: var(--size-base) 0;
+  --heading-1-align: center;
   --heading-2-size: var(--size-3xl);
   --heading-2-spacing: var(--size-base) 0;
   --heading-3-size: var(--size-2xl);

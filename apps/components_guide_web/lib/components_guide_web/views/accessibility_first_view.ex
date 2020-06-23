@@ -4,6 +4,18 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
   use ComponentsGuideWeb.Snippets
   use Phoenix.HTML
 
+  def table_rows(rows_content) do
+    Enum.map(rows_content, &table_row/1)
+  end
+
+  def table_row(items) do
+    content_tag(:tr, Enum.map(items, &table_cell/1))
+  end
+
+  def table_cell(content) do
+    content_tag(:td, content |> line(), class: "px-3 py-1")
+  end
+
   def header_background do
     Styling.linear_gradient("150grad", [
       {:lab, 70, 40, -50},

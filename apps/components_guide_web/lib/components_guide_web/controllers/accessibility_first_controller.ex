@@ -3,7 +3,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
   require Logger
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    render(conn, "index.html", article: "intro")
   end
 
   def show(conn, %{"id" => "landmarks"}) do
@@ -18,7 +18,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "properties-cheatsheet.html")
   end
 
-  @articles ["navigation", "forms", "content"]
+  @articles ["navigation", "roles", "accessible-name", "forms", "content"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)

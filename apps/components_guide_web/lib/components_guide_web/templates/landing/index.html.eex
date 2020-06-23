@@ -10,10 +10,10 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
 
 <div class="text-white" style="<%= header_styles(3) %>">
   <section class="container px-6 pt-12 pb-8">
-    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-6xl text-center leading-tight font-bold text-shadow">
+    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center leading-tight font-bold text-shadow">
       <%= heading %>
     </h1>
-    <p class="mt-6 mb-8 mx-auto max-w-3xl text-2xl sm:text-3xl md:text-4xl text-center leading-snug italic text-gray-100 text-shadow">
+    <p class="mt-6 mb-8 mx-auto max-w-3xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug italic text-gray-100 text-shadow">
       <%= subhead %>
     </p>
     <p hidden class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
@@ -45,11 +45,11 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
   </section>
 </div>
 
-<article class="text-white py-4" style="<%= sections_styles(:blue) %>">
+<article class="text-white py-6" style="<%= sections_styles(:blue) %>">
   <%= render ComponentsGuideWeb.ReactTypescriptView, "_top.html" %>
 </article>
 
-<article class="text-white" style="<%= sections_styles(:warm) %>">
+<article class="text-white py-6" style="<%= sections_styles(:warm) %>">
   <%= render ComponentsGuideWeb.AccessibilityFirstView, "_top.html" %>
 </article>
 
@@ -163,6 +163,10 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
     </div>
   </section>
 
+</div>
+
+<div x-x class="py-8 bg-purple-300">
+  <script async data-uid="cdeda516d7" src="https://components-guide.ck.page/cdeda516d7/index.js"></script>
 </div>
 
 <div class="text-white">

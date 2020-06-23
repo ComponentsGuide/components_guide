@@ -2,8 +2,10 @@
   <ul y-y x-x=md class="text-lg font-bold text-shadow" style="--link-padding: 0.75em">
     <li><%= link("Intro", to: '/accessibility-first') %>
     <li><%= link("Navigation", to: '/accessibility-first/navigation') %>
-    <li><%= link("Content", to: '/accessibility-first/content') %>
+    <li><%= link("Roles", to: '/accessibility-first/roles') %>
+    <li><%= link("Accessible Name", to: '/accessibility-first/accessible-name') %>
     <li><%= link("Forms", to: '/accessibility-first/forms') %>
     <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
+    <li><%= link("Content", to: '/accessibility-first/content') %>
   </ul>
 </nav>
