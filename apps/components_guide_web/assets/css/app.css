@@ -9,50 +9,56 @@
 @import "../node_modules/nprogress/nprogress.css";
 
 :root {
-    @apply bg-gray-900;
+  @apply bg-gray-900;
 
-    --link-color: currentColor;
+  --link-color: currentColor;
 
-    --size-xs: .75rem;
-    --size-sm: .875rem;
-    --size-base: 1rem;
-    --size-lg: 1.125rem;
-    --size-xl: 1.25rem;
-    --size-2xl: 1.5rem;
-    --size-3xl: 1.875rem;
-    --size-4xl: 2.25rem;
-    --size-5xl: 3rem;
-    --size-6xl: 4rem;
+  --size-xs: 0.75rem;
+  --size-sm: 0.875rem;
+  --size-base: 1rem;
+  --size-lg: 1.125rem;
+  --size-xl: 1.25rem;
+  --size-2xl: 1.5rem;
+  --size-3xl: 1.875rem;
+  --size-4xl: 2.25rem;
+  --size-5xl: 3rem;
+  --size-6xl: 4rem;
 }
 
 [hidden] {
-    display: none !important;
+  display: none !important;
 }
 
 article a:not(nav *) {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 article a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 article figcaption {
   font-style: italic;
 }
 
 .a\{font-bold\} a {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 a {
-    color: var(--link-color);
-    padding: var(--link-padding);
-    text-decoration: var(--link-decoration);
+  color: var(--link-color);
+  padding: var(--link-padding);
+  text-decoration: var(--link-decoration);
 }
 a:hover {
-    text-decoration: var(--hover\:links-decoration);
+  text-decoration: var(--hover\: links-decoration);
 }
 
-h1, h2, h3, p, li, table {
+h1,
+h2,
+h3,
+p,
+li,
+table,
+blockquote {
   margin-left: var(--item-spacing-left);
   margin-right: var(--item-spacing-right);
 }
@@ -87,6 +93,13 @@ table {
   padding: var(--code-spacing);
   border-radius: var(--code-radius);
 }
+blockquote {
+  --link-decoration: underline;
+  margin: var(--blockquote-spacing-outer);
+  padding: var(--blockquote-spacing-inner);
+  font-style: var(--blockquote-font-style);
+  background: var(--blockquote-background);
+}
 hr {
   margin: var(--separator-spacing);
   color: var(--separator-color);
@@ -96,7 +109,8 @@ input {
   outline: none;
 }
 
-:not(pre) > code, pre {
+:not(pre) > code,
+pre {
   color: white;
   background-color: #011627;
 }
@@ -116,6 +130,10 @@ input {
   --table-spacing: var(--size-xl) 0;
   --code-spacing: 0 0.1875em;
   --code-radius: 0.125em;
+  --blockquote-spacing-outer: 1rem 0rem;
+  --blockquote-spacing-inner: 1rem;
+  --blockquote-font-style: italic;
+  --blockquote-background: rgba(255, 255, 255, 0.1);
   --separator-spacing: var(--size-5xl) 0;
   --separator-color: currentColor;
 }
@@ -125,23 +143,23 @@ input {
 }
 
 .container {
-    @apply max-w-5xl mx-auto px-6;
+  @apply max-w-5xl mx-auto px-6;
 }
 
 .nums-tabular {
-    font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums;
 }
 
 .text-shadow {
-    text-shadow: 0.0625em 0.0625em 0.125em rgba(0,0,0,0.25);
+  text-shadow: 0.0625em 0.0625em 0.125em rgba(0, 0, 0, 0.25);
 }
 
 ul:not([class]) {
-    list-style: disc;
-    padding-left: 1em;
+  list-style: disc;
+  padding-left: 1em;
 }
 ul:not([class]) > li > ul:not([class]) {
-    @apply pl-8;
+  @apply pl-8;
 }
 
 ol:not([class]) {
@@ -150,13 +168,13 @@ ol:not([class]) {
 }
 
 /* Navigation links */
-a[aria-current=page][class*="hover\:border-"] {
-    border-color: currentColor;
+a[aria-current="page"][class*="hover\:border-"] {
+  border-color: currentColor;
 }
 
-[phx-hook=SwatchInput] {
-   user-select: none;
-   cursor: default;
+[phx-hook="SwatchInput"] {
+  user-select: none;
+  cursor: default;
 }
 
 /* @import "./phoenix.css"; */
