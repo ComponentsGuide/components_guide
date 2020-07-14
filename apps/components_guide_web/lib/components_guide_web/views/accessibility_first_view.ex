@@ -16,24 +16,14 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
     content_tag(:td, content |> line(), class: "px-3 py-1")
   end
 
-  def header_background do
-    Styling.linear_gradient("150grad", [
-      {:lab, 70, 40, -50},
-      {:lab, 60, -30, -50},
-      {:lab, 50, 0, -80}
-    ])
-  end
-
   def header_styles() do
-    l = 50
-    a = -60
-    b = -90
-    color = {:lab, l, a, b}
+    color = {:lab, 47, 10, -44}
 
     gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.1, a * 1.1, b * 1.4},
+      {:lab, 47, 5, -44},
+      {:lab, 47, -24, -44},
       color,
-      {:lab, l * 1.3, a * 0.5, b * 0.5},
+      {:lab, 47, 53, -44}
     ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"

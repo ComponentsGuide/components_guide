@@ -18,18 +18,7 @@
   </header>
 </div>
 
-<header class="text-white" style="background: <%= header_background() %>;">
-  <div class="container px-6 pt-12 pb-12">
-    <h1 class="mx-auto max-w-4xl text-5xl text-center font-bold leading-tight text-shadow">
-      <%= "🥇 Accessibility-First Development" %>
-    </h1>
-    <p class="my-8 mx-auto max-w-3xl text-4xl text-center leading-snug italic text-shadow">
-      <%#= "Write simpler, more robust tests using accessibility affordances." %>
-      <%= "Write simpler, more robust tests via user-friendly accessibility affordances." %>
-    </p>
-    <%= render @view_module, "_nav.html" %>
-  </div>
-</header>
+<%= render @view_module, "_header.html" %>
 
 <div class="bg-white">
   <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>
