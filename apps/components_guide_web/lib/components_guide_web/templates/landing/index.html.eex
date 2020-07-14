@@ -53,6 +53,10 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
   <%= render ComponentsGuideWeb.AccessibilityFirstView, "_top.html" %>
 </article>
 
+<article class="text-white text-shadow py-6" style="<%= sections_styles(:orange) %>">
+  <%= render ComponentsGuideWeb.ComposableSystemsView, "_top.html" %>
+</article>
+
 <div hidden class="text-white">
   <section class="pt-20 pb-20" style="<%= sections_styles(:dark) %>">
     <header class="mb-8 mx-auto max-w-4xl px-2 text-center">

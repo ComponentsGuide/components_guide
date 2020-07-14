@@ -29,6 +29,10 @@ defmodule ComponentsGuideWeb.Router do
               AccessibilityFirstController,
               only: [:index, :show]
 
+    resources "/composable-systems",
+              ComposableSystemsController,
+              only: [:index, :show]
+
     live "/color", ColorLive, :index
     live "/color/:definition", ColorLive, :show
     live "/color/lab/:definition", ColorLive, :lab

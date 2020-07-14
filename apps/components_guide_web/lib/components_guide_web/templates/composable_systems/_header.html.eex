@@ -1,0 +1,3 @@
+<header class="text-white text-shadow" style="<%= header_styles() %>">
+  <%= render ComponentsGuideWeb.ComposableSystemsView, "_top.html" %>
+</header>
