@@ -43,7 +43,7 @@ import SignInForm from "./SignInForm";
 import React from "react";
 import { lazy, freshFn } from "jest-zest";
 import { render } from "@testing-library/react";
-import user from "@testing-library/react";
+import user from "@testing-library/user-event";
 
 const onSignIn = freshFn();
 const { getByRole } = lazy(() => render(
