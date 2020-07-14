@@ -165,10 +165,6 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
 
 </div>
 
-<div x-x class="py-8 bg-purple-300">
-  <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
-</div>
-
 <div class="text-white">
   <aside class="py-20">
     <div class="container space-y-6 text-2xl md:text-3xl rounded">
