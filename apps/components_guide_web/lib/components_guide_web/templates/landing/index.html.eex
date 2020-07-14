@@ -3,8 +3,9 @@
 heading = "Great apps start with great components"
 heading = "Want to learn more of the why than the how?"
 heading = raw("Improve the user experience <em>and</em> developer experience of your components")
+heading = raw("Want to improve both the user experience <em>and</em> developer experience of your components?")
 
-subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the latest browser features."
+subhead = "Learn via guides to accessibility, TDD, BDD, naming, performance, and the latest browser features."
 
 %>
 
