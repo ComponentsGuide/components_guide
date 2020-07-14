@@ -178,3 +178,11 @@ a[aria-current="page"][class*="hover\:border-"] {
 }
 
 /* @import "./phoenix.css"; */
+
+.formkit-form {
+  box-shadow: none !important;
+  border: 2px solid #f4f4f4;
+  border-color: #6d1fde;
+  border-color: #462899;
+  border-bottom-color: #13074e;
+}
