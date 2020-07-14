@@ -21,6 +21,8 @@ clean:
 	rm -rf ./_build
 
 deploy:
+  git pull --rebase
+	git push origin master
 	git push gigalixir master
 
 status:
