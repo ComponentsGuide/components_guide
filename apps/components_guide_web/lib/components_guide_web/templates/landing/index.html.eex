@@ -166,7 +166,7 @@ subhead = "Guides to accessibility, TDD, BDD, naming, performance, and the lates
 </div>
 
 <div x-x class="py-8 bg-purple-300">
-  <script async data-uid="cdeda516d7" src="https://components-guide.ck.page/cdeda516d7/index.js"></script>
+  <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
 </div>
 
 <div class="text-white">

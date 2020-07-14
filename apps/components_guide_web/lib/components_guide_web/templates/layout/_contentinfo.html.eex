@@ -1,4 +1,8 @@
 <footer role="contentinfo" class="container pt-4 pb-6 text-gray-500 tracking-wide">
+  <div class="X pt-8 pb-12">
+    <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
+  </div>
+
   <p><small class="text-xs">Copyright © 2020 Patrick Smith</small></p>
   <ul class="list-none text-xs mt-4 leading-loose text-purple-500">
     <li><a href="https://github.com/ComponentsTV/components_guide">Source on GitHub</a>
