@@ -1,30 +1,6 @@
 ## Available Roles
 
 <table class="text-left table-fixed">
-  <thead>
-    <tr>
-      <th style="width: 12em">Role name</th>
-      <th>HTML element</th>
-    </tr>
-  </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
-    <%= table_rows([
-      ["**link**", "`<a href=…>`"],
-      ["_none_", "`<a>`"],
-      ["**button**", "`<button>`"],
-      ["**button**", "`<input type=button>`"],
-      ["**textbox**", "`<textarea>`"],
-      ["**textbox**", "`<input type=text>`"],
-      ["**radio**", "`<input type=radio>`"],
-      ["**heading**", "`<h1>`"],
-      ["**heading**", "`<h2>`"],
-      ["**heading**", "`<h3>`"],
-      ["**document**", "`<body>`"],
-    ]) %>
-  </tbody>
-</table>
-
-<table class="text-left table-fixed">
   <caption class="text-2xl">Landmarks</caption>
   <thead>
     <tr>

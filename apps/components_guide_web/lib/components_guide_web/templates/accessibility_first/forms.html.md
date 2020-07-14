@@ -1,3 +1,45 @@
+# Accessible Forms with Tests
+
+<table class="text-left table-fixed">
+  <caption class="text-3xl pb-4 text-left">Form roles cheatsheet</caption>
+  <thead>
+    <tr>
+      <th style="width: 12em">Role name</th>
+      <th>HTML snippet</th>
+    </tr>
+  </thead>
+  <tbody class="text-white bg-purple-900 border border-purple-700">
+    <%= table_rows([
+      ["**form**", "`<form>`"],
+      ["**search**", "`<form role=search>`"],
+      ["**group**", "`<fieldset>`"],
+      ["**button**", "`<button>`"],
+      ["**button**", "`<input type=button>`"],
+      ["**button**", "`<button type=submit>`, `<input type=submit>`"],
+      ["**textbox**", "`<textarea>`"],
+      ["**textbox**", "`<input type=text>`"],
+      ["**textbox**", "`<input type=email>`"],
+      ["**textbox**", "`<input type=tel>`"],
+      ["**textbox**", "`<input type=url>`"],
+      ["**searchbox**", "`<input type=search>` without `list` attribute"],
+      ["**radiogroup**", "`<fieldset role=radiogroup>`"],
+      ["**radio**", "`<input type=radio>`"],
+      ["**checkbox**", "`<input type=checkbox>`"],
+      ["**combobox**", "`<select>` without `multiple` attribute"],
+      ["**listbox**", "`<select>` with `multiple` attribute"],
+      ["**option**", "`<option>`"],
+      ["**slider**", "`<input type=range>`"],
+      ["_none_", "`<input type=password>`"],
+      ["**progressbar**", "`<progress>`"],
+      ["**status**", "`<output>`"],
+    ]) %>
+  </tbody>
+</table>
+
+_Note: The code examples here use [Testing Library](https://testing-library.com/), which works with React, Vue, Preact, Angular, Puppeteer, and more._
+
+----
+
 ## Form
 
 ```html
@@ -8,8 +50,10 @@
 ```
 
 ```js
-getByRole('form', { name: 'Sign up' });
+screen.getByRole('form', { name: 'Sign up' });
 ```
+
+----
 
 ## Button
 
@@ -18,7 +62,7 @@ getByRole('form', { name: 'Sign up' });
 ```
 
 ```js
-getByRole('button', { name: 'Save' });
+screen.getByRole('button', { name: 'Save' });
 ```
 
 ### Disabled
@@ -28,8 +72,10 @@ getByRole('button', { name: 'Save' });
 ```
 
 ```js
-expect(getByRole('button', { name: 'Save' })).toBeDisabled();
+expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
 ```
+
+----
 
 ## Textbox
 
@@ -38,7 +84,7 @@ expect(getByRole('button', { name: 'Save' })).toBeDisabled();
 ```
 
 ```js
-getByRole('textbox', { name: 'Name' });
+screen.getByRole('textbox', { name: 'Name' });
 ```
 
 ### Multilined
@@ -48,7 +94,7 @@ getByRole('textbox', { name: 'Name' });
 ```
 
 ```js
-getByRole('textbox', { name: 'Bio' });
+screen.getByRole('textbox', { name: 'Bio' });
 ```
 
 ### Specific types
@@ -60,9 +106,9 @@ getByRole('textbox', { name: 'Bio' });
 ```
 
 ```js
-const emailTextbox = getByRole('textbox', { name: 'Email' });
-const websiteTextbox = getByRole('textbox', { name: 'Website' });
-const phoneTextbox = getByRole('textbox', { name: 'Phone' });
+const emailTextbox = screen.getByRole('textbox', { name: 'Email' });
+const websiteTextbox = screen.getByRole('textbox', { name: 'Website' });
+const phoneTextbox = screen.getByRole('textbox', { name: 'Phone' });
 ```
 
 ### Expect value to match
@@ -73,9 +119,11 @@ const phoneTextbox = getByRole('textbox', { name: 'Phone' });
 
 ```js
 expect(
-  getByRole('textbox', { name: 'Bio' })
+  screen.getByRole('textbox', { name: 'Bio' })
 ).toHaveValue("Some bio");
 ```
+
+----
 
 ## Searchbox
 
@@ -84,8 +132,10 @@ expect(
 ```
 
 ```js
-getByRole('searchbox', { name: 'Search' });
+screen.getByRole('searchbox', { name: 'Search' });
 ```
+
+----
 
 ## Checkbox
 
@@ -94,7 +144,7 @@ getByRole('searchbox', { name: 'Search' });
 ```
 
 ```js
-getByRole('checkbox', { name: 'Receive email alerts' });
+screen.getByRole('checkbox', { name: 'Receive email alerts' });
 ```
 
 ### Expect to be checked
@@ -105,10 +155,11 @@ getByRole('checkbox', { name: 'Receive email alerts' });
 
 ```js
 expect(
-  getByRole('checkbox', { name: 'Receive email alerts' })
+  screen.getByRole('checkbox', { name: 'Receive email alerts' })
 ).toBeChecked();
 ```
 
+----
 
 ## Radio & Radiogroup
 
@@ -123,15 +174,15 @@ expect(
 ```
 
 ```js
-getByRole('radiogroup', { name: 'Favorite color' });
+screen.getByRole('radiogroup', { name: 'Favorite color' });
 ```
 
 ```js
-expect(getByRole('radio', { name: 'Red' })).toBeChecked();
+expect(screen.getByRole('radio', { name: 'Red' })).toBeChecked();
 ```
 
 ```js
 expect(
-  getByRole('radiogroup', { name: 'Favorite color' })
+  screen.getByRole('radiogroup', { name: 'Favorite color' })
 ).toHaveFormValues({ 'fave-color': 'red' });
 ```

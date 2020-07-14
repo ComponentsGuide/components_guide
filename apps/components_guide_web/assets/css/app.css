@@ -102,7 +102,8 @@ blockquote {
 }
 hr {
   margin: var(--separator-spacing);
-  color: var(--separator-color);
+  border-color: var(--separator-color);
+  opacity: var(--separator-opacity);
 }
 
 input {
@@ -136,6 +137,7 @@ pre {
   --blockquote-background: rgba(255, 255, 255, 0.1);
   --separator-spacing: var(--size-5xl) 0;
   --separator-color: currentColor;
+  --separator-opacity: 0.333;
 }
 
 .row {
