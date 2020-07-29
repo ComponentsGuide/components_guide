@@ -8,6 +8,9 @@
     <%= live_title_tag assigns[:page_title] || "Guides to React, Accessibility, Modern CSS, TypeScript", suffix: " · Components.Guide" %>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RoyalIcing/tela@2d421cafc1ea99fab91aa4fcbf3b554160bcada5/tela.css"/>
+
+    <meta property="og:image" content="https://stamp.vercel.app/api/poster?source=Components.Guide">
+
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
     <script src="https://cdn.usefathom.com/script.js" site="LYHMLVID" defer></script>
   </head>
