@@ -53,7 +53,8 @@ defmodule ComponentsGuideWeb.MixProject do
       {:earmark, "~> 1.4.4"},
       {:paredown, "~> 0.1.0"},
       {:ex_image_info, "~> 0.2.4"},
-      {:benchee, "~> 1.0", only: :dev}
+      {:benchee, "~> 1.0", only: :dev},
+      {:reverse_proxy_plug, "~> 1.3.1", only: :dev}
     ]
   end
 
