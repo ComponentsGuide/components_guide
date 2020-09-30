@@ -7,7 +7,7 @@
 <h1>Show Text</h1>
 <span><%= link "Edit", to: Routes.text_path(@conn, :edit, @text) %></span>
 
-<div class="vue-editor"><%= @text.content %></div>
+<div><%= @text.content %></div>
 
 <h3>Formats</h3>
 <ul>

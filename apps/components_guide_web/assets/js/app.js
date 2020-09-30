@@ -55,16 +55,3 @@ liveSocket.connect();
 window.liveSocket = liveSocket;
 
 import Vue from "vue";
-import VueEditor from "./editor.vue";
-
-// Import local files
-//
-// Local files can be imported directly using relative paths, for example:
-// import socket from "./socket"
-
-document.querySelectorAll(".vue-editor").forEach(node => {
-  new Vue({
-    el: node,
-    render: h => h(VueEditor, { props: { content: node.textContent } })
-  });
-});
