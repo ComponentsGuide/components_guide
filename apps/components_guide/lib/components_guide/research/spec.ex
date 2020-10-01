@@ -3,7 +3,60 @@ defmodule ComponentsGuide.Research.Spec do
 
   def search_for(:caniuse, query) when is_binary(query) do
     url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001042/data.json"
-    {:ok, data} = Source.json_at(url)
+    result = Source.json_at(url)
+    process_search_for(:caniuse, query, result)
+  end
+
+  def search_for(:npm_downloads_last_month, query) when is_binary(query) do
+    query = String.trim(query)
+    url = "https://api.npmjs.org/downloads/point/last-month/#{query}"
+    case Source.json_at(url) do
+      {:ok, %{"downloads" => downloads_count, "package" => name}} ->
+        %{downloads_count: downloads_count, name: name}
+
+      {:ok, %{"error" => _error_message}} ->
+        nil
+
+      _ ->
+        nil
+    end
+  end
+
+  def search_for(:whatwg_html_spec, query) when is_binary(query) do
+    # url = "https://html.spec.whatwg.org/"
+    url = "https://html.spec.whatwg.org/dev/"
+
+    case Source.html_document_at(url) do
+      {:ok, document} ->
+        document
+        |> Floki.find("body")
+        |> Floki.find("a:fl-contains('#{query}')")
+        |> Floki.raw_html()
+
+      _ ->
+        ""
+    end
+  end
+
+  def search_for(:html_aria_spec, query) when is_binary(query) do
+    url = "https://www.w3.org/TR/html-aria/"
+    result = Source.html_document_at(url)
+    process_search_for(:html_aria_spec, query, result)
+  end
+
+  def search_for(:wai_aria_practices, query) when is_binary(query) do
+    url = "https://www.w3.org/TR/wai-aria-practices/"
+    result = Source.html_document_at(url)
+    process_search_for(:wai_aria_practices, query, result)
+  end
+
+  def search_for(:bundlephobia, query) when is_binary(query) do
+    {:ok, data} = Source.json_at("https://bundlephobia.com/api/size?package=#{query}")
+
+    data
+  end
+
+  defp process_search_for(:caniuse, query, {:ok, data}) when is_binary(query) do
     table = data["data"]
 
     if false do
@@ -24,39 +77,29 @@ defmodule ComponentsGuide.Research.Spec do
     end
   end
 
-  def search_for(:npm_downloads_last_month, query) when is_binary(query) do
-    query = String.trim(query)
-    url = "https://api.npmjs.org/downloads/point/last-month/#{query}"
-    {:ok, data} = Source.json_at(url)
+  defp process_search_for(:wai_aria_practices, query, {:ok, document}) when is_binary(query) do
+    html_elements = document |> Floki.find("[id*='#{query}']")
 
-    case data do
-      %{"downloads" => downloads_count, "package" => name} ->
-        %{downloads_count: downloads_count, name: name}
+    results =
+      Enum.map(html_elements, fn el ->
+        heading = Floki.find(el, "h1, h2, h3, h4")
 
-      %{"error" => _error_message} ->
-        nil
+        %{
+          heading: heading |> Floki.text(),
+          html: el
+        }
+      end)
 
-      _ ->
-        nil
-    end
+    results
+
+    # document
+    # # |> Floki.find("#toc li a")
+    # # |> Floki.find("[href*='#{query}']")
+    # |> Floki.find("[id*='#{query}']")
+    # |> Floki.raw_html()
   end
 
-  def search_for(:whatwg_html_spec, query) when is_binary(query) do
-    # url = "https://html.spec.whatwg.org/"
-    url = "https://html.spec.whatwg.org/dev/"
-
-    {:ok, document} = Source.html_document_at(url)
-
-    document
-    |> Floki.find("body")
-    |> Floki.find("a:fl-contains('#{query}')")
-    |> Floki.raw_html()
-  end
-
-  def search_for(:html_aria_spec, query) when is_binary(query) do
-    url = "https://www.w3.org/TR/html-aria/"
-    {:ok, document} = Source.html_document_at(url)
-
+  defp process_search_for(:html_aria_spec, query, {:ok, document}) do
     html_elements =
       document
       |> Floki.find(
@@ -101,34 +144,5 @@ defmodule ComponentsGuide.Research.Spec do
       end)
   end
 
-  def search_for(:wai_aria_practices, query) when is_binary(query) do
-    url = "https://www.w3.org/TR/wai-aria-practices/"
-    {:ok, document} = Source.html_document_at(url)
-
-    html_elements = document |> Floki.find("[id*='#{query}']")
-
-    results =
-      Enum.map(html_elements, fn el ->
-        heading = Floki.find(el, "h1, h2, h3, h4")
-
-        %{
-          heading: heading |> Floki.text(),
-          html: el
-        }
-      end)
-
-    results
-
-    # document
-    # # |> Floki.find("#toc li a")
-    # # |> Floki.find("[href*='#{query}']")
-    # |> Floki.find("[id*='#{query}']")
-    # |> Floki.raw_html()
-  end
-
-  def search_for(:bundlephobia, query) when is_binary(query) do
-    {:ok, data} = Source.json_at("https://bundlephobia.com/api/size?package=#{query}")
-
-    data
-  end
+  defp process_search_for(_id, _query, _), do: []
 end

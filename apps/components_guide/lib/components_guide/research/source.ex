@@ -79,28 +79,41 @@ defmodule ComponentsGuide.Research.Source do
     #   {:ok, html}
     # end
 
-    Fetch.get(url)
+    # Fetch.get(url)
 
-    # {:ok, response} = Mojito.request(method: :get, url: url, timeout: 50000)
-    # {:ok, response.body}
+    with {:ok, response} <- Mojito.request(method: :get, url: url, timeout: 50000) do
+      {:ok, response.body}
+    else
+      _ -> :err
+    end
   end
 
   defp body({:html_document, url}) do
-    {:ok, html} = read({:fetch, url})
-    tuple = {:ok, _document} = Floki.parse_document(html)
-    tuple
+    with {:ok, html} <- read({:fetch, url}),
+         {:ok, document} <- Floki.parse_document(html) do
+      {:ok, document}
+    else
+      _ -> :err
+    end
   end
 
   defp body({:fetch_json, url}) do
-    {:ok, encoded} = read({:fetch, url})
-    tuple = {:ok, data} = Jason.decode(encoded)
-    tuple
+    with {:ok, encoded} <- read({:fetch, url}),
+         {:ok, data} <- Jason.decode(encoded) do
+      {:ok, data}
+    else
+      _ -> :err
+    end
   end
 
   defp run(key) do
-    tuple = {:ok, value} = body(key)
-    write_cache(key, value)
-    tuple
+    with {:ok, value} <- body(key) do
+      write_cache(key, value)
+      {:ok, value}
+    else
+      _ -> write_cache(key, :err)
+      :err
+    end
   end
 
   defp read(key) do
@@ -108,11 +121,11 @@ defmodule ComponentsGuide.Research.Source do
       {:ok, nil} ->
         run(key)
 
+      {:ok, :err} ->
+        :err
+
       {:ok, value} ->
         {:ok, value}
-
-      other ->
-        other
     end
   end
 

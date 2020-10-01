@@ -182,6 +182,9 @@ defmodule ComponentsGuideWeb.ResearchController do
       [] ->
         []
 
+      :err ->
+        []
+
       results ->
         content_tag(:article, [
           h2("HTML spec"),
