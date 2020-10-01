@@ -3,5 +3,6 @@
     <li><%= link("Why?", to: '/web') %>
     <li><%= link("URL", to: '/web/url') %>
     <li><%= link("Promise", to: '/web/promise') %>
+    <li><%= link("HTTP Caching", to: '/web/http-caching') %>
   </ul>
 </nav>

@@ -6,7 +6,7 @@ defmodule ComponentsGuideWeb.WebController do
     render(conn, "index.html", article: "intro")
   end
 
-  @articles ["url", "promise"]
+  @articles ["url", "promise", "http-caching"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)
