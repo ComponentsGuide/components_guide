@@ -32,9 +32,9 @@
   <div class="mx-auto flex-shrink">
     <section aria-label="Roles Cheatsheet" class="max-w-xl lg:max-w-4xl px-6 pt-8 pb-16 text-white">
       <article aria-labelledby="hidden" class="space-y-4">
-        <%= h2.("I want to hide an element", id: "hidden") %>
+        <%= h2.(line("I want to **hide** an element"), id: "hidden") %>
 
-        <p>You can hide using a large range of techniques. What you first want to ask is, to whom do I want to show the content?
+        <p>To hide something first ask, to whom do I want to show the content?
 
         <%= list [
           "Show to **everyone**. 👂✅ 👁✅",
@@ -77,7 +77,7 @@
           <%= h4.("Test") %>
           <%=
           """
-          it("can still be found by our tests and by screen readers", () => {
+          it("has text that can still be read by tests and by screen readers", () => {
             expect(
               screen.getByRole('link', { name: 'Profile' })
             ).toBeInTheDocument();
