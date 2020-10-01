@@ -34,16 +34,18 @@
       <article aria-labelledby="hidden" class="space-y-4">
         <%= h2.("I want to hide an element", id: "hidden") %>
 
-        <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
+        <p>You can hide using a large range of techniques. What you first want to ask is, to whom do I want to show the content?
 
         <%= list [
-          "Hide from **everyone**.",
-          "**Screen reader affordance:** hide to sighted users, but show to screen reader users.",
-          "**Visual affordance:** hide to screen reader users, but show to sighted users."
+          "Show to **everyone**. 👂✅ 👁✅",
+          "Hide from **everyone**. 👂❌ 👁❌",
+          "**Screen reader affordance:** show to screen reader users, hide to sighted users. 👂✅ 👁❌",
+          "**Visual affordance:** show to sighted users, hide to screen reader users. 👂❌ 👁✅"
         ] %>
 
         <section aria-labelledby="hidden-all-heading">
           <%= h3.("Hidden to everyone", id: "hidden-all-heading") %>
+          <p>To hide to everyone, add the <code>hidden</code> attribute.</p>
           <%= h4.("Test") %>
           <%=
           """
@@ -69,7 +71,9 @@
         </section>
 
         <section aria-labelledby="hidden-visually-heading">
-          <%= h3.("Visually hidden (assistive technology affordance)", id: "hidden-visually-heading") %>
+          <%#= h3.("Visually hidden (assistive technology only)", id: "hidden-visually-heading") %>
+          <%= h3.("Assistive technology affordance (visually hidden)", id: "hidden-visually-heading") %>
+          <p>To show to assistive technology but hide visually, add the <code>visually-hidden</code> class.</p>
           <%= h4.("Test") %>
           <%=
           """
@@ -84,15 +88,15 @@
           <%=
           """
           <a href="/profile">
-            <span class="fas fa-user"></span>
-            <span visually-hidden>Profile</span>
+            <span class="icon-user"></span>
+            <span class="visually-hidden">Profile</span>
           </a>
           """ |> code_block(:html)
           %>
           <%= h4.("Styling") %>
           <%=
           """
-          [visually-hidden] {
+          .visually-hidden {
             position: absolute;
             overflow: hidden;
             clip: rect(0 0 0 0);
@@ -107,11 +111,12 @@
         </section>
 
         <section aria-labelledby="hidden-screen-heading">
-          <%= h3.("Visual affordance: hide to screen reader users", id: "hidden-screen-heading") %>
+          <%= h3.("Visual affordance (hidden to assistive technology)", id: "hidden-screen-heading") %>
+          <p>To show visually but hide to assistive technology, add the <code>aria-hidden</code> attribute.</p>
           <%= h4.("Test") %>
           <%=
           """
-          it("ignores emoji in accessible name", () => {
+          it("does not include emoji in accessible name", () => {
             expect(
               screen.getByRole('link', { name: 'Profile' })
             ).toBeInTheDocument();
