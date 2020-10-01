@@ -2,7 +2,9 @@ defmodule ComponentsGuideWeb.ReactTypescriptController do
   use ComponentsGuideWeb, :controller
 
   def index(conn, _params) do
-    render(conn, "index.html", article: "tips")
+    conn
+    |> assign(:page_title, "React and TypeScript")
+    |> render("index.html", article: "tips")
   end
 
   @articles ["testing", "forms"]
