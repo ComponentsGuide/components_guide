@@ -1,0 +1,3 @@
+<header style="<%= header_styles() %>">
+  <%= render ComponentsGuideWeb.WebStandardsView, "_top.html" %>
+</header>

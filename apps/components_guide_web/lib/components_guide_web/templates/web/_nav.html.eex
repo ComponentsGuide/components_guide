@@ -1,8 +1,0 @@
-<nav class="pt-6 pb-4">
-  <ul y-y x-x=md class="text-lg font-bold text-shadow" style="--link-padding: 0.75em">
-    <li><%= link("Why?", to: '/web') %>
-    <li><%= link("URL", to: '/web/url') %>
-    <li><%= link("Promise", to: '/web/promise') %>
-    <li><%= link("HTTP Caching", to: '/web/http-caching') %>
-  </ul>
-</nav>

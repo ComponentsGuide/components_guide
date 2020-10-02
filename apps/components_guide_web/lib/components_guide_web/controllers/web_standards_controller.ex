@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.WebController do
+defmodule ComponentsGuideWeb.WebStandardsController do
   use ComponentsGuideWeb, :controller
   require Logger
 
@@ -17,7 +17,7 @@ defmodule ComponentsGuideWeb.WebController do
   end
 end
 
-defmodule ComponentsGuideWeb.WebView do
+defmodule ComponentsGuideWeb.WebStandardsView do
   use ComponentsGuideWeb, :view
 
   use ComponentsGuideWeb.Snippets

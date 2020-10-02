@@ -33,8 +33,8 @@ defmodule ComponentsGuideWeb.Router do
               ComposableSystemsController,
               only: [:index, :show]
 
-    resources "/web",
-              WebController,
+    resources "/web-standards",
+              WebStandardsController,
               only: [:index, :show]
 
     live "/color", ColorLive, :index

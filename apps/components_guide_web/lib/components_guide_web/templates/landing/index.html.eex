@@ -55,7 +55,7 @@ subhead = "Learn about accessibility, TDD, BDD, naming, performance, and the lat
 </article>
 
 <article class="text-white text-shadow py-6" style="<%= sections_styles(:other) %>">
-  <%= render ComponentsGuideWeb.WebView, "_top.html" %>
+  <%= render ComponentsGuideWeb.WebStandardsView, "_top.html" %>
 </article>
 
 <article class="text-white text-shadow py-6" style="<%= sections_styles(:orange) %>">
