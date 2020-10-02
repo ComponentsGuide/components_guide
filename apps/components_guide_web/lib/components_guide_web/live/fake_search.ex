@@ -5,22 +5,24 @@ defmodule ComponentsGuideWeb.FakeSearchLive do
 
   def render(assigns) do
     ~L"""
-    <p>UUID: <%= @uuid %></p>
+    <div class="bg-white text-black">
+      <p>UUID: <%= @uuid %></p>
 
-    <form phx-change="suggest" phx-submit="search">
-      <label>
-        Search:
-        <input name="q" value="<%= @query %>">
-      </label>
-    </form>
+      <form phx-change="suggest" phx-submit="search">
+        <label>
+          Search:
+          <input name="q" value="<%= @query %>" class="border">
+        </label>
+      </form>
 
-    <p><%= Enum.count(@filtered_items) %></p>
+      <p><%= Enum.count(@filtered_items) %></p>
 
-    <ul>
-    <%= for item <- @filtered_items do %>
-      <li><%= item["body"] %></li>
-    <% end %>
-    </ul>
+      <ul>
+      <%= for item <- @filtered_items do %>
+        <li><%= item["body"] %></li>
+      <% end %>
+      </ul>
+    </div>
     """
   end
 
@@ -28,7 +30,7 @@ defmodule ComponentsGuideWeb.FakeSearchLive do
     Ecto.UUID.generate()
   end
 
-  def mount(%{}, _session, socket) do
+  def mount(_, _session, socket) do
     #if connected?(socket), do: :timer.send_interval(5000, self(), :update)
 
     items = FakeSearch.list()
