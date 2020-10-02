@@ -89,7 +89,7 @@ defmodule ComponentsGuideWeb.ResearchController do
         []
 
       other ->
-        inspect(other)
+        []
     end
   end
 
