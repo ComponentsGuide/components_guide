@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Research.Spec do
   alias ComponentsGuide.Research.Source
 
   def search_for(:caniuse, query) when is_binary(query) do
-    url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001042/data.json"
+    url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"
     result = Source.json_at(url)
     process_search_for(:caniuse, query, result)
   end
