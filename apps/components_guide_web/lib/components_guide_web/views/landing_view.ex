@@ -1,5 +1,19 @@
 defmodule ComponentsGuideWeb.LandingView do
   use ComponentsGuideWeb, :view
+  alias ComponentsGuideWeb.ThemeView
+
+  defp subject_to_module(:web_standards), do: ComponentsGuideWeb.WebStandardsView
+  defp subject_to_module(:accessibility_first), do: ComponentsGuideWeb.AccessibilityFirstView
+  defp subject_to_module(:composable_systems), do: ComponentsGuideWeb.ComposableSystemsView
+  defp subject_to_module(:react_typescript), do: ComponentsGuideWeb.ReactTypescriptView
+
+  def subject_banner(subject) when is_atom(subject) do
+    ~E"""
+    <article class="text-white text-shadow py-6" style="<%= ThemeView.banner_styles(subject) %>">
+      <%= render subject_to_module(subject), "_top.html" %>
+    </article>
+    """
+  end
 
   def stack_list(items) do
     ~E"""

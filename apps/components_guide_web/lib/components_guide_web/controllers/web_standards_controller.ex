@@ -19,19 +19,10 @@ end
 
 defmodule ComponentsGuideWeb.WebStandardsView do
   use ComponentsGuideWeb, :view
-
   use ComponentsGuideWeb.Snippets
+  alias ComponentsGuideWeb.ThemeView
 
   def header_styles() do
-    color = {:lab, 47, 10, -44}
-
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, 47, 5, -44},
-      {:lab, 47, -24, -44},
-      color,
-      {:lab, 47, 53, -44}
-    ])
-
-    "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
+    ThemeView.gradient(:green)
   end
 end

@@ -46,21 +46,10 @@ subhead = "Learn about accessibility, TDD, BDD, naming, performance, and the lat
   </section>
 </div>
 
-<article class="text-white py-6" style="<%= sections_styles(:blue) %>">
-  <%= render ComponentsGuideWeb.ReactTypescriptView, "_top.html" %>
-</article>
-
-<article class="text-white py-6" style="<%= sections_styles(:warm) %>">
-  <%= render ComponentsGuideWeb.AccessibilityFirstView, "_top.html" %>
-</article>
-
-<article class="text-white text-shadow py-6" style="<%= sections_styles(:other) %>">
-  <%= render ComponentsGuideWeb.WebStandardsView, "_top.html" %>
-</article>
-
-<article class="text-white text-shadow py-6" style="<%= sections_styles(:orange) %>">
-  <%= render ComponentsGuideWeb.ComposableSystemsView, "_top.html" %>
-</article>
+<%= subject_banner(:accessibility_first) %>
+<%= subject_banner(:react_typescript) %>
+<%= subject_banner(:web_standards) %>
+<%= subject_banner(:composable_systems) %>
 
 <div hidden class="text-white">
   <section class="pt-20 pb-20" style="<%= sections_styles(:dark) %>">
