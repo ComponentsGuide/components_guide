@@ -137,6 +137,7 @@ defmodule ComponentsGuideWeb.ResearchController do
            }
          ) do
       Section.card([
+        # inspect(item),
         content_tag(:h3, title, class: "text-2xl"),
         content_tag(
           :dl,

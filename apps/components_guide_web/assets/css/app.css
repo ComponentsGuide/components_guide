@@ -49,7 +49,7 @@ a {
   text-decoration: var(--link-decoration);
 }
 a:hover {
-  text-decoration: var(--hover\: links-decoration);
+  text-decoration: var(--hover\:links-decoration);
 }
 
 h1,
