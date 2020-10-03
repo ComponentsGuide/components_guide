@@ -23,6 +23,6 @@ defmodule ComponentsGuideWeb.WebStandardsView do
   alias ComponentsGuideWeb.ThemeView
 
   def header_styles() do
-    ThemeView.gradient(:green)
+    ThemeView.banner_styles(:web_standards)
   end
 end
