@@ -1,5 +1,13 @@
 # HTTP Caching
 
+<live-render>
+ComponentsGuideWeb.WebStandards.Live.HttpCaching
+</live-render>
+
+<div>
+<%= live_render(@conn, ComponentsGuideWeb.WebStandards.Live.HttpCaching, session: %{}) %>
+</div>
+
 ## Resource that does not want to be cached
 
 ```http
@@ -120,3 +128,4 @@ Vary: Accept-Encoding
 - [MDN: HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
 - [MDN: If-None-Match](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
 - [MDN: 412 Precondition Failed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/412)
+- [Ryan Florence explains HTTP caching basics by building a Node.js server](https://www.youtube.com/watch?v=3XkU_DXcgl0)
