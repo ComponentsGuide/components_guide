@@ -4,10 +4,6 @@
 ComponentsGuideWeb.WebStandards.Live.HttpCaching
 </live-render>
 
-<div>
-<%= live_render(@conn, ComponentsGuideWeb.WebStandards.Live.HttpCaching, session: %{}) %>
-</div>
-
 ## Resource that does not want to be cached
 
 ```http
@@ -33,7 +29,7 @@ Host: example.org
 ```http
 HTTP/1.1 200 OK
 ETag: "ABC"
-Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT 
+Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
 Cache-Control: public, max-age=31536000
 Date: Fri, 02 Oct 2020 09:28:50 GMT
 Content-Type: image/png
@@ -58,7 +54,7 @@ Date: Fri, 02 Oct 2020 09:28:50 GMT
 Content-Type: image/png
 Content-Length: 2348
 Cache-Control: public, max-age=31536000
-Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT 
+Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
 Vary: Accept-Encoding
 
 ```
@@ -68,7 +64,7 @@ Vary: Accept-Encoding
 ```http
 GET /assets/logo.png HTTP/1.1
 Host: example.org
-If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT 
+If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT
 ```
 
 ```http
@@ -78,7 +74,7 @@ Content-Type: image/png
 Content-Length: 2348
 Cache-Control: public, max-age=31536000
 ETag: "ABC"
-Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT 
+Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
 Vary: Accept-Encoding
 
 ```
@@ -98,7 +94,7 @@ Date: Fri, 02 Oct 2020 09:28:50 GMT
 Content-Type: image/png
 Content-Length: 2348
 Cache-Control: public, max-age=31536000
-Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT 
+Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
 Vary: Accept-Encoding
 
 ```
@@ -108,7 +104,7 @@ Vary: Accept-Encoding
 ```http
 GET /assets/logo.png HTTP/1.1
 Host: example.org
-If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT 
+If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT
 ```
 
 ```http
@@ -118,7 +114,7 @@ Date: Fri, 02 Oct 2020 09:28:50 GMT
 Content-Type: image/png
 Content-Length: 2348
 Cache-Control: public, max-age=31536000
-Last-Modified: Thu, 22 Oct 2015 07:28:00 GMT 
+Last-Modified: Thu, 22 Oct 2015 07:28:00 GMT
 Vary: Accept-Encoding
 
 ```
