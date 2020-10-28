@@ -26,13 +26,19 @@ promisedValue.then(console.log);
 promisedValue.then(console.log);
 ```
 
-How many times will we see _Creating value_ logged?
+Any how many times will we see _Creating value_ logged here?
 
-We will see it logged only once, because promises are created eagerly. Listening to a promise using `.then()` does not affect nor start the source promise.
+In both cases, we will see it logged only once, because promises are created eagerly.
 
-Once a promise has been created, then you may wait to hear its result zero times, one time, or fifteen times, and the original promise will behave the same.
+Listening to a promise using `.then()` does not affect nor start that promise.
 
-If we have a value in a variable, we feel comfortable knowing that the reading of that variable has no effect on its value.
+Once a promise has been created, then you may wait to hear its result one time, fifteen times, or not at all, and the original promise will behave the same.
+
+This may seem like a strange limitation, but it simplifies reasoning about promises as they work similar to _values_.
+
+### How values work
+
+If we store a value in a variable, we feel comfortable knowing that the reading of that variable has absolutely no effect on its value.
 
 ```js
 const value = 40 + 2;
@@ -42,6 +48,8 @@ console.log(value);
 console.log(value);
 ```
 
-42 will be logged three times, but if removed the logs altogether, the value will remain the same. The act of logging had no effect on the source value. Promises work exactly the same.
+42 will be logged three times, but if removed the logs altogether, the value will remain the same. The act of logging had no effect on the source value.
+
+Promises work exactly the same.
 
 We can use this to our advantage, by thinking about promises in the same way we think about values.
