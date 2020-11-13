@@ -20,6 +20,17 @@ let csrfToken = document
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
   hooks: {
+    PreCode: {
+      mounted() {
+        this._highlight(); //
+      },
+      updated() {
+        this._highlight();
+      },
+      _highlight() {
+        window.Prism.highlightElement(this.el);
+      },
+    },
     SwatchInput: {
       mounted() {
         const mouseEventHandler = (e) => {
