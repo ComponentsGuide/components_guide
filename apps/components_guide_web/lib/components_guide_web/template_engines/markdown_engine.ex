@@ -7,9 +7,11 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
   def compile(path, name) do
     IO.puts("compile #{path} #{name}")
-    html = path
-    |> File.read!()
-    |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false})
+
+    html =
+      path
+      |> File.read!()
+      |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false})
 
     # regex = ~r{<live-([\w-]+)>(.+)</live-([\w-]+)>}
     regex = ~r{<live-([\w-]+)>([^<]+)</live-([^>]+)>}
@@ -17,15 +19,23 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
     # live? = Regex.match(regex, html)
 
-    html = Regex.replace(regex, html, fn whole, name, content ->
-      case name do
-        "render" ->
-          module = content |> String.trim #|> String.to_existing_atom
-          "<div><%= live_render(@conn, #{module}, session: %{}) %></div>"
-        _ ->
-          "!" <> name <> "!" <> content
-      end
-    end)
+    html =
+      Regex.replace(regex, html, fn whole, name, content ->
+        case name do
+          "render" ->
+            # |> String.to_existing_atom
+            module = content |> String.trim()
+            "<div><%= live_render(@conn, #{module}, session: %{}) %></div>"
+
+          "component" ->
+            # |> String.to_existing_atom
+            module = content |> String.trim()
+            "<div><%= live_component(@conn, #{module}) %></div>"
+
+          _ ->
+            "!" <> name <> "!" <> content
+        end
+      end)
 
     # html = Regex.replace(regex, html, fn whole, name, content -> "!" <> name <> "!" <> content end)
 

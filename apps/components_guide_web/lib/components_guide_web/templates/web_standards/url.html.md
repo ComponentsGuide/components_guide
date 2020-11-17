@@ -6,8 +6,6 @@
 ComponentsGuideWeb.WebStandards.Live.URL
 </live-render>
 
-## Relative URLs
-
 ## JavaScript’s `URL`
 
 ```js
@@ -35,6 +33,19 @@ const current = new URL(request.url);
 ## Swift’s `URL`
 
 ```swift
-let root = URL(string: "/")
+let url = URL(string: "https://www.example.org/")
 
+```
+
+## Elixir’s `URI`
+
+```elixir
+url = URI.parse("https://www.example.org/")
+
+```
+
+## Go’s `net/url`
+
+```go
+u, err := url.Parse("https://www.example.org/")
 ```
