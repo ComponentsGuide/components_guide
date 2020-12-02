@@ -116,9 +116,9 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
     );
     url.protocol; // '<%= State.to_url(@state).scheme %>:'
     url.host; // '<%= State.to_url(@state).host %>'
-    url.path; // '<%= State.to_url(@state).path %>'
+    url.pathname; // '<%= State.to_url(@state).path %>'
 
-    url.search; // '<%= State.to_url(@state).query %>'
+    url.search; // '?<%= State.to_url(@state).query %>'
     const query = new URLSearchParams(url.search);
     <%= for {key, value} <- State.get_query_vars(@state) do
       "query.get('#{key}'); // '#{value}'\n"
