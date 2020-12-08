@@ -17,35 +17,37 @@
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
   <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
+    <div class="sticky top-0">
     <h2 class="pt-4 pl-4 italic">I want to make an element:</h2>
-    <ul class="sticky top-0 p-2 pl-8 list-none leading-loose">
-      <li><%= link "Hidden", to: "#hide" %>
+    <ul class="p-2 pl-8 list-none leading-loose">
+      <li><%= link "Hidden", to: "#hidden" %>
       <li><%= link "Current", to: "#current" %>
       <li><%= link "Selected", to: "#selected" %>
       <li><%= link "Invalid", to: "#invalid" %>
       <li><%= link "Required", to: "#required" %>
-      <li><%= link "Readonly", to: "#readonly" %>
+      <li><%= link "Disabled", to: "#disabled" %>
       <li><%= link("All Queries 🔗", to: "https://testing-library.com/docs/dom-testing-library/api-queries") %>
       <li><%= link("All Matchers 🔗", to: "https://github.com/testing-library/jest-dom") %>
     </ul>
+    </div>
   </nav>
   <div class="mx-auto flex-shrink">
     <section aria-label="Roles Cheatsheet" class="max-w-xl lg:max-w-4xl px-6 pt-8 pb-16 text-white">
       <article aria-labelledby="hidden" class="space-y-4">
         <%= h2.(line("I want to **hide** an element"), id: "hidden") %>
 
-        <p>To hide something first ask, to whom do I want to show the content?
+        <p><%= line("When hide content, first ask: whom do I want to **show** the content?") %>
 
         <%= list [
           "Show to **everyone**. 👂✅ 👁✅",
           "Hide from **everyone**. 👂❌ 👁❌",
-          "**Screen reader affordance:** show to screen reader users, hide to sighted users. 👂✅ 👁❌",
-          "**Visual affordance:** show to sighted users, hide to screen reader users. 👂❌ 👁✅"
+          "*Screen reader affordance:* show to screen reader users, **hide to sighted users**. 👂✅ 👁❌",
+          "*Visual affordance:* show to sighted users, **hide from screen reader users**. 👂❌ 👁✅"
         ] %>
 
         <section aria-labelledby="hidden-all-heading">
           <%= h3.("Hidden to everyone", id: "hidden-all-heading") %>
-          <p>To hide to everyone, add the <code>hidden</code> attribute.</p>
+          <p>To hide from everyone, add the <code>hidden</code> attribute.</p>
           <%= h4.("Test") %>
           <%=
           """
@@ -73,7 +75,7 @@
         <section aria-labelledby="hidden-visually-heading">
           <%#= h3.("Visually hidden (assistive technology only)", id: "hidden-visually-heading") %>
           <%= h3.("Assistive technology affordance (visually hidden)", id: "hidden-visually-heading") %>
-          <p>To show to assistive technology but hide visually, add the <code>visually-hidden</code> class.</p>
+          <p>To show to people using assistive technology such as screen readers, yet hide from visual users, define and use a <code>visually-hidden</code> class.</p>
           <%= h4.("Test") %>
           <%=
           """
@@ -88,7 +90,7 @@
           <%=
           """
           <a href="/profile">
-            <span class="icon-user"></span>
+            <span class="icon-user"></span> <!-- e.g. 👤 -->
             <span class="visually-hidden">Profile</span>
           </a>
           """ |> code_block(:html)
@@ -146,9 +148,144 @@
       </article>
 
       <article aria-labelledby="current" class="space-y-4">
-        <%= h2.(line("I want to make an element **current**"), id: "current") %>
+        <%= h2.(line("I want to say this element is **current**"), id: "current") %>
 
-        <p>You can hide using a large range of techniques. What you first want to ask is, from whom do I want to hide the content?
+        <section aria-labelledby="current-page-heading">
+          <%= h3.("Current page", id: "current-page-heading") %>
+          <p>Imagine a navigation bar full of links. If you visit one of these links, a popular pattern is to differentiate the current page’s link visually. For example, it might be underlined.</p>
+          <p>To hide to everyone, add the <code>hidden</code> attribute.</p>
+          <%= h4.("Test") %>
+          <%=
+          """
+          it("is current page", () => {
+            expect(screen.getByRole('link', { name: 'Pricing' }))
+              .toHaveAttribute('aria-current', 'page');
+          })
+          """ |> code_block(:js)
+          %>
+          <%= h4.("Markup") %>
+          <%=
+          """
+          <a href="/features">Features</a>
+          <a href="/pricing" aria-current=page>Pricing</a>
+          <a href="/terms">Terms</a>
+          """ |> code_block(:html)
+          %>
+          <%= h4.("Styling") %>
+          <%=
+          """
+          a {
+            border-bottom: 2px solid transparent;
+          }
+          a[aria-current=page] {
+            border-bottom-color: pink;
+          }
+          """ |> code_block(:css)
+          %>
+        </section>
+
+        <section aria-labelledby="current-notes-heading">
+          <%= h3.("Notes", id: "current-notes-heading") %>
+          <ul>
+            <li><%= link("Marking elements as the current one using aria-current", to: "https://www.accessibility-developer-guide.com/examples/sensible-aria-usage/current/") %>
+          </ul>
+        </section>
+      </article>
+
+      <article aria-labelledby="selected" class="space-y-4">
+        <%= h2.(line("I want to say this element is **selected**"), id: "selected") %>
+
+        <ul>
+          <li>Selected tab in a list
+        </ul>
+      </article>
+
+      <article aria-labelledby="invalid" class="space-y-4">
+        <%= h2.(line("I want to say this element is **invalid**"), id: "invalid") %>
+
+        <section aria-labelledby="invalid-email-field-heading">
+          <%= h3.("Invalid email field", id: "invalid-email-field-heading") %>
+          <%= h4.("Test") %>
+          <%=
+          """
+          it("is invalid", () => {
+            expect(screen.getByRole('textbox', { name: 'Email' }))
+              .toBeInvalid();
+          })
+
+          it("shows error message", () => {
+            expect(screen.getByRole('textbox', { name: 'Email' }))
+              .toHaveDescription('Email must be a valid address');
+          })
+          """ |> code_block(:js)
+          %>
+          <%= h4.("Markup") %>
+          <%=
+          """
+          <label for=email-field>Email</label>
+          <input
+            id=email-field
+            type=email
+            name=email
+            aria-invalid
+            aria-describedby=email-error
+          >
+          <p id=email-error>Email must be a valid address</p>
+          """ |> code_block(:html)
+          %>
+        </section>
+      </article>
+
+      <article aria-labelledby="required" class="space-y-4">
+        <%= h2.(line("I want to say this element is **required**"), id: "required") %>
+
+        <section aria-labelledby="required-email-field-heading">
+          <%= h3.("Required form field", id: "required-email-field-heading") %>
+          <%= h4.("Test") %>
+          <%=
+          """
+          it("is required", () => {
+            expect(screen.getByRole('textbox', { name: 'Email' }))
+              .toBeRequired();
+          })
+          """ |> code_block(:js)
+          %>
+          <%= h4.("Markup") %>
+          <%=
+          """
+          <label>
+            Email
+            <input type=email name=email required>
+          </label>
+          """ |> code_block(:html)
+          %>
+        </section>
+      </article>
+
+      <article aria-labelledby="disabled" class="space-y-4">
+        <%= h2.(line("I want to **disable** an element"), id: "disabled") %>
+
+        <section aria-labelledby="readonly-email-field-heading">
+          <%= h3.("Read-only form field", id: "readonly-email-field-heading") %>
+          <%= h4.("Test") %>
+          <%=
+          """
+          it("is disabled", () => {
+            expect(screen.getByRole('textbox', { name: 'Email' }))
+              .toBeDisabled();
+          })
+          """ |> code_block(:js)
+          %>
+          <%= h4.("Markup") %>
+          <%=
+          """
+          <label>
+            Email
+            <input type=email name=email disabled>
+          </label>
+          """ |> code_block(:html)
+          %>
+        </section>
       </article>
 
     </section>
