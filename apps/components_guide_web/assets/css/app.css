@@ -81,6 +81,9 @@ h3 {
 p {
   padding: var(--paragraph-spacing);
 }
+p:empty {
+  display: none;
+}
 li {
   padding: var(--listitem-spacing);
 }

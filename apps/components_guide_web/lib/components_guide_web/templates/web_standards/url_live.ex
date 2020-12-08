@@ -10,6 +10,14 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
       URI.parse(raw_url)
     end
 
+    def read(%State{} = state, :query) do
+      %URI{query: query} = to_url(state)
+      case query do
+        "" -> ""
+        value -> "?" <> value
+      end
+    end
+
     def to_url_string(%State{raw_url: raw_url}) do
       URI.parse(raw_url) |> URI.to_string()
     end
@@ -51,9 +59,14 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
 
     def add_new_query(%State{} = state) do
       url = to_url(state)
-      url = put_in(url.query, url.query <> "&a=b")
+      # url = put_in(url.query, url.query <> "&a=b")
+      # url = update_in(url.query, fn query_string -> add_query_params_to(query_string, "a=b") end)
+      url = update_in(url.query, &add_query_params_to(&1, "a=b"))
       put_in(state.raw_url, url |> URI.to_string())
     end
+
+    defp add_query_params_to("", new_pair), do: new_pair
+    defp add_query_params_to(query_string, new_pair), do: query_string <> "&" <> new_pair
 
     def change_query_vars(%State{} = state, query_vars) do
       url = to_url(state)
@@ -71,7 +84,7 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
     <form phx-change=change>
 
     <pre class="p-4 my-2" style="color: #d6deeb;">
-    <code><span class="text-green-400"><%= State.to_url(@state).scheme %></span>://<span class="text-yellow-400"><%= State.to_url(@state).host %></span><span class="text-orange-400"><%= State.to_url(@state).path %></span><span class="text-indigo-400">?<%= State.to_url(@state).query %></span></code>
+    <code><span class="text-green-400"><%= State.to_url(@state).scheme %></span>://<span class="text-yellow-400"><%= State.to_url(@state).host %></span><span class="text-orange-400"><%= State.to_url(@state).path %></span><span class="text-indigo-400"><%= @state |> State.read(:query) %></span></code>
     </pre>
 
     <div class="flex flex-col space-y-4">
@@ -111,8 +124,10 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
 
     </form>
 
+    <h2>Live code snippets</h2>
+
     <section aria-labelledby=javascript-url-heading>
-    <h2 id=javascript-url-heading>JavaScript’s <code>URL</code></h2>
+    <h3 id=javascript-url-heading>JavaScript’s <code>URL</code></h3>
 
     <pre class="language-js" phx-hook=PreCode><code>const url = new URL(
       '<%= @state |> State.to_url() |> URI.to_string() %>'
@@ -131,19 +146,52 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
     </section>
 
     <section aria-labelledby=swift-url-heading>
-    <h2 id=swift-url-heading>Swift’s <code>URL</code></h2>
+    <h3 id=swift-url-heading>Swift’s <code>URL</code></h3>
 
     <pre class="language-swift" phx-hook=PreCode><code>let url = URL(
       string: "<%= @state |> State.to_url() |> URI.to_string() %>"
     )!
-    url.scheme // Optional("<%= State.to_url(@state).scheme %>")
-    url.host // Optional("<%= State.to_url(@state).host %>")
+    url.scheme // <%= State.to_url(@state).scheme |> format(:swift_optional) %>
+    url.host // <%= State.to_url(@state).host |> format(:swift_optional) %>
     url.path // "<%= State.to_url(@state).path %>"
-    url.query // Optional("<%= State.to_url(@state).query %>")
+    url.query // <%= State.to_url(@state).query |> format(:swift_optional) %>
+    </code></pre>
+    </section>
+
+    <section aria-labelledby=golang-url-heading>
+    <h3 id=golang-url-heading>Golang’s <code>net/url</code></h3>
+
+    <pre class="language-go" phx-hook=PreCode><code>import (
+      "log"
+      "net/url"
+    )
+
+    exampleURL, err := url.Parse(
+      "<%= @state |> State.to_url() |> URI.to_string() %>"
+    )
+    if err != nil {
+      log.Fatal(err)
+    }
+    exampleURL.Scheme // "<%= State.to_url(@state).scheme %>"
+    exampleURL.Host // "<%= State.to_url(@state).host %>"
+    exampleURL.Path // "<%= State.to_url(@state).path %>"
+
+    exampleURL.RawQuery // "<%= State.to_url(@state).query %>"
+    query, err := url.ParseQuery(exampleURL.RawQuery)
+    if err != nil {
+      log.Fatal(err)
+    }
+    <%= for {key, value} <- State.get_query_vars(@state) do
+      "query.Get(\"#{key}\") // \"#{value}\""
+    end |> Enum.join("\n") %>
     </code></pre>
     </section>
     """
   end
+
+  defp format(nil, :swift_optional), do: "nil"
+  defp format("", :swift_optional), do: "nil"
+  defp format(value, :swift_optional), do: "Optional(\"#{value}\")"
 
   def handle_event(
         "change",

@@ -22,22 +22,9 @@ const current = new URL(window.location.href);
 const current = new URL(request.url);
 ```
 
-## Swift’s `URL`
-
-```swift
-let url = URL(string: "https://www.example.org/")
-
-```
-
 ## Elixir’s `URI`
 
 ```elixir
 url = URI.parse("https://www.example.org/")
 
-```
-
-## Go’s `net/url`
-
-```go
-u, err := url.Parse("https://www.example.org/")
 ```
