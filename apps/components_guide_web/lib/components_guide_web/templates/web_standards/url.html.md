@@ -9,14 +9,6 @@ ComponentsGuideWeb.WebStandards.Live.URL
 ## JavaScript’s `URL`
 
 ```js
-const url = new URL('https://example.org/songs?first=20&sortBy=releaseDate');
-url.protocol; // 'https:' 
-url.hostname; // 'example.org' 
-url.origin; // 'https://example.org' 
-url.pathname; // '/songs' 
-```
-
-```js
 const root = new URL('/');
 ```
 

@@ -111,19 +111,37 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
 
     </form>
 
+    <section aria-labelledby=javascript-url-heading>
+    <h2 id=javascript-url-heading>JavaScript’s <code>URL</code></h2>
+
     <pre class="language-js" phx-hook=PreCode><code>const url = new URL(
       '<%= @state |> State.to_url() |> URI.to_string() %>'
     );
     url.protocol; // '<%= State.to_url(@state).scheme %>:'
     url.host; // '<%= State.to_url(@state).host %>'
+    url.origin; // '<%= State.to_url(@state).scheme %>://<%= State.to_url(@state).host %>'
     url.pathname; // '<%= State.to_url(@state).path %>'
 
     url.search; // '?<%= State.to_url(@state).query %>'
     const query = new URLSearchParams(url.search);
     <%= for {key, value} <- State.get_query_vars(@state) do
-      "query.get('#{key}'); // '#{value}'\n"
-    end %>
+      "query.get('#{key}'); // '#{value}'"
+    end |> Enum.join("\n") %>
     </code></pre>
+    </section>
+
+    <section aria-labelledby=swift-url-heading>
+    <h2 id=swift-url-heading>Swift’s <code>URL</code></h2>
+
+    <pre class="language-swift" phx-hook=PreCode><code>let url = URL(
+      string: "<%= @state |> State.to_url() |> URI.to_string() %>"
+    )!
+    url.scheme // Optional("<%= State.to_url(@state).scheme %>")
+    url.host // Optional("<%= State.to_url(@state).host %>")
+    url.path // "<%= State.to_url(@state).path %>"
+    url.query // Optional("<%= State.to_url(@state).query %>")
+    </code></pre>
+    </section>
     """
   end
 
