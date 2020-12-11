@@ -125,3 +125,4 @@ Vary: Accept-Encoding
 - [MDN: If-None-Match](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match)
 - [MDN: 412 Precondition Failed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/412)
 - [Ryan Florence explains HTTP caching basics by building a Node.js server](https://www.youtube.com/watch?v=3XkU_DXcgl0)
+- [Caching explation and survey in Web Almanac by HTTP Archive](https://almanac.httparchive.org/en/2020/caching)
