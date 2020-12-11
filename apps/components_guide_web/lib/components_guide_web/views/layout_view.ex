@@ -14,19 +14,25 @@ defmodule ComponentsGuideWeb.LayoutView do
     # {"About", to: "/about"}
   ]
 
-  defp search_form do
+  def search_form do
+    ~E"""
+    <form role=search action="/research" class="flex h-full px-2 items-center">
+      <input type=text name=q placeholder="Search specs, packages, features" class="w-full py-1 px-4 bg-gray-800 text-white rounded-full border border-gray-600">
+    </form>
+    """
+  end
+
+  def search_form_item do
     ~E"""
     <li class=row-span-3>
-      <form role=search action="/research" class="flex h-full px-2 items-center">
-        <input type=text name=q placeholder="Search specs, packages, features" class="w-full py-1 px-4 bg-gray-800 text-white rounded-full border border-gray-600">
-      </form>
+      <%= search_form() %>
     """
   end
 
   def nav_items(path_info) do
     [
       Enum.map(@nav_links, fn
-        {:search} -> search_form()
+        {:search} -> search_form_item()
         {title, to: to} -> nav_link_item(title: title, to: to, path_info: path_info)
       end)
     ]
