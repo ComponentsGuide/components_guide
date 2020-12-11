@@ -2,6 +2,7 @@
   <ul y-y x-x=md class="text-lg font-bold text-shadow" style="--link-padding: 0.75em">
     <li><%= link("Why?", to: '/accessibility-first') %>
     <li><%= link("Navigation", to: '/accessibility-first/navigation') %>
+    <li><%= link("Landmarks", to: '/accessibility-first/landmarks') %>
     <li><%= link("Content", to: '/accessibility-first/content') %>
     <li><%= link("Forms", to: '/accessibility-first/forms') %>
     <li><%= link("All Roles", to: '/accessibility-first/roles') %>

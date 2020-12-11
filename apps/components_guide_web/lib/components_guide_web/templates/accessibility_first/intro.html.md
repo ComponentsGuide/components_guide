@@ -14,6 +14,13 @@ HTML is not an after-thought, it’s not a ‘solved problem’, it’s not some
 
 1. **Links vs Buttons:** use links for navigating and buttons for actions.
 1. **Landmarks:** provide familiar touch points that users can jump to.
-2. **Semantics & Roles:** give every element semantic meaning.
-3. **Widgets:** allow everyone to use your controls.
-4. **Properties:** hide or mark elements using accessibility attributes.
+2. **Semantic Content:** add meaningful structure to your content.
+3. **Usable Forms:** ensure form controls are labelled and have the correct roles.
+4. **Widgets:** allow everyone to use your controls.
+5. **Properties:** hide or mark elements using accessibility attributes.
+
+```ts
+getByRole('link', { name: 'About' });
+
+getByRole('button', { name: 'Sign up to newsletter' });
+```

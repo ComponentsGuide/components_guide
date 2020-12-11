@@ -6,10 +6,6 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "index.html", article: "intro")
   end
 
-  def show(conn, %{"id" => "landmarks"}) do
-    render(conn, "landmarks.html")
-  end
-
   def show(conn, %{"id" => "widgets-cheatsheet"}) do
     render(conn, "widgets-cheatsheet.html")
   end
@@ -18,7 +14,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     render(conn, "properties-cheatsheet.html")
   end
 
-  @articles ["navigation", "roles", "accessible-name", "forms", "content"]
+  @articles ["navigation", "landmarks", "roles", "accessible-name", "forms", "content"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)
