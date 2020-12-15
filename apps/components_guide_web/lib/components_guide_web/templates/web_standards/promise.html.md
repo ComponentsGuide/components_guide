@@ -141,6 +141,8 @@ function main() {
 main();
 ```
 
+And here’s that code rewritten to use `async await`.
+
 ```javascript
 const apiURL = new URL('https://swapi.dev/api/');
 
