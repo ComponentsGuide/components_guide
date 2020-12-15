@@ -26,7 +26,7 @@ promisedValue.then(console.log);
 
 In both cases, we will see it logged only once. This is because promises are run once are created eagerly.
 
-Listening to a promise using `.then()` does not affect nor start that promise. It has no side-effect on the source promise.
+Listening to a promise using `.then()` neither affects nor starts that promise. It has no side-effect on the source promise.
 
 Once a promise has been created, then you may wait to hear its result one time, fifteen times, or not at all, and the original promise will behave the same.
 
@@ -161,7 +161,7 @@ async function main() {
 main();
 ```
 
-However, if we use the result from our `fetchPerson()` function (which we be a Promise), and `await` that twice (or more) then we are running the function only once.
+However, if we use the result from our `fetchPerson()` function (which we be a Promise), and `await` that twice (or more) then since we are running the function only once we will see the *‘decoding data’* message logged only once too.
 
 ```javascript
 async function main() {
@@ -194,6 +194,6 @@ function main() {
 main();
 ```
 
-As we learned earlier, listening to a promise using `.then()` does not affect nor start that promise — it has no side-effect on that promise. And `await` behaves the same — it also has no side-effect on the source promise. It simply waits for its eventual value.
+As we learned earlier, listening to a promise using `.then()` neither affects nor starts that promise — it has no side-effect on that promise. And `await` behaves the same — it also has no side-effect on the source promise. It simply waits for its eventual value.
 
 
