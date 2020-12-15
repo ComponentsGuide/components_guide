@@ -96,35 +96,7 @@ const promisedData = promisedResponse.then(response => {
 });
 ```
 
-If it seems confusing that there’s actually two Promises for the one JSON value, consider if we delayed
-
-```javascript
-function callIn(timeout) {
-  return {
-    then: (callback) => setTimeout(callback, timeout)
-  };
-}
-
-Promise.resolve(callIn(500));
-
-const promisedResponse = fetch('https://swapi.dev/api/people/1/');
-const promisedData = promisedResponse.then(response => {
-  return {
-    then: (callback, reject) => {
-      console.log('reject', reject);
-      setTimeout(() => {
-        callback(response.json());
-      }, 1000);
-    }
-  }
-});
-```
-
-### Async Await
-
-The same applies if the code is rewritten to use `async await`. The underlying objects are still Promises.
-
-### Failure
+### Failure recovery
 
 ```javascript
 const fallbackData = {
@@ -138,48 +110,6 @@ fetch('https://swapi.dev/api/people/1/')
   .catch(() => fallbackData);
 ```
 
-### Caching
+### Async Await
 
-```javascript
-function sideEffect(send, transform) {
-  return (value) => ({
-    then(resolve) {
-      const transformed = transform(value);
-      resolve(transformed);
-      send(transformed);
-    }
-  })
-}
-
-function cacheStorer(cache, key, transform) {
-  return sideEffect(value => cache.set(key, transform(value)));
-}
-
-function localStorageStorer(key) {
-  return sideEffect(value => window.localStorage.setItem(key, value));
-}
-
-const cachedValues = new WeakMap();
-function useCacheKey(cache, key) {
-  return [cache.get.bind(cache, key), cache.set(cache, key)];
-}
-
-function fetchCached(url) {
-  const [read, write] = useCacheKey(cachedValues, url);
-
-  const promise = read(url);
-  if (promise) {
-    return promise;
-  } else {
-    return fetch(url).then(
-      sideEffect(write, Promise.resolve),
-      sideEffect(write, Promise.reject)
-    );
-  }
-}
-function fetchCached(url) {
-  return Promise.resolve(cachedValues.get(url) || fetch(url).then(cacheStorer(cachedValues, url)));
-}
-```
-
-### Chaining
+The same applies if the code is rewritten to use `async await`. The underlying objects are still Promises.
