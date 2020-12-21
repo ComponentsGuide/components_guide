@@ -84,7 +84,7 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
     <form phx-change=change>
 
     <pre class="p-4 my-2" style="color: #d6deeb;">
-    <code><span class="text-green-400"><%= State.to_url(@state).scheme %></span>://<span class="text-yellow-400"><%= State.to_url(@state).host %></span><span class="text-orange-400"><%= State.to_url(@state).path %></span><span class="text-indigo-400"><%= @state |> State.read(:query) %></span></code>
+    <code><span class="text-yellow-400"><%= State.to_url(@state).scheme %></span>://<span class="text-green-400"><%= State.to_url(@state).host %></span><span class="text-orange-400"><%= State.to_url(@state).path %></span><span class="text-blue-400"><%= @state |> State.read(:query) %></span></code>
     </pre>
 
     <div class="flex flex-col space-y-4">
@@ -105,15 +105,15 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URL do
     </label>
 
     <label>
-    <span class="font-bold text-orange-400 mr-2">Query</span>
+    <span class="font-bold text-blue-400 mr-2">Query</span>
     <button type=button phx-click=add-query class="px-2 bg-white text-black rounded">Add query</button>
     <button type=button phx-click=clear-query class="px-2 bg-white text-black rounded">Clear query</button>
 
     <div class="space-y-2 mt-2">
       <%= for {key, value} <- State.get_query_vars(@state) do %>
         <div>
-          <input name=query-keys[] type=text value="<%= key %>" class="text-black text-indigo-900 bg-indigo-100 px-2">
-          <input name=query-values[] type=text value="<%= value %>" class="text-black text-indigo-900 bg-indigo-100 px-2">
+          <input name=query-keys[] type=text value="<%= key %>" class="text-black text-blue-900 bg-blue-100 px-2">
+          <input name=query-values[] type=text value="<%= value %>" class="text-black text-blue-900 bg-blue-100 px-2">
         </div>
       <% end %>
     </div>

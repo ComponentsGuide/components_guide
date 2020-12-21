@@ -1,10 +1,12 @@
-# URL
+# Anatomy of a URL
 
-## Anatomy of a URL
+## Change the parts of a URL
 
 <live-render>
 ComponentsGuideWeb.WebStandards.Live.URL
 </live-render>
+
+----
 
 ## JavaScript’s `URL`
 
