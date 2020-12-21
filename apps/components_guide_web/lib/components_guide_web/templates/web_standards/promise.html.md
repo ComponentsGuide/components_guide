@@ -8,14 +8,16 @@ Let's compare two code samples. How many times will we see _Creating value_ logg
 
 ```js
 const promisedValue = new Promise((resolve, reject) => {
-  console.log("Creating value"); // Will this be logged once or not at all?
+  // Will this be logged once or not at all?
+  console.log("Creating value");
   resolve(40 + 2);
 });
 ```
 
 ```js
 const promisedValue = new Promise((resolve, reject) => {
-  console.log("Creating value"); // Will this logged three times or once?
+  // Will this logged three times or once?
+  console.log("Creating value");
   resolve(40 + 2);
 });
 
@@ -133,9 +135,10 @@ function fetchPerson(id) {
 }
 
 function main() {
-  fetchPerson('1');
-  fetchPerson('1');
-  // We will see 'decoding data' twice now, as our function is run from scratch twice.
+  fetchPerson('1'); // *Creates* promise
+  fetchPerson('1'); // *Creates* another promise
+  // We will see 'decoding data' logged twice,
+  // as our function is run from scratch twice.
 }
 
 main();
@@ -148,14 +151,17 @@ const apiURL = new URL('https://swapi.dev/api/');
 
 async function fetchPerson(id) {
   const response = await fetch(new URL(`people/${id}/`, apiURL));
+  // How many times will we see this logged?
   console.log('decoding data');
-  return response.json(); // Note: if we return a Promise, then there’s no need to await
+  // Note: if we return a Promise, then there’s no need to await
+  return response.json();
 }
 
 async function main() {
-  await fetchPerson('1');
-  await fetchPerson('1');
-  // We will see 'decoding data' twice now, as our function is run from scratch twice.
+  await fetchPerson('1'); // *Creates* promise
+  await fetchPerson('1'); // *Creates* another promise
+  // We will see 'decoding data' logged twice,
+  // as our function is run from scratch twice.
 }
 
 main();
@@ -165,11 +171,12 @@ However, if we use the result from our `fetchPerson()` function (which we be a P
 
 ```javascript
 async function main() {
-  const promise = fetchPerson('1');
+  const promise = fetchPerson('1');  // *Creates* promise
 
   await promise;
   await promise;
-  // We will see 'decoding data' only once, as our function is run only once.
+  // We will see 'decoding data' logged only once,
+  // as our function is run only once.
 }
 
 main();
@@ -188,12 +195,11 @@ function main() {
     // Do nothing
   });
 
-  // We will see 'decoding data' only once, as our function is run only once.
+  // We will see 'decoding data' logged only once,
+  // as our function is run only once.
 }
 
 main();
 ```
 
 As we learned earlier, listening to a promise using `.then()` neither affects nor starts that promise — it has no side-effect on that promise. And `await` behaves the same — it also has no side-effect on the source promise. It simply waits for its eventual value.
-
-
