@@ -6,7 +6,7 @@ defmodule ComponentsGuideWeb.ComposableSystemsController do
     render(conn, "index.html", article: "intro")
   end
 
-  @articles ["opinionated-vs-flexible"]
+  @articles ["opinionated-vs-flexible", "desirable-properties"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)

@@ -66,6 +66,7 @@ a:hover {
 h1,
 h2,
 h3,
+h4,
 p,
 li,
 table,
@@ -88,6 +89,10 @@ h2 {
 h3 {
   font-size: var(--heading-3-size);
   padding: var(--heading-3-spacing);
+}
+h4 {
+  font-size: var(--heading-4-size);
+  padding: var(--heading-4-spacing);
 }
 p {
   padding: var(--paragraph-spacing);
@@ -140,6 +145,8 @@ pre {
   --heading-2-spacing: var(--size-base) 0;
   --heading-3-size: var(--size-2xl);
   --heading-3-spacing: var(--size-base) 0;
+  --heading-4-size: var(--size-xl);
+  --heading-4-spacing: var(--size-base) 0;
   --paragraph-spacing: 0.5rem 0;
   --listitem-spacing: 0.5rem 0;
   --table-spacing: var(--size-xl) 0;
