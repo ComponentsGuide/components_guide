@@ -141,11 +141,11 @@ pre {
   --heading-1-size: var(--size-5xl);
   --heading-1-spacing: var(--size-base) 0;
   --heading-1-align: center;
-  --heading-2-size: var(--size-3xl);
+  --heading-2-size: var(--size-4xl);
   --heading-2-spacing: var(--size-base) 0;
-  --heading-3-size: var(--size-2xl);
+  --heading-3-size: var(--size-3xl);
   --heading-3-spacing: var(--size-base) 0;
-  --heading-4-size: var(--size-xl);
+  --heading-4-size: var(--size-2xl);
   --heading-4-spacing: var(--size-base) 0;
   --paragraph-spacing: 0.5rem 0;
   --listitem-spacing: 0.5rem 0;

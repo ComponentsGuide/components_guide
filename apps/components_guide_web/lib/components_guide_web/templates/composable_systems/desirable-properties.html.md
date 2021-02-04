@@ -74,17 +74,17 @@ abc
 - *e.g. a Git commit*
 - *e.g. a YouTube video cannot be edited*
 
-<h2 id=stateless>Stateless</h2>
+<h3 id=stateless>Stateless</h3>
 
 - Is [Deterministic](#deterministic)
-- *e.g. A Restful 
+- *e.g. Restful HTTP GET request*
 
-<h2 id=idempotent>Idempotent</h2>
+<h3 id=idempotent>Idempotent</h3>
 
-- e.g. receiving at least once events
+- *e.g. At-least-once event delivery*
 - Could use Random identifier in request to record which commands have already been completed
 
-<h2 id=versioned>Versioned</h2>
+<h3 id=versioned>Versioned</h3>
 
 - Won't break previous usages
 - *e.g. [Stripe’s API Versioning](https://stripe.com/blog/api-versioning)*
