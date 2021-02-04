@@ -43,7 +43,7 @@ defmodule ComponentsGuide.MixProject do
       {:tesla, "~> 1.3.0"},
       {:mojito, "~> 0.6.1"},
       {:mint, "~> 1.0"},
-      {:floki, "~> 0.26.0"},
+      {:floki, "~> 0.26.0"}
     ]
   end
 
