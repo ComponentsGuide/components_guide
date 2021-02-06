@@ -7,8 +7,11 @@
 - A given input always produces the same output
 - Easily Cacheable
 - Verifiable by multiple actors
+- *e.g. Multiply or adding two integers*
 - *e.g. Converting to lowercase or uppercase*
 - *e.g. Concatenating strings*
+- *e.g. Substring of another strings*
+- *e.g. Removing duplicates from a list of items*
 - *e.g. SHA256 hash digest (RFC 6234)*
 - *e.g. Base64 encoding/decoding (RFC 4648)*
 - *e.g. Gzip decoding (RFC 1952)*
