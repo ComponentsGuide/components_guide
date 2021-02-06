@@ -1,6 +1,63 @@
-# Promise
+# Thinking about Promises
 
-You can think of a Promise as a value. Once a Promise has been created, you can’t changed the value. Sooner or later its value will be given — as promised. (Or it may fail with an error. More on that later.)
+## Promises act as values
+
+You can think of a Promise as an eventual value. It either succeeds with a particular success value, or it possibly fails with an error value.
+
+<div class="flex text-3xl text-black bg-white">
+  <div class="flex-grow p-4 bg-green-300 border border-green-400">
+    <div>Resolve with <div class="px-2 text-white bg-black border-4 border-white border-dashed">Value</div></div>
+  </div>
+  <div class="flex-grow p-4 bg-orange-300 border-orange-400">
+    <div>Reject with <div class="px-2 text-white bg-black border-4 border-white border-dashed">Error</div></div>
+  </div>
+</div>
+
+It either *resolves* to a success value, or it *rejects* with an error value.
+
+<div class="my-4 flex text-3xl text-black bg-white">
+  <div class="flex-grow p-4 bg-green-300 border border-green-400">
+    <div>✅ Resolved with <div class="px-2 text-white bg-green-700 border-4 border-green-900 rounded">Value</div></div>
+  </div>
+  <div class="flex-grow p-4 bg-orange-900 border-orange-900">
+    
+  </div>
+</div>
+
+<div class="my-4 flex text-3xl text-black bg-white">
+  <div class="flex-grow p-4 bg-green-900 border border-green-900">
+    
+  </div>
+  <div class="flex-grow p-4 bg-orange-300 border-orange-400">
+    <div>✅ Rejected with <div class="px-2 text-white bg-orange-700 border-4 border-orange-900 rounded">Error</div></div>
+  </div>
+</div>
+
+Once a Promise has receive its value, you can’t changed that value. If it was told it failed, it can’t be changed to succeed instead. And if it succeeded, it can’t later fail.
+
+## Chaining Promises
+
+A Promise can create a _new_ Promise by calling `.then()` on it.
+
+<div class="my-4 flex text-3xl text-black bg-white">
+  <div class="flex-grow p-4 bg-green-300 border border-green-400">
+    <div>✅ Resolved with <div class="px-2 text-white bg-green-700 border-4 border-green-900 rounded">Value</div></div>
+  </div>
+  <div class="flex-grow p-4 bg-orange-900 border-orange-900">
+    
+  </div>
+</div>
+
+<div class="text-center">.then</div>
+
+<div class="my-4 flex text-3xl text-black bg-white">
+  <div class="flex-grow p-4 bg-green-900 border border-green-900">
+    
+  </div>
+  <div class="flex-grow p-4 bg-orange-300 border-orange-400">
+    <div>✅ Rejected with <div class="px-2 text-white bg-orange-700 border-4 border-orange-900 rounded">Error</div></div>
+  </div>
+</div>
 
 ## Promises are eager
 
@@ -26,7 +83,7 @@ promisedValue.then(console.log);
 promisedValue.then(console.log);
 ```
 
-In both cases, we will see it logged only once. This is because promises are run once are created eagerly.
+In both cases, we will see it logged only once. This is because promises are run once and created eagerly.
 
 Listening to a promise using `.then()` neither affects nor starts that promise. It has no side-effect on the source promise.
 
