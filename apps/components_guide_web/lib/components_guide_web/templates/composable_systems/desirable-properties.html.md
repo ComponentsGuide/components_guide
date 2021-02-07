@@ -44,7 +44,7 @@ abc
 - Won’t clash with existing values
 - *e.g. UUID (RFC 4122)*
 - *e.g. SHA256 hash digest (RFC 6234)*
-- Could still be guessable: *e.g. Auto increment SQL primary key*
+- Warning: could still be [guessable](#guessable): *e.g. Auto increment SQL primary key*
 
 ```console
 # UUID
@@ -59,11 +59,22 @@ abc
 - *e.g. UUID v4*
 - *e.g. Cryptographically Random source*
 
-<h3 id=guessable>Guessable</h3>
+```console
+> head -c16 /dev/urandom | base64
+4mQ9EA==
+```
+
+<h3 id=guessable>Undesirable: Guessable</h3>
 
 - Not Secure
 - Not [Random](#random)
-- *e.g. Auto increment SQL primary key*
+- *e.g. Auto incrementing SQL primary key*
+- *e.g. The current time*
+
+```console
+> date -u '+%Y-%m-%dT%H:%M:%SZ'
+2021-02-07T22:51:21Z
+```
 
 ----
 
@@ -71,11 +82,12 @@ abc
 
 <h3 id=immutable>Immutable</h3>
 
-- Benefits caching
-- Benefits syncing
-- *e.g. Twitter tweets are not editable*
-- *e.g. a Git commit*
-- *e.g. a YouTube video cannot be edited*
+- Changes to data work on a copy, preserving the original
+- Benefits caching: *given I have an object’s ID, the contents will always be the same*
+- Benefits syncing: *retrieve only the parts I do not yet have*
+- *e.g. Twitter tweets cannot be edited, only deleted*
+- *e.g. YouTube video media cannot be edited, only deleted*
+- *e.g. Git object from a committed file*
 
 <h3 id=stateless>Stateless</h3>
 
@@ -84,8 +96,10 @@ abc
 
 <h3 id=idempotent>Idempotent</h3>
 
-- *e.g. At-least-once event delivery*
-- Could use Random identifier in request to record which commands have already been completed
+- The same effect is produced if run once, twice, or a thousand times
+- *e.g. Consumer of an at-least-once event delivery system*
+- *e.g. [Stripe charges](https://stripe.com/docs/api/idempotent_requests)*
+- Hint: Could generate a [random](#random) identifier for each request, which allows recording which commands have already been processed.
 
 <h3 id=versioned>Versioned</h3>
 
