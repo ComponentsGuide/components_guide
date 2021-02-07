@@ -2,7 +2,7 @@
   <ul y-y x-x=md class="text-lg font-bold" style="--link-padding: 0.75em">
     <li><%= link("Why?", to: '/composable-systems') %>
     <li><%= link("Opinionated vs Flexible", to: '/composable-systems/opinionated-vs-flexible') %>
-    <li><%= link("Desirable Properties", to: '/composable-systems/desirable-propertiesA') %>
+    <li><%= link("Desirable Properties", to: '/composable-systems/desirable-properties') %>
     <li hidden><%= link("Single Responsibility", to: '/composable-systems/roles') %>
     <li hidden><%= link("Deterministic", to: '/composable-systems/roles') %>
   </ul>
