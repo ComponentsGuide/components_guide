@@ -2,6 +2,9 @@
   <div class="X pt-8 pb-12">
     <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
   </div>
+  
+  <turbo-frame id="footer" src="/random">
+  </turbo-frame>
 
   <ul class="list-none text-xs mt-4 leading-loose text-gray-500">
     <li>Copyright © 2020 Patrick Smith

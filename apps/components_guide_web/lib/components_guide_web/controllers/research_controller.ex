@@ -5,7 +5,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuide.Research.Spec
   alias ComponentsGuideWeb.ResearchView, as: View
 
-  def index(conn, %{"q" => query}) do
+  def index(conn, %{"q" => query, "turbo" => _}) do
     query = query |> String.trim()
 
     case query do
@@ -14,9 +14,34 @@ defmodule ComponentsGuideWeb.ResearchController do
 
       query ->
         results = load_results(query)
-        render(conn, "index.html", %{query: query, results: results})
+        render(conn, "turbo-results.html", %{query: query, results: results})
     end
   end
+
+  def index(conn, %{"q" => query}) do
+    query = query |> String.trim()
+
+    case query do
+      "" ->
+        render(conn, "empty.html")
+
+      query ->
+        render(conn, "turbo-initial.html", %{query: query})
+    end
+  end
+
+  #   def index(conn, %{"q" => query}) do
+  #     query = query |> String.trim()
+  # 
+  #     case query do
+  #       "" ->
+  #         render(conn, "empty.html")
+  # 
+  #       query ->
+  #         results = load_results(query)
+  #         render(conn, "index.html", %{query: query, results: results})
+  #     end
+  #   end
 
   def index(conn, _params) do
     index(conn, %{"q" => ""})
@@ -43,7 +68,8 @@ defmodule ComponentsGuideWeb.ResearchController do
       content_tag(
         :article,
         children,
-        class: "mb-4 text-xl spacing-y-4 p-4 text-white bg-blue-900 border border-blue-700 rounded shadow-lg"
+        class:
+          "mb-4 text-xl spacing-y-4 p-4 text-white bg-blue-900 border border-blue-700 rounded shadow-lg"
       )
     end
   end
