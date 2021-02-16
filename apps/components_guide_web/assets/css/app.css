@@ -54,13 +54,21 @@ article figcaption {
   font-weight: bold;
 }
 
-a {
+a:not([class]) {
   color: var(--link-color);
   padding: var(--link-padding);
   text-decoration: var(--link-decoration);
 }
-a:hover {
+a:hover:not([class]) {
+  --hover\:links-decoration: var(--link-decoration);
   text-decoration: var(--hover\:links-decoration);
+}
+
+nav {
+  --hover\:links-decoration: underline;
+}
+nav a:only-of-type {
+  --link-padding: 0.5rem;
 }
 
 h1,
