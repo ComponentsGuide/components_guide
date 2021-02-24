@@ -16,6 +16,8 @@ defmodule ComponentsGuideWeb.Router do
 
   scope "/", ComponentsGuideWeb do
     pipe_through :browser
+    
+    get "/elements/:element_id", ElementsController, :index
 
     get "/", LandingController, :index
 

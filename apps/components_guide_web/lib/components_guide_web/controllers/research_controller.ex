@@ -3,6 +3,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   use Phoenix.HTML
 
   alias ComponentsGuide.Research.Spec
+  alias ComponentsGuide.Research.Static
   alias ComponentsGuideWeb.ResearchView, as: View
 
   def index(conn, %{"q" => query, "turbo" => _}) do
@@ -260,10 +261,26 @@ defmodule ComponentsGuideWeb.ResearchController do
         ])
     end
   end
+  
+  defp static(query) do
+    for result <- Static.search_for(query) do
+      case result do
+        {:ok, name, description} ->
+          Section.card([
+            content_tag(:h3, name, class: "text-2xl"),
+            content_tag(:p, description)
+          ])
+        
+        _ ->
+          ""
+      end
+    end
+  end
 
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
+      static(query),
       bundlephobia(query),
       npm_downloads(query),
       caniuse(query),

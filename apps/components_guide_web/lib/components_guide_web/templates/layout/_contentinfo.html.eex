@@ -6,9 +6,6 @@
   <div class="X pt-8 pb-12">
     <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
   </div>
-  
-  <turbo-frame id="footer" src="/random">
-  </turbo-frame>
 
   <nav aria-label="Links">
     <ul class="list-none text-xs mt-4 leading-loose text-gray-500">
