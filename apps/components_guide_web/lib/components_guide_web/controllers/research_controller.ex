@@ -5,6 +5,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuide.Research.Spec
   alias ComponentsGuide.Research.Static
   alias ComponentsGuideWeb.ResearchView, as: View
+  alias ComponentsGuideWeb.ResearchView.Section, as: Section
 
   def index(conn, %{"q" => query, "turbo" => _}) do
     query = query |> String.trim()
@@ -62,17 +63,6 @@ defmodule ComponentsGuideWeb.ResearchController do
       |> Enum.map(fn result -> content_tag(:li, result) end)
 
     content_tag(:ul, items)
-  end
-
-  defmodule Section do
-    def card(children) do
-      content_tag(
-        :article,
-        children,
-        class:
-          "mb-4 text-xl spacing-y-4 p-4 text-white bg-blue-900 border border-blue-700 rounded shadow-lg"
-      )
-    end
   end
 
   defp bundlephobia(query) do
@@ -261,20 +251,9 @@ defmodule ComponentsGuideWeb.ResearchController do
         ])
     end
   end
-  
+
   defp static(query) do
-    for result <- Static.search_for(query) do
-      case result do
-        {:ok, name, description} ->
-          Section.card([
-            content_tag(:h3, name, class: "text-2xl"),
-            content_tag(:p, description)
-          ])
-        
-        _ ->
-          ""
-      end
-    end
+    Enum.map(Static.search_for(query), &View.render_static/1)
   end
 
   defp load_results(query) when is_binary(query) do
@@ -288,5 +267,79 @@ defmodule ComponentsGuideWeb.ResearchController do
       aria_practices(query),
       html_aria(query)
     ]
+  end
+end
+
+defmodule ComponentsGuideWeb.ResearchView do
+  use ComponentsGuideWeb, :view
+
+  def results(_query) do
+    ~E"""
+    Content!
+    """
+  end
+
+  defdelegate float_to_string(f, options), to: :erlang, as: :float_to_binary
+
+  def humanize_bytes(count) when count >= 1024 * 1024 do
+    megabytes = count / (1024 * 1024)
+    "#{float_to_string(megabytes, decimals: 1)} mB"
+  end
+
+  def humanize_bytes(count) when count >= 1024 do
+    kilobytes = count / 1024
+    "#{float_to_string(kilobytes, decimals: 1)} kB"
+  end
+
+  def humanize_bytes(count) when is_integer(count) do
+    "#{count} B"
+  end
+
+  def humanize_count(count) when count >= 1_000_000 do
+    formatted = count / 1_000_000
+    "#{float_to_string(formatted, decimals: 1)}M"
+  end
+
+  def humanize_count(count) when count >= 1000 do
+    formatted = count / 1000
+    "#{float_to_string(formatted, decimals: 1)}K"
+  end
+
+  def humanize_count(count) when is_integer(count) do
+    "#{count}"
+  end
+
+  defmodule Section do
+    def card(children) do
+      content_tag(
+        :article,
+        children,
+        class:
+          "mb-4 text-xl spacing-y-4 p-4 text-white bg-indigo-900 border border-indigo-800 rounded-lg shadow-lg"
+      )
+    end
+  end
+
+  def render_static({type, info}) do
+    render_static(type, info)
+  end
+
+  def render_static(:http_status, {name, description}) do
+    Section.card([
+      content_tag(:h3, "HTTP Status: #{name}", class: "text-2xl"),
+      content_tag(:p, description)
+    ])
+  end
+
+  def render_static(:rfc, {name, rfcs, metadata}) do
+    Section.card([
+      content_tag(:h3, "RFC: #{name}", class: "text-2xl"),
+      content_tag(:p, inspect(rfcs)),
+      content_tag(:p, inspect(metadata)),
+      content_tag(:dl, [
+        content_tag(:dt, "Media (MIME) Type"),
+        content_tag(:dd, Keyword.get(metadata, :media_type))
+      ])
+    ])
   end
 end
