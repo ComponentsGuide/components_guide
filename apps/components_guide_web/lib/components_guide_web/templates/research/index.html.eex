@@ -1,56 +1,9 @@
 <%
   heading = "Research 🔍 specs and implementations"
-  heading = "Search across Can I Use, BundlePhobia, W3 & WhatWG specs"
+  heading = "Search across Can I Use, BundlePhobia, RFCs, W3 & WhatWG specs"
 %>
-<header class="text-white bg-gray-900">
-  <div class="bg-indigo-900">
-    <h2 class="mx-auto max-w-4xl py-4 text-2xl text-center italic leading-tight text-indigo-100">
-      <%= heading %>
-    </h2>
-  </div>
-  <section class="container px-6 pb-8">
-    <form role=search action="/research" class="flex h-full pt-8 items-center">
-      <input type=text name=q placeholder="Search" class="w-full py-1 px-6 text-3xl bg-white text-black border rounded-full" value="<%= @query %>">
-    </form>
-    <dl
-      class="text-xl grid gap-2 items-center pt-4 px-6"
-      style="
-      grid-template-columns: auto 1fr;
-      --link-color: #76a9fa;
-      --hover\:link-decoration: underline;"
-    >
-      <dt>HTML & Roles</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
-          <li><%= link("form", to: "?q=form") %>
-          <li><%= link("button", to: "?q=button") %>
-          <li><%= link("contentinfo", to: "?q=contentinfo") %>
-          <li><%= link("dialog", to: "?q=dialog") %>
-          <li><%= link("menu", to: "?q=menu") %>
-        </ul>
-      </dd>
-      <dt>Third-party</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
-          <li><%= link("react-dom", to: "?q=react-dom") %>
-          <li><%= link("preact", to: "?q=preact") %>
-          <li><%= link("vue", to: "?q=vue") %>
-          <li><%= link("lit-html", to: "?q=lit-html") %>
-          <li><%= link("xstate", to: "?q=xstate") %>
-          <li><%= link("mobx", to: "?q=mobx") %>
-          <li><%= link("lodash", to: "?q=lodash") %>
-          <li><%= link("wonka", to: "?q=wonka") %>
-        </ul>
-      </dd>
-      <dt>Concepts</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
-          <li><%= link("error", to: "?q=error") %>
-        </ul>
-      </dd>
-    </dl>
-  </section>
-</header>
+
+<%= render @view_module, "_header.html", query: @query %>
 
 <div class="text-white bg-gray-900 py-8">
   <div class="container">

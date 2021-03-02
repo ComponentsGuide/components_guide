@@ -40,11 +40,11 @@
   border: 0;
 }
 
-article a:not(nav *) {
-  text-decoration: underline;
+article {
+  /* --link-decoration: underline; */
 }
 article a:hover {
-  text-decoration: underline;
+  --hover\:link-decoration: underline;
 }
 article figcaption {
   font-style: italic;
@@ -60,12 +60,11 @@ a:not([class]) {
   text-decoration: var(--link-decoration);
 }
 a:hover:not([class]) {
-  --hover\:links-decoration: var(--link-decoration);
-  text-decoration: var(--hover\:links-decoration);
+  text-decoration: var(--hover\:link-decoration);
 }
 
 nav {
-  --hover\:links-decoration: underline;
+  --hover\:link-decoration: underline;
 }
 nav a:only-of-type {
   --link-padding: 0.5rem;

@@ -318,28 +318,62 @@ defmodule ComponentsGuideWeb.ResearchView do
           "mb-4 text-xl spacing-y-4 p-4 text-white bg-indigo-900 border border-indigo-800 rounded-lg shadow-lg"
       )
     end
+
+    def unordered_list(items, attrs \\ []) do
+      children =
+        Enum.map(items, fn text ->
+          content_tag(:li, text)
+        end)
+
+      content_tag(:ul, children, attrs)
+    end
+
+    def description_list(items) do
+      children =
+        items
+        |> Stream.filter(fn {_title, value} -> value != nil end)
+        |> Enum.map(fn {title, value} ->
+          content_tag(:div, [
+            content_tag(:dt, title, class: "font-bold"),
+            content_tag(:dd, value, class: "pl-4")
+          ])
+        end)
+
+      content_tag(:dl, children)
+    end
+  end
+
+  defmodule Static do
+    def render(:http_status, {name, description}) do
+      Section.card([
+        content_tag(:h3, "HTTP Status: #{name}", class: "text-2xl font-bold"),
+        content_tag(:p, description)
+      ])
+    end
+
+    def render(:rfc, {name, specs, metadata}) do
+      Section.card([
+        content_tag(:h3, "#{name} Spec", class: "text-2xl font-bold"),
+        Section.description_list([
+          {"Specs",
+           specs
+           |> Enum.map(&link_to_spec/1)
+           |> Section.unordered_list(class: "flex list-disc ml-4 space-x-8")},
+          {"Media (MIME) Type", Keyword.get(metadata, :media_type)}
+        ])
+      ])
+    end
+
+    def link_to_spec("rfc" <> _ = spec) do
+      link(spec, to: "https://tools.ietf.org/html/" <> spec)
+    end
+
+    def link_to_spec(spec) do
+      spec
+    end
   end
 
   def render_static({type, info}) do
-    render_static(type, info)
-  end
-
-  def render_static(:http_status, {name, description}) do
-    Section.card([
-      content_tag(:h3, "HTTP Status: #{name}", class: "text-2xl"),
-      content_tag(:p, description)
-    ])
-  end
-
-  def render_static(:rfc, {name, rfcs, metadata}) do
-    Section.card([
-      content_tag(:h3, "RFC: #{name}", class: "text-2xl"),
-      content_tag(:p, inspect(rfcs)),
-      content_tag(:p, inspect(metadata)),
-      content_tag(:dl, [
-        content_tag(:dt, "Media (MIME) Type"),
-        content_tag(:dd, Keyword.get(metadata, :media_type))
-      ])
-    ])
+    Static.render(type, info)
   end
 end

@@ -1,6 +1,6 @@
 <%
 heading = "Research 🔍 specs and implementations"
-heading = "Search across Can I Use, BundlePhobia, W3 & WhatWG specs"
+heading = "Search across Can I Use, BundlePhobia, RFCs, W3 & WhatWG specs"
 %>
 
 <header class="text-white bg-gray-900">
@@ -30,7 +30,7 @@ heading = "Search across Can I Use, BundlePhobia, W3 & WhatWG specs"
           <li><%= link("menu", to: "?q=menu") %>
         </ul>
       </dd>
-      <dt>Third-party</dt>
+      <dt>Libraries</dt>
       <dd>
         <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
           <li><%= link("react-dom", to: "?q=react-dom") %>
@@ -43,10 +43,12 @@ heading = "Search across Can I Use, BundlePhobia, W3 & WhatWG specs"
           <li><%= link("wonka", to: "?q=wonka") %>
         </ul>
       </dd>
-      <dt>Concepts</dt>
+      <dt>Specs</dt>
       <dd>
         <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
-          <li><%= link("error", to: "?q=error") %>
+          <li><%= link("JSON", to: "?q=JSON") %>
+          <li><%= link("CSV", to: "?q=CSV") %>
+          <li><%= link("ISO 8601", to: "?q=ISO%208601") %>
         </ul>
       </dd>
     </dl>

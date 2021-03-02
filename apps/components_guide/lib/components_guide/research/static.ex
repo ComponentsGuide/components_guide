@@ -36,17 +36,30 @@ defmodule ComponentsGuide.Research.Static do
                      end)
 
   @rfc_list [
-    {"json", ["rfc8259", "rfc7159", "rfc4627"],
+    {"JSON", ["rfc8259", "rfc7159", "rfc4627"],
      [
-       url: "https://tools.ietf.org/html/rfc8259",
        media_type: "application/json"
      ]},
-    {"csv", ["rfc4180"],
+    {"CSV", ["rfc4180"],
      [
-       url: "https://tools.ietf.org/html/rfc4180",
        media_type: "text/csv"
-     ]}
+     ]},
+    {"URL", ["rfc1738"], []},
+    {"URI", ["rfc3986"], []},
+    {"TCP", ["rfc793"], []},
+    {"UDP", ["rfc768"], []},
+    {"DNS", ["rfc1034", "rfc1035"], []},
+    {"DNS TXT", ["rfc1464"], []},
+    {"HTTP", ["rfc2616", "rfc7230", "rfc7231", "rfc7232", "rfc7233", "rfc7234", "rfc7235"], []},
+    {"Timestamps", ["rfc3339", "ISO 8601"], []},
+    {"WebSockets", ["rfc6455"], []}
   ]
+
+  @aliases %{
+    "redirect" => ["301", "302"],
+    "invalid" => ["412", "422"],
+    "etag" => ["304"]
+  }
 
   def search_for(query) when is_binary(query) do
     [
@@ -75,8 +88,10 @@ defmodule ComponentsGuide.Research.Static do
       {^query, _, _} ->
         true
 
-      {_, rfcs, metadata} ->
-        Enum.member?(rfcs, query) || Keyword.get(metadata, :media_type) == query
+      {name, rfcs, metadata} ->
+        String.downcase(name) == query ||
+          Enum.member?(rfcs, query) ||
+          Keyword.get(metadata, :media_type) == query
     end
 
     @rfc_list
