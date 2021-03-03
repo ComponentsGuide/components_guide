@@ -61,6 +61,8 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   defp process_search_for(:caniuse, query, {:ok, data}) when is_binary(query) do
+    query = query |> String.trim() |> String.downcase()
+
     table = data["data"]
 
     if false do
