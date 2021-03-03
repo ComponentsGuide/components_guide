@@ -34,11 +34,11 @@ defmodule ComponentsGuideWeb.ResearchController do
 
   #   def index(conn, %{"q" => query}) do
   #     query = query |> String.trim()
-  # 
+  #
   #     case query do
   #       "" ->
   #         render(conn, "empty.html")
-  # 
+  #
   #       query ->
   #         results = load_results(query)
   #         render(conn, "index.html", %{query: query, results: results})
@@ -137,7 +137,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defmodule CanIUse do
-    alias ComponentsGuideWeb.ResearchController.Section
+    alias ComponentsGuideWeb.ResearchView.Section, as: Section
 
     def present(results) when is_list(results) do
       Enum.map(results, &item/1)
