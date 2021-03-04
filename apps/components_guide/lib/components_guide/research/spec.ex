@@ -10,6 +10,7 @@ defmodule ComponentsGuide.Research.Spec do
   def search_for(:npm_downloads_last_month, query) when is_binary(query) do
     query = String.trim(query)
     url = "https://api.npmjs.org/downloads/point/last-month/#{query}"
+
     case Source.json_at(url) do
       {:ok, %{"downloads" => downloads_count, "package" => name}} ->
         %{downloads_count: downloads_count, name: name}
@@ -65,22 +66,13 @@ defmodule ComponentsGuide.Research.Spec do
 
     table = data["data"]
 
-    if false do
-      keys = Map.keys(table)
-      inspect(keys)
-    else
-      matching_keywords =
-        table
-        |> Enum.flat_map(fn {key, value} ->
-          case value["keywords"] |> String.contains?(query) do
-            true -> [value]
-            false -> []
-          end
-        end)
-
-      # table["documenthead"] |> inspect()
-      matching_keywords
-    end
+    table
+    |> Stream.filter(fn {_key, value} ->
+      value["keywords"] |> String.contains?(query) ||
+        value["title"] |> String.downcase() |> String.contains?(query) ||
+        value["description"] |> String.downcase() |> String.contains?(query)
+    end)
+    |> Enum.map(fn {_key, value} -> value end)
   end
 
   defp process_search_for(:wai_aria_practices, query, {:ok, document}) when is_binary(query) do

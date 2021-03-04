@@ -160,7 +160,7 @@ defmodule ComponentsGuideWeb.ResearchController do
           :dl,
           [
             content_tag(:dt, "Description", class: "font-bold"),
-            content_tag(:dd, "#{description}"),
+            content_tag(:dd, "#{description}", class: "text-base"),
             case notes do
               "" ->
                 []
@@ -168,11 +168,11 @@ defmodule ComponentsGuideWeb.ResearchController do
               notes ->
                 [
                   content_tag(:dt, "Notes", class: "font-bold"),
-                  content_tag(:dd, "#{notes}")
+                  content_tag(:dd, "#{notes}", class: "text-base")
                 ]
             end,
             content_tag(:dt, "Internet Explorer", class: "font-bold"),
-            content_tag(:dd, "#{inspect(stats["ie"])}")
+            content_tag(:dd, "#{inspect(stats["ie"])}", class: "text-sm")
             # content_tag(:dd, "#{inspect(item)}")
           ],
           class: "grid grid-flow-col gap-4",
@@ -260,9 +260,9 @@ defmodule ComponentsGuideWeb.ResearchController do
     # ComponentsGuide.Research.Source.clear_cache()
     [
       static(query),
+      caniuse(query),
       bundlephobia(query),
       npm_downloads(query),
-      caniuse(query),
       html_spec(query),
       aria_practices(query),
       html_aria(query)

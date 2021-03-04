@@ -1,6 +1,8 @@
 <%
 heading = "Research 🔍 specs and implementations"
 heading = "Search across Can I Use, BundlePhobia, RFCs, W3 & WhatWG specs"
+search_url = fn (q) -> "?" <> URI.encode_query(q: q) end
+search_link = fn (q) -> link(q, to: search_url.(q)) end
 %>
 
 <header class="text-white bg-gray-900">
@@ -41,6 +43,18 @@ heading = "Search across Can I Use, BundlePhobia, RFCs, W3 & WhatWG specs"
           <li><%= link("mobx", to: "?q=mobx") %>
           <li><%= link("lodash", to: "?q=lodash") %>
           <li><%= link("wonka", to: "?q=wonka") %>
+        </ul>
+      </dd>
+      <dt>Features</dt>
+      <dd>
+        <ul class="list-none flex flex-wrap italic" style="--link-padding: 0.75em">
+          <li><%= search_link.("CSS Variables") %>
+          <li><%= search_link.("Generators") %>
+          <li><%= search_link.("Template Literals") %>
+          <li><%= search_link.("Proxy") %>
+          <li><%= search_link.("CSS Grid") %>
+          <li><%= search_link.("Dynamic Import") %>
+          <li><%= search_link.("BigInt") %>
         </ul>
       </dd>
       <dt>Specs</dt>
