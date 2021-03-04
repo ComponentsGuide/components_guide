@@ -36,6 +36,7 @@ defmodule ComponentsGuide.Research.Static do
                      end)
 
   @rfc_list [
+    {"UTF-8", ["rfc3629"], []},
     {"JSON", ["rfc8259", "rfc7159", "rfc4627"],
      [
        media_type: "application/json"
@@ -52,7 +53,8 @@ defmodule ComponentsGuide.Research.Static do
     {"DNS TXT", ["rfc1464"], []},
     {"HTTP", ["rfc2616", "rfc7230", "rfc7231", "rfc7232", "rfc7233", "rfc7234", "rfc7235"], []},
     {"Timestamps", ["rfc3339", "ISO 8601"], []},
-    {"WebSockets", ["rfc6455"], []}
+    {"WebSockets", ["rfc6455"], []},
+    {"DNS-Based Service Discovery", ["rfc6763"], []},
   ]
 
   @aliases %{
