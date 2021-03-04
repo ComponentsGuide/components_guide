@@ -2,14 +2,14 @@
   <div class="text-center text-xl text-white" style="--link-decoration: underline">
     Follow <a href="https://twitter.com/ComponentsGuide">@ComponentsGuide</a> on Twitter for the latest articles.
   </div>
-  
+
   <div class="X pt-8 pb-12">
     <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
   </div>
 
   <nav aria-label="Links">
     <ul class="list-none text-xs mt-4 leading-loose text-gray-500">
-      <li>Copyright © 2020 Patrick Smith
+      <li>Copyright © 2021 Patrick Smith
       <li>
         <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
           <img alt="Creative Commons License" style="opacity: 0.5" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-sa.svg" class="inline-block">
