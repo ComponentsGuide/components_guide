@@ -364,6 +364,14 @@ defmodule ComponentsGuideWeb.ResearchView do
       ])
     end
 
+    def render(:super_tiny_icon, %{name: name, url: url}) do
+      Section.card([
+        content_tag(:h3, "#{name |> String.capitalize()} Icon", class: "text-2xl font-bold"),
+        link(url, to: url, class: "text-base"),
+        tag(:img, src: url, width: 80, height: 80)
+      ])
+    end
+
     def link_to_spec("rfc" <> _ = spec) do
       link(spec, to: "https://tools.ietf.org/html/" <> spec)
     end
