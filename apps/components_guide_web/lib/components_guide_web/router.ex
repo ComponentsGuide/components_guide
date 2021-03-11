@@ -18,6 +18,7 @@ defmodule ComponentsGuideWeb.Router do
     pipe_through :browser
     
     get "/elements/:element_id", ElementsController, :index
+    get "/~/content-length", ContentLengthController, :index
 
     get "/", LandingController, :index
 

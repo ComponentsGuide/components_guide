@@ -334,8 +334,8 @@ defmodule ComponentsGuideWeb.ResearchView do
         |> Stream.filter(fn {_title, value} -> value != nil end)
         |> Enum.map(fn {title, value} ->
           content_tag(:div, [
-            content_tag(:dt, title, class: "font-bold"),
-            content_tag(:dd, value, class: "pl-4")
+            content_tag(:dt, title, class: "text-base font-bold"),
+            content_tag(:dd, value, class: "text-base pl-4")
           ])
         end)
 
@@ -344,6 +344,8 @@ defmodule ComponentsGuideWeb.ResearchView do
   end
 
   defmodule Static do
+    # use ComponentsGuideWeb, :view
+
     def render(:http_status, {name, description}) do
       Section.card([
         content_tag(:h3, "HTTP Status: #{name}", class: "text-2xl font-bold"),
@@ -367,8 +369,18 @@ defmodule ComponentsGuideWeb.ResearchView do
     def render(:super_tiny_icon, %{name: name, url: url}) do
       Section.card([
         content_tag(:h3, "#{name |> String.capitalize()} Icon", class: "text-2xl font-bold"),
-        link(url, to: url, class: "text-base"),
-        tag(:img, src: url, width: 80, height: 80)
+        content_tag(
+          :div,
+          [
+            tag(:img, src: url, width: 80, height: 80),
+            Section.description_list([
+              {"URL", link(url, to: url, class: "text-base")},
+              {"Size",
+               ComponentsGuideWeb.ResearchView.turbo_frame("content-length", "/~/content-length")}
+            ])
+          ],
+          class: "flex flex-row space-x-4"
+        )
       ])
     end
 

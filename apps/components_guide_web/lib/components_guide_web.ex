@@ -96,8 +96,12 @@ defmodule ComponentsGuideWeb do
 
       def markdown!(markdown) do
         Earmark.as_html!(markdown)
-          |> raw()
+        |> raw()
       end
+
+      def turbo_frame(id, src, do: block), do: content_tag("turbo-frame", block, id: id, src: src)
+      def turbo_frame(id, do: block), do: content_tag("turbo-frame", block, id: id)
+      def turbo_frame(id, src), do: content_tag("turbo-frame", [], id: id, src: src)
     end
   end
 

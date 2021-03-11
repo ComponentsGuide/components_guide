@@ -11,3 +11,5 @@
 </div>
 
 </turbo-frame>
+
+<%= turbo_frame("content-length", "/~/content-length") %>

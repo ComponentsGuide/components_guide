@@ -65,7 +65,7 @@ defmodule ComponentsGuide.Research.Source do
           %{query: query, path: path} -> path <> "?" <> query
         end
 
-        IO.puts("fetching URL #{uri} #{uri.host} #{path}")
+      IO.puts("fetching URL #{uri} #{uri.host} #{path}")
       {:ok, conn, request_ref} = Mint.HTTP.request(conn, "GET", path, [], nil)
 
       receive_mint_response(%Fetch{}, conn, request_ref)
@@ -82,15 +82,15 @@ defmodule ComponentsGuide.Research.Source do
     # Fetch.get(url)
 
     with {:ok, response} <- Mojito.request(method: :get, url: url, timeout: 50000) do
-      {:ok, response.body}
+      {:ok, response}
     else
       _ -> :err
     end
   end
 
   defp body({:html_document, url}) do
-    with {:ok, html} <- read({:fetch, url}),
-         {:ok, document} <- Floki.parse_document(html) do
+    with {:ok, response} <- read({:fetch, url}),
+         {:ok, document} <- Floki.parse_document(response.body) do
       {:ok, document}
     else
       _ -> :err
@@ -98,9 +98,17 @@ defmodule ComponentsGuide.Research.Source do
   end
 
   defp body({:fetch_json, url}) do
-    with {:ok, encoded} <- read({:fetch, url}),
-         {:ok, data} <- Jason.decode(encoded) do
+    with {:ok, response} <- read({:fetch, url}),
+         {:ok, data} <- Jason.decode(response.body) do
       {:ok, data}
+    else
+      _ -> :err
+    end
+  end
+
+  defp body({:content_length, url}) do
+    with {:ok, response} <- read({:fetch, url}) do
+      {:ok, Mojito.Headers.get(response.headers, "content-length")}
     else
       _ -> :err
     end
@@ -111,8 +119,9 @@ defmodule ComponentsGuide.Research.Source do
       write_cache(key, value)
       {:ok, value}
     else
-      _ -> write_cache(key, :err)
-      :err
+      _ ->
+        write_cache(key, :err)
+        :err
     end
   end
 
@@ -131,6 +140,7 @@ defmodule ComponentsGuide.Research.Source do
 
   def html_document_at(url), do: read({:html_document, url})
   def json_at(url), do: read({:fetch_json, url})
+  def content_length(url), do: read({:content_length, url})
 
   def clear_cache() do
     Cachex.clear(@cache_name)
