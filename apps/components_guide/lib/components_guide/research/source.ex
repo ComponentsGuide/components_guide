@@ -107,8 +107,10 @@ defmodule ComponentsGuide.Research.Source do
   end
 
   defp body({:content_length, url}) do
-    with {:ok, response} <- read({:fetch, url}) do
-      {:ok, Mojito.Headers.get(response.headers, "content-length")}
+    with {:ok, response} <- Mojito.request(method: :head, url: url, timeout: 50000),
+         s when is_binary(s) <- Mojito.Headers.get(response.headers, "content-length"),
+         {n, _} <- Integer.parse(s) do
+      {:ok, n}
     else
       _ -> :err
     end

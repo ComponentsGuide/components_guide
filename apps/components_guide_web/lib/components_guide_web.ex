@@ -93,6 +93,7 @@ defmodule ComponentsGuideWeb do
 
       import Paredown
       alias ComponentsGuideWeb.StylingHelpers, as: Styling
+      alias ComponentsGuideWeb.FormattingHelpers, as: Format
 
       def markdown!(markdown) do
         Earmark.as_html!(markdown)

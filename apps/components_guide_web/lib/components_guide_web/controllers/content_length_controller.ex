@@ -3,9 +3,7 @@ defmodule ComponentsGuideWeb.ContentLengthController do
   alias ComponentsGuide.Research.Source
   alias ComponentsGuideWeb.ResearchView, as: View
 
-  def index(conn, _params) do
-    url = "https://unpkg.com/super-tiny-icons@0.4.0/images/svg/twitter.svg"
-
+  def index(conn, %{"url" => "https://unpkg.com/" <> _ = url}) do
     case Source.content_length(url) do
       {:ok, content_length} ->
         conn
@@ -14,7 +12,7 @@ defmodule ComponentsGuideWeb.ContentLengthController do
         |> render("index.html", content_length: content_length)
 
       _ ->
-        html(conn, "")
+        html(conn, "–")
     end
   end
 end
@@ -24,7 +22,9 @@ defmodule ComponentsGuideWeb.ContentLengthView do
 
   def render("index.html", assigns) do
     turbo_frame("content-length") do
-      content_tag(:data, "#{assigns.content_length}", value: assigns.content_length)
+      content_tag(:data, Format.humanize_bytes(assigns.content_length),
+        value: assigns.content_length
+      )
     end
   end
 end
