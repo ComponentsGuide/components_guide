@@ -1,45 +1,62 @@
 # Semantic Content
 
 <style>
+article output {
+  --link-decoration: underline;
+}
+
 article figure {
   display: flex;
   flex-direction: column;
   text-align: center;
   align-items: center;
 }
+
+article dt {
+  font-weight: bold;
+}
+article dd {
+  margin-left: 1em;
+}
+
+article summary {
+  cursor: pointer;
+}
 </style>
 
 <script type=module>
 import * as DOMTesting from "https://cdn.skypack.dev/@testing-library/dom";
-window.DOMTesting = DOMTesting;
 
 function* surroundingSourceElements(el) {
   let prev = el;
   while (prev = prev.previousElementSibling) {
     if (prev.matches('h1, h2, h3, h4')) break;
-    if (prev.matches('pre.language-html')) yield { type: 'html', code: prev.textContent };
-    if (prev.matches('pre.language-javascript')) yield { type: 'javascript', code: prev.textContent };
+    if (prev.matches('pre.language-html')) yield { type: 'html', code: prev.textContent, el: prev };
+    if (prev.matches('pre.language-javascript')) yield { type: 'javascript', code: prev.textContent, el: prev };
   }
   
   let next = el;
   while (next = next.nextElementSibling) {
     if (next.matches('h1, h2, h3, h4')) break;
-    if (next.matches('pre.language-html')) yield { type: 'html', code: next.textContent };
-    if (next.matches('pre.language-javascript')) yield { type: 'javascript', code: next.textContent };
+    if (next.matches('pre.language-html')) yield { type: 'html', code: next.textContent, el: next };
+    if (next.matches('pre.language-javascript')) yield { type: 'javascript', code: next.textContent, el: next };
   }
 }
 
 const outputEls = document.querySelectorAll('article output');
-console.log(outputEls);
+
+function colorFor(index) {
+  return ['orange-500', 'purple-500', 'green-500'][index];
+}
 
 for (const outputEl of outputEls.values()) {
   const div = outputEl.appendChild(document.createElement('div'));
   div.classList.add('p-4');
     
-  console.log('outputEl', outputEl);
+  let javascriptIndex = 0;
   const sources = surroundingSourceElements(outputEl);
   for (const source of sources) {
-    const { type, code } = source;
+    const { type, code, el } = source;
     
     console.log('source', source);
     
@@ -48,13 +65,18 @@ for (const outputEl of outputEls.values()) {
     }
     
     if (type === 'javascript') {
+      const color = colorFor(javascriptIndex);
+      
+      el.classList.add('border-l-4', `border-${color}`);
+      
       const screen = DOMTesting.within(div);
       const testFunction = new Function('screen', `return ${code}`);
-      testFunction(screen).style.border = '2px solid red';
+      testFunction(screen).classList.add('border-2', `border-${color}`);
+      
+      javascriptIndex++;
     }
   }
 }
-//const htmlSourceElements = document.querySelector('article pre.language-html');
 </script>
 
 <table class="text-left table-fixed">
@@ -95,7 +117,7 @@ Semantic HTML elements allow meaning and structure to be determined.
 
 The better these crawlers can understand, and the more meaning they can infer, the higher they will rank you.
 
-A web page that is just made of `<div>` and `<span>` elements means that the only content they have to use is the text. Which is a lossy and messy process. Better to provide precise and rich elements instead.
+A web page that is just made of `<div>` and `<span>` elements means that the only content they have to use is the text. Which is a subjective and messy process. Better to provide precise, meaningful elements instead.
 
 ## Headings
 
@@ -107,6 +129,22 @@ A web page that is just made of `<div>` and `<span>` elements means that the onl
 
 ```javascript
 screen.getByRole('heading');
+```
+
+## Links
+
+```html
+<p><a href="https://en.wikipedia.org/wiki/One_Thousand_and_One_Nights">One Thousand and One Nights</a> is a collection of Middle Eastern folk tales compiled in Arabic during the <a href="https://en.wikipedia.org/wiki/Islamic_Golden_Age">Islamic Golden Age</a>.
+```
+
+<output></output>
+
+```javascript
+screen.getByRole('link', { name: 'One Thousand and One Nights' });
+```
+
+```javascript
+screen.getByRole('link', { name: /islamic golden age/i });
 ```
 
 ## Lists
@@ -178,9 +216,17 @@ screen.getByRole('figure');
 
 ## Details & Summary
 
-## Separator
+```html
+<details>
+  <summary>Expand me…</summary>
+  <p>To see more content</p>
+</details>
+```
 
-<script type=module>
-  import * as DOM from "https://cdn.skypack.dev/@testing-library/dom";
-  console.log("DOM", Object.keys(DOM), DOM.screen);
-</script>
+<output></output>
+
+```javascript
+screen.getByRole('group');
+```
+
+## Separator

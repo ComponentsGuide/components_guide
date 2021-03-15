@@ -141,6 +141,13 @@ pre {
   color: white;
   background-color: #011627;
 }
+code[class*="language-"], pre[class*="language-"] {
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+}
+pre[class*="language-"] {
+  font-size: 87.5%;
+}
 
 .content {
   --item-spacing-left: 1rem;
