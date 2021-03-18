@@ -18,7 +18,7 @@ config :components_guide_web, ComponentsGuideWeb.Endpoint,
       "node_modules/webpack/bin/webpack.js",
       "--mode",
       "development",
-      "--watch-stdin",
+      "--watch-options-stdin",
       cd: Path.expand("../apps/components_guide_web/assets", __DIR__)
     ]
   ]
