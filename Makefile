@@ -20,10 +20,12 @@ build:
 clean:
 	rm -rf ./_build
 
-deploy:
+production:
 	git pull --rebase
 	git push origin master
 	git push gigalixir master
+
+deploy: production
 
 status:
 	gigalixir ps
