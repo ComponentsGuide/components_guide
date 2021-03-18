@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.TemplateAssets do
   use Mix.Task
 
-  alias ComponentsGuideWeb.Endpoint
+  # alias ComponentsGuideWeb.Endpoint
 
   @shortdoc "Move images from templates to static assets"
   def run(_) do
@@ -9,9 +9,12 @@ defmodule Mix.Tasks.TemplateAssets do
 
     IO.puts("Running mix template_assets in #{project_dir()}")
     IO.puts("Template path: #{templates_path()}")
+    
+    IO.inspect(File.ls(Path.join(templates_path(), "react_typescript")))
 
-    image_paths = Path.wildcard(Path.join(templates_path(), "/**/*.{png,jpg,jpeg,gif}"))
-    IO.puts("Found images: #{image_paths}")
+    image_paths = Path.wildcard(Path.join(templates_path(), "**/*.{png,jpg,jpeg,gif}"))
+    IO.puts("Found images:")
+    IO.inspect(image_paths)
 
     for image_path <- image_paths do
       process_image(image_path)
