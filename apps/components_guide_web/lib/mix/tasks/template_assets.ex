@@ -8,8 +8,11 @@ defmodule Mix.Tasks.TemplateAssets do
     Mix.Task.run("app.start")
 
     IO.puts("Running mix template_assets in #{project_dir()}")
-    IO.puts("Template path: #{templates_path()}")
+    IO.inspect(File.ls(project_dir()))
     
+    IO.puts("Template path: #{templates_path()}")
+
+    IO.inspect(File.ls(templates_path()))
     IO.inspect(File.ls(Path.join(templates_path(), "react_typescript")))
 
     image_paths = Path.wildcard(Path.join(templates_path(), "**/*.{png,jpg,jpeg,gif}"))
