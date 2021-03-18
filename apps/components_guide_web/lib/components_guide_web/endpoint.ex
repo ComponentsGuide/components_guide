@@ -13,6 +13,13 @@ defmodule ComponentsGuideWeb.Endpoint do
   )
 
   socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
+  
+  plug(Plug.Static,
+    at: "/collected/image",
+    from: {:components_guide_web, "priv/static/collected/image"},
+    gzip: false,
+    only: ~w(svg png jpg gif)
+  )
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -22,14 +29,7 @@ defmodule ComponentsGuideWeb.Endpoint do
     at: "/",
     from: :components_guide_web,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt collected)
-  )
-
-  plug(Plug.Static,
-    at: "/collected/image",
-    from: {:components_guide_web, "priv/static/collected/image"},
-    gzip: false,
-    only: ~w(svg png jpg gif)
+    only: ~w(css fonts images js favicon.ico robots.txt)
   )
 
   # Code reloading can be explicitly enabled under the

@@ -29,11 +29,14 @@ defmodule Mix.Tasks.TemplateAssets do
     media_type = MIME.from_path(image_path)
     hash = :crypto.hash(:sha256, data)
     hash_base64 = hash |> Base.url_encode64()
+    
     destination_dir = Path.join(static_collected_dir(), media_type)
     File.mkdir_p!(destination_dir)
+    
     extension = MIME.extensions(media_type) |> List.first()
     destination_path = Path.join(destination_dir, "#{hash_base64}.#{extension}")
     File.copy!(image_path, destination_path)
+    
     Mix.shell().info("Copied #{image_path} to #{destination_path}")
   end
 end
