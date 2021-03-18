@@ -26,3 +26,5 @@ Stripe’s navigation provides links to the primary pages people want to visit. 
 Most visual users would identify this as the primary navigation of the site, and so you should denote it as such in your HTML markup. Here’s what you might write for Stripe’s navigation:
 
 [stripe-nav]: https://icing.space/wp-content/uploads/2020/03/DraggedImage.77e7cbde60df4e08a4eac02d9ce73454-2048x134.png
+
+[Read more about Landmarks](https://icing.space/2020/landmarks/)
