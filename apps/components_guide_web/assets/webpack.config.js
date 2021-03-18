@@ -33,16 +33,7 @@ module.exports = (env, options) => ({
         use: [
           MiniCssExtractPlugin.loader,
           'css-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              indent: 'postcss',
-              plugins: [
-                require('tailwindcss'),
-                require('autoprefixer')
-              ]
-            }
-          },
+          'postcss-loader',
           // 'vue-style-loader'
         ]
       }
@@ -50,6 +41,6 @@ module.exports = (env, options) => ({
   },
   plugins: [
     new MiniCssExtractPlugin({ filename: '../css/app.css' }),
-    new CopyWebpackPlugin([{ from: 'static/', to: '../' }])
+    new CopyWebpackPlugin({ patterns: [{ from: 'static/', to: '../' }] })
   ]
 });

@@ -1,9 +1,6 @@
 module.exports = {
-  purge: ["../**/*.ex", "../**/*.eex", "../**/*.html"],
-  future: {
-    removeDeprecatedGapUtilities: true,
-  },
-  plugins: [require("@tailwindcss/custom-forms"), require("@tailwindcss/ui")],
+  purge: ["../**/*.ex", "../**/*.eex", "../**/*.html", "../**/*.md"],
+  plugins: [require("@tailwindcss/forms")],
   theme: {
     extend: {
       colors: {
