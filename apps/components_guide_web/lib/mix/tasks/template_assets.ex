@@ -11,6 +11,7 @@ defmodule Mix.Tasks.TemplateAssets do
     IO.puts("Template path: #{templates_path()}")
 
     image_paths = Path.wildcard(Path.join(templates_path(), "/**/*.{png,jpg,jpeg,gif}"))
+    IO.puts("Found images: #{image_paths}")
 
     for image_path <- image_paths do
       process_image(image_path)
