@@ -13,7 +13,7 @@ defmodule ComponentsGuideWeb.Endpoint do
   )
 
   socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
-  
+
   plug(Plug.Static,
     at: "/collected/image",
     from: {:components_guide_web, "priv/static/collected/image"},

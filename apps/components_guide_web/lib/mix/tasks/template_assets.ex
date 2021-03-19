@@ -9,7 +9,7 @@ defmodule Mix.Tasks.TemplateAssets do
 
     IO.puts("Running mix template_assets in #{project_dir()}")
     IO.inspect(File.ls(project_dir()))
-    
+
     IO.puts("Template path: #{templates_path()}")
 
     IO.inspect(File.ls(templates_path()))
@@ -34,10 +34,10 @@ defmodule Mix.Tasks.TemplateAssets do
   defp project_dir(), do: File.cwd!()
 
   defp templates_path(),
-    do: Path.join(project_dir(), "/apps/components_guide_web/lib/components_guide_web/templates")
+    do: Path.join(project_dir(), "/lib/components_guide_web/templates")
 
   defp static_collected_dir(),
-    do: Path.join(project_dir(), "/apps/components_guide_web/priv/static/collected")
+    do: Path.join(project_dir(), "/priv/static/collected")
 
   defp process_image(image_path) do
     data = File.read!(image_path)
