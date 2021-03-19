@@ -382,7 +382,7 @@ An article element also helps browsers such as Apple Watch or reader views know 
 
 ## How to observe other websites
 
-The aptly named [Landmarks browser extension](http://(http//matatk.agrip.org.uk/landmarks/) lets you view, highlight, and navigate around the landmarks on the current page.
+The aptly named [Landmarks browser extension](https://matatk.agrip.org.uk/landmarks/) lets you view, highlight, and navigate around the landmarks on the current page.
 
 <collected-figure image="landmarks-extension">The Landmarks extension listing the named landmarks on a page</collected-figure>
 
