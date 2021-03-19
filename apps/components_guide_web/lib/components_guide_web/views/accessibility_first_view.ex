@@ -4,6 +4,19 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
   use ComponentsGuideWeb.Snippets
   use Phoenix.HTML
 
+  def collected_image(conn, image_name) do
+    %{static_path: path_to_image, width: width, height: height} = render(image_name)
+    url = Routes.static_path(conn, "/" <> path_to_image)
+    tag(:img, src: url, width: width / 2, height: height / 2)
+  end
+
+  def collected_figure(conn, image_name, caption) do
+    content_tag(:figure, [
+      collected_image(conn, image_name),
+      content_tag(:figcaption, caption)
+    ])
+  end
+
   def table_rows(rows_content) do
     Enum.map(rows_content, &table_row/1)
   end
@@ -19,12 +32,13 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
   def header_styles() do
     color = {:lab, 47, 10, -44}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, 47, 5, -44},
-      {:lab, 47, -24, -44},
-      color,
-      {:lab, 47, 53, -44}
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, 47, 5, -44},
+        {:lab, 47, -24, -44},
+        color,
+        {:lab, 47, 53, -44}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end

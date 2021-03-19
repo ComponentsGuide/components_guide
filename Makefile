@@ -15,7 +15,7 @@ dev:
 	iex -S mix phx.server
 
 build:
-	mix phx.digest
+	cd apps/components_guide_web/ && mix template_assets && mix phx.digest
 
 clean:
 	rm -rf ./_build

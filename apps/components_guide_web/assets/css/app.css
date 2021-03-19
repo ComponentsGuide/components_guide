@@ -76,6 +76,7 @@ h3,
 h4,
 p,
 li,
+figure,
 table,
 blockquote {
   margin-left: var(--item-spacing-left);
@@ -109,6 +110,12 @@ p:empty {
 }
 li {
   padding: var(--listitem-spacing);
+}
+figure {
+  padding: var(--figure-spacing);
+}
+figcaption {
+  padding: var(--figcaption-spacing);
 }
 table {
   margin: var(--table-spacing);
@@ -163,6 +170,8 @@ pre[class*="language-"] {
   --heading-4-spacing: var(--size-base) 0;
   --paragraph-spacing: 0.5rem 0;
   --listitem-spacing: 0.5rem 0;
+  --figure-spacing: 1rem 0;
+  --figcaption-spacing: 0.5rem 0 0;
   --table-spacing: var(--size-xl) 0;
   --code-spacing: 0 0.1875em;
   --code-radius: 0.125em;

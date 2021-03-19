@@ -17,11 +17,9 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
     regex = ~r{<live-([\w-]+)>([^<]+)</live-([^>]+)>}
     # regex = ~r{<live-([\w-]+)>}
 
-    # live? = Regex.match(regex, html)
-
     html =
-      Regex.replace(regex, html, fn whole, name, content ->
-        case name do
+      Regex.replace(regex, html, fn whole, tag_suffix, content ->
+        case tag_suffix do
           "render" ->
             # |> String.to_existing_atom
             module = content |> String.trim()
@@ -34,6 +32,19 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
           _ ->
             "!" <> name <> "!" <> content
+        end
+      end)
+
+    regex = ~r{<collected-([\w-]+) image="([^"]+)">([^<]+)</collected-([^>]+)>}
+
+    html =
+      Regex.replace(regex, html, fn _whole, tag_suffix, image, content ->
+        case tag_suffix do
+          "figure" ->
+            "<div><%= collected_figure(@conn, #{inspect(image)}, #{inspect(content)}) %></div>"
+
+          _ ->
+            "!" <> image <> "!" <> content
         end
       end)
 
