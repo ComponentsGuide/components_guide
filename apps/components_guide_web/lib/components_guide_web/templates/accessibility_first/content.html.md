@@ -45,8 +45,8 @@ function* surroundingSourceElements(el) {
 
 const outputEls = document.querySelectorAll('article output');
 
-function colorFor(index) {
-  return ['orange-500', 'purple-500', 'green-500'][index];
+function classNamesFor(index) {
+  return ['border-yellow-500', 'border-green-500 border-dotted', 'border-purple-500 border-double'][index].split(' ');
 }
 
 for (const outputEl of outputEls.values()) {
@@ -65,13 +65,13 @@ for (const outputEl of outputEls.values()) {
     }
     
     if (type === 'javascript') {
-      const color = colorFor(javascriptIndex);
+      const classNames = classNamesFor(javascriptIndex);
       
-      el.classList.add('border-l-4', `border-${color}`);
+      el.classList.add('border-l-4', ...classNames);
       
       const screen = DOMTesting.within(div);
       const testFunction = new Function('screen', `return ${code}`);
-      testFunction(screen).classList.add('border-2', `border-${color}`);
+      [].concat(testFunction(screen)).forEach(el => el.classList.add('border-4', ...classNames));
       
       javascriptIndex++;
     }
@@ -167,18 +167,30 @@ screen.getByRole('list');
 
 ```html
 <dl>
-  <dt>Name</dt>
-  <dd>The Lion King</dd>
+  <dt id=movie-1-name>Name</dt>
+  <dd aria-labelledby=movie-1-name>The Lion King</dd>
   
-  <dt>Year Released</dt>
-  <dd>1994</dd>
+  <dt id=movie-1-year>Year Released</dt>
+  <dd aria-labelledby=movie-1-year>1994</dd>
   
-  <dt>Runtime</dt>
-  <dd>88 min</dd>
+  <dt id=movie-1-runtime>Runtime</dt>
+  <dd aria-labelledby=movie-1-runtime>88 min</dd>
 </dl>
 ```
 
 <output></output>
+
+```javascript
+screen.getByRole('definition', { name: 'Name' });
+```
+
+```javascript
+screen.getByRole('definition', { name: 'Year Released' });
+```
+
+```javascript
+screen.getByRole('definition', { name: 'Runtime' });
+```
 
 ## Images
 
