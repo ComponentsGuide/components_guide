@@ -12,13 +12,13 @@
     <%
       stamp_query = case assigns[:page_title] do
         nil ->
-          "source=Components.Guide"
+          [primary: "Components.Guide", secondary: "Learn accessibility, web standards, testing React & more"]
 
         title ->
-          URI.encode_query(source: "Components.Guide", headline: title)
+          [primary: "Components.Guide", secondary: title]
       end
     %>
-    <meta property="og:image" content="https://stamp.vercel.app/api/poster?<%= stamp_query %>">
+    <meta property="og:image" content="https://postage-stamp.collected.workers.dev/1/poster?<%= URI.encode_query(stamp_query) %>">
 
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
 
