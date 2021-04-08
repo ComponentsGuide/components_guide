@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang=en>
   <head>
     <meta charset=utf-8>
@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RoyalIcing/tela@2d421cafc1ea99fab91aa4fcbf3b554160bcada5/tela.css"/>
 
+    <%= if @conn.path_info == [] do %>
+    <meta property="og:type" content="website">
+    <% else %>
+    <meta property="og:type" content="article">
+    <% end %>
+
+    <meta property="og:title" content="<%= assigns[:page_title] || "Learn accessibility, web standards, testing React & more" %>">
     <%
       stamp_query = case assigns[:page_title] do
         nil ->
