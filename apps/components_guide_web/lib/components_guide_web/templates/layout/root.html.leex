@@ -29,8 +29,6 @@
 
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
 
-    <!--<script type="module" src="http://localhost:3000/js/app.js"></script>-->
-
     <%= if Mix.env() == :prod do %>
       <script src="https://cdn.usefathom.com/script.js" site="LYHMLVID" defer></script>
     <% end %>
