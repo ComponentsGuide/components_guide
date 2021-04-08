@@ -27,6 +27,8 @@
       image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(stamp_query)
     %>
     <meta property="og:image" content="<%= image_url %>">
+    <meta name="twitter:site" content="@ComponentsGuide">
+    <meta name="twitter:card" content="summary_large_image">
 
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
 
