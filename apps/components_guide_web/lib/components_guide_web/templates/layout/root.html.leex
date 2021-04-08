@@ -24,8 +24,9 @@
         title ->
           [primary: "Components.Guide", secondary: title]
       end
+      image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(stamp_query)
     %>
-    <meta property="og:image" content="https://postage-stamp.collected.workers.dev/1/poster?<%= URI.encode_query(stamp_query) %>">
+    <meta property="og:image" content="<%= image_url %>">
 
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
 
