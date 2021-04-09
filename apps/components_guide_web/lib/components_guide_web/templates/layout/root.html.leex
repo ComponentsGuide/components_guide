@@ -24,11 +24,13 @@
         title ->
           [primary: "Components.Guide", secondary: title]
       end
-      image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(stamp_query)
+      main_image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(stamp_query)
+      twitter_image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(Keyword.merge(stamp_query, width: 600, height: 314))
     %>
-    <meta property="og:image" content="<%= image_url %>">
+    <meta property="og:image" content="<%= main_image_url %>">
     <meta name="twitter:site" content="@ComponentsGuide">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="<%= twitter_image_url %>">
 
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
 
