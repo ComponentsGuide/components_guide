@@ -1,10 +1,11 @@
 module.exports = {
-  purge: ["../**/*.ex", "../**/*.eex", "../**/*.html", "../**/*.md"],
-  plugins: [require("@tailwindcss/forms")],
+  mode: 'jit',
+  purge: ['../lib/**/*.{ex,eex,html,md}'],
+  plugins: [require('@tailwindcss/forms')],
   theme: {
     extend: {
       colors: {
-        current: "currentColor",
+        current: 'currentColor',
       },
     },
   },
