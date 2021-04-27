@@ -178,10 +178,10 @@ subhead = "Learn about accessibility, TDD, BDD, naming, performance, and the lat
 
       <ul class="list-disc pl-8 font-bold">
         <li class="text-red-300"><%= "Great UX and performance" %>
-        <li class="text-teal-300"><%= "Accessibility" %>
+        <li class="text-cyan-300"><%= "Accessibility" %>
         <li class="text-blue-300"><%= "Component naming & responsibility" %>
         <li class="text-green-300"><%= "TDD & BDD" %>
-        <li class="text-yellow-100"><%= "Thinking about state" %>
+        <li class="text-yellow-300"><%= "Thinking about state" %>
         <li class="text-orange-300"><%= "Modular styling with modern CSS" %>
         <li class="text-purple-300"><%= "Leveraging what’s built into browsers first" %>
       </ul>

@@ -79,36 +79,6 @@ for (const outputEl of outputEls.values()) {
 }
 </script>
 
-<table class="text-left table-fixed">
-  <caption class="text-3xl pb-4 text-left">Content roles cheatsheet</caption>
-  <thead>
-    <tr>
-      <th style="width: 12em">Role name</th>
-      <th>HTML element</th>
-    </tr>
-  </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
-    <%= table_rows([
-      ["**link**", "`<a href=…>`"],
-      ["_none!_", "`<a>`"],
-      ["**heading**", "`<h1>`, `<h2>`, `<h3>`, etc"],
-      ["**list**", "`<ul>`, `<ol>`"],
-      ["**listitem**", "`<li>`"],
-      ["**term**", "`<dt>`"],
-      ["**definition**", "`<dd>`"],
-      ["**img**", "`<img alt=\"Some description\">`"],
-      ["_none!_", "`<img alt=\"\">`"],
-      ["**figure**", "`<figure>`"],
-      ["**separator**", "`<hr>`, `<li role=separator>`"],
-      ["_none!_", "`<p>`"],
-      ["_none!_", "`<div>`"],
-      ["_none!_", "`<span>`"],
-      ["**group**", "`<details>`"],
-      ["**button**", "`<summary>`"],
-    ]) %>
-  </tbody>
-</table>
-
 ## Search engines and other crawlers
 
 A crawler service that visits your website on behalf of a search engine like Google or social network like Instagram expects semantic content.
@@ -119,7 +89,7 @@ The better these crawlers can understand, and the more meaning they can infer, t
 
 A web page that is just made of `<div>` and `<span>` elements means that the only content they have to use is the text. Which is a subjective and messy process. Better to provide precise, meaningful elements instead.
 
-## Headings
+<h2 id=headings>Headings</h2>
 
 ```html
 <h1>One Thousand and One Nights</h1>
@@ -131,7 +101,7 @@ A web page that is just made of `<div>` and `<span>` elements means that the onl
 screen.getByRole('heading');
 ```
 
-## Links
+<h2 id=links>Links</h2>
 
 ```html
 <p><a href="https://en.wikipedia.org/wiki/One_Thousand_and_One_Nights">One Thousand and One Nights</a> is a collection of Middle Eastern folk tales compiled in Arabic during the <a href="https://en.wikipedia.org/wiki/Islamic_Golden_Age">Islamic Golden Age</a>.
@@ -147,7 +117,7 @@ screen.getByRole('link', { name: 'One Thousand and One Nights' });
 screen.getByRole('link', { name: /islamic golden age/i });
 ```
 
-## Lists
+<h2 id=lists>Lists</h2>
 
 ```html
 <ul>
@@ -163,7 +133,7 @@ screen.getByRole('link', { name: /islamic golden age/i });
 screen.getByRole('list');
 ```
 
-## Term & Definition
+<h2 id=terms>Terms & Definitions</h2>
 
 ```html
 <dl>
@@ -192,7 +162,7 @@ screen.getByRole('definition', { name: 'Year Released' });
 screen.getByRole('definition', { name: 'Runtime' });
 ```
 
-## Images
+<h2 id=images>Images</h2>
 
 ```html
 <img
@@ -208,7 +178,7 @@ screen.getByRole('definition', { name: 'Runtime' });
 screen.getByRole('img', { name: /logo/ });
 ```
 
-## Figure
+<h2 id=figures>Figures</h2>
 
 ```html
 <figure>
@@ -226,7 +196,7 @@ screen.getByRole('img', { name: /logo/ });
 screen.getByRole('figure');
 ```
 
-## Details & Summary
+<h2 id=details>Details & Summary</h2>
 
 ```html
 <details>
@@ -241,4 +211,48 @@ screen.getByRole('figure');
 screen.getByRole('group');
 ```
 
-## Separator
+<h2 id=separator>Separator</h2>
+
+```html
+Before
+<hr>
+After
+```
+
+<output></output>
+
+```javascript
+screen.getByRole('separator');
+```
+
+<hr>
+
+<table class="text-left table-fixed">
+  <caption id=cheatsheet class="text-3xl pb-4 text-left">Content roles cheatsheet</caption>
+  <thead>
+    <tr>
+      <th style="width: 12em">Role name</th>
+      <th>HTML element</th>
+    </tr>
+  </thead>
+  <tbody class="text-white bg-purple-900 border border-purple-700">
+    <%= table_rows([
+      ["**link**", "`<a href=…>`"],
+      ["_none!_", "`<a>`"],
+      ["**heading**", "`<h1>`, `<h2>`, `<h3>`, etc"],
+      ["**list**", "`<ul>`, `<ol>`"],
+      ["**listitem**", "`<li>`"],
+      ["**term**", "`<dt>`"],
+      ["**definition**", "`<dd>`"],
+      ["**img**", "`<img alt=\"Some description\">`"],
+      ["_none!_", "`<img alt=\"\">`"],
+      ["**figure**", "`<figure>`"],
+      ["**separator**", "`<hr>`, `<li role=separator>`"],
+      ["_none!_", "`<p>`"],
+      ["_none!_", "`<div>`"],
+      ["_none!_", "`<span>`"],
+      ["**group**", "`<details>`"],
+      ["**button**", "`<summary>`"],
+    ]) %>
+  </tbody>
+</table>

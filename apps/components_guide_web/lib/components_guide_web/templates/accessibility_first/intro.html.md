@@ -12,12 +12,13 @@ HTML is not an after-thought, it’s not a ‘solved problem’, it’s not some
 
 ## Accessibility Checklist for HTML
 
-1. **Links vs Buttons:** use links for navigating and buttons for actions.
-1. **Landmarks:** provide familiar touch points that users can jump to.
-2. **Semantic Content:** add meaningful structure to your content.
-3. **Usable Forms:** ensure form controls are labelled and have the correct roles.
+1. [**Links vs Buttons:**](/accessibility-first/navigation) use links for navigating and buttons for actions.
+1. [**Landmarks:**](/accessibility-first/landmarks) provide familiar touch points that users can jump to.
+2. [**Semantic Content:**](/accessibility-first/content) add meaningful structure to your content.
+3. [**Usable Forms:**](/accessibility-first/forms) ensure form controls are labelled and have the correct roles.
 4. **Widgets:** allow everyone to use your controls.
-5. **Properties:** hide or mark elements using accessibility attributes.
+5. [**Accessible Names:**](/accessibility-first/accessible-name) give every meaningful element a clear and distinct name.
+5. [**Properties:**](/accessibility-first/properties-cheatsheet) hide or mark elements using accessibility attributes.
 
 ```ts
 getByRole('link', { name: 'About' });

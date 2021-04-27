@@ -12,6 +12,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
       path
       |> File.read!()
       |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false})
+      # |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false, postprocessor: &map_ast/1})
 
     # regex = ~r{<live-([\w-]+)>(.+)</live-([\w-]+)>}
     regex = ~r{<live-([\w-]+)>([^<]+)</live-([^>]+)>}
@@ -63,4 +64,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
     # end
     # html |> EEx.compile_string(engine: Phoenix.LiveView.Engine, file: path, line: 1)
   end
+
+  # defp map_ast({"h2", attrs, content, options}), do: {"h2", [class: "red"], content, %{class: "blue"}}
+  # defp map_ast(input), do: IO.inspect(input, label: "ast")
 end

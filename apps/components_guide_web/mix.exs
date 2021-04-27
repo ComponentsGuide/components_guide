@@ -50,7 +50,7 @@ defmodule ComponentsGuideWeb.MixProject do
       {:components_guide, in_umbrella: true},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:earmark, "~> 1.4.4"},
+      {:earmark, "~> 1.4.15"},
       {:paredown, "~> 0.1.0"},
       {:ex_image_info, "~> 0.2.4"},
       {:benchee, "~> 1.0", only: :dev},
