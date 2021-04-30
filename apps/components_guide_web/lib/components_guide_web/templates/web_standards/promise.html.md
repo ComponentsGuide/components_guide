@@ -4,33 +4,39 @@
 
 You can think of a Promise as an eventual value. It either succeeds with a particular success value, or it possibly fails with an error value.
 
-<div class="my-4 flex text-center text-3xl text-black bg-white rounded shadow-lg">
-  <div class="flex-grow p-4 bg-green-300 border border-green-400">
-    <div class="space-y-2">
-      <div>Resolve with</div>
-      <div class="px-4 text-white bg-black border-4 border-green-100 border-dashed rounded-full">
-        Value
+<figure>
+  <div class="my-4 flex text-center text-3xl text-black bg-white rounded shadow-lg">
+    <div class="flex-grow p-4 bg-green-300 border border-green-400">
+      <div class="space-y-2">
+        <div>Resolve with</div>
+        <div class="px-4 text-white bg-black border-4 border-green-100 border-dashed rounded-full">
+          Value
+        </div>
+      </div>
+    </div>
+    <div class="flex-grow p-4 bg-red-300 border border-red-400">
+      <div class="space-y-2">
+        <div>Reject with</div>
+        <div class="px-4 text-white bg-black border-4 border-red-100 border-dashed rounded-full">
+          Error
+        </div>
       </div>
     </div>
   </div>
-  <div class="flex-grow p-4 bg-red-300 border border-red-400">
-    <div class="space-y-2">
-      <div>Reject with</div>
-      <div class="px-4 text-white bg-black border-4 border-red-100 border-dashed rounded-full">
-        Error
-      </div>
-    </div>
-  </div>
-</div>
+  <figcaption class="text-center text-base">A new promise that can be either resolved or rejected</figcaption>
+</figure>
 
 It either *resolves* to a success value:
 
-<div class="my-4 flex text-center text-3xl text-black shadow-lg">
-  <div class="flex-grow p-4 bg-green-300 border border-green-400">
-    <div class="space-y-2"><div>✅ Resolved with</div> <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div></div>
+<figure>
+  <div class="my-4 flex text-center text-3xl text-black shadow-lg">
+    <div class="flex-grow p-4 bg-green-300 border border-green-400">
+      <div class="space-y-2"><div>✅ Resolved with</div> <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div></div>
+    </div>
+    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
   </div>
-  <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
-</div>
+  <figcaption class="text-center text-base">A promise resolved with the value 42</figcaption>
+</figure>
 
 ```javascript
 // Succeed with the value 42
@@ -44,15 +50,18 @@ new Promise((resolve, reject) => {
 
 Or it *rejects* with an error value:
 
-<div class="my-4 flex text-center text-3xl text-black">
-  <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
-  <div class="flex-grow p-4 bg-red-300 border-red-400">
-    <div class="space-y-2">
-      <div>❌ Rejected with</div>
-      <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+<figure>
+  <section class="my-4 flex text-center text-3xl text-black">
+    <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
+    <div class="flex-grow p-4 bg-red-300 border-red-400">
+      <div class="space-y-2">
+        <div>❌ Rejected with</div>
+        <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
+  <figcaption class="text-center text-base">A promise rejected with the error Out of stock</figcaption>
+</figure>
 
 ```javascript
 // Fail with the error *out of stock*
@@ -86,30 +95,33 @@ new Promise((resolve, reject) => {
 
 A Promise can create a _new_ Promise by calling `.then()` on it.
 
-<div class="my-4 flex flex-col text-center text-3xl text-black shadow-lg">
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400">
-      <div class="space-y-2">
-        <div>✅ Resolved with</div>
-        <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+<figure>
+  <div class="my-4 flex flex-col text-center text-3xl text-black shadow-lg">
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400">
+        <div class="space-y-2">
+          <div>✅ Resolved with</div>
+          <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+        </div>
       </div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
     </div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
-  </div>
-  <div class="p-4 text-white bg-black">
-    <div>⬇ .then</div>
-    <div>Multiply value by 2</div>
-  </div>
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400">
-      <div class="space-y-2">
-        <div>✅ Resolved with</div>
-        <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">84</div>
+    <div class="p-4 text-white bg-black">
+      <div>⬇ .then</div>
+      <div>Multiply value by 2</div>
+    </div>
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400">
+        <div class="space-y-2">
+          <div>✅ Resolved with</div>
+          <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">84</div>
+        </div>
       </div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
     </div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
   </div>
-</div>
+  <figcaption class="text-center text-base">A promise chained to create another promise that has the previous value doubled</figcaption>
+</figure>
 
 ```javascript
 Promise.resolve(42)
@@ -126,30 +138,33 @@ Promise.resolve(42)
 
 The callback to `.then()` can fail, either by throwing an error, or returning a rejected Promise:
 
-<div class="my-4 flex flex-col text-center text-3xl text-black shadow-lg">
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400">
-      <div class="space-y-2">
-        <div>✅ Resolved with</div>
-        <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+<figure>
+  <div class="my-4 flex flex-col text-center text-3xl text-black shadow-lg">
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400">
+        <div class="space-y-2">
+          <div>✅ Resolved with</div>
+          <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+        </div>
+      </div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
+    </div>
+    <div class="p-4 text-white bg-black">
+      <div>⬇ .then</div>
+      <div>Throw <span class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</span></div>
+    </div>
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400">
+        <div class="space-y-2">
+          <div>❌ Rejected with</div>
+          <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+        </div>
       </div>
     </div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
   </div>
-  <div class="p-4 text-white bg-black">
-    <div>⬇ .then</div>
-    <div>Throw <span class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</span></div>
-  </div>
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400">
-      <div class="space-y-2">
-        <div>❌ Rejected with</div>
-        <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
-      </div>
-    </div>
-  </div>
-</div>
+  <figcaption class="text-center text-base">A promise chained to create another promise that is rejected</figcaption>
+</figure>
 
 ```javascript
 Promise.resolve(42)
@@ -174,40 +189,43 @@ Promise.resolve(42)
 
 If a Promise fails, any derived Promises will also fail.
 
-<div class="my-4 text-center text-3xl text-black shadow-lg">
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400">
-      <div class="space-y-2">
-        <div>✅ Resolved with</div>
-        <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+<figure>
+  <div class="my-4 text-center text-3xl text-black shadow-lg">
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400">
+        <div class="space-y-2">
+          <div>✅ Resolved with</div>
+          <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+        </div>
+      </div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
+    </div>
+    <div class="p-4 text-white bg-black">
+      <div>⬇ .then</div>
+      <div>Throw <span class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</span></div>
+    </div>
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400">
+        <div class="space-y-2">
+          <div>❌ Rejected with</div>
+          <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+        </div>
       </div>
     </div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
-  </div>
-  <div class="p-4 text-white bg-black">
-    <div>⬇ .then</div>
-    <div>Throw <span class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</span></div>
-  </div>
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400">
-      <div class="space-y-2">
-        <div>❌ Rejected with</div>
-        <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+    <div class="text-white bg-black">⬇ .then</div>
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400">
+        <div class="space-y-2">
+          <div>❌ Rejected with</div>
+          <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="text-white bg-black">⬇ .then</div>
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400">
-      <div class="space-y-2">
-        <div>❌ Rejected with</div>
-        <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
-      </div>
-    </div>
-  </div>
-</div>
+  <figcaption class="text-center text-base">Chaining from a rejected promise produces only rejected promises</figcaption>
+</figure>
 
 ```javascript
 Promise.resolve(42)
@@ -221,43 +239,46 @@ Promise.resolve(42)
 
 A Promise chain can be recovered by calling `.catch()` and returning another value or Promise.
 
-<div class="my-4 text-center text-3xl text-black shadow-lg">
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400">
-      <div class="space-y-2">
-        <div>✅ Resolved with</div>
-        <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+<figure>
+  <div class="my-4 text-center text-3xl text-black shadow-lg">
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400">
+        <div class="space-y-2">
+          <div>✅ Resolved with</div>
+          <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">42</div>
+        </div>
+      </div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
+    </div>
+    <div class="p-4 text-white bg-black">
+      <div>⬇ .then</div>
+      <div>Throw <span class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</span></div>
+    </div>
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400">
+        <div class="space-y-2">
+          <div>❌ Rejected with</div>
+          <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+        </div>
       </div>
     </div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
-  </div>
-  <div class="p-4 text-white bg-black">
-    <div>⬇ .then</div>
-    <div>Throw <span class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</span></div>
-  </div>
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400 opacity-25"></div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400">
-      <div class="space-y-2">
-        <div>❌ Rejected with</div>
-        <div class="px-4 text-white bg-red-700 border-4 border-red-900 rounded-full">Error: out of stock</div>
+    <div class="p-4 text-white bg-black">
+      <div>⬇ .catch</div>
+      <div>Return <span class="px-4 text-white bg-gray-700 border-4 border-gray-900 rounded-full">3</span></div>
+    </div>
+    <div class="flex flex-row">
+      <div class="flex-grow p-4 bg-green-300 border border-green-400">
+        <div class="space-y-2">
+          <div>✅ Resolved with</div>
+          <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">3</div>
+        </div>
       </div>
+      <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
     </div>
   </div>
-  <div class="p-4 text-white bg-black">
-    <div>⬇ .catch</div>
-    <div>Return <span class="px-4 text-white bg-gray-700 border-4 border-gray-900 rounded-full">3</span></div>
-  </div>
-  <div class="flex flex-row">
-    <div class="flex-grow p-4 bg-green-300 border border-green-400">
-      <div class="space-y-2">
-        <div>✅ Resolved with</div>
-        <div class="px-4 text-white bg-green-700 border-4 border-green-900 rounded-full">3</div>
-      </div>
-    </div>
-    <div class="flex-grow p-4 bg-red-300 border-red-400 opacity-25"></div>
-  </div>
-</div>
+  <figcaption class="text-center text-base">Recover from a rejected promise by calling <code>.catch()</code></figcaption>
+</figure>
 
 ```javascript
 export const a = Promise.resolve(42)
