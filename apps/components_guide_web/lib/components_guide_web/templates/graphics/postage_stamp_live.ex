@@ -4,13 +4,14 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
   alias ComponentsGuideWeb.StylingHelpers
 
   defmodule State do
-    defstruct primary: "Primary", secondary: "Secondary", width: 400, height: 400, center_y: false
+    defstruct primary: "Primary", secondary: "Secondary", width: 400, height: 400, center_y: false, center_x: true
 
-    def to_url(%State{primary: primary, secondary: secondary, width: width, height: height, center_y: center_y}) do
+    def to_url(%State{primary: primary, secondary: secondary, width: width, height: height, center_y: center_y, center_x: center_x}) do
       # url = URI.parse("https://postage-stamp.collected.workers.dev/1/poster")
       url = URI.parse("https://postage-stamp.fly.dev/1/poster")
       query = [primary: primary, secondary: secondary, width: width, height: height]
       query = if center_y, do: Keyword.put(query, :centerY, ""), else: query
+      query = if center_x, do: Keyword.put(query, :centerX, ""), else: query
       url = put_in(url.query, URI.encode_query(query))
       url
     end
@@ -52,7 +53,7 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
     
     <output>
       <img src="<%= url |> URI.to_string() %>" width="<%= @state.width %>" height="<%= @state.height %>">
-      <a class="inline-block bg-blue-500 rounded-full" href="<%= url |> URI.to_string() %>">Link to image</a>
+      <a class="inline-block px-2 bg-blue-500 rounded-full" href="<%= url |> URI.to_string() %>">Link to image</a>
     </output>
 
     </div>
