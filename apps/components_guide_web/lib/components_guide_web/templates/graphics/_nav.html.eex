@@ -1,0 +1,6 @@
+<nav class="pt-6 pb-4">
+  <ul y-y x-x=md class="text-lg font-bold text-shadow" data-links="p-3">
+    <li><%= link("Intro", to: '/graphics') %>
+    <li><%= link("Postage Stamp", to: '/graphics/postage-stamp') %>
+  </ul>
+</nav>

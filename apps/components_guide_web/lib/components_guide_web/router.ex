@@ -45,6 +45,12 @@ defmodule ComponentsGuideWeb.Router do
       WebStandardsController,
       only: [:index, :show]
     )
+    
+    resources(
+      "/graphics",
+      GraphicsController,
+      only: [:index, :show]
+    )
 
     live("/color", ColorLive, :index)
     live("/color/:definition", ColorLive, :show)
