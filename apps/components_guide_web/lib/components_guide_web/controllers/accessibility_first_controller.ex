@@ -20,7 +20,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     |> render("properties-cheatsheet.html")
   end
 
-  @articles ["navigation", "landmarks", "roles", "accessible-name", "forms", "content"]
+  @articles ["navigation", "landmarks", "roles", "accessible-name", "forms", "content", "refactoring-accessibility"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     conn
@@ -38,13 +38,11 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
   defp page_title("forms"), do: "Accessibility-First Forms"
   defp page_title("content"), do: "Accessibility-First Content"
   defp page_title("accessible-name"), do: "Learning Accessible Names"
+  defp page_title("refactoring-accessibility"), do: "Refactoring Accessibility"
 
   defp page_title(_) do
     "Accessibility-First Development"
   end
-
-  defp render_nav("content"), do: "Hello"
-  defp render_nav(_), do: ""
 end
 
 defmodule ComponentsGuideWeb.AccessibilityFirstView do
