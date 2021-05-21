@@ -1,0 +1,3 @@
+<header style="<%= header_styles() %>">
+  <%= render ComponentsGuideWeb.CheatsheetsView, "_top.html" %>
+</header>

@@ -45,10 +45,16 @@ defmodule ComponentsGuideWeb.Router do
       WebStandardsController,
       only: [:index, :show]
     )
-    
+
     resources(
       "/graphics",
       GraphicsController,
+      only: [:index, :show]
+    )
+
+    resources(
+      "/cheatsheets",
+      CheatsheetsController,
       only: [:index, :show]
     )
 

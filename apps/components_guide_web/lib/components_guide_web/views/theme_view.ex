@@ -66,7 +66,7 @@ defmodule ComponentsGuideWeb.ThemeView do
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
-  
+
   defp gradient_styles(:purple) do
     l = 50
     a = 54
@@ -91,4 +91,5 @@ defmodule ComponentsGuideWeb.ThemeView do
   def banner_styles(:composable_systems), do: gradient_styles(:orange)
   def banner_styles(:react_typescript), do: gradient_styles(:blue)
   def banner_styles(:graphics), do: gradient_styles(:purple)
+  def banner_styles(:cheatsheets), do: gradient_styles(:purple)
 end
