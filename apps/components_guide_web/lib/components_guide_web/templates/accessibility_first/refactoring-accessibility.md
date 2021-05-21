@@ -26,7 +26,10 @@ Here’s an example from The Economist:
 
 ## Navigation
 
-- `class="current"`
-- `aria-current="page"`
+- Before: `class="current"`
+- After: `aria-current="page"`
 
+## Tooltip
 
+- Before: interactive tooltip that appears only after clicking a very small target
+- After: description hint text that is always shown, with `aria-describedby`
