@@ -13,6 +13,9 @@ module.exports = {
         orange: colors.orange,
         current: 'currentColor',
       },
+      zIndex: {
+        'menu': 'var(--z-menu)'
+      }
     },
   },
 };
