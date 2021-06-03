@@ -14,11 +14,9 @@ config :components_guide_web, ComponentsGuideWeb.Endpoint,
   reloadable_apps: [:components_guide, :components_guide_web],
   check_origin: false,
   watchers: [
-    node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
-      "--watch-options-stdin",
+    npm: [
+      "run",
+      "watch",
       cd: Path.expand("../apps/components_guide_web/assets", __DIR__)
     ]
   ]

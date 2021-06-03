@@ -8,14 +8,14 @@
       <%= search_form() %>
     </div>
     <hr class="mx-auto">
-    <details class="relative" data-links="block p-3">
-      <summary>Jump to</summary>
-      <ul class="absolute top-full right-0 flex flex-col bg-gray-900">
-        <li><%= link("Accessibility First", to: '/accessibility-first') %>
-        <li><%= link("React + TypeScript", to: '/react+typescript') %>
-        <li><%= link("React + TypeScript", to: '/react+typescript') %>
-        <li><%= link("Composable Systems", to: '/composable-systems') %>
-      </ul>
+    <details class="relative" data-links="block p-3 underline-on-hover">
+      <summary>Quick links</summary>
+      <details-menu role="menu" class="absolute top-full right-0 flex flex-col text-sm whitespace-nowrap bg-gray-900 rounded shadow-lg">
+        <%= link("Accessibility First", to: '/accessibility-first') %>
+        <%= link("React + TypeScript", to: '/react+typescript') %>
+        <%= link("Web Standards", to: '/web-standards') %>
+        <%= link("Composable Systems", to: '/composable-systems') %>
+      </details-menu>
     </details>
     <ul class="h-full grid grid-rows-2 md:grid-cols-3 flex flex-col md:flex-row justify-around items-stretch tracking-wide">
       <% if false do %>

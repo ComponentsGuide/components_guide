@@ -8,6 +8,10 @@
     <%= live_title_tag assigns[:page_title] || "Guides to React, Accessibility, Modern CSS, TypeScript", suffix: " · Components.Guide" %>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RoyalIcing/tela@2d421cafc1ea99fab91aa4fcbf3b554160bcada5/tela.css"/>
+    
+    <script type="module">
+      import githubDetailsMenuElement from 'https://cdn.skypack.dev/@github/details-menu-element';
+    </script>
 
     <%= if @conn.path_info == [] do %>
     <meta property="og:type" content="website">

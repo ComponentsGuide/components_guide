@@ -259,6 +259,30 @@ ol:not([class]) {
   padding-left: 1em;
 }
 
+/* GitHub Elements */
+
+/* https://github.com/github/details-menu-element */
+summary[aria-haspopup="menu"] {
+  display: list-item;
+  list-style: none;
+}
+summary[aria-haspopup="menu"]:before, summary[aria-haspopup="menu"]::-webkit-details-marker {
+  display: none; 
+}
+/* Makes menu buttons take over the entire viewport when open, allowing easy taps */
+details[open] summary[aria-haspopup="menu"]:before {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 80;
+  display: block;
+  cursor: default;
+  content: " ";
+  background: transparent;
+}
+
 /* Navigation links */
 a[aria-current="page"][class*="hover\:border-"] {
   border-color: currentColor;
