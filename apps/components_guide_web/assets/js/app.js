@@ -3,6 +3,8 @@
 // its own CSS file.
 import css from "../css/app.css";
 
+console.log("app.js executing");
+
 // webpack automatically bundles all modules in your
 // entry points. Those entry points can be configured
 // in "webpack.config.js".
@@ -14,6 +16,16 @@ import { Socket } from "phoenix";
 import NProgress from "nprogress";
 import LiveSocket from "phoenix_live_view";
 import * as Turbo from "@hotwired/turbo";
+
+// window.IMPORTS = {
+//   DOMTesting: import("@testing-library/dom")
+// };
+
+window.IMPORT = {
+  DOMTesting: () => import("@testing-library/dom")
+};
+
+console.log("app.js IMPORT", window.IMPORT);
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")

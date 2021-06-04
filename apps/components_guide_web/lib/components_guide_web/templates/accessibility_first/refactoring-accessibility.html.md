@@ -1,6 +1,6 @@
 # Refactoring Accessibility
 
-<script type=module>
+<script type="module">
 import * as DOMTesting from "https://cdn.skypack.dev/@testing-library/dom";
 
 function* surroundingSourceElements(el) {

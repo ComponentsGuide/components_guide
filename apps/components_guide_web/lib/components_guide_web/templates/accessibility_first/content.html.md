@@ -24,8 +24,8 @@ article summary {
 }
 </style>
 
-<script type=module>
-import * as DOMTesting from "https://cdn.skypack.dev/@testing-library/dom";
+<script type="module">
+const DOMTestingPromise = window.IMPORT.DOMTesting();
 
 function* surroundingSourceElements(el) {
   let prev = el;
@@ -58,8 +58,6 @@ for (const outputEl of outputEls.values()) {
   for (const source of sources) {
     const { type, code, el } = source;
     
-    console.log('source', source);
-    
     if (type === 'html') {
       div.innerHTML = code;
     }
@@ -69,9 +67,11 @@ for (const outputEl of outputEls.values()) {
       
       el.classList.add('border-l-4', ...classNames);
       
-      const screen = DOMTesting.within(div);
-      const testFunction = new Function('screen', `return ${code}`);
-      [].concat(testFunction(screen)).forEach(el => el.classList.add('border-4', ...classNames));
+      DOMTestingPromise.then(DOMTesting => {
+        const screen = DOMTesting.within(div);
+        const testFunction = new Function('screen', `return ${code}`);
+        [].concat(testFunction(screen)).forEach(el => el.classList.add('border-4', ...classNames));
+      });
       
       javascriptIndex++;
     }
