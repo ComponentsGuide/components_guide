@@ -25,8 +25,6 @@ window.IMPORT = {
   DOMTesting: () => import("@testing-library/dom")
 };
 
-console.log("app.js IMPORT", window.IMPORT);
-
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");

@@ -34,8 +34,6 @@ for (const outputEl of outputEls.values()) {
   for (const source of sources) {
     const { type, code, el } = source;
     
-    console.log('source', source);
-    
     if (type === 'html') {
       div.innerHTML = code;
     }
