@@ -1,0 +1,87 @@
+<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+
+<script type="module">
+import * as esbuild from "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.1/esm/browser.min.js";
+const esbuildPromise = Promise.resolve(esbuild.initialize({
+  wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.1/esbuild.wasm',
+}).then(() => esbuild));
+
+require.config({
+  paths: {
+    'vs': 'https://unpkg.com/monaco-editor@latest/min/vs'
+  }
+});
+
+const proxy = URL.createObjectURL(new Blob([`
+  self.MonacoEnvironment = {
+    baseUrl: 'https://unpkg.com/monaco-editor@latest/min/'
+  };
+  importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');
+`], { type: 'text/javascript' }));
+
+window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+
+const theme = window.matchMedia &&
+  window.matchMedia('(prefers-color-scheme: dark)').matches
+  ? 'vs-dark' : undefined;
+
+const value = `
+const a = 1 + 1;
+`.trim();
+
+const types = fetch("https://workers.cloudflare.com/index.d.ts", { cache: 'force-cache' })
+  .then((response) => response.text())
+  .catch((err) => `// ${err.message}`);
+
+require(["vs/editor/editor.main"], function () {
+  const typescript = monaco.languages.typescript;
+  for (const lang of [typescript.typescriptDefaults, typescript.javascriptDefaults]) {
+    lang.setCompilerOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: false
+    });
+    lang.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
+      allowNonTsExtensions: true,
+      allowJs: true,
+    });
+    /* FIXME: types.then(([uri, content]) => lang.addExtraLib(content, uri)); */
+  }
+  const input = monaco.editor.create(document.getElementById('input'), {
+    language: 'typescript',
+    model: monaco.editor.createModel(value, 'typescript', 'ts:worker.ts'),
+    value,
+    theme,
+    minimap: false
+  });
+  console.log(input);
+  const output = monaco.editor.create(document.getElementById('output'), {
+    language: 'javascript',
+    value: '//',
+    theme,
+    readOnly: true,
+    minimap: false
+  });
+  const onEdit = () => {
+    const body = input.getValue();
+    esbuildPromise
+      .then(esbuild => esbuild.transform(body, { loader: 'jsx' }))
+      .then(content => output.getModel().setValue(content.code))
+      .catch((err) => output.getModel().setValue(err.message.replace(/^/gm, '// $&')));
+    /*fetch('/upload', { method: 'POST', body })
+      .then(async (response) => {
+        const content = await response.text();
+        return response.ok ? content : '// ' + content.trimEnd().split('\n').join('\n// ');
+      })
+      .then((content) => output.getModel().setValue(content))
+      .catch((err) => console.warn(err));*/
+  };
+  input.onDidChangeModelContent(onEdit);
+  const model = input.getModel();
+  model.setValue(input.getValue() + "\n");
+});
+</script>
+<div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
+  <div id="input" style="flex: 1;"></div>
+  <div id="output" style="flex: 1;"></div>
+</div>

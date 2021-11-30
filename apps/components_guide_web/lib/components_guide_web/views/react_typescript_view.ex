@@ -17,6 +17,9 @@ defmodule ComponentsGuideWeb.ReactTypescriptView do
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
 
+  def article_content_class("editor"), do: "content text-xl"
+  def article_content_class(_article), do: "content max-w-4xl mx-auto py-8 text-xl"
+
   def collected_image(conn, name) do
     %{static_path: path_to_image, width: width, height: height} = render(name)
     url = Routes.static_path(conn, "/" <> path_to_image)
