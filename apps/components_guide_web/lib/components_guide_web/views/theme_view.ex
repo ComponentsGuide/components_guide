@@ -92,4 +92,5 @@ defmodule ComponentsGuideWeb.ThemeView do
   def banner_styles(:react_typescript), do: gradient_styles(:blue)
   def banner_styles(:graphics), do: gradient_styles(:purple)
   def banner_styles(:cheatsheets), do: gradient_styles(:purple)
+  def banner_styles(:encoding), do: gradient_styles(:purple)
 end

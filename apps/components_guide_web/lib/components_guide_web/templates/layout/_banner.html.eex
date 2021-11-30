@@ -9,7 +9,7 @@
     </div>
     <hr class="mx-auto">
     <details class="relative" data-links="block p-3 underline-on-hover">
-      <summary>Quick links</summary>
+      <summary>Menu</summary>
       <details-menu role="menu" class="absolute z-menu top-full right-0 flex flex-col text-sm whitespace-nowrap bg-gray-900 rounded shadow-lg">
         <%= link("Accessibility First", to: '/accessibility-first') %>
         <%= link("React + TypeScript", to: '/react+typescript') %>
