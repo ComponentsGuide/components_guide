@@ -27,6 +27,10 @@ const theme = window.matchMedia &&
 
 const value = `
 const a = 1 + 1;
+
+export function Example() {
+    return a + 4;
+}
 `.trim();
 
 const types = fetch("https://workers.cloudflare.com/index.d.ts", { cache: 'force-cache' })
@@ -54,7 +58,6 @@ require(["vs/editor/editor.main"], function () {
     theme,
     minimap: false
   });
-  console.log(input);
   const output = monaco.editor.create(document.getElementById('output'), {
     language: 'javascript',
     value: '//',
@@ -62,11 +65,27 @@ require(["vs/editor/editor.main"], function () {
     readOnly: true,
     minimap: false
   });
+  const statusEl = document.getElementById('status');
+  const resultEl = document.getElementById('result');
   const onEdit = () => {
     const body = input.getValue();
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(body);
+    crypto.subtle.digest('SHA-256', data).then(hash => {
+      const hex = Array.from(new Uint8Array(hash), chunk => chunk.toString(16).padStart(2, '0')).join('');
+      statusEl.textContent = `SHA256: ${hex}`;
+    });
+
     esbuildPromise
-      .then(esbuild => esbuild.transform(body, { loader: 'jsx' }))
-      .then(content => output.getModel().setValue(content.code))
+      .then(esbuild => esbuild.transform(body, { loader: 'jsx', format: 'iife', globalName: 'exports', }))
+      .then(content => {
+        output.getModel().setValue(content.code);
+
+        const executor = new Function(`${content.code}; return exports.Example();`);
+        console.log('executor', executor, executor());
+        resultEl.textContent = JSON.stringify(executor());
+      })
       .catch((err) => output.getModel().setValue(err.message.replace(/^/gm, '// $&')));
     /*fetch('/upload', { method: 'POST', body })
       .then(async (response) => {
@@ -81,6 +100,8 @@ require(["vs/editor/editor.main"], function () {
   model.setValue(input.getValue() + "\n");
 });
 </script>
+<output id=status class="block text-xs opacity-50"></output>
+<output id=result class="block text-xs opacity-50"></output>
 <div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
   <div id="input" style="flex: 1;"></div>
   <div id="output" style="flex: 1;"></div>
