@@ -3,6 +3,9 @@
 <script type="module">
 const statusEl = document.getElementById('status');
 const resultEl = document.getElementById('result');
+const inputFormEl = document.getElementById('inputForm');
+
+// From http://demos.rlaanemets.com/swi-prolog-wasm/example/
 
 let bindings = null;
 let stdin = '';
@@ -32,6 +35,17 @@ const query = (bindings, input) => {
     // This will execute one iteration of toplevel.
     call(bindings, 'break'); // see call.js
 }
+const query2 = (bindings, name, ...args) => {
+    // Show the query in the console output.
+    const node = document.createTextNode(`${name}(${args.join(', ')}).` + '\n');
+    resultEl.appendChild(node);
+    setStdin(input);
+    // This will execute one iteration of toplevel.
+    //call(bindings, 'break'); // see call.js
+    const result = callPredicate(bindings, name, ...args);
+    resultEl.appendChild(document.createTextNode(JSON.stringify(result) + '\n'));
+    resultEl.scrollTop = resultEl.scrollHeight;
+}
 
 // Helper to print stdout from SWI.
 const print = (line) => {
@@ -51,8 +65,13 @@ const createBindings = (module) => {
     return {
         PL_initialise: module.cwrap('PL_initialise', 'number', ['number', 'number']),
         PL_new_term_ref: module.cwrap('PL_new_term_ref', 'number', []),
+        PL_new_term_refs: module.cwrap('PL_new_term_refs', 'number', ['number']),
         PL_chars_to_term: module.cwrap('PL_chars_to_term', 'number', ['string', 'number']),
-        PL_call: module.cwrap('PL_call', 'number', ['number', 'number'])
+        PL_put_atom_chars: module.cwrap('PL_put_atom_chars', 'number', ['number', 'string']),
+        PL_predicate: module.cwrap('PL_predicate', 'number', ['string', 'number', 'string']),
+        PL_call: module.cwrap('PL_call', 'number', ['number', 'number']),
+        PL_open_query: module.cwrap('PL_open_query', 'number', ['number', 'number', 'number', 'number']),
+        PL_call_predicate: module.cwrap('PL_call_predicate', 'number', ['number', 'number', 'number', 'number']),
     };
 };
 
@@ -64,6 +83,19 @@ const call = (bindings, query) => {
         throw new Error('Query has a syntax error: ' + query);
     }
     return !!bindings.PL_call(ref, 0);
+};
+
+const callPredicate = (bindings, name, ...args) => {
+    const ref = bindings.PL_new_term_refs(args.length);
+    args.forEach((arg, index) => {
+      // PL_put_atom_chars?
+      if (!bindings.PL_chars_to_term(arg, ref + index)) {
+          throw new Error('Query has a syntax error: ' + arg);
+      }
+    })
+    const pred = bindings.PL_predicate(name, args.length, 0);
+
+    return !!bindings.PL_call_predicate(0, 0, pred, ref);
 };
 
 // This will set up the arguments necessary for the PL_initialise
@@ -132,35 +164,26 @@ const theme = window.matchMedia &&
 const value = `
 :- use_module(library(lists)).
 
-%%    queens(+N, -Queens) is nondet.
-%
-%	@param	Queens is a list of column numbers for placing the queens.
-%	@author Richard A. O'Keefe (The Craft of Prolog)
+influences(erlang, elixir).
+influences(erlang, clojure).
 
-queens(N, Queens) :-
-    length(Queens, N),
-    board(Queens, Board, 0, N, _, _),
-    queens(Board, 0, Queens).
+influences(prolog, erlang).
+influences(prolog, clojure).
 
-board([], [], N, N, _, _).
-board([_|Queens], [Col-Vars|Board], Col0, N, [_|VR], VC) :-
-    Col is Col0+1,
-    functor(Vars, f, N),
-    constraints(N, Vars, VR, VC),
-    board(Queens, Board, Col, N, VR, [_|VC]).
+influences(lisp, erlang).
+influences(lisp, clojure).
 
-constraints(0, _, _, _) :- !.
-constraints(N, Row, [R|Rs], [C|Cs]) :-
-    arg(N, Row, R-C),
-    M is N-1,
-    constraints(M, Row, Rs, Cs).
+influences(clojure, elixir).
+influences(ruby, elixir).
+influences(plex, erlang).
+influences(smalltalk, erlang).
+influences(haskell, clojure).
+influences(java, clojure).
 
-queens([], _, []).
-queens([C|Cs], Row0, [Col|Solution]) :-
-    Row is Row0+1,
-    select(Col-Vars, [C|Cs], Board),
-    arg(Row, Vars, Row-Row),
-    queens(Board, Row, Solution).
+ancestor(X, Y) :- influences(X, Y).
+ancestor(X, Y) :-
+    influences(Parent, Y),
+    ancestor(X, Parent).
 `.trim();
 
 require(["vs/editor/editor.main"], function () {
@@ -216,12 +239,27 @@ document.body.appendChild(Object.assign(document.createElement('script'), {
   defer: true,
   src: "https://cdn.jsdelivr.net/gh/SWI-Prolog/swipl-wasm@7e2e2aae7aabc74e9b7ab8a6e19a1c88be10325c/dist/swipl-web.js"
 }));
+
+inputForm.addEventListener('submit', {
+  handleEvent(event) {
+    event.preventDefault();
+    const form = event.target;
+    const data = new FormData(form);
+    const value = data.get('query');
+    console.log(value, new URLSearchParams(data).toString());
+    query2(bindings, 'ancestor', 'java', 'erlang');
+    // form.reset();
+  }
+});
 </script>
 
 <!--<script async defer src="https://cdn.jsdelivr.net/gh/SWI-Prolog/swipl-wasm@7e2e2aae7aabc74e9b7ab8a6e19a1c88be10325c/dist/swipl-web.js"></script>-->
 
 <output id=status class="block text-xs opacity-50"></output>
-<output id=result class="block text-xs opacity-50"></output>
+<output id=result class="block max-h-16 overflow-scroll whitespace-pre-line text-xs opacity-50"></output>
+<form id=inputForm class="flex flex-col">
+  <input type=text name=query value="influences(erlang, elixir)." class="text-black bg-white border">
+</form>
 <div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
   <div id="input" style="flex: 1;"></div>
   <div id="output" style="flex: 1;"></div>
