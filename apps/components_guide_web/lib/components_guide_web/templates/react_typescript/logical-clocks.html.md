@@ -19,7 +19,7 @@ function useTick() {
 ## Debouncing
 
 ```ts
-export function useDebouncer(duration: number): readonly [number, EffectCallback] {
+export function useDebouncedTick(duration: number): readonly [number, EffectCallback] {
   const [count, tick] = useTick();
 
   const callback = useMemo(() => {
@@ -43,8 +43,8 @@ export function useDebouncer(duration: number): readonly [number, EffectCallback
 
 ```ts
 export function useDebouncedEffect(effect: EffectCallback, duration: number, deps: DependencyList): void {
-  const [count, didChange] = useDebouncer(duration);
-  useEffect(didChange, deps); // When our deps change, notify our debouncer.
+  const [count, tick] = useDebouncedTick(duration);
+  useEffect(tick, deps); // When our deps change, notify our debouncer.
   useEffect(effect, [count]); // When our debouncer finishes, run our effect.
 }
 ```
