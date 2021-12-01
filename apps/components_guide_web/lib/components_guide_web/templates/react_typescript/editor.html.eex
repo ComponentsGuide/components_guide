@@ -23,9 +23,8 @@ const proxy = URL.createObjectURL(new Blob([`
 
 window.MonacoEnvironment = { getWorkerUrl: () => proxy };
 
-const theme = window.matchMedia &&
-  window.matchMedia('(prefers-color-scheme: dark)').matches
-  ? 'vs-dark' : undefined;
+//const theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : undefined;
+const theme = 'vs-dark';
 
 let value = `
 import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
@@ -120,6 +119,116 @@ function useDebouncer(duration) {
   }, [duration, tick]);
 
   return [count, callback];
+}
+
+export default function App() {
+  const [count, tick] = useDebouncer(1000);
+  return <>
+    <div>Hello!! {flavors.join(" ")}</div>
+    <button onClick={tick}>Click</button>
+    <div>{count}</div>
+  </>;
+}
+`.trim();
+
+value = `
+import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
+
+const a = 1 + 1 + flavors.length;
+
+function useTick() {
+  return useReducer(n => n + 1, 0);
+}
+
+function useDebouncer(duration) {
+  const [count, tick] = useTick();
+
+  const callback = useMemo(() => {
+    let timeout = null;
+    function clear() {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+    }
+    return () => {
+      clear()
+      timeout = setTimeout(tick, duration);
+      return clear;
+    };
+  }, [duration, tick]);
+
+  return [count, callback];
+}
+
+const cache = new Map();
+function cachedWork(key, work) {
+  const existing = cache.get(key);
+  if (existing) return existing;
+
+  const created = work();
+  cache.set(key, created);
+  return created;
+}
+
+function useCacheKey() {
+  const [key] = useState(() => Object(Symbol(Math.random())));
+  console.log('key', key);;
+  return key;
+}
+
+function useCached(work) {
+  const key = useCacheKey();
+  return cachedWork(key, work);
+}
+
+function useAsyncCached(work) {
+  const key = useCacheKey();
+  console.log(key);
+
+  let record = cache.get(key);
+
+  console.log('record', record)
+
+  if (record === undefined) {
+    record = {
+      status: 'pending',
+      result: undefined
+    };
+    cache.set(key, record);
+
+    const promise = work()
+      .then(result => {
+        record.status = 'succeeded';
+        record.result = result;
+      })
+      .catch(error => {
+        record.status = 'failed';
+        record.result = error;
+      });
+    record.promise = promise;
+  }
+
+  if (record.status === 'pending') {
+    throw record.promise;
+  }
+
+  if (record.status === 'failed') {
+    throw record.result;
+  }
+
+  return record.result;
+}
+
+function SHAComponent() {
+  const sha = useAsyncCached(() =>
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode('abc'))
+      .then(arrayBuffer => {
+        return Array.from(new Uint8Array(arrayBuffer), chunk => chunk.toString(16).padStart(2, '0')).join('');
+      })
+  );
+
+  return <div>{sha}</div>;
 }
 
 export default function App() {
@@ -250,6 +359,7 @@ require(["vs/editor/editor.main"], function () {
           })
       })
       .then(({ code, codeBytes, duration }) => {
+        console.log("NEW CODE!");
         const executor = new Function(`${code}; return exports.Example();`);
         const result = executor();
         return new Map()
@@ -281,11 +391,25 @@ require(["vs/editor/editor.main"], function () {
   model.setValue(input.getValue() + "\n");
 
   const clientAppEl = document.getElementById('clientApp');
+  const reactRenderEl = document.querySelector('#clientResult slot[name="reactRenderDuration"]');
   let renderCount = 0;
   clientAppEl.addEventListener('DID_RENDER', ({ detail }) => {
     renderCount++;
-    console.log("DID_RENDER");
-    document.querySelector('#clientResult slot[name="reactRenderDuration"]').textContent = `last ${detail.actualDuration}ms; ${renderCount} times rendered`;
+
+    if (renderCount > 1000) {
+      const previousCount = renderCount;
+      setTimeout(() => {
+        if (renderCount - previousCount > 100) {
+          // Too many renders.
+          // Abort client React app!
+          clientAppEl.dispatchEvent(new CustomEvent('RESET'));
+
+          reactRenderEl.textContent = `aborted due to infinite rendering loop!`;
+        }
+      }, 1000);
+    }
+
+    reactRenderEl.textContent = `last ${detail.actualDuration}ms; ${renderCount} times rendered`;
   });
 });
 </script>
