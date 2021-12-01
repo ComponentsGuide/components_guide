@@ -1,91 +1,74 @@
 # React Event Handlers
 
-## Deciding whether to control a form element
+## The Problem
 
-- A controlled element lets you have **full control** over its value.
-- An uncontrolled element can let you handle events with less code.
+We have a link that is associated with a campaign, and when someone clicks the link we want to record that the campaign received some interest.
 
-## Controlled form elements
-
-- We store the state for each field using `useState`.
-- We must set the current `value` of the input when rendering.
-- We must listen to when the user changes using `onChange` on each input, and update our state.
-- We can then read our state when the form is submitted.
+Here’s how we might write that:
 
 ```tsx
-import React, { useState } from "react";
-import authService from "../services/auth";
+type AuthStatus = 'SignedIn' | 'SignedOut';
 
-function SignInForm() {
-  const [email, updateEmail] = useState("");
-  const [password, updatePassword] = useState("");
+function trackCampaignClick(campaign: string, authStatus: AuthStatus) {
+  // Probably make some sort of HTTP request…
+}
 
-  return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault(); // Prevent performing normal submission
-        // Could validate here.
-        authService.signIn({ email, password });
-      }}
-    >
-      <label>
-        Email
-        <input
-          type="email"
-          value={email}
-          onChange={(event) => {
-            updateEmail(event.target.value);
-          }}
-        />
-      </label>
-      <label>
-        Password
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => {
-            updatePassword(event.target.value);
-          }}
-        />
-      </label>
-      <button type="submit">Sign In</button>
-    </form>
-  );
+function TwitterLink({ campaign }: { campaign: string }) {
+  const authStatus = useAuthStatus(); // Reads from context.
+
+  return <a
+    href="https://twitter.com/royalicing"
+    onClick={() => {
+      // When a click happens, we record two things:
+      // the current campaign, and whether the user is signed in or not.
+      trackCampaignClick(campaign, authStatus);
+    }}
+  >
+    Follow me on Twitter
+  </a>;
 }
 ```
 
-## Uncontrolled form elements
+However, even for our simple link, there’s an issue. What happens if either the campaign or auth status changes?
 
-- We have no state — the input itself holds the state.
-- We could set an initial value using `defaultValue`.
-- We don’t have to listen to any change events.
-- We can then read from the form using the DOM when it is submitted.
+We receive `campaign` as a prop — this could change at any time as it is our parent providing it, and we don’t where this value comes from and how often it changes. (This example of a campaign is admittedly unlikely to change often)
 
-```tsx
-import React, { useState } from "react";
-import authService from "../services/auth";
+And `useAuthStatus()` is also out of control. We don’t know when the user signs in or out.
 
-function SignInForm() {
-  return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault(); // Prevent performing normal submission
-        const email = event.target.elements.email.value;
-        const password = event.target.elements.password.value;
-        // Could validate here.
-        authService.signIn({ email, password });
-      }}
-    >
-      <label>
-        Email
-        <input type="email" name="email" />
-      </label>
-      <label>
-        Password
-        <input type="password" name="password" />
-      </label>
-      <button type="submit">Sign In</button>
-    </form>
-  );
+So in order for our `trackCampaignClick(campaign, authStatus)` call to be accurate, we need to keep these values up to date. There’s no much point in recording metrics if they use stale data!
+
+## Solution 1: Create a new Event handler when its deps change
+
+```js
+function TwitterLink({ campaign }: { campaign: string }) {
+  const authStatus = useAuthStatus(); // Reads from context.
+
+  const onClick = useCallback(() => {
+    // When a click happens, we record two things:
+    // the current campaign, and whether the user is signed in or not.
+    trackCampaignClick(campaign, authStatus);
+  }, [campaign, authStatus]);
+
+  return <a href="https://twitter.com/royalicing" onClick={onClick}>
+    Follow me on Twitter
+  </a>;
+}
+```
+
+## Solution 2: Store changing state in a ref
+
+## Solution 3: Put State in the DOM and read it from the Event handler
+
+## Solution 4: Don’t store the state in React
+
+## Solution 5: Put a unique key in the DOM and read state from a shared store
+
+----
+
+An example implementation of `trackCampaignClick()`:
+
+```js
+function trackCampaignClick(campaign) {
+  navigator.sendBeacon('/analytics', new URLSearchParams({ campaign }));
 }
 ```
