@@ -1,3 +1,5 @@
+<!-- See https://www.sanity.io/guides/server-side-rendering-deno-react -->
+
 <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
 <script type="module">
@@ -25,11 +27,101 @@ const theme = window.matchMedia &&
   window.matchMedia('(prefers-color-scheme: dark)').matches
   ? 'vs-dark' : undefined;
 
-const value = `
-const a = 1 + 1;
+let value = `
+import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
+
+const a = 1 + 1 + flavors.length;
 
 export function Example() {
     return a + 4;
+}
+`.trim();
+
+const prefix = `
+//import React from "https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.profiling.min.js/+esm";
+//import ReactDOM from "https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.profiling.min.js/+esm";
+//import ReactDOMServer from "https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom-server.profiling.min.js/+esm";
+import React, { useReducer, useCallback, useEffect, useState, useMemo } from "https://jspm.dev/react@17.0.2";
+import ReactDOM from "https://jspm.dev/react-dom@17.0.2/profiling";
+import ReactDOMServer from "https://jspm.dev/react-dom@17.0.2/server";
+`;
+
+const suffix = `
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  render() {
+    if (this.state.error) {
+      return <div class="flex h-full justify-center items-center text-white bg-red-700"><div>Error: {this.state.error.message}</div></div>;
+    }
+
+    return <>{this.props.children}</>;
+  }
+}
+
+export function Example() {
+  const wrapped = <React.Profiler id="Navigation" onRender={console.log}><ErrorBoundary><App /></ErrorBoundary></React.Profiler>;
+
+  const clientAppEl = document.getElementById('clientApp');
+  clientAppEl.dispatchEvent(new CustomEvent('reset'));
+  ReactDOM.render(wrapped, clientAppEl);
+  clientAppEl.addEventListener('reset', () => {
+    ReactDOM.unmountComponentAtNode(clientAppEl);
+  }, { once: true });
+
+  try {
+    return ReactDOMServer.renderToString(wrapped);
+  } catch (error) {
+    return \`<!-- Uncaught error: \${error.message} -->\n<div class="flex h-full justify-center items-center text-white bg-red-700"><div>Error: \${error.message}</div></div>\`;
+  }
+}
+`;
+
+value = `
+import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
+
+const a = 1 + 1 + flavors.length;
+
+function useTick() {
+  return useReducer(n => n + 1, 0);
+}
+
+function useDebouncer(duration) {
+  const [count, tick] = useTick();
+
+  const effect = useMemo(() => {
+    let timeout = null;
+    function clear() {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+    }
+    return () => {
+      clear()
+      timeout = setTimeout(tick, duration);
+      return clear;
+    };
+  }, [duration, tick]);
+
+  return [count, effect];
+}
+
+export default function App() {
+  const [count, tick] = useDebouncer(1000);
+  return <>
+    <div>Hello!! {flavors.join(" ")}</div>
+    <button onClick={tick}>Click</button>
+    <div>{count}</div>
+  </>;
 }
 `.trim();
 
@@ -56,14 +148,18 @@ require(["vs/editor/editor.main"], function () {
     model: monaco.editor.createModel(value, 'typescript', 'ts:worker.ts'),
     value,
     theme,
-    minimap: false
+    minimap: {
+      enabled: false
+    }
   });
-  const output = monaco.editor.create(document.getElementById('output'), {
-    language: 'javascript',
-    value: '//',
+  const htmlOutput = monaco.editor.create(document.getElementById('htmlOutput'), {
+    language: 'html',
+    value: '',
     theme,
     readOnly: true,
-    minimap: false
+    minimap: {
+      enabled: false
+    }
   });
   const statusEl = document.getElementById('status');
   const resultEl = document.getElementById('result');
@@ -78,15 +174,94 @@ require(["vs/editor/editor.main"], function () {
     });
 
     esbuildPromise
-      .then(esbuild => esbuild.transform(body, { loader: 'jsx', format: 'iife', globalName: 'exports', }))
-      .then(content => {
-        output.getModel().setValue(content.code);
+      .then(esbuild => {
+        const httpPlugin = {
+          name: 'http',
+          setup(build) {
+            // Intercept import paths starting with "http:" and "https:" so
+            // esbuild doesn't attempt to map them to a file system location.
+            // Tag them with the "http-url" namespace to associate them with
+            // this plugin.
+            build.onResolve({ filter: /^https?:\/\// }, args => ({
+              path: args.path,
+              namespace: 'http-url',
+            }))
 
-        const executor = new Function(`${content.code}; return exports.Example();`);
-        console.log('executor', executor, executor());
-        resultEl.textContent = JSON.stringify(executor());
+            // We also want to intercept all import paths inside downloaded
+            // files and resolve them against the original URL. All of these
+            // files will be in the "http-url" namespace. Make sure to keep
+            // the newly resolved URL in the "http-url" namespace so imports
+            // inside it will also be resolved as URLs recursively.
+            build.onResolve({ filter: /.*/, namespace: 'http-url' }, args => ({
+              path: new URL(args.path, args.importer).toString(),
+              namespace: 'http-url',
+            }))
+
+            // When a URL is loaded, we want to actually download the content
+            // from the internet. This has just enough logic to be able to
+            // handle the example import from unpkg.com but in reality this
+            // would probably need to be more complex.
+            build.onLoad({ filter: /.*/, namespace: 'http-url' }, async (args) => {
+              //console.log('loading', args.path);
+              let contents = await fetch(args.path).then(res => res.text());
+              //console.log('loaded', args.path, contents);
+              return { contents }
+            })
+          },
+        }
+
+        const start = Date.now();
+
+        //return esbuild.transform(body, { loader: 'jsx', format: 'iife', globalName: 'exports', plugins: [exampleOnResolvePlugin] }).then(content => content.code);
+        return esbuild.build({
+          bundle: true,
+          stdin: {
+            contents: `${prefix}\n${body ?? ""}\n${suffix}`,
+            loader: 'jsx',
+            sourcefile: 'main.jsx',
+          },
+          write: false,
+          format: 'iife',
+          globalName: 'exports',
+          plugins: [httpPlugin]
+        })
+          .then(result => {
+            const duration = Date.now() - start;
+            if (result.outputFiles.length > 0) {
+              return {
+                code: new TextDecoder().decode(result.outputFiles[0].contents),
+                duration,
+                codeBytes: result.outputFiles[0].contents.length
+              };
+            } else {
+              return {
+                code: "",
+                duration,
+                codeBytes: 0
+              };
+            }
+          })
       })
-      .catch((err) => output.getModel().setValue(err.message.replace(/^/gm, '// $&')));
+      .then(({ code, codeBytes, duration }) => {
+        const executor = new Function(`${code}; return exports.Example();`);
+        const result = executor();
+        return new Map()
+          .set('result', result)
+          .set('error', '')
+          .set('esbuildMs', duration.toString() + 'ms')
+          .set('esbuildBytes', (codeBytes / 1024).toFixed(2) + ' KB')
+          .set('renderMs', '');
+      })
+      .catch((err) => {
+        return new Map().set('error', 'Error ' + err.message);
+      })
+      .then(data => {
+        for (const slotEl of resultEl.querySelectorAll('slot[name]')) {
+          slotEl.textContent = data.get(slotEl.name) || '';
+        }
+        htmlOutput.getModel().setValue(data.get('result') || '');
+      });
+
     /*fetch('/upload', { method: 'POST', body })
       .then(async (response) => {
         const content = await response.text();
@@ -101,8 +276,15 @@ require(["vs/editor/editor.main"], function () {
 });
 </script>
 <output id=status class="block text-xs opacity-50"></output>
-<output id=result class="block text-xs opacity-50"></output>
+<output id=result class="block text-xs">
+  <div class="text-red-500"><slot name=error></slot></div>
+  <div>esbuild: <slot name=esbuildMs></slot> <slot name=esbuildBytes></slot></div>
+  <div><slot name=renderMs></slot></div>
+</output>
 <div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
   <div id="input" style="flex: 1;"></div>
-  <div id="output" style="flex: 1;"></div>
+  <div class="flex-1 flex flex-col">
+    <div id="clientApp" style="flex: 1;"></div>
+    <div id="htmlOutput" style="flex: 1;"></div>
+  </div>
 </div>

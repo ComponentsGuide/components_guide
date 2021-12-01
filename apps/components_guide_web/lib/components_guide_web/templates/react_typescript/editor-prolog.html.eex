@@ -1,3 +1,5 @@
+<!-- Use https://github.com/tau-prolog/tau-prolog instead? -->
+
 <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
 <script type="module">
@@ -205,14 +207,9 @@ require(["vs/editor/editor.main"], function () {
     model: monaco.editor.createModel(value, 'prolog'),
     value,
     theme,
-    minimap: false
-  });
-  const output = monaco.editor.create(document.getElementById('output'), {
-    language: 'javascript',
-    value: '//',
-    theme,
-    readOnly: true,
-    minimap: false
+    minimap: {
+      enabled: false
+    }
   });
   const onEdit = () => {
     const body = input.getValue();
@@ -248,7 +245,8 @@ inputForm.addEventListener('submit', {
     const value = data.get('query');
     console.log(value, new URLSearchParams(data).toString());
     query2(bindings, 'ancestor', 'java', 'erlang');
-    // form.reset();
+
+    form.elements.query.value = "";
   }
 });
 </script>
@@ -262,5 +260,4 @@ inputForm.addEventListener('submit', {
 </form>
 <div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
   <div id="input" style="flex: 1;"></div>
-  <div id="output" style="flex: 1;"></div>
 </div>
