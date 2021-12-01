@@ -1,0 +1,228 @@
+<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+
+<script type="module">
+const statusEl = document.getElementById('status');
+const resultEl = document.getElementById('result');
+
+let bindings = null;
+let stdin = '';
+let stdinPosition = 0;
+// We use this to provide data into
+// the SWI stdin.
+const setStdin = (string) => {
+    stdin = string;
+    stdinPosition = 0;
+};
+const readStdin = () => {
+    if (stdinPosition >= stdin.length) {
+        return null;
+    } else {
+        const code = stdin.charCodeAt(stdinPosition);
+        stdinPosition++;
+        return code;
+    }
+};
+
+// Helper function to call a query.
+const query = (bindings, input) => {
+    // Show the query in the console output.
+    const node = document.createTextNode(input + '\n');
+    resultEl.appendChild(node);
+    setStdin(input);
+    // This will execute one iteration of toplevel.
+    call(bindings, 'break'); // see call.js
+}
+
+// Helper to print stdout from SWI.
+const print = (line) => {
+    resultEl.appendChild(document.createTextNode(line + '\n'));
+};
+
+// Helper to print stderr from SWI.
+const printErr = (line) => {
+    const node = document.createElement('span');
+    node.className = 'output-error';
+    node.textContent = line + '\n';
+    resultEl.appendChild(node);
+};
+
+// Creates bindings to the SWI foreign API.
+const createBindings = (module) => {
+    return {
+        PL_initialise: module.cwrap('PL_initialise', 'number', ['number', 'number']),
+        PL_new_term_ref: module.cwrap('PL_new_term_ref', 'number', []),
+        PL_chars_to_term: module.cwrap('PL_chars_to_term', 'number', ['string', 'number']),
+        PL_call: module.cwrap('PL_call', 'number', ['number', 'number'])
+    };
+};
+
+// Helper function to parse a JavaScript
+// string into a Prolog term and call is as a query.
+const call = (bindings, query) => {
+    const ref = bindings.PL_new_term_ref();
+    if (!bindings.PL_chars_to_term(query, ref)) {
+        throw new Error('Query has a syntax error: ' + query);
+    }
+    return !!bindings.PL_call(ref, 0);
+};
+
+// This will set up the arguments necessary for the PL_initialise
+// function and will call it.
+// See http://www.swi-prolog.org/pldoc/doc_for?object=c(%27PL_initialise%27)
+const initialise = (bindings, module) => {
+    const argvArray = [
+        module.allocate(module.intArrayFromString('swipl'), 'i8', module.ALLOC_NORMAL),
+        module.allocate(module.intArrayFromString('-x'), 'i8', module.ALLOC_NORMAL),
+        module.allocate(module.intArrayFromString('wasm-preload/swipl.prc'), 'i8', module.ALLOC_NORMAL),
+        module.allocate(module.intArrayFromString('--nosignals'), 'i8', module.ALLOC_NORMAL)
+    ];
+    const argvPtr = module._malloc(argvArray.length * 4);
+    for (let i = 0; i < argvArray.length; i++) {
+        module.setValue(argvPtr + i * 4, argvArray[i], '*');
+    }
+    if (!bindings.PL_initialise(4, argvPtr)) {
+        throw new Error('SWI-Prolog initialisation failed.');
+    }
+    // Set the path of the preloaded (from swipl-web.dat) standard library.
+    // This makes it possible to call use_module(library(lists)) and so on.
+    call(bindings, "assert(user:file_search_path(library, 'wasm-preload/library')).");
+};
+
+// Stub Module object. Used by swipl-web.js to
+// populate the actual Module object.
+var Module = {
+    noInitialRun: true,
+    locateFile: (url) => {
+      console.log('locateFile', url)
+      return `https://cdn.jsdelivr.net/gh/SWI-Prolog/swipl-wasm@7e2e2aae7aabc74e9b7ab8a6e19a1c88be10325c/dist/${url}`
+    },
+    print: print,
+    printErr: printErr,
+    preRun: [() => FS.init(readStdin)], // sets up stdin
+    onRuntimeInitialized: () => {
+      console.log("PROLOG time");
+      //document.getElementById('top').className = undefined;
+      // Bind foreign functions to JavaScript.
+      bindings = createBindings(Module);
+      // Initialise SWI-Prolog.
+      initialise(bindings, Module);
+    }
+};
+window.Module = Module;
+
+require.config({
+  paths: {
+    'vs': 'https://unpkg.com/monaco-editor@latest/min/vs'
+  }
+});
+
+const proxy = URL.createObjectURL(new Blob([`
+  self.MonacoEnvironment = {
+    baseUrl: 'https://unpkg.com/monaco-editor@latest/min/'
+  };
+  importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');
+`], { type: 'text/javascript' }));
+
+window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+
+const theme = window.matchMedia &&
+  window.matchMedia('(prefers-color-scheme: dark)').matches
+  ? 'vs-dark' : undefined;
+
+const value = `
+:- use_module(library(lists)).
+
+%%    queens(+N, -Queens) is nondet.
+%
+%	@param	Queens is a list of column numbers for placing the queens.
+%	@author Richard A. O'Keefe (The Craft of Prolog)
+
+queens(N, Queens) :-
+    length(Queens, N),
+    board(Queens, Board, 0, N, _, _),
+    queens(Board, 0, Queens).
+
+board([], [], N, N, _, _).
+board([_|Queens], [Col-Vars|Board], Col0, N, [_|VR], VC) :-
+    Col is Col0+1,
+    functor(Vars, f, N),
+    constraints(N, Vars, VR, VC),
+    board(Queens, Board, Col, N, VR, [_|VC]).
+
+constraints(0, _, _, _) :- !.
+constraints(N, Row, [R|Rs], [C|Cs]) :-
+    arg(N, Row, R-C),
+    M is N-1,
+    constraints(M, Row, Rs, Cs).
+
+queens([], _, []).
+queens([C|Cs], Row0, [Col|Solution]) :-
+    Row is Row0+1,
+    select(Col-Vars, [C|Cs], Board),
+    arg(Row, Vars, Row-Row),
+    queens(Board, Row, Solution).
+`.trim();
+
+require(["vs/editor/editor.main"], function () {
+  const typescript = monaco.languages.typescript;
+  for (const lang of [typescript.typescriptDefaults, typescript.javascriptDefaults]) {
+    lang.setCompilerOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: false
+    });
+    lang.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
+      allowNonTsExtensions: true,
+      allowJs: true,
+    });
+    /* FIXME: types.then(([uri, content]) => lang.addExtraLib(content, uri)); */
+  }
+  const input = monaco.editor.create(document.getElementById('input'), {
+    language: 'typescript',
+    model: monaco.editor.createModel(value, 'prolog'),
+    value,
+    theme,
+    minimap: false
+  });
+  const output = monaco.editor.create(document.getElementById('output'), {
+    language: 'javascript',
+    value: '//',
+    theme,
+    readOnly: true,
+    minimap: false
+  });
+  const onEdit = () => {
+    const body = input.getValue();
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(body);
+    crypto.subtle.digest('SHA-256', data).then(hash => {
+      const hex = Array.from(new Uint8Array(hash), chunk => chunk.toString(16).padStart(2, '0')).join('');
+      statusEl.textContent = `SHA256: ${hex}`;
+    });
+
+    if (bindings) {
+      FS.writeFile('/file.pl', body);
+      query(bindings, "consult('/file.pl').");
+    }
+  };
+  input.onDidChangeModelContent(onEdit);
+  const model = input.getModel();
+  model.setValue(input.getValue() + "\n");
+});
+
+document.body.appendChild(Object.assign(document.createElement('script'), {
+  async: true,
+  defer: true,
+  src: "https://cdn.jsdelivr.net/gh/SWI-Prolog/swipl-wasm@7e2e2aae7aabc74e9b7ab8a6e19a1c88be10325c/dist/swipl-web.js"
+}));
+</script>
+
+<!--<script async defer src="https://cdn.jsdelivr.net/gh/SWI-Prolog/swipl-wasm@7e2e2aae7aabc74e9b7ab8a6e19a1c88be10325c/dist/swipl-web.js"></script>-->
+
+<output id=status class="block text-xs opacity-50"></output>
+<output id=result class="block text-xs opacity-50"></output>
+<div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
+  <div id="input" style="flex: 1;"></div>
+  <div id="output" style="flex: 1;"></div>
+</div>

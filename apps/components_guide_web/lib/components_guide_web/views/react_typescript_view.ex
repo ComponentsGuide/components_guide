@@ -18,6 +18,7 @@ defmodule ComponentsGuideWeb.ReactTypescriptView do
   end
 
   def article_content_class("editor"), do: "content text-xl"
+  def article_content_class("editor-prolog"), do: "content text-xl"
   def article_content_class(_article), do: "content max-w-4xl mx-auto py-8 text-xl"
 
   def collected_image(conn, name) do
