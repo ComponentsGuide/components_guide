@@ -21,12 +21,23 @@ function useTick() {
 ```ts
 export function useDebouncer(duration: number): readonly [number, EffectCallback] {
   const [count, tick] = useTick();
-  const effect = useCallback(() => {
-    const timeout = setTimeout(tick, duration);
-    return () => clearTimeout(timeout);
+
+  const callback = useMemo(() => {
+    let timeout = null;
+    function clear() {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+    }
+    return () => {
+      clear()
+      timeout = setTimeout(tick, duration);
+      return clear;
+    };
   }, [duration, tick]);
 
-  return [count, effect];
+  return [count, callback];
 }
 ```
 

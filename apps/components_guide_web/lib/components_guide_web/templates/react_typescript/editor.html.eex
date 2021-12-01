@@ -68,12 +68,19 @@ class ErrorBoundary extends React.Component {
 }
 
 export function Example() {
-  const wrapped = <React.Profiler id="Navigation" onRender={console.log}><ErrorBoundary><App /></ErrorBoundary></React.Profiler>;
-
   const clientAppEl = document.getElementById('clientApp');
-  clientAppEl.dispatchEvent(new CustomEvent('reset'));
+
+  const wrapped = <React.Profiler id="App" onRender={(id, phase, actualDuration, baseDuration, startTime, commitTime, interactions) => {
+    clientAppEl.dispatchEvent(new CustomEvent('DID_RENDER', { detail: { id, phase, actualDuration, baseDuration, startTime, commitTime, interactions } }));
+  }}>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </React.Profiler>;
+
+  clientAppEl.dispatchEvent(new CustomEvent('RESET'));
   ReactDOM.render(wrapped, clientAppEl);
-  clientAppEl.addEventListener('reset', () => {
+  clientAppEl.addEventListener('RESET', () => {
     ReactDOM.unmountComponentAtNode(clientAppEl);
   }, { once: true });
 
@@ -97,7 +104,7 @@ function useTick() {
 function useDebouncer(duration) {
   const [count, tick] = useTick();
 
-  const effect = useMemo(() => {
+  const callback = useMemo(() => {
     let timeout = null;
     function clear() {
       if (timeout) {
@@ -112,7 +119,7 @@ function useDebouncer(duration) {
     };
   }, [duration, tick]);
 
-  return [count, effect];
+  return [count, callback];
 }
 
 export default function App() {
@@ -248,9 +255,8 @@ require(["vs/editor/editor.main"], function () {
         return new Map()
           .set('result', result)
           .set('error', '')
-          .set('esbuildMs', duration.toString() + 'ms')
-          .set('esbuildBytes', (codeBytes / 1024).toFixed(2) + ' KB')
-          .set('renderMs', '');
+          .set('esbuildMs', duration.toString() + 'ms to compile')
+          .set('esbuildBytes', (codeBytes / 1024).toFixed(2) + ' KB to download');
       })
       .catch((err) => {
         return new Map().set('error', 'Error ' + err.message);
@@ -273,18 +279,28 @@ require(["vs/editor/editor.main"], function () {
   input.onDidChangeModelContent(onEdit);
   const model = input.getModel();
   model.setValue(input.getValue() + "\n");
+
+  const clientAppEl = document.getElementById('clientApp');
+  let renderCount = 0;
+  clientAppEl.addEventListener('DID_RENDER', ({ detail }) => {
+    renderCount++;
+    console.log("DID_RENDER");
+    document.querySelector('#clientResult slot[name="reactRenderDuration"]').textContent = `last ${detail.actualDuration}ms; ${renderCount} times rendered`;
+  });
 });
 </script>
 <output id=status class="block text-xs opacity-50"></output>
-<output id=result class="block text-xs">
-  <div class="text-red-500"><slot name=error></slot></div>
-  <div>esbuild: <slot name=esbuildMs></slot> <slot name=esbuildBytes></slot></div>
-  <div><slot name=renderMs></slot></div>
-</output>
+<div class="flex">
+  <output id=result class="block text-xs">
+    <div class="text-red-500"><slot name=error></slot></div>
+    <div>esbuild: <slot name=esbuildMs></slot>, <slot name=esbuildBytes></slot></div>
+  </output>
+  <div id="clientResult" class="ml-auto text-xs"><slot name=reactRenderDuration></slot></div>
+</div>
 <div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
   <div id="input" style="flex: 1;"></div>
   <div class="flex-1 flex flex-col">
-    <div id="clientApp" style="flex: 1;"></div>
+    <div id="clientApp" style="flex: 1;" class="bg-white text-black"></div>
     <div id="htmlOutput" style="flex: 1;"></div>
   </div>
 </div>
