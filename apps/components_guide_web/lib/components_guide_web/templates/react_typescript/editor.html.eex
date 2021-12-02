@@ -294,8 +294,6 @@ require(["vs/editor/editor.main"], function () {
       })
       .then(({ code, codeBytes, duration }) => {
         console.log("NEW CODE!");
-        //window.useReducer = window.React.useReducer;
-        //window.useMemo = window.React.useMemo;
         const hookNames = Object.keys(window.React).filter(name => name.startsWith('use'));
         const preamble = hookNames.map(hookName => `const ${hookName} = window.React.${hookName}`).join(';');
         const executor = new Function(`${preamble}; ${code}; return exports.Example();`);
