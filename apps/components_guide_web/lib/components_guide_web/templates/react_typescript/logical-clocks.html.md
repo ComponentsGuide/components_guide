@@ -10,20 +10,35 @@ However, while React has certainly made the *what* easier with the declarative m
 
 ## What is a logical clock?
 
+A logical clock is a monotonically increasing number. Or in other words, an incremented integer: `i++`.
+
+We can implement once as a React hook using `useReducer()`:
+
 ```ts
-function useTick() {
+function useTicker() {
   return useReducer(n => n + 1, 0);
 }
+```
+
+We can wire it up to a button like so:
+
+```ts
+const [count, advance] = useTicker();
+
+return <>
+  <p>You have clicked {count} times</p>
+  <button>Click me!</button>
+</>;
 ```
 
 ## Debouncing
 
 ```ts
-export function useDebouncedTick(duration: number): readonly [number, EffectCallback] {
-  const [count, tick] = useTick();
+export function useDebouncedTicker(duration: number): readonly [number, EffectCallback] {
+  const [count, advance] = useTicker();
 
   const callback = useMemo(() => {
-    let timeout = null;
+    let timeout: null | ReturnType<typeof setTimeout> = null;
     function clear() {
       if (timeout) {
         clearTimeout(timeout);
@@ -32,10 +47,10 @@ export function useDebouncedTick(duration: number): readonly [number, EffectCall
     }
     return () => {
       clear()
-      timeout = setTimeout(tick, duration);
+      timeout = setTimeout(advance, duration);
       return clear;
     };
-  }, [duration, tick]);
+  }, [duration, advance]);
 
   return [count, callback];
 }
@@ -43,8 +58,14 @@ export function useDebouncedTick(duration: number): readonly [number, EffectCall
 
 ```ts
 export function useDebouncedEffect(effect: EffectCallback, duration: number, deps: DependencyList): void {
-  const [count, tick] = useDebouncedTick(duration);
-  useEffect(tick, deps); // When our deps change, notify our debouncer.
+  const [count, receive] = useDebouncedTicker(duration);
+  useEffect(receive, deps); // When our deps change, notify our debouncer.
   useEffect(effect, [count]); // When our debouncer finishes, run our effect.
+}
+
+export function useDebouncedMemo<T>(factory: () => T, duration: number, deps: DependencyList): T {
+  const [tick, scheduleAdvance] = useDebouncedTicker(duration);
+  useEffect(scheduleAdvance, deps); // When our deps change, notify our debouncer.
+  return useMemo(factory, [tick]); // When our debouncer finishes, invalidate our memo.
 }
 ```

@@ -1,8 +1,23 @@
 <!-- See https://www.sanity.io/guides/server-side-rendering-deno-react -->
 
+<script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.profiling.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.profiling.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom-server.browser.production.min.js"></script>
+
 <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>-->
+
 <script type="module">
+//import React, { useReducer, useCallback, useEffect, useState, useMemo } from "https://jspm.dev/react@17.0.2";
+//import ReactDOM from "https://jspm.dev/react-dom@17.0.2/profiling";
+//import ReactDOMServer from "https://jspm.dev/react-dom@17.0.2/server";
+
+console.log("react", window.React);
+//import ReactDOM from "https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.profiling.min.js/+esm";
+//import "https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom-server.browser.production.min.js";
+
 import * as esbuild from "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.1/esm/browser.min.js";
 const esbuildPromise = Promise.resolve(esbuild.initialize({
   wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.1/esbuild.wasm',
@@ -249,7 +264,9 @@ require(["vs/editor/editor.main"], function () {
           bundle: true,
           minify: true,
           stdin: {
-            contents: `${prefix}\n${body ?? ""}\n${suffix}`,
+            //contents: `${prefix}\n${body ?? ""}\n${suffix}`,
+            contents: `${body ?? ""}\n${suffix}`,
+            //contents: body ?? "",
             loader: 'jsx',
             sourcefile: 'main.jsx',
           },
@@ -277,7 +294,11 @@ require(["vs/editor/editor.main"], function () {
       })
       .then(({ code, codeBytes, duration }) => {
         console.log("NEW CODE!");
-        const executor = new Function(`${code}; return exports.Example();`);
+        //window.useReducer = window.React.useReducer;
+        //window.useMemo = window.React.useMemo;
+        const hookNames = Object.keys(window.React).filter(name => name.startsWith('use'));
+        const preamble = hookNames.map(hookName => `const ${hookName} = window.React.${hookName}`).join(';');
+        const executor = new Function(`${preamble}; ${code}; return exports.Example();`);
         const result = executor();
         return new Map()
           .set('result', result)
@@ -326,7 +347,7 @@ require(["vs/editor/editor.main"], function () {
       }, 1000);
     }
 
-    reactRenderEl.textContent = `last ${detail.actualDuration}ms; ${renderCount} times rendered`;
+    reactRenderEl.textContent = `last ${detail.actualDuration.toFixed(1)}ms; ${renderCount} times rendered`;
   });
 });
 </script>
