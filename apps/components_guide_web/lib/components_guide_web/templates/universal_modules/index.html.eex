@@ -2,6 +2,6 @@
   <%= @source %>
 </pre>
 
-<pre>
+<pre class="whitespace-pre-line">
   <%= @decoded %>
 </pre>
