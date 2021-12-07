@@ -17,7 +17,7 @@ defmodule ComponentsGuideWeb.LayoutView do
   def search_form do
     ~E"""
     <form role=search action="/research" class="flex h-full px-2 items-center">
-      <input type=text name=q placeholder="Search standards, npm packages, web features" class="w-full py-1 px-4 bg-gray-800 text-white rounded-full border border-gray-600">
+      <input type=text name=q placeholder="Search web features and npm packages" class="w-full py-1 px-4 bg-gray-800 text-white rounded-full border border-gray-600">
     </form>
     """
   end
