@@ -1,0 +1,7 @@
+<pre>
+  <%= @source %>
+</pre>
+
+<pre>
+  <%= @decoded %>
+</pre>

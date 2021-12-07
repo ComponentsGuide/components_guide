@@ -67,6 +67,8 @@ defmodule ComponentsGuideWeb.Router do
     get("/react+typescript", ReactTypescriptController, :index)
     get("/react+typescript/:article", ReactTypescriptController, :show)
 
+    get("/universal-modules", UniversalModulesController, :index)
+
     resources("/text", TextController)
     get("/text/:id/text/:format", TextController, :show_text_format)
 
