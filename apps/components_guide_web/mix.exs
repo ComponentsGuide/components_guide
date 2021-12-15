@@ -47,6 +47,7 @@ defmodule ComponentsGuideWeb.MixProject do
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
+      {:unicode_guards, "~> 1.0"},
       {:components_guide, in_umbrella: true},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},

@@ -5,3 +5,9 @@
 <pre class="whitespace-pre-line">
   <%= @decoded %>
 </pre>
+
+<h2>Identifiers</h2>
+
+<pre class="whitespace-pre-line">
+  <%= @identifiers %>
+</pre>

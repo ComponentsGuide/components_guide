@@ -14,7 +14,11 @@ defmodule ComponentsGuideWeb.UniversalModulesController do
     const verbose = false;
     const alwaysNull = null;
 
+    const debug = verbose;
+
     export const dateFormat = "YYYY/MM/DD";
+
+    const exampleDotOrg = new URL("https://example.org");
 
     const array = [1, 2, 3];
     const arrayMultiline = [
@@ -23,20 +27,37 @@ defmodule ComponentsGuideWeb.UniversalModulesController do
       6
     ];
     export const flavors = ["vanilla", "chocolate", "caramel", "raspberry"];
+    export const flavorsSet = new Set(["vanilla", "chocolate", "caramel", "raspberry"]);
 
     const object = { "key": "value" };
 
     function hello() {}
-    function* gen() {}
+    function* gen() {
+      const a = 1;
+      yield [1, 2, 3];
+    }
     """
     # decoded = decode_module(source)
     decoded = Parser.decode(source)
+    identifiers = ComponentsGuideWeb.UniversalModulesInspector.list_identifiers(elem(decoded, 1))
 
     render(conn, "index.html",
       page_title: "Universal Modules",
       source: source,
-      decoded: inspect(decoded)
+      decoded: inspect(decoded),
+      identifiers: inspect(identifiers),
     )
+  end
+end
+
+defmodule ComponentsGuideWeb.UniversalModulesInspector do
+  def is_identifier({:const, _, _}), do: true
+  def is_identifier({:function, _, _, _}), do: true
+  def is_identifier({:generator_function, _, _, _}), do: true
+  def is_identifier(_), do: false
+
+  def list_identifiers(module_body) do
+    for statement <- module_body, is_identifier(statement), do: statement
   end
 end
 
@@ -110,6 +131,8 @@ defmodule ComponentsGuideWeb.UniversalModulesParser do
   end
 
   defmodule Function do
+    defdelegate compose(submodule, input), to: ComponentsGuideWeb.UniversalModulesParser
+
     def decode(<<"function", rest::bitstring>>),
       do: decode(%{generator_mark: nil, name: nil, args: nil, body: nil}, rest)
 
@@ -136,10 +159,33 @@ defmodule ComponentsGuideWeb.UniversalModulesParser do
     defp decode(%{args: {:closed, args}, name: name, body: {:open, body_items}} = context, <<"}", rest::bitstring>>) do
       case context.generator_mark do
         true ->
-          {:ok, {:generator_function, name, args, body_items}, rest}
+          {:ok, {:generator_function, name, args, Enum.reverse(body_items)}, rest}
 
         nil ->
-          {:ok, {:function, name, args, body_items}, rest}
+          {:ok, {:function, name, args, Enum.reverse(body_items)}, rest}
+      end
+    end
+
+    defp decode(%{body: {:open, _}} = context, <<char::utf8, rest::bitstring>>) when char in [?\n, ?\t, ?;],
+      do: decode(context, rest)
+
+    defp decode(%{body: {:open, body_items}} = context, <<"const ", _::bitstring>> = input) do
+      case compose(Const, input) do
+        {:ok, term, rest} ->
+          decode(%{context | body: {:open, [term | body_items]}}, rest)
+
+        {:error, reason} ->
+          {:error, {reason, body_items}}
+      end
+    end
+
+    defp decode(%{body: {:open, body_items}} = context, <<"yield ", _::bitstring>> = input) do
+      case compose(Yield, input) do
+        {:ok, term, rest} ->
+          decode(%{context | body: {:open, [term | body_items]}}, rest)
+
+        {:error, reason} ->
+          {:error, {reason, body_items}}
       end
     end
 
@@ -167,6 +213,9 @@ defmodule ComponentsGuideWeb.UniversalModulesParser do
   defmodule Const do
     def decode(<<"const ", rest::bitstring>>),
       do: decode({:expect_identifier, []}, rest)
+
+    def decode(<<_::bitstring>>),
+      do: {:error, :expected_const}
 
     defp decode({:expect_identifier, _} = context, <<" ", rest::bitstring>>),
       do: decode(context, rest)
@@ -199,15 +248,46 @@ defmodule ComponentsGuideWeb.UniversalModulesParser do
   end
 
   defmodule Expression do
+    import Unicode.Guards
+
     def decode(input), do: decode([], input)
 
+    defp finalize([{:found_identifier, reverse_identifier} | context_rest]) do
+      identifier = reverse_identifier |> Enum.reverse() |> :binary.list_to_bin()
+      [{:ref, identifier} | context_rest]
+    end
+
+    defp finalize(expression), do: expression
+
     defp decode(expression, <<";", rest::bitstring>>),
-      do: {:ok, expression, rest}
+      do: {:ok, finalize(expression), rest}
 
     defp decode([] = context, <<" ", rest::bitstring>>), do: decode(context, rest)
     defp decode([], <<"true", rest::bitstring>>), do: decode(true, rest)
     defp decode([], <<"false", rest::bitstring>>), do: decode(false, rest)
     defp decode([], <<"null", rest::bitstring>>), do: decode(nil, rest)
+
+    defp decode([], <<"new URL(", rest::bitstring>>) do
+      [encoded_json, rest] = String.split(rest, ");\n", parts: 2)
+      case Jason.decode(encoded_json) do
+        {:ok, value} ->
+          {:ok, {:url, value}, rest}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
+
+    defp decode([], <<"new Set(", rest::bitstring>>) do
+      [encoded_json, rest] = String.split(rest, ");\n", parts: 2)
+      case Jason.decode(encoded_json) do
+        {:ok, value} ->
+          {:ok, {:set, value}, rest}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    end
 
     # TODO: parse JSON by finding the end character followed by a semicolon + newline.
     # JSON strings cannoc contain literal newlines (it’s considered to be a control character),
@@ -244,6 +324,14 @@ defmodule ComponentsGuideWeb.UniversalModulesParser do
         {f, rest} ->
           decode(f, rest)
       end
+    end
+
+    defp decode([], <<char::utf8, rest::bitstring>>) when is_lower(char) or is_upper(char),
+      do: decode([{:found_identifier, [char]}], rest)
+
+    defp decode([{:found_identifier, reverse_identifier} | context_rest], <<char::utf8, rest::bitstring>>)
+         when is_lower(char) or is_upper(char) or is_digit(char) do
+      decode([{:found_identifier, [char | reverse_identifier]} | context_rest], rest)
     end
   end
 
