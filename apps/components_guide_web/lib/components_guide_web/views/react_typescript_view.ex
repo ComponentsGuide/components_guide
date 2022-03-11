@@ -1,7 +1,9 @@
 defmodule ComponentsGuideWeb.ReactTypescriptView do
   use ComponentsGuideWeb, :view
 
-  def header_styles() do
+  def header_styles("editor"), do: "display: none;"
+
+  def header_styles(_article) do
     l = 0
     a = -60
     b = -90

@@ -302,7 +302,7 @@ require(["vs/editor/editor.main"], function () {
           .set('result', result)
           .set('error', '')
           .set('esbuildMs', duration.toString() + 'ms to compile')
-          .set('esbuildBytes', (codeBytes / 1024).toFixed(2) + ' KB to download');
+          .set('esbuildBytes', (codeBytes / 1024).toFixed(2) + ' KB asset');
       })
       .catch((err) => {
         return new Map().set('error', 'Error ' + err.message);
@@ -353,7 +353,7 @@ require(["vs/editor/editor.main"], function () {
 <div class="flex">
   <output id=result class="block text-xs">
     <div class="text-red-500"><slot name=error></slot></div>
-    <div>esbuild: <slot name=esbuildMs></slot>, <slot name=esbuildBytes></slot></div>
+    <div>esbuild: <slot name=esbuildMs></slot> into a <slot name=esbuildBytes></slot></div>
   </output>
   <div id="clientResult" class="ml-auto text-xs"><slot name=reactRenderDuration></slot></div>
 </div>

@@ -1,4 +1,4 @@
-<header style="<%= header_styles() %>">
+<header style="<%= header_styles(@article) %>">
   <%= render @view_module, "_top.html" %>
 </header>
 
