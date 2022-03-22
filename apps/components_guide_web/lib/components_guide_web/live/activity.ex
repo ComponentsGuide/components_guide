@@ -1,6 +1,7 @@
 defmodule ComponentsGuideWeb.ActivityLive do
   use Phoenix.LiveView
 
+  @impl true
   def render(assigns) do
     ~L"""
     UUID: <%= @uuid %>
@@ -11,6 +12,7 @@ defmodule ComponentsGuideWeb.ActivityLive do
     Ecto.UUID.generate
   end
 
+  @impl true
   def mount(%{}, _session, socket) do
     if connected?(socket), do: :timer.send_interval(5000, self(), :update)
 

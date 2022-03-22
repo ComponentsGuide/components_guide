@@ -37,7 +37,7 @@ defmodule ComponentsGuide.MixProject do
   defp deps do
     [
       {:cachex, "~> 3.1"},
-      {:ecto, "~> 3.1.4"},
+      {:ecto, "~> 3.6.2"},
       {:httpotion, "~> 3.1.0"},
       {:jason, "~> 1.0"},
       {:tesla, "~> 1.3.0"},
