@@ -4,6 +4,7 @@
     <li><%= link("URL", to: '/web-standards/url') %>
     <li><%= link("HTML", to: '/web-standards/html') %>
     <li><%= link("Promise", to: '/web-standards/promise') %>
+    <li><%= link("HTTP Headers", to: '/web-standards/http-headers') %>
     <li><%= link("HTTP Caching", to: '/web-standards/http-caching') %>
   </ul>
 </nav>
