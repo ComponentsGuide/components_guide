@@ -14,7 +14,7 @@ console.log("app.js executing");
 import "phoenix_html";
 import { Socket } from "phoenix";
 import NProgress from "nprogress";
-import LiveSocket from "phoenix_live_view";
+import { LiveSocket } from "phoenix_live_view";
 import * as Turbo from "@hotwired/turbo";
 
 // window.IMPORTS = {
