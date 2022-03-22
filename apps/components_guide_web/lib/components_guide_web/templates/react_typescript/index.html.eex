@@ -1,11 +1,11 @@
 <header style="<%= header_styles(@article) %>">
-  <%= render @view_module, "_top.html" %>
+  <%= render view_module(@conn), "_top.html" %>
 </header>
 
 <article>
   <div class="text-white bg-gray-900">
-    <div class="<%= @view_module.article_content_class(@article) %>">
-      <%= render(@view_module, @article <> ".html", conn: @conn) %>
+    <div class="<%= view_module(@conn).article_content_class(@article) %>">
+      <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
     </div>
   </div>
 </article>

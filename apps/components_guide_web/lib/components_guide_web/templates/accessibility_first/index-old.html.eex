@@ -18,7 +18,7 @@
   </header>
 </div>
 
-<%= render @view_module, "_header.html" %>
+<%= render view_module(@conn), "_header.html" %>
 
 <div class="bg-white">
   <%= section "Topics", class: "container pt-8 pb-16 text-2xl" do %>

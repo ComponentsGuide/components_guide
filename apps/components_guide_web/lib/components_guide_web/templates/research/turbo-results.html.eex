@@ -1,6 +1,6 @@
 <turbo-frame id=search target=_top>
-  
-<%= render @view_module, "_header.html", query: @query %>
+
+<%= render view_module(@conn), "_header.html", query: @query %>
 
 <div class="text-white bg-gray-900 py-8">
   <div class="container">
