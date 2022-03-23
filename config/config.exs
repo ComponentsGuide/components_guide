@@ -36,11 +36,18 @@ config :esbuild,
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    env: %{
+      "NODE_PATH" =>
+        [
+          Path.expand("../deps", __DIR__),
+          Path.expand("../assets", __DIR__)
+        ]
+        |> Enum.join(":")
+    }
   ]
 
 config :tailwind,
-  version: "3.0.23",
+  version: "3.0.10",
   default: [
     args: ~w(
     --config=tailwind.config.js
