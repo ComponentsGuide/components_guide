@@ -1,9 +1,7 @@
-cd "assets/"
+cd $phoenix_dir
 
 echo "NPM RUN DEPLOY"
-npm run deploy
-
-cd $phoenix_dir
+npm --prefix assets run deploy
 
 echo "MIX TEMPLATE_ASSETS"
 mix template_assets
