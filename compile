@@ -1,10 +1,2 @@
 cd $phoenix_dir
-
-echo "NPM RUN DEPLOY"
-npm --prefix assets run deploy
-
-echo "MIX TEMPLATE_ASSETS"
-mix template_assets
-
-echo "MIX PHX.DIGEST"
-mix "${phoenix_ex}.digest"
+mix "assets.deploy"
