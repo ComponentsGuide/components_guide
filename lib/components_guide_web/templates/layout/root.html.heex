@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang=en>
+<html lang="en">
   <head>
-    <meta charset=utf-8>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%= csrf_meta_tag() %>
     <%= live_title_tag assigns[:page_title] || "Guides to React, Accessibility, Modern CSS, TypeScript", suffix: " · Components.Guide" %>
-    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
+    <script defer type="text/javascript" src={Routes.static_path(@conn, "/js/app.js")}></script>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/css/app.css")}/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RoyalIcing/tela@2d421cafc1ea99fab91aa4fcbf3b554160bcada5/tela.css"/>
-    
+
     <script type="module">
       import githubDetailsMenuElement from 'https://cdn.skypack.dev/@github/details-menu-element';
     </script>
@@ -18,8 +19,6 @@
     <% else %>
     <meta property="og:type" content="article">
     <% end %>
-
-    <meta property="og:title" content="<%= assigns[:page_title] || "Learn accessibility, web standards, testing React & more" %>">
     <%
       stamp_query = case assigns[:page_title] do
         nil ->
@@ -31,12 +30,10 @@
       main_image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(stamp_query)
       twitter_image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(Keyword.merge(stamp_query, width: 600, height: 314))
     %>
-    <meta property="og:image" content="<%= main_image_url %>">
+    <meta property="og:image" content={main_image_url}>
     <meta name="twitter:site" content="@ComponentsGuide">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="<%= twitter_image_url %>">
-
-    <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <meta name="twitter:image" content={twitter_image_url}>
 
     <%= if Mix.env() == :prod do %>
       <script src="https://cdn.usefathom.com/script.js" site="LYHMLVID" defer></script>
