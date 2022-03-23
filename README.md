@@ -2,6 +2,16 @@
 
 [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
+To start your Phoenix server:
+
+  * Install dependencies with `mix deps.get`
+  * Install Node.js dependencies with `cd assets && npm install`
+  * Start Phoenix endpoint with `mix phx.server`
+
+Now you can visit [`localhost:4333`](http://localhost:4333) from your browser.
+
+----
+
 This work is licensed under a
 [Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].
 

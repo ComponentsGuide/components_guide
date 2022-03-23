@@ -6,18 +6,18 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :components_guide_web, ComponentsGuideWeb.Endpoint,
+config :components_guide, ComponentsGuideWeb.Endpoint,
   http: [port: 4333],
-  debug_errors: true,
-  code_reloader: true,
-  # reloadable_compilers: [:phoenix, :gettext],
-  reloadable_apps: [:components_guide, :components_guide_web],
   check_origin: false,
+  code_reloader: true,
+  debug_errors: true,
+  # reloadable_compilers: [:phoenix, :gettext],
+  secret_key_base: "98yN/0NbJtdHMD0KaWg6ISyxFUpTDT/2nus2c96f8kMF76kqY7dqIWKkOL2Uk6SQ",
   watchers: [
     npm: [
       "run",
       "watch",
-      cd: Path.expand("../apps/components_guide_web/assets", __DIR__)
+      cd: Path.expand("../assets", __DIR__)
     ]
   ]
 
@@ -46,14 +46,13 @@ config :components_guide_web, ComponentsGuideWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :components_guide_web, ComponentsGuideWeb.Endpoint,
+config :components_guide, ComponentsGuideWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/components_guide_web/{live,views}/.*(ex)$",
-      ~r"lib/components_guide_web/templates/.*(eex|md)$",
-      ~r{lib/components_guide_web/live/.*(ex)$}
+      ~r"lib/components_guide_web/templates/.*(eex|md)$"
     ]
   ]
 

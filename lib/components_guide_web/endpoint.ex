@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :components_guide_web
+  use Phoenix.Endpoint, otp_app: :components_guide
 
   @session_options [
     store: :cookie,
@@ -16,7 +16,7 @@ defmodule ComponentsGuideWeb.Endpoint do
 
   plug(Plug.Static,
     at: "/collected/image",
-    from: {:components_guide_web, "priv/static/collected/image"},
+    from: {:components_guide, "priv/static/collected/image"},
     gzip: false,
     only: ~w(svg png jpg gif)
   )
@@ -27,7 +27,7 @@ defmodule ComponentsGuideWeb.Endpoint do
   # when deploying your static files in production.
   plug(Plug.Static,
     at: "/",
-    from: :components_guide_web,
+    from: :components_guide,
     gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
   )

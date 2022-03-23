@@ -1,3 +1,0 @@
-# ComponentsGuide
-
-**TODO: Add description**

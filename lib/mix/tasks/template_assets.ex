@@ -23,8 +23,8 @@ defmodule Mix.Tasks.TemplateAssets do
       process_image(image_path)
     end
 
-    # templates_path = Application.app_dir(:components_guide_web, "templates")
-    # Application.app_dir(:components_guide_web, "priv")
+    # templates_path = Application.app_dir(:components_guide, "templates")
+    # Application.app_dir(:components_guide, "priv")
 
     count = Enum.count(image_paths)
 

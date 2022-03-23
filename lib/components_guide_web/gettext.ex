@@ -20,5 +20,5 @@ defmodule ComponentsGuideWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :components_guide_web
+  use Gettext, otp_app: :components_guide
 end

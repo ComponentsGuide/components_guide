@@ -9,13 +9,8 @@
 # move said applications out of the umbrella.
 use Mix.Config
 
-
-
-config :components_guide_web,
-  generators: [context_app: :components_guide]
-
 # Configures the endpoint
-config :components_guide_web, ComponentsGuideWeb.Endpoint,
+config :components_guide, ComponentsGuideWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "GIQzLogQXRdH7r9im+a6kEsZIbX6FmAvCt8bj+BYSkBahfkl6u9oRHSPs7Go81at",
   render_errors: [view: ComponentsGuideWeb.ErrorView, accepts: ~w(html json)],
