@@ -68,8 +68,14 @@ defmodule ComponentsGuide.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get"],
-      "assets.deploy": ["template_assets", "tailwind.install", "tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      setup: ["deps.get", "cmd npm --prefix assets ci"],
+      "assets.deploy": [
+        "template_assets",
+        "tailwind.install",
+        "tailwind default --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ]
     ]
   end
 end
