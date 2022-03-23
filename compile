@@ -1,4 +1,4 @@
-cd "${phoenix_dir}/assets/"
+cd "assets/"
 
 echo "NPM RUN DEPLOY"
 npm run deploy
