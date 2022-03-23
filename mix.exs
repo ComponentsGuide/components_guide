@@ -40,6 +40,8 @@ defmodule ComponentsGuide.MixProject do
       {:phoenix_live_view, "~> 0.17"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_dashboard, "~> 0.6"},
+      {:esbuild, "~> 0.3", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
@@ -68,7 +70,7 @@ defmodule ComponentsGuide.MixProject do
     [
       setup: ["deps.get"],
       # "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
-      "assets.deploy": ["phx.digest"]
+      "assets.deploy": ["tailwind default --minify", "phx.digest"]
     ]
   end
 end
