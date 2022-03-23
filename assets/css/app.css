@@ -1,12 +1,6 @@
-/* This file is for your main application css. */
-
-@tailwind base;
-
-@tailwind components;
-
-@tailwind utilities;
-
-@import "../node_modules/nprogress/nprogress.css";
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
   --link--display: initial;
@@ -294,8 +288,6 @@ a[aria-current="page"][class*="hover\:border-"] {
   user-select: none;
   cursor: default;
 }
-
-/* @import "./phoenix.css"; */
 
 .formkit-form {
   box-shadow: none !important;
