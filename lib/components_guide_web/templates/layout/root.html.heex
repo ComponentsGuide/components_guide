@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%= csrf_meta_tag() %>
     <%= live_title_tag assigns[:page_title] || "Guides to React, Accessibility, Modern CSS, TypeScript", suffix: " · Components.Guide" %>
-    <script defer type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
+    <script defer type="text/javascript" src={Routes.static_path(@conn, "/assets/js/app.js")}></script>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RoyalIcing/tela@2d421cafc1ea99fab91aa4fcbf3b554160bcada5/tela.css"/>
 
