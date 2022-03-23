@@ -31,7 +31,7 @@ config :phoenix, :template_engines,
   png: ComponentsGuideWeb.TemplateEngines.ImageEngine,
   collected: ComponentsGuideWeb.TemplateEngines.ImageEngine
 
-config :tailwind, version: "3.0.18", default: [
+config :tailwind, version: "3.0.23", default: [
   args: ~w(
     --config=tailwind.config.js
     --input=css/app.css
