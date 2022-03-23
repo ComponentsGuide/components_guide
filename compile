@@ -1,2 +1,3 @@
 cd $phoenix_dir
+npm --prefix assets ci
 mix "assets.deploy"
