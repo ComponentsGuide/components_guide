@@ -43,10 +43,16 @@ defmodule ComponentsGuideWeb do
     end
   end
 
-  def live_view do
+  def live_view(opts \\ []) do
     quote do
-      use Phoenix.LiveView,
-        layout: {ComponentsGuideWeb.LayoutView, "live.html"}
+      @opts Keyword.merge(
+              [
+                layout: {ComponentsGuideWeb.LayoutView, "live.html"},
+                container: {:div, class: "relative h-screen flex overflow-hidden bg-white"}
+              ],
+              unquote(opts)
+            )
+      use Phoenix.LiveView, @opts
 
       unquote(view_helpers())
     end
@@ -110,6 +116,10 @@ defmodule ComponentsGuideWeb do
   @doc """
   When used, dispatch to the appropriate controller/view/etc.
   """
+  defmacro __using__({which, opts}) when is_atom(which) do
+    apply(__MODULE__, which, [opts])
+  end
+
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
