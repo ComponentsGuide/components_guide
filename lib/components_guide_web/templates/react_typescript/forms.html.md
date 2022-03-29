@@ -60,7 +60,7 @@ function SignInForm() {
 - We can then read from the form using the DOM when it is submitted.
 
 ```tsx
-import React, { useState } from "react";
+import React from "react";
 import authService from "../services/auth";
 
 function SignInForm() {
@@ -68,8 +68,10 @@ function SignInForm() {
     <form
       onSubmit={(event) => {
         event.preventDefault(); // Prevent performing normal submission
-        const email = event.target.elements.email.value;
-        const password = event.target.elements.password.value;
+        const form = event.target;
+        const data = new FormData(form);
+        const email = data.get('email');
+        const password = data.get('password');
         // Could validate here.
         authService.signIn({ email, password });
       }}
