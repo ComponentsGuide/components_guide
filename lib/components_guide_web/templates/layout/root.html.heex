@@ -20,15 +20,13 @@
     <meta property="og:type" content="article">
     <% end %>
     <%
-      stamp_query = case assigns[:page_title] do
-        nil ->
-          [primary: "Components.Guide", secondary: "Learn accessibility, web standards, testing React & more"]
-
-        title ->
-          [primary: "Components.Guide", secondary: title]
-      end
-      main_image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(stamp_query)
-      twitter_image_url = "https://postage-stamp.collected.workers.dev/1/poster?" <> URI.encode_query(Keyword.merge(stamp_query, width: 600, height: 314))
+      stamp_query = [
+        t1: "Components.Guide",
+        t2: assigns[:page_title] || "Learn accessibility, web standards, testing React & more",
+        website: "components.guide"
+      ]
+      main_image_url = "https://cdn.littleeagle.io/1/github/ComponentsGuide?" <> URI.encode_query(stamp_query)
+      twitter_image_url = "https://cdn.littleeagle.io/1/github/ComponentsGuide?" <> URI.encode_query(Keyword.merge(stamp_query, w: 600, h: 314))
     %>
     <meta property="og:image" content={main_image_url}>
     <meta name="twitter:site" content="@ComponentsGuide">
