@@ -1,6 +1,6 @@
 defmodule ComponentsGuideWeb.ChooseYourOwnAdventureLive do
   use ComponentsGuideWeb,
-      {:live_view, container: {:div, class: "max-w-xl mx-auto text-xl text-white pb-16"}}
+      {:live_view, container: {:div, class: "max-w-xl mx-auto text-xl text-white pb-24"}}
 
   defmodule State do
     defstruct uuid: nil,
@@ -96,8 +96,8 @@ defmodule ComponentsGuideWeb.ChooseYourOwnAdventureLive do
 
       [
         fetch_html: fetch_html_duration,
-        fetch_api: fetch_api_duration,
         assets: assets_duration,
+        fetch_api: fetch_api_duration,
         trackers: trackers_duration
       ]
     end
@@ -105,8 +105,8 @@ defmodule ComponentsGuideWeb.ChooseYourOwnAdventureLive do
     def total(%__MODULE__{} = state) do
       [
         fetch_html: fetch_html,
-        fetch_api: fetch_api,
         assets: assets,
+        fetch_api: fetch_api,
         trackers: trackers
       ] = line_items(state)
 
@@ -152,18 +152,40 @@ defmodule ComponentsGuideWeb.ChooseYourOwnAdventureLive do
         <label><input type="radio" name="trackers_count" value="20"  checked={@state.trackers_count == 20}> 20</label>
       </fieldset>
 
-      <output class="block pt-2 text-3xl font-bold">
-        <p><%= @total %>ms</p>
-        <div class="flex">
-          <span style={"height: 1rem; background: green; width: #{@line_items[:fetch_html] * 0.2}px"}></span>
-          <span style={"height: 1rem; background: blue; width: #{@line_items[:fetch_api] * 0.2}px"}></span>
-          <span style={"height: 1rem; background: orange; width: #{@line_items[:assets] * 0.2}px"}></span>
-          <span style={"height: 1rem; background: red; width: #{@line_items[:trackers] * 0.2}px"}></span>
+      <output class="block pt-2">
+        <p class="text-3xl font-bold"><%= @total %>ms</p>
+        <div class="flex pt-4 pb-4">
+          <span class="h-4 bg-green-500" style={"width: #{@line_items[:fetch_html] * 0.2}px"}></span>
+          <span class="h-4 bg-orange-300" style={"width: #{@line_items[:assets] * 0.2}px"}></span>
+          <span class="h-4 bg-blue-600" style={"width: #{@line_items[:fetch_api] * 0.2}px"}></span>
+          <span class="h-4 bg-red-500" style={"width: #{@line_items[:trackers] * 0.2}px"}></span>
         </div>
+        <ul class="flex text-sm gap-4">
+          <li>
+            <span class="inline-block w-3 h-3 bg-green-500"></span>
+            <%= "Load HTML" %>
+          </li>
+          <li>
+          <span class="inline-block w-3 h-3 bg-orange-300"></span>
+          <%= "Load & Execute Assets" %>
+          </li>
+          <li>
+            <span class="inline-block w-3 h-3 bg-blue-600"></span>
+            <%= "Load API" %>
+          </li>
+          <li>
+            <span class="inline-block w-3 h-3 bg-red-500"></span>
+            <%= "Load & Execute Trackers" %>
+          </li>
+        </ul>
       </output>
 
     </.form>
     <style>
+    :root {
+      --fetch-html-color: green;
+    }
+
     fieldset label + label { margin-left: 1rem; }
     </style>
     """
