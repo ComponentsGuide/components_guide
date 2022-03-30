@@ -60,16 +60,15 @@ defmodule ComponentsGuideWeb.LatencyCalculatorLive do
       us: 200,
       au: 800
     }
+    @query_optimization_duration %{
+      full_table_scan: 300,
+      indexed: 30
+    }
 
     def line_items(%__MODULE__{} = state) do
       user_latency = @user_location_latency[state.user_location]
       cdn_duration = 100
-
-      query_duration =
-        case state.query_optimization do
-          :full_table_scan -> 300
-          :indexed -> 30
-        end
+      query_duration = @query_optimization_duration[state.query_optimization]
 
       fetch_html_duration =
         case state.render do
