@@ -18,7 +18,8 @@ config :components_guide, ComponentsGuideWeb.Endpoint,
       "run",
       "watch",
       cd: Path.expand("../assets", __DIR__)
-    ]
+    ],
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
