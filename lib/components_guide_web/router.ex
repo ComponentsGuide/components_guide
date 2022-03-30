@@ -58,7 +58,7 @@ defmodule ComponentsGuideWeb.Router do
       only: [:index, :show]
     )
 
-    live("/latency-calculator", ChooseYourOwnAdventureLive)
+    live("/latency-calculator", LatencyCalculatorLive)
 
     live("/color", ColorLive, :index)
     live("/color/:definition", ColorLive, :show)

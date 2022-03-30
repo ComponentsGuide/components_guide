@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.ChooseYourOwnAdventureLive do
+defmodule ComponentsGuideWeb.LatencyCalculatorLive do
   use ComponentsGuideWeb,
       {:live_view, container: {:div, class: "max-w-xl mx-auto text-xl text-white pb-24"}}
 
