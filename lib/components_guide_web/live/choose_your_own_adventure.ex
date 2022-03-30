@@ -1,6 +1,6 @@
 defmodule ComponentsGuideWeb.LatencyCalculatorLive do
   use ComponentsGuideWeb,
-      {:live_view, container: {:div, class: "max-w-xl mx-auto text-xl text-white pb-24"}}
+      {:live_view, container: {:div, class: "max-w-xl mx-auto text-lg text-white pb-24"}}
 
   defmodule State do
     defstruct uuid: nil,
@@ -132,10 +132,10 @@ defmodule ComponentsGuideWeb.LatencyCalculatorLive do
       </fieldset>
 
       <fieldset>
-        <legend>Load data on the…</legend>
-        <label><input type="radio" name="render" value="server" checked={@state.render == :server}> Server</label>
+        <legend>Load data on…</legend>
+        <label><input type="radio" name="render" value="server" checked={@state.render == :server}> USA Server</label>
         <label><input type="radio" name="render" value="browser"  checked={@state.render == :browser}> Browser</label>
-        <label><input type="radio" name="render" value="server_with_browser_hydration" checked={@state.render == :server_with_browser_hydration}> Server with Browser Hydration</label>
+        <label><input type="radio" name="render" value="server_with_browser_hydration" checked={@state.render == :server_with_browser_hydration}> USA Server with Browser Hydration</label>
       </fieldset>
 
       <fieldset>
