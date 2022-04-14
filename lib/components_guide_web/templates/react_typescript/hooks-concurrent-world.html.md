@@ -8,13 +8,13 @@
 - `useEffect`: executed by React when inputs change @ commit time.
 - `useContext`: state external to this component provided by another component further up the tree.
 - `useRef`: mutable reference that can be changed @ any time.
-- [Hooks Reference](https://reactjs.org/docs/hooks-reference.html)
+- [View Official Hooks Reference](https://reactjs.org/docs/hooks-reference.html)
 
 ## Parallel-Universe-Safe
 
 ### `useMemo`, `useState`, `useReducer`
 
-
+Each of these hooks hold state.
 
 ### `useRef` + `useEffect`
 
