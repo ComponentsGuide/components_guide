@@ -11,6 +11,8 @@
     <ul y-y x-x=md class="text-lg list-none font-bold" data-links="p-3">
       <li><%= link("Fundamentals", to: '/react+typescript') %>
       <li><%= link("Testing", to: '/react+typescript/testing') %>
+      <li><%= link("Reducer Patterns", to: '/react+typescript/reducer-patterns') %>
+      <li><%= link("Hooks in a Concurrent World", to: '/react+typescript/hooks-concurrent-world') %>
       <li hidden><%= link("Event Handlers", to: '/react+typescript/event-handlers') %>
       <li><%= link("Logical Clocks", to: '/react+typescript/logical-clocks') %>
       <li><%= link("Forms", to: '/react+typescript/forms') %>
