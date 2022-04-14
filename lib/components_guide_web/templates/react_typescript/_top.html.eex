@@ -8,7 +8,7 @@
     <span><%= "React & TypeScript Guide" %></span>
   </h1>
   <nav class="pt-6 pb-4">
-    <ul y-y x-x=md class="text-lg list-none font-bold" data-links="p-3">
+    <ul y-y x-x=md class="flex-wrap text-lg list-none font-bold gap-y-6" data-links="p-3">
       <li><%= link("Fundamentals", to: '/react+typescript') %>
       <li><%= link("Testing", to: '/react+typescript/testing') %>
       <li><%= link("Reducer Patterns", to: '/react+typescript/reducer-patterns') %>
