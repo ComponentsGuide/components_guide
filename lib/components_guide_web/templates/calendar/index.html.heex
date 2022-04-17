@@ -32,10 +32,8 @@
   const items = form.parentNode.querySelectorAll('article p');
   form.addEventListener('change', () => {
     const values = new FormData(form);
-    const enabledTypes = new Set(values.keys())
-    console.log(Object.fromEntries(values))
+    const enabledTypes = new Set(values.keys());
     for (const item of Array.from(items)) {
-      console.log(item, item.dataset)
       const matches = enabledTypes.has(item.dataset.type);
       item.hidden = !matches;
     }
