@@ -32,12 +32,20 @@ defmodule ComponentsGuideWeb.CalendarController do
       swift5_6: %{release: {2022, 3, 14}}
     }
 
+    golang = %{
+      go1_18: %{release: {2022, 3, 15}}
+    }
+
     browsers = %{
       firefox99: %{release: {2022, 4, 5}},
+      firefox100: %{release: {2022, 5, 3}},
+      firefox101: %{release: {2022, 5, 31}},
+      firefox102: %{release: {2022, 6, 28}},
       chrome99: %{release: {2022, 3, 1}},
       chrome100: %{release: {2022, 3, 29}},
       chrome101: %{release: {2022, 4, 26}},
       chrome102: %{release: {2022, 5, 24}},
+      chrome103: %{release: {2022, 6, 21}},
       safari15_4: %{release: {2022, 3, 14}}
     }
 
@@ -53,6 +61,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno,
       react,
       swift,
+      golang,
       browsers,
       postgres,
       aws_lambda
@@ -170,6 +179,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"safari" <> version>> -> "Safari #{pretty_version(version)}"
       <<"postgres" <> version>> -> "Postgres #{pretty_version(version)}"
       <<"swift" <> version>> -> "Swift #{pretty_version(version)}"
+      <<"go" <> version>> -> "Go #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
       <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
       s -> s
@@ -204,6 +214,9 @@ defmodule ComponentsGuideWeb.CalendarView do
         <<"swift" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/swift.svg"
 
+        <<"go" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/go.svg"
+
         <<"react" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"
 
@@ -224,7 +237,7 @@ defmodule ComponentsGuideWeb.CalendarView do
           width: 32,
           height: 32,
           role: "presentation",
-          class: "inline-block align-middle invert"
+          class: "inline-block align-middle invert mr-[2px]"
         )
     end
   end
