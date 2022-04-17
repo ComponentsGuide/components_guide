@@ -9,8 +9,9 @@
     </div>
     <hr class="mx-auto">
     <details class="relative" data-links="block p-3 underline-on-hover">
-      <summary>Menu</summary>
-      <details-menu role="menu" class="absolute z-menu top-full right-0 flex flex-col text-sm whitespace-nowrap bg-gray-900 rounded shadow-lg">
+      <summary class="uppercase">Menu</summary>
+      <details-menu role="menu" class="absolute z-menu top-full right-0 flex flex-col text-sm whitespace-nowrap bg-gray-900 rounded shadow-lg text-xl p-2">
+        <%= link("Developer Calendar", to: '/calendar') %>
         <%= link("Accessibility First", to: '/accessibility-first') %>
         <%= link("React + TypeScript", to: '/react+typescript') %>
         <%= link("Web Standards", to: '/web-standards') %>
@@ -18,7 +19,7 @@
       </details-menu>
     </details>
     <ul class="h-full grid grid-rows-2 md:grid-cols-3 flex flex-col md:flex-row justify-around items-stretch tracking-wide">
-      <% if false do %>
+      <%= if false do %>
       <li class="py-1">
         <a href="/signin/github" class="inline-block md:block px-4 py-1 md:py-2 font-bold text-white bg-red-700 rounded" style="background: linear-gradient(0deg, #E0003C 0%, #FF493F 50%, #FF584A 100%);">
           <%= "Sign in with GitHub" %>

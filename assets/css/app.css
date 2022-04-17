@@ -276,7 +276,7 @@ details[open] summary[aria-haspopup="menu"]:before {
   display: block;
   cursor: default;
   content: " ";
-  background: transparent;
+  background: rgba(0,0,0,0.5);
 }
 
 /* Navigation links */
