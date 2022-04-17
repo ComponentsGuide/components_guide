@@ -1,9 +1,9 @@
 <div class="prose md:prose-xl prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">
   <h1>Invent Calendar</h1>
-  <form id="filter-calendar" class="flex flex-wrap gap-6 -mt-8 mb-8">
-    <div><label><input type="checkbox" name="end_of_life" checked> End of life</label></div>
-    <div><label><input type="checkbox" name="released" checked> Released</label></div>
-    <div><label><input type="checkbox" name="lts_starts" checked> LTS starts</label></div>
+  <form id="filter-calendar" class="flex flex-wrap gap-6 -mt-8 mb-8 select-none">
+    <div><label><input type="checkbox" name="end_of_life" checked class="rounded text-sky-500"> End of life</label></div>
+    <div><label><input type="checkbox" name="released" checked class="rounded text-sky-500"> Released</label></div>
+    <div><label><input type="checkbox" name="lts_starts" checked class="rounded text-sky-500"> LTS</label></div>
   </form>
   <article>
     <%= for item <- @list do %>
@@ -23,6 +23,7 @@
     <li><a href="https://deno.land/manual/contributing/release_schedule">Deno release schedule</a></li>
     <li><a href="https://reactjs.org/blog/">React blog</a></li>
     <li><a href="https://endoflife.date/postgresql">Postgres on endoflife.date</a></li>
+    <li><a href="https://simpleicons.org">Simple Icons</a></li>
   </ul>
 </div>
 

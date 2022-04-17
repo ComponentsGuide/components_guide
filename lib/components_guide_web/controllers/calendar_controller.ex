@@ -131,7 +131,12 @@ defmodule ComponentsGuideWeb.CalendarView do
   use ComponentsGuideWeb, :view
 
   def present_item({id, {date, type, meta}}) do
-    options = %{what: pretty_name(id), date: date, href: meta[:link]}
+    options = %{
+      what: pretty_name(id),
+      date: date,
+      href: meta[:link],
+      icon: pretty_icon(id)
+    }
 
     case type do
       :release -> released(options)
@@ -175,10 +180,59 @@ defmodule ComponentsGuideWeb.CalendarView do
     v_string |> String.replace("_", ".")
   end
 
+  defp pretty_icon(id) do
+    url =
+      case Atom.to_string(id) do
+        <<"nodejs" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/nodedotjs.svg"
+
+        <<"deno" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/deno.svg"
+
+        <<"firefox" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/firefox.svg"
+
+        <<"chrome" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/googlechrome.svg"
+
+        <<"safari" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/safari.svg"
+
+        <<"postgres" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/postgres.svg"
+
+        <<"swift" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/swift.svg"
+
+        <<"react" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"
+
+        <<"aws_lambda_nodejs" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/awslambda.svg"
+
+        _ ->
+          nil
+      end
+
+    case url do
+      nil ->
+        nil
+
+      url ->
+        tag(:img,
+          src: url,
+          width: 32,
+          height: 32,
+          role: "presentation",
+          class: "inline-block align-middle invert"
+        )
+    end
+  end
+
   def released(assigns \\ []) do
     ~H"""
     <p data-type="released">
-      <span class="text-3xl">🆕</span>
+      <span class="text-3xl not-prose"><%= @icon || "🆕" %></span>
       <%= if assigns[:href] do %>
       <a href={@href} class="font-bold"><%= @what %></a>
       <% else %>
@@ -235,7 +289,7 @@ defmodule ComponentsGuideWeb.CalendarView do
 
     content_tag(:span, [
       prefix,
-      content_tag(:time, text, datetime: datetime, title: datetime, class: class)
+      content_tag(:time, text, datetime: datetime, title: datetime, class: "font-bold #{class}")
     ])
   end
 end
