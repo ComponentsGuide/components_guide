@@ -123,7 +123,7 @@ defmodule ComponentsGuideWeb.CalendarView do
   use ComponentsGuideWeb, :view
 
   def present_item({id, {date, type, meta}}) do
-    options = %{what: pretty_name(id), when: week_diff(date), href: meta[:link]}
+    options = %{what: pretty_name(id), date: date, href: meta[:link]}
 
     case type do
       :release -> released(options)
@@ -175,7 +175,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <strong><%= @what %></strong>
       <% end %>
       released
-      <%= render_when(assigns.when, nil) %>
+      <%= render_when(assigns.date) %>
     </p>
     """
   end
@@ -186,7 +186,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <span class="text-3xl">🧟</span>
       <strong><%= @what %></strong>
       end of life
-      <%= render_when(assigns.when, "text-red-400") %>
+      <%= render_when(assigns.date, "text-red-400") %>
     </p>
     """
   end
@@ -197,27 +197,30 @@ defmodule ComponentsGuideWeb.CalendarView do
       <span class="text-3xl">🦍</span>
       <strong><%= @what %></strong>
       made LTS
-      <%= render_when(assigns.when, nil) %>
+      <%= render_when(assigns.date) %>
     </p>
     """
   end
 
-  defp render_when(0, class),
-    do: content_tag(:strong, "this week", class: class || "text-green-300")
-
-  defp render_when(1, class),
-    do: content_tag(:strong, "next week", class: class || "text-orange-300")
-
-  defp render_when(-1, class),
-    do: content_tag(:strong, "1 week ago", class: class || "text-blue-300")
-
-  defp render_when(weeks_diff, class) when weeks_diff > 0,
-    do:
-      content_tag(:span, [
-        "in ",
-        content_tag(:strong, "#{weeks_diff} weeks", class: class || "text-orange-300")
-      ])
-
-  defp render_when(weeks_diff, class),
-    do: content_tag(:strong, "#{-weeks_diff} weeks ago", class: class || "text-blue-300")
+  defp render_when(date_tuple, class \\ nil) do
+    datetime = date_tuple |> Date.from_erl!() |> Date.to_iso8601()
+    weeks = week_diff(date_tuple)
+    {prefix, text} = case weeks do
+      0 -> {"", "this week"}
+      1 -> {"", "this week"}
+      -1 -> {"", "last week"}
+      x when x > 0 -> {"in ", "#{x} weeks"}
+      x when x < 0 -> {"", "#{-x} weeks ago"}
+    end
+    class = case {class, weeks} do
+      {class, _} when not is_nil(class) -> class
+      {_, 0} -> "text-green-300"
+      {_, x} when x > 0 -> "text-orange-300"
+      {_, x} when x < 0 -> "text-blue-300"
+    end
+    content_tag(:span, [
+      prefix,
+      content_tag(:time, text, datetime: datetime, title: datetime, class: class)
+    ])
+  end
 end
