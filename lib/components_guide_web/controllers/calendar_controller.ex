@@ -28,12 +28,17 @@ defmodule ComponentsGuideWeb.CalendarController do
       postgres10: %{end_of_life: {2022, 11, 10}}
     }
 
+    swift = %{
+      swift5_6: %{release: {2022, 3, 14}}
+    }
+
     browsers = %{
       firefox99: %{release: {2022, 4, 5}},
       chrome99: %{release: {2022, 3, 1}},
       chrome100: %{release: {2022, 3, 29}},
       chrome101: %{release: {2022, 4, 26}},
-      chrome102: %{release: {2022, 5, 24}}
+      chrome102: %{release: {2022, 5, 24}},
+      safari15_4: %{release: {2022, 3, 14}}
     }
 
     aws_lambda = %{
@@ -47,6 +52,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       nodejs_lts,
       deno,
       react,
+      swift,
       browsers,
       postgres,
       aws_lambda
@@ -57,7 +63,9 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome100: "https://developer.chrome.com/blog/new-in-chrome-100/",
       deno1_20: "https://deno.com/blog/v1.20",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
-      firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99"
+      firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
+      swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
+      safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/"
     }
 
     assigns = [
@@ -154,7 +162,9 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"deno" <> version>> -> "Deno #{pretty_version(version)}"
       <<"firefox" <> version>> -> "Firefox #{pretty_version(version)}"
       <<"chrome" <> version>> -> "Chrome #{pretty_version(version)}"
+      <<"safari" <> version>> -> "Safari #{pretty_version(version)}"
       <<"postgres" <> version>> -> "Postgres #{pretty_version(version)}"
+      <<"swift" <> version>> -> "Swift #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
       <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
       s -> s
@@ -205,19 +215,24 @@ defmodule ComponentsGuideWeb.CalendarView do
   defp render_when(date_tuple, class \\ nil) do
     datetime = date_tuple |> Date.from_erl!() |> Date.to_iso8601()
     weeks = week_diff(date_tuple)
-    {prefix, text} = case weeks do
-      0 -> {"", "this week"}
-      1 -> {"", "this week"}
-      -1 -> {"", "last week"}
-      x when x > 0 -> {"in ", "#{x} weeks"}
-      x when x < 0 -> {"", "#{-x} weeks ago"}
-    end
-    class = case {class, weeks} do
-      {class, _} when not is_nil(class) -> class
-      {_, 0} -> "text-green-300"
-      {_, x} when x > 0 -> "text-orange-300"
-      {_, x} when x < 0 -> "text-blue-300"
-    end
+
+    {prefix, text} =
+      case weeks do
+        0 -> {"", "this week"}
+        1 -> {"", "this week"}
+        -1 -> {"", "last week"}
+        x when x > 0 -> {"in ", "#{x} weeks"}
+        x when x < 0 -> {"", "#{-x} weeks ago"}
+      end
+
+    class =
+      case {class, weeks} do
+        {class, _} when not is_nil(class) -> class
+        {_, 0} -> "text-green-300"
+        {_, x} when x > 0 -> "text-orange-300"
+        {_, x} when x < 0 -> "text-blue-300"
+      end
+
     content_tag(:span, [
       prefix,
       content_tag(:time, text, datetime: datetime, title: datetime, class: class)
