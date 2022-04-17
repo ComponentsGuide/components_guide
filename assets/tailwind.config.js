@@ -11,7 +11,8 @@ module.exports = {
     '../lib/components_guide_web/**/*.*ex'
   ],
   plugins: [
-    require('@tailwindcss/forms')
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography')
   ],
   theme: {
     extend: {
