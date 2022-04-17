@@ -13,7 +13,7 @@
   --z-menu: 50;
 }
 
-a:not([class]) {
+a:not([class]):not(.prose *) {
   display: var(--link--display);
   padding-left: var(--link--padding-x);
   padding-right: var(--link--padding-x);
@@ -22,7 +22,7 @@ a:not([class]) {
   color: var(--link--color);
   text-decoration: var(--link--decoration);
 }
-a:hover:not([class]) {
+a:hover:not([class]):not(.prose *) {
   text-decoration: var(--link--decoration--hover);
   background-color: var(--link--bg--hover);
 }

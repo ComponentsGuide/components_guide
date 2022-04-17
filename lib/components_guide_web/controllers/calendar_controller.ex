@@ -19,6 +19,11 @@ defmodule ComponentsGuideWeb.CalendarController do
       react18: %{release: {2022, 3, 29}}
     }
 
+    postgres = %{
+      postgres9_6: %{end_of_life: {2021, 11, 11}},
+      postgres10: %{end_of_life: {2022, 11, 10}},
+    }
+
     assigns = [
       current_week: iso_week_number(Date.utc_today() |> Date.to_erl()),
       deno1_20_0_week: week_diff(deno.deno1_20_0.release),
@@ -28,7 +33,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       nodejs_lts_12_end_of_life_week: week_diff(nodejs_lts.nodejs12.end_of_life),
       nodejs_lts_16_maintenance_lts_week: week_diff(nodejs_lts.nodejs16.maintenance_lts),
       nodejs_lts_18_start_week: week_diff(nodejs_lts.nodejs18.lts_start),
-      react18_week: week_diff(react.react18.release)
+      react18_week: week_diff(react.react18.release),
+      postgres9_6_end_of_life_week: week_diff(postgres.postgres9_6.end_of_life)
     ]
 
     render(conn, "index.html", assigns)
