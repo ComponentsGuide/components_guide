@@ -218,10 +218,6 @@ defmodule ComponentsGuideWeb.CalendarView do
     """
   end
 
-  # defp render_when(0), do: content_tag(:strong, "0W", class: "text-green-300")
-  # defp render_when(weeks_diff) when weeks_diff > 0, do: content_tag(:strong, "+#{weeks_diff}W", class: "text-orange-300")
-  # defp render_when(weeks_diff), do: content_tag(:strong, "#{weeks_diff}W", class: "text-blue-300")
-
   defp render_when(0, class),
     do: content_tag(:strong, "this week", class: class || "text-green-300")
 
@@ -240,9 +236,4 @@ defmodule ComponentsGuideWeb.CalendarView do
 
   defp render_when(weeks_diff, class),
     do: content_tag(:strong, "#{-weeks_diff} weeks ago", class: class || "text-blue-300")
-
-  # defp render_when_plain(0), do: "this week"
-  # defp render_when_plain(1), do: "next week"
-  # defp render_when_plain(weeks_diff) when weeks_diff > 0, do: "in #{weeks_diff} weeks"
-  # defp render_when_plain(weeks_diff), do: "#{-weeks_diff} weeks ago"
 end
