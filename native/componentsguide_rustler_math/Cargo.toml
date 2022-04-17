@@ -1,0 +1,13 @@
+[package]
+name = "componentsguide_rustler_math"
+version = "0.1.0"
+authors = []
+edition = "2018"
+
+[lib]
+name = "componentsguide_rustler_math"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.25.0"
