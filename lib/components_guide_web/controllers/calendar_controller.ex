@@ -62,22 +62,6 @@ defmodule ComponentsGuideWeb.CalendarController do
 
     assigns = [
       current_week: iso_week_number(Date.utc_today() |> Date.to_erl()),
-      deno1_20_week: week_diff(deno.deno1_20.release),
-      deno1_21_week: week_diff(deno.deno1_21.release),
-      deno1_22_week: week_diff(deno.deno1_22.release),
-      nodejs18_release_week: week_diff(nodejs_lts.nodejs18.release),
-      nodejs_lts_12_end_of_life_week: week_diff(nodejs_lts.nodejs12.end_of_life),
-      nodejs_lts_16_maintenance_lts_week: week_diff(nodejs_lts.nodejs16.maintenance_lts),
-      nodejs_lts_18_start_week: week_diff(nodejs_lts.nodejs18.lts_start),
-      react18_week: week_diff(react.react18.release),
-      postgres9_6_end_of_life_week: week_diff(postgres.postgres9_6.end_of_life),
-      postgres10_end_of_life_week: week_diff(postgres.postgres10.end_of_life),
-      firefox99_week: week_diff(browsers.firefox99.release),
-      chrome99_week: week_diff(browsers.chrome99.release),
-      chrome100_week: week_diff(browsers.chrome100.release),
-      chrome101_week: week_diff(browsers.chrome101.release),
-      aws_lambda_nodejs10_deprecated_week:
-        week_diff(aws_lambda.aws_lambda_nodejs10.deprecation_phase_2),
       list: create_list(groups, links)
     ]
 
