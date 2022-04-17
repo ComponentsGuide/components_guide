@@ -79,6 +79,7 @@ defmodule ComponentsGuideWeb.CalendarController do
     }
 
     assigns = [
+      page_title: "Calendar of when important tools are released, become LTS, and reach end-of-life",
       current_week: iso_week_number(Date.utc_today() |> Date.to_erl()),
       list: create_list(groups, links)
     ]
