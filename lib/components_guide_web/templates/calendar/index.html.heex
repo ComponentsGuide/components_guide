@@ -6,25 +6,10 @@
     <div><label><input type="checkbox" name="lts_starts" checked> LTS starts</label></div>
   </form>
   <article>
-    <.end_of_life what="Postgres 9.6" when={@postgres9_6_end_of_life_week} />
-    <.end_of_life what="AWS Lambda Node.js 10.x" when={@aws_lambda_nodejs10_deprecated_week} />
-    <.released what="Chrome 99" when={@chrome99_week} href="https://developer.chrome.com/blog/new-in-chrome-99/" />
-    <.released what="Deno 1.20" when={@deno1_20_week} href="https://deno.com/blog/v1.20" />
-    <.released what="React 18" when={@react18_week} href="https://reactjs.org/blog/2022/03/29/react-v18.html" />
-    <.released what="Chrome 100" when={@chrome100_week} href="https://developer.chrome.com/blog/new-in-chrome-100/" />
-    <.released what="Firefox 99" when={@firefox99_week} href="https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99" />
-    <.released what="Deno 1.21" when={@deno1_21_week} />
-    <.released what="Node.js 18" when={@nodejs18_release_week} />
-    <.end_of_life what="Node.js 12" when={@nodejs_lts_12_end_of_life_week} />
-    <.released what="Chrome 101" when={@chrome101_week} />
-    <.released what="Deno 1.22" when={@deno1_22_week} />
-    <.lts_starts what="Node.js 18" when={@nodejs_lts_18_start_week} />
-    <.end_of_life what="Postgres 10" when={@postgres10_end_of_life_week} />
+    <%= for item <- @list do %>
+    <%= present_item(item) %>
+    <% end %>
   </article>
-  <%= dev_inspect(@list) %>
-  <%= for item <- @list do %>
-  <%= present_item(item) %>
-  <% end %>
 </div>
 
 <div class="prose prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">

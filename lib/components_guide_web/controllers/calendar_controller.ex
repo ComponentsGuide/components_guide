@@ -100,8 +100,8 @@ defmodule ComponentsGuideWeb.CalendarController do
     |> Enum.map(fn {key, {date, type}} ->
       {key,
        {date, type,
-        case links do
-          %{^key => link} -> %{link: link}
+        case {type, links} do
+          {:release, %{^key => link}} -> %{link: link}
           _ -> %{}
         end}}
     end)
@@ -144,6 +144,7 @@ defmodule ComponentsGuideWeb.CalendarView do
     case type do
       :release -> released(options)
       :end_of_life -> end_of_life(options)
+      :deprecation_phase_2 -> end_of_life(options)
       :lts_start -> lts_starts(options)
       _ -> ""
     end
@@ -171,6 +172,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"chrome" <> version>> -> "Chrome #{pretty_version(version)}"
       <<"postgres" <> version>> -> "Postgres #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
+      <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
       s -> s
     end
   end
