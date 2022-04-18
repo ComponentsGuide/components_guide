@@ -288,7 +288,7 @@ defmodule ComponentsGuideWeb.CalendarView do
     {prefix, text} =
       case weeks do
         0 -> {"", "this week"}
-        1 -> {"", "this week"}
+        1 -> {"", "next week"}
         -1 -> {"", "last week"}
         x when x > 0 -> {"in ", "#{x} weeks"}
         x when x < 0 -> {"", "#{-x} weeks ago"}
