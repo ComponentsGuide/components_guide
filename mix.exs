@@ -7,11 +7,10 @@ defmodule ComponentsGuide.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext, :rustler] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps(),
-      rustler_crates: rustler_crates()
+      deps: deps()
     ]
   end
 
@@ -77,15 +76,6 @@ defmodule ComponentsGuide.MixProject do
         "tailwind default --minify",
         "esbuild default --minify",
         "phx.digest"
-      ]
-    ]
-  end
-
-  defp rustler_crates do
-    [
-      io: [
-        path: "native/componentsguide_rustler_math",
-        mode: if(Mix.env() == :prod, do: :release, else: :debug)
       ]
     ]
   end
