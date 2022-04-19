@@ -78,8 +78,8 @@ defmodule ComponentsGuide.MixProject do
         "phx.digest"
       ],
       production_build: [
-        "rustup install stable",
-        "rustup default stable",
+        "cmd rustup install stable",
+        "cmd rustup default stable",
         "setup",
         "assets.deploy",
         "compile"
