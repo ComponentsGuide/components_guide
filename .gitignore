@@ -36,3 +36,6 @@ npm-debug.log
 
 .DS_Store
 .vscode/*.log
+
+# Rustler
+priv/native
