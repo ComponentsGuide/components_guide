@@ -3,11 +3,12 @@ defmodule ComponentsGuide.Rustler.Math do
   # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, target_dir: System.tmp_dir!()
   # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, cargo: {:rustup, :stable}
 
+  app = Mix.Project.config()[:app]
   version = Mix.Project.config()[:version]
 
   use RustlerPrecompiled,
-    otp_app: :rustler_precompilation_example,
-    crate: "example",
+    otp_app: app,
+    crate: "componentsguide_rustler_math",
     base_url:
       "https://github.com/ComponentsGuide/components_guide/releases/download/v#{version}",
     force_build: System.get_env("RUSTLER_PRECOMPILATION_EXAMPLE_BUILD") in ["1", "true"],
