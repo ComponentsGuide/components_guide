@@ -1,10 +1,12 @@
 defmodule ComponentsGuide.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :components_guide,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -58,7 +60,7 @@ defmodule ComponentsGuide.MixProject do
       {:earmark, "~> 1.4.15"},
       {:paredown, "~> 0.1.0"},
       {:ex_image_info, "~> 0.2.4"},
-      {:rustler, "~> 0.25.0"},
+      {:rustler_precompiled, "~> 0.2.0"},
       {:benchee, "~> 1.0", only: :dev},
       {:reverse_proxy_plug, "~> 1.3.1", only: :dev}
     ]
