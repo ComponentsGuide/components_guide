@@ -76,6 +76,11 @@ defmodule ComponentsGuide.MixProject do
         "tailwind default --minify",
         "esbuild default --minify",
         "phx.digest"
+      ],
+      production_build: [
+        "setup",
+        "assets.deploy",
+        "compile"
       ]
     ]
   end
