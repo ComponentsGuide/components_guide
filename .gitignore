@@ -29,6 +29,9 @@ components_guide-*.tar
 # this depending on your deployment strategy.
 /priv/static/
 
+# Rustler
+priv/native/
+
 # If NPM crashes, it generates a log, let's ignore it too.
 npm-debug.log
 
@@ -36,6 +39,3 @@ npm-debug.log
 
 .DS_Store
 .vscode/*.log
-
-# Rustler
-priv/native
