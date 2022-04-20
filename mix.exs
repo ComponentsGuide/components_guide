@@ -71,7 +71,7 @@ defmodule ComponentsGuide.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["cmd mkdir -p tmp", "deps.get", "cmd npm --prefix assets ci"],
+      setup: ["deps.get", "cmd npm --prefix assets ci"],
       "assets.deploy": [
         "template_assets",
         "tailwind.install",
