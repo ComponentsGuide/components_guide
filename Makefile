@@ -17,6 +17,9 @@ dev:
 build:
 	mix template_assets && mix phx.digest
 
+cargo_build:
+	cd native/componentsguide_rustler_math/ && cargo build --release
+
 clean:
 	rm -rf ./_build
 

@@ -2,3 +2,4 @@ Various cheatsheets will be added over time. If you have ideas for cheatsheets, 
 
 <p><%= 6 + 1 %></p>
 <p><%= ComponentsGuide.Rustler.Math.add(5, 9) %></p>
+<p><%= ComponentsGuide.Rustler.Math.reverse_string("hello") %></p>
