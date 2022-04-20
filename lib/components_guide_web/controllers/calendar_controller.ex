@@ -76,6 +76,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       go1_18: "https://go.dev/doc/go1.18",
+      nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/"
     }
 
     assigns = [
