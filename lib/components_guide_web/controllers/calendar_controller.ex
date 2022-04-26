@@ -23,6 +23,10 @@ defmodule ComponentsGuideWeb.CalendarController do
       react18: %{release: {2022, 3, 29}}
     }
 
+    jest = %{
+      jest28: %{release: {2022, 4, 25}}
+    }
+
     postgres = %{
       postgres9_6: %{end_of_life: {2021, 11, 11}},
       postgres10: %{end_of_life: {2022, 11, 10}}
@@ -64,7 +68,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       golang,
       browsers,
       postgres,
-      aws_lambda
+      aws_lambda,
+      jest
     ]
 
     links = %{
@@ -76,11 +81,14 @@ defmodule ComponentsGuideWeb.CalendarController do
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       go1_18: "https://go.dev/doc/go1.18",
-      nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/"
+      nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
+      deno1_21: "https://deno.com/blog/v1.21",
+      jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
 
     assigns = [
-      page_title: "Calendar of when important tools are released, become LTS, and reach end-of-life",
+      page_title:
+        "Calendar of when important tools are released, become LTS, and reach end-of-life",
       current_week: iso_week_number(Date.utc_today() |> Date.to_erl()),
       list: create_list(groups, links)
     ]
@@ -184,6 +192,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"swift" <> version>> -> "Swift #{pretty_version(version)}"
       <<"go" <> version>> -> "Go #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
+      <<"jest" <> version>> -> "Jest #{pretty_version(version)}"
       <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
       s -> s
     end
