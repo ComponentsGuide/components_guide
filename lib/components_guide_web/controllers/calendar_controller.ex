@@ -232,6 +232,9 @@ defmodule ComponentsGuideWeb.CalendarView do
         <<"react" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"
 
+        <<"jest" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/jest.svg"
+
         <<"aws_lambda_nodejs" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/awslambda.svg"
 
