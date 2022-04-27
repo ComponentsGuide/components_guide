@@ -86,10 +86,13 @@ defmodule ComponentsGuideWeb.CalendarController do
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
 
+    today = Date.utc_today()
+
     assigns = [
       page_title:
         "Calendar of when important tools are released, become LTS, and reach end-of-life",
-      current_week: iso_week_number(Date.utc_today() |> Date.to_erl()),
+      today: today,
+      current_week: today |> Date.to_erl() |> iso_week_number(),
       list: create_list(groups, links)
     ]
 
@@ -149,6 +152,8 @@ end
 
 defmodule ComponentsGuideWeb.CalendarView do
   use ComponentsGuideWeb, :view
+
+  alias ComponentsGuideWeb.CalendarComponent
 
   def present_item({id, {date, type, meta}}) do
     options = %{

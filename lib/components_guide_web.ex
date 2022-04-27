@@ -43,6 +43,14 @@ defmodule ComponentsGuideWeb do
     end
   end
 
+  def component do
+    quote do
+      use Phoenix.Component
+
+      unquote(view_helpers())
+    end
+  end
+
   def live_view(opts \\ []) do
     quote do
       @opts Keyword.merge(
