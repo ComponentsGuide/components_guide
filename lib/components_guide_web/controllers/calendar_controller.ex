@@ -124,8 +124,8 @@ defmodule ComponentsGuideWeb.CalendarController do
 
   defp include_date?({_, {date, type}}, today) do
     case {type, Date.diff(Date.from_erl!(date), today)} do
-      {:end_of_life, x} when x in -400..400 -> true
-      {_, x} when x in -100..300 -> true
+      {type, x} when type in [:end_of_life, :deprecation_phase_2] and x in -400..400 -> true
+      {_, x} when x in -50..300 -> true
       _ -> false
     end
   end
