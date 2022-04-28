@@ -1,5 +1,5 @@
 <header role=banner class="bg-gray-900 text-white">
-  <nav role="navigation" class="w-full flex items-center lg:px-16 text-base md:text-lg text-center">
+  <nav role="navigation" class="w-full flex items-center lg:px-16 text-base text-center">
     <a href="/" class="block px-3 py-2 md:py-4 text-left text-sm md:text-base font-bold italic uppercase leading-tight tracking-wide hover:bg-gray-800">
       <span>Components <br>·Guide</span>
     </a>
@@ -9,8 +9,8 @@
     </div>
     <hr class="mx-auto">
     <details class="relative" data-links="block p-3 underline-on-hover">
-      <summary class="uppercase">Menu</summary>
-      <details-menu role="menu" class="absolute z-menu top-full right-0 flex flex-col text-sm whitespace-nowrap bg-gray-900 rounded shadow-lg text-xl p-2">
+      <summary class="text-base uppercase font-bold tracking-wider">Menu</summary>
+      <details-menu role="menu" class="absolute z-menu top-full right-0 flex flex-col px-4 py-2 text-left text-lg whitespace-nowrap bg-gray-900 rounded shadow-lg">
         <%= link("Developer Calendar", to: '/calendar') %>
         <%= link("Accessibility First", to: '/accessibility-first') %>
         <%= link("React + TypeScript", to: '/react+typescript') %>
