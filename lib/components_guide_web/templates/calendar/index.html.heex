@@ -5,12 +5,12 @@
     <label><input type="checkbox" name="released" checked class="rounded text-sky-500"> Released</label>
     <label><input type="checkbox" name="lts_starts" checked class="rounded text-sky-500"> LTS</label>
   </form>
-  <CalendarComponent.calendar_grid date={@today} />
   <article>
     <%= for item <- @list do %>
     <%= present_item(item) %>
     <% end %>
   </article>
+  <CalendarComponent.calendar_grid date={@today} />
 </div>
 
 <div class="prose prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">

@@ -226,7 +226,7 @@ defmodule ComponentsGuideWeb.CalendarView do
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/safari.svg"
 
         <<"postgres" <> _>> ->
-          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/postgres.svg"
+          "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/postgresql.svg"
 
         <<"swift" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/swift.svg"

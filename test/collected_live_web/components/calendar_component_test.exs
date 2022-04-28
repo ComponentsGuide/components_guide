@@ -18,7 +18,7 @@ defmodule ComponentsGuideWeb.CalendarComponentTest do
       assert current_date |> Enum.count() == 1
 
       assert 7 == count(el, "thead th")
-      assert 6 == count(el, "tbody tr")
+      assert 5 == count(el, "tbody tr")
       assert 30 == count(el, "tbody td:not([role=presentation])")
     end
 

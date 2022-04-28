@@ -7,7 +7,9 @@ defmodule ComponentsGuideWeb.CalendarComponent do
     end_date = Date.end_of_month(today)
     date_range = Date.range(start_date, end_date)
 
-    day_offset = 1 - Date.day_of_week(start_date)
+    day_inset = Date.day_of_week(start_date)
+    day_offset = 1 - day_inset
+    max_week = div(end_date.day + day_inset + 5, 7)
 
     assigns =
       assigns
@@ -20,7 +22,7 @@ defmodule ComponentsGuideWeb.CalendarComponent do
       })
 
     ~H"""
-    <h2><%= @year %> <%= @month %> <%= Gettext.dgettext(ComponentsGuideWeb.Gettext, "months", "april") %></h2>
+    <h2><%= Calendar.strftime(@date_range.first, "%B %Y") %></h2>
     <table class="text-center">
       <thead>
         <tr>
@@ -34,17 +36,17 @@ defmodule ComponentsGuideWeb.CalendarComponent do
         </tr>
       </thead>
       <tbody>
-      <%= for week_n <- 1..6 do %>
+      <%= for week_n <- 1..max_week do %>
         <tr>
           <%= for day_n <- 1..7 do %>
             <% day = day_n + day_offset + ((week_n - 1) * 7) %>
             <%= if day in @date_range.first.day..@date_range.last.day do %>
               <% current = day == @day %>
-              <td aria-current={if current, do: "date", else: "false"} class={if current, do: "bg-red-900", else: ""}>
+              <td aria-current={if current, do: "date", else: "false"} class={if current, do: "bg-red-900", else: "bg-black"}>
                 <%= day %>
               </td>
             <% else %>
-              <td role="presentation" class="bg-black"></td>
+              <td role="presentation" class=""></td>
             <% end %>
           <% end %>
         </tr>
