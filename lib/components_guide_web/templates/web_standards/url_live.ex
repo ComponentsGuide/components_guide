@@ -1,8 +1,6 @@
 defmodule ComponentsGuideWeb.WebStandards.Live.URL do
   use ComponentsGuideWeb, :live_view
 
-  alias ComponentsGuideWeb.StylingHelpers
-
   defmodule State do
     defstruct raw_url: "https://example.org/songs?first=20&sortBy=releaseDate"
 

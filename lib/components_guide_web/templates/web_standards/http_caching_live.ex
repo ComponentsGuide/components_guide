@@ -1,7 +1,6 @@
 defmodule ComponentsGuideWeb.WebStandards.Live.HttpCaching do
   use ComponentsGuideWeb, :live_view
-  alias ComponentsGuideWeb.StylingHelpers
-  
+
   defmodule State do
     defstruct local: nil, remote: nil
   end
@@ -26,22 +25,22 @@ defmodule ComponentsGuideWeb.WebStandards.Live.HttpCaching do
     </form>
     """
   end
-  
+
   def handle_event("change", %{"local" => local}, socket) do
     state = socket.assigns.state
     state = put_in(state.local, local)
-    
+
     {
       :noreply,
       socket
       |> assign(:state, state)
     }
   end
-  
+
   def handle_event("change", %{"remote" => remote}, socket) do
     state = socket.assigns.state
     state = put_in(state.remote, remote)
-    
+
     {
       :noreply,
       socket

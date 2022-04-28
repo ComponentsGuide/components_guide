@@ -1,8 +1,6 @@
 defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
   use ComponentsGuideWeb, :live_view
 
-  alias ComponentsGuideWeb.StylingHelpers
-
   defmodule State do
     defstruct primary: "Primary", secondary: "Secondary", width: 400, height: 400, center_y: false, center_x: true
 
@@ -19,11 +17,11 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
     def change_primary(%State{} = state, primary) do
       put_in(state.primary, primary)
     end
-    
+
     def change_secondary(%State{} = state, secondary) do
       put_in(state.secondary, secondary)
     end
-    
+
     def change_center_y(%State{} = state, center_y) when is_boolean(center_y) do
       put_in(state.center_y, center_y)
     end
@@ -35,7 +33,7 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
 
   def render(assigns) do
     url = assigns.state |> State.to_url()
-    
+
     ~L"""
     <form phx-change=change>
 
@@ -50,7 +48,7 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
     <span class="font-bold text-purple-400 mr-2">Secondary</span>
     <input name=secondary type=text value="<%= @state.secondary %>" class="text-black text-purple-900 bg-purple-100 px-2">
     </label>
-    
+
     <output>
       <img src="<%= url |> URI.to_string() %>" width="<%= @state.width %>" height="<%= @state.height %>">
       <a class="inline-block px-2 bg-blue-500 rounded-full" href="<%= url |> URI.to_string() %>">Link to image</a>
@@ -71,7 +69,7 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
         socket
       ) do
         IO.inspect(changes)
-        
+
     state =
       socket.assigns.state
       |> State.change_primary(primary)
