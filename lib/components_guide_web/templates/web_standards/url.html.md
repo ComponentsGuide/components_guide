@@ -3,7 +3,7 @@
 ## Change the parts of a URL
 
 <live-render>
-ComponentsGuideWeb.WebStandards.Live.URL
+ComponentsGuideWeb.WebStandards.Live.URLForm
 </live-render>
 
 ----

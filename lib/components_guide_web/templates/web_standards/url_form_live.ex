@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.WebStandards.Live.URL do
+defmodule ComponentsGuideWeb.WebStandards.Live.URLForm do
   use ComponentsGuideWeb, :live_view
 
   defmodule State do
