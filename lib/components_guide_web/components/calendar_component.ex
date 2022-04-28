@@ -44,7 +44,7 @@ defmodule ComponentsGuideWeb.CalendarComponent do
                 <%= day %>
               </td>
             <% else %>
-              <td class="bg-black"></td>
+              <td role="presentation" class="bg-black"></td>
             <% end %>
           <% end %>
         </tr>

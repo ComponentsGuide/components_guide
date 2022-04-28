@@ -19,6 +19,7 @@ defmodule ComponentsGuideWeb.CalendarComponentTest do
 
       assert 7 == count(el, "thead th")
       assert 6 == count(el, "tbody tr")
+      assert 30 == count(el, "tbody td:not([role=presentation])")
     end
 
     @tag assigns: [date: ~D[2022-04-15]]
@@ -31,6 +32,7 @@ defmodule ComponentsGuideWeb.CalendarComponentTest do
     test "January 3 2022", %{el: el} do
       current_date = el |> find("td[aria-current=date]")
       assert "3" == current_date |> text() |> String.trim()
+      assert 31 == count(el, "tbody td:not([role=presentation])")
     end
   end
 end
