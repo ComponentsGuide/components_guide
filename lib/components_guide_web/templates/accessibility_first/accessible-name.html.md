@@ -8,7 +8,7 @@ These names are provided by HTML in a number of ways:
 - `aria-labelledby` attribute
 - `aria-label` attribute
 - The displayed value
-- The text content for the following roles:
+- The text content for the [following roles](https://www.w3.org/TR/wai-aria/#namefromcontent):
     - button
     - cell
     - checkbox
