@@ -1,16 +1,10 @@
 <header role=banner class="bg-gray-900 text-white">
   <nav role="navigation" class="w-full flex items-center lg:px-16 text-base text-center">
-    <a href="/" class="block px-3 py-2 md:py-4 text-left text-sm md:text-base font-bold italic uppercase leading-tight tracking-wide hover:bg-gray-800">
-      <span>Components <br>·Guide</span>
-    </a>
-    <hr class="mx-auto">
-    <div class="flex-grow max-w-md mr-auto">
-      <%= search_form() %>
-    </div>
-    <hr class="mx-auto">
     <details class="relative" data-links="block p-3 underline-on-hover">
-      <summary class="text-base uppercase font-bold tracking-wider">Menu</summary>
-      <details-menu role="menu" class="absolute z-menu top-full right-0 flex flex-col px-4 py-2 text-left text-lg whitespace-nowrap bg-gray-900 rounded shadow-lg">
+      <summary class="block w-48 text-left pl-6 text-base uppercase font-bold tracking-wider">
+        Jump to
+      </summary>
+      <details-menu role="menu" class="absolute z-menu top-full left-0 flex flex-col px-4 py-2 text-left text-lg whitespace-nowrap bg-gray-900 rounded shadow-lg">
         <%= link("Developer Calendar", to: '/calendar') %>
         <%= link("Accessibility First", to: '/accessibility-first') %>
         <%= link("React + TypeScript", to: '/react+typescript') %>
@@ -18,13 +12,17 @@
         <%= link("Composable Systems", to: '/composable-systems') %>
       </details-menu>
     </details>
-    <ul class="h-full grid grid-rows-2 md:grid-cols-3 flex flex-col md:flex-row justify-around items-stretch tracking-wide">
-      <%= if false do %>
-      <li class="py-1">
-        <a href="/signin/github" class="inline-block md:block px-4 py-1 md:py-2 font-bold text-white bg-red-700 rounded" style="background: linear-gradient(0deg, #E0003C 0%, #FF493F 50%, #FF584A 100%);">
-          <%= "Sign in with GitHub" %>
-        </a>
-      <% end %>
-    </ul>
+
+    <hr class="mx-auto">
+
+    <a href="/" class="text-center block px-3 py-2 md:py-4 text-sm leading-tight md:text-lg md:leading-tight font-bold italic uppercase tracking-wide hover:bg-gray-800">
+      <span>Components <br>·Guide</span>
+    </a>
+
+    <hr class="mx-auto">
+
+    <div class="w-48 pr-6">
+      <%= search_form() %>
+    </div>
   </nav>
 </header>
