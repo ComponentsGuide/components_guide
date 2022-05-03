@@ -7,9 +7,19 @@ defmodule ComponentsGuideWeb.ReactTypescriptController do
     |> render("index.html", article: "tips")
   end
 
-  @articles ["testing", "forms", "reducer-patterns", "hooks-concurrent-world", "event-handlers", "logical-clocks", "editor", "editor-prolog"]
+  @articles %{
+    "testing" => %{title: "Testing React"},
+    "forms" => %{title: "Creating Forms in React"},
+    "reducer-patterns" => %{title: "React Reducer Patterns"},
+    "hooks-concurrent-world" => %{title: "React Hooks in a Concurrent World"},
+    "logical-clocks" => %{title: "Logical Clocks in React"},
+    "editor" => %{title: "React Online Editor"},
+    "editor-prolog" => %{title: "Prolog Online Editor"}
+  }
 
-  def show(conn, %{"article" => article}) when article in @articles do
-    render(conn, "index.html", article: article)
+  def show(conn, %{"article" => article}) when is_map_key(@articles, article) do
+    conn
+    |> assign(:page_title, @articles[article].title)
+    |> render("index.html", article: article)
   end
 end
