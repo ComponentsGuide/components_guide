@@ -8,7 +8,8 @@ module.exports = {
     './js/**/*.js',
     '../lib/components_guide_web.ex',
     '../lib/components_guide_web/**/*.ex',
-    '../lib/components_guide_web/**/*.*ex'
+    '../lib/components_guide_web/**/*.*ex',
+    '../lib/components_guide_web/templates/**/*.md'
   ],
   plugins: [
     require('@tailwindcss/forms'),
