@@ -1,5 +1,21 @@
 # React Reducer Patterns
 
+## One-Way Flag
+
+```js
+const [isEnabled, enable] = useReducer(() => true, false);
+```
+
+[Source](https://twitter.com/markdalgleish/status/1521304112738217984)
+
+## Toggle Flag
+
+```js
+const [on, toggle] = useReducer(flag => !flag, false)
+```
+
+[Source](https://twitter.com/FernandoTheRojo/status/1521305729558274048)
+
 ## Menu
 
 ```ts
