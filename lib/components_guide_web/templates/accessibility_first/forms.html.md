@@ -1,14 +1,14 @@
 # Accessible Forms with Tests
 
-<table class="text-left table-fixed">
-  <caption class="text-3xl pb-4 text-left">Form roles cheatsheet</caption>
+<table>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Form roles cheatsheet</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML snippet</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody>
     <%= table_rows([
       ["**form**", "`<form>`"],
       ["**search**", "`<form role=search>`"],

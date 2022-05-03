@@ -1,14 +1,14 @@
 ## Available Roles
 
-<table class="text-left table-fixed">
-  <caption class="text-2xl">Landmarks</caption>
+<table>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Landmarks</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody class="">
     <%= table_rows([
       ["**main**", "`<main>`"],
       ["**navigation**", "`<nav>`"],
@@ -23,14 +23,14 @@
 </table>
 
 <table class="text-left table-fixed">
-  <caption class="text-2xl">Content</caption>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Content</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody class="">
     <%= table_rows([
       ["**link**", "`<a href=…>`"],
       ["_none_", "`<a>`"],
@@ -53,14 +53,14 @@
 </table>
 
 <table class="text-left table-fixed">
-  <caption class="text-2xl">Forms</caption>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Forms</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody class="">
     <%= table_rows([
       ["**form**", "`<form>`"],
       ["**group**", "`<fieldset>`"],
@@ -89,14 +89,14 @@
 </table>
 
 <table class="text-left table-fixed">
-  <caption class="text-2xl">Tables</caption>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Tables</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody class="">
     <%= table_rows([
       ["**table**", "`<table>`"],
       ["**rowgroup**", "`<tbody>`, `<thead>`, `<tfoot>`"],
@@ -109,36 +109,36 @@
 </table>
 
 <table class="text-left table-fixed">
-  <caption class="text-2xl">Tabs</caption>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Tabs</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody class="">
     <%= table_rows([
       ["**tablist**", "`<ul role=tablist>`"],
       ["**tab**", "`<button role=tab>`"],
       ["**tabpanel**", "`<section role=tabpanel>`"],
     ]) %>
   </tbody>
-  <tfoot class="text-purple-100 bg-purple-900 border border-purple-700">
+  <tfoot class="text-purple-300">
     <tr>
-      <td colspan=2 class="px-3 py-1"><em>Should</em> manage focus with JavaScript.</td>
+      <td colspan=2>You <em>should</em> manage focus with JavaScript.</td>
     </tr>
   </tfoot>
 </table>
 
 <table class="text-left table-fixed">
-  <caption class="text-2xl">Menus</caption>
+  <caption class="text-left text-2xl font-bold pt-4 pb-8">Menus</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody class="">
     <%= table_rows([
       ["**menu**", "`<ul role=menu>`"],
       ["**menuitem**", "`<button role=menuitem>`"],
@@ -147,9 +147,9 @@
       ["**menubar**", "`<nav role=menubar>`"],
     ]) %>
   </tbody>
-  <tfoot class="text-purple-100 bg-purple-900 border border-purple-700">
+  <tfoot class="text-purple-300">
     <tr>
-      <td colspan=2 class="px-3 py-1"><em>Should</em> manage focus with JavaScript.</td>
+      <td colspan=2>You <em>should</em> manage focus with JavaScript.</td>
     </tr>
   </tfoot>
 </table>

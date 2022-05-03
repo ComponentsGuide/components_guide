@@ -227,15 +227,15 @@ screen.getByRole('separator');
 
 <hr>
 
-<table class="text-left table-fixed">
-  <caption id=cheatsheet class="text-3xl pb-4 text-left">Content roles cheatsheet</caption>
+<table>
+  <caption id=cheatsheet class="text-left text-2xl font-bold pt-4 pb-8">Content roles cheatsheet</caption>
   <thead>
     <tr>
       <th style="width: 12em">Role name</th>
       <th>HTML element</th>
     </tr>
   </thead>
-  <tbody class="text-white bg-purple-900 border border-purple-700">
+  <tbody>
     <%= table_rows([
       ["**link**", "`<a href=…>`"],
       ["_none!_", "`<a>`"],

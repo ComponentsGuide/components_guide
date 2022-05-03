@@ -8,7 +8,7 @@
   </nav>
   <div class="mx-auto flex-shrink">
     <div class="max-w-xl lg:max-w-4xl px-6 pt-8 pb-16 text-white">
-      <article class="content">
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
         <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
       </article>
     </div>
