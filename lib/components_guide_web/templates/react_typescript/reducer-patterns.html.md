@@ -1,4 +1,4 @@
-# React `useReducer` patterns
+# React Reducer Patterns
 
 ## Menu
 
@@ -26,4 +26,14 @@ tap("view") // "view"
 tap("edit") // "edit"
 tap("edit") // null
 tap(null) // null
+```
+
+You can of course condense it to a ternary if you want:
+
+```ts
+// You can of course shorten it into a ternary if you really want:
+const [openMenu, tap] = useReducer(
+  (current: Menu, action: Menu) => (action === current) ? null : action,
+  null
+);
 ```
