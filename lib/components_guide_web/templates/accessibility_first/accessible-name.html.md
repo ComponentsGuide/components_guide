@@ -8,7 +8,28 @@ These names are provided by HTML in a number of ways:
 - `aria-labelledby` attribute
 - `aria-label` attribute
 - The displayed value
-- The text content
+- The text content for the following roles:
+    - button
+    - cell
+    - checkbox
+    - columnheader
+    - gridcell
+    - heading
+    - link
+    - menuitem
+    - menuitemcheckbox
+    - menuitemradio
+    - option
+    - radio
+    - row
+    - rowgroup
+    - rowheader
+    - switch
+    - tab
+    - tooltip
+    - tree
+    - treeitem
+
 
 The algorithm is specified in [W3C’s Accessible Name and Description Computation](https://www.w3.org/TR/accname-1.1/#mapping_additional_nd_te).
 
