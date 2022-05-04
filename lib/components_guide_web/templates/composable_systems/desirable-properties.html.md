@@ -93,12 +93,12 @@ sqlite>
 
 <h2 id=idempotent>Idempotent operations</h2>
 
-- The same effect is produced if run once, twice, or a thousand times
+- The same result is produced if run once, twice, or a thousand times
 - *e.g. Adding an item to a set*
 - *e.g. Removing an item from a set*
 - *e.g. Sorting a list of items repeatedly*
 - *e.g. HTTP `PUT` request*
-- *e.g. Consumer of an at-least-once event delivery system*
+- *e.g. Consumers of an at-least-once event delivery system*
 - *e.g. [Stripe charges](https://stripe.com/docs/api/idempotent_requests)*
 - **Tip:** To get idempotent behavior, you could generate a [random](#random) identifier for each request, and have the receiver record which requests have been processed, and then skip whenever one is repeated.
 - See also: [Distributed Systems Shibboleths](https://jolynch.github.io/posts/distsys_shibboleths/)
