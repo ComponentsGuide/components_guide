@@ -2,8 +2,8 @@
 
 <article>
   <div class="text-white bg-gray-900">
-    <div class="content max-w-4xl mx-auto py-8 text-xl" style="--link-decoration: underline;">
-      <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
+    <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+      <%= render(view_module(@conn), @article <> ".html", assigns) %>
     </div>
   </div>
 </article>

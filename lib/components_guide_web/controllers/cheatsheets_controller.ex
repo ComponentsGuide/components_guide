@@ -2,8 +2,16 @@ defmodule ComponentsGuideWeb.CheatsheetsController do
   use ComponentsGuideWeb, :controller
   require Logger
 
+  @wasm_constant """
+  (module
+    (func (export "answer") (result i32)
+     i32.const 42
+    )
+  )
+  """
+
   def index(conn, _params) do
-    render(conn, "index.html", article: "intro")
+    render(conn, "index.html", article: "intro", wasm_constant: @wasm_constant)
   end
 
   @articles ["rxjs"]
