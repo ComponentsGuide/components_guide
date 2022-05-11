@@ -107,6 +107,7 @@ defmodule ComponentsGuideWeb do
       alias ComponentsGuideWeb.Router.Helpers, as: Routes
 
       import Paredown
+      import ComponentsGuideWeb.AssetsHelpers
       alias ComponentsGuideWeb.StylingHelpers, as: Styling
       alias ComponentsGuideWeb.FormattingHelpers, as: Format
 

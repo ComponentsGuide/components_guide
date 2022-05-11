@@ -1,6 +1,7 @@
 <nav class="pt-6 pb-4">
   <ul y-y x-x=md class="text-lg font-bold text-shadow" data-links="p-3">
     <li><%= link("Intro", to: '/cheatsheets') %>
+    <li><%= link("Error Messages", to: '/cheatsheets/error-messages') %>
     <li><%= link("RxJS", to: '/cheatsheets/rxjs') %>
   </ul>
 </nav>

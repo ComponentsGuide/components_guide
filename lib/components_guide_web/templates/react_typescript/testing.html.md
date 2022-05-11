@@ -327,7 +327,7 @@ getByRole('img', { name: 'New document' });
 ### Roles > Tag Names
 
 <figure>
-  <%= collected_image(@conn, "list-of-roles") %>
+  <%= collected_image(@conn, view_module(@conn), "list-of-roles") %>
   <figcaption>
   <%= line("A list of roles [from the wai-aria spec](https://www.w3.org/TR/wai-aria/#widget_roles).") %>
   </figcaption>

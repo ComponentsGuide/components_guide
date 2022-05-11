@@ -14,7 +14,7 @@ defmodule ComponentsGuideWeb.CheatsheetsController do
     render(conn, "index.html", article: "intro", wasm_constant: @wasm_constant)
   end
 
-  @articles ["rxjs"]
+  @articles ["rxjs", "error-messages"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)

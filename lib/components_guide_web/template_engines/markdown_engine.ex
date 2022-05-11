@@ -42,7 +42,8 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
       Regex.replace(regex, html, fn _whole, tag_suffix, image, content ->
         case tag_suffix do
           "figure" ->
-            "<div><%= collected_figure(@conn, #{inspect(image)}, #{inspect(content)}) %></div>"
+            # "<div><%= inspect(__MODULE__) %></div>"
+            "<div><%= collected_figure(@conn, __MODULE__, #{inspect(image)}, #{inspect(content)}) %></div>"
 
           _ ->
             "!" <> image <> "!" <> content
