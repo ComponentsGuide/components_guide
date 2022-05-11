@@ -4,6 +4,12 @@
 
 ```js
 const [isEnabled, enable] = useReducer(() => true, false);
+
+isEnabled; // false
+enable();
+isEnabled; // true
+enable();
+isEnabled; // true
 ```
 
 [Source](https://twitter.com/markdalgleish/status/1521304112738217984)
@@ -11,12 +17,20 @@ const [isEnabled, enable] = useReducer(() => true, false);
 ## Toggle Flag
 
 ```js
-const [on, toggle] = useReducer(flag => !flag, false)
+const [on, toggle] = useReducer(flag => !flag, false);
+
+on; // false
+toggle();
+on; // true
+toggle();
+on; // false
+toggle();
+on; // true
 ```
 
 [Source](https://twitter.com/FernandoTheRojo/status/1521305729558274048)
 
-## Menu
+## Menu or Exclusive Value
 
 ```ts
 type Menu = null | "file" | "edit" | "view"; // null means closed
@@ -32,16 +46,26 @@ const [openMenu, tap] = useReducer(
   null
 );
 
-tap("file") // "file"
-tap(null) // null
-tap("file") // "file"
-tap("file") // null
-tap("file") // "file"
-tap("edit") // "edit"
-tap("view") // "view"
-tap("edit") // "edit"
-tap("edit") // null
-tap(null) // null
+tap("file");
+openMenu; // "file"
+tap(null);
+openMenu; // null
+tap("file");
+openMenu; // "file"
+tap("file");
+openMenu; // null
+tap("file");
+openMenu; // "file"
+tap("edit");
+openMenu; // "edit"
+tap("view");
+openMenu; // "view"
+tap("edit");
+openMenu; // "edit"
+tap("edit");
+openMenu; // null
+tap(null);
+openMenu; // null
 ```
 
 You can of course condense it to a ternary if you want:
@@ -52,4 +76,62 @@ const [openMenu, tap] = useReducer(
   (current: Menu, action: Menu) => (action === current) ? null : action,
   null
 );
+```
+
+## Logical Clock
+
+```js
+const [t, tick] = useReducer(n => n + 1, 0);
+
+t; // 0
+tick();
+t; // 1
+tick();
+t; // 2
+tick();
+t; // 3
+```
+
+----
+
+## Lamport Timestamp
+
+```js
+const [{ t, toSend }, dispatch] = useReducer((state, command) => {
+  if (command.type === "send") {
+    const t = state.t + 1;
+    return {
+      t,
+      toSend: {
+        t,
+        message: command.message
+      }
+    };
+  } else if (command.type === "receive") {
+    const t = Math.max(state.t, command.t) + 1;
+    return {
+      t,
+      toSend: null
+    };
+  } else {
+    return {
+      t: state.t,
+      toSend: null
+    };
+  }
+}, { t: 0, toSend: null });
+useEffect(() => {
+  if (toSend !== null) {
+    send(toSend.message, toSend.t); // Second argument can be used for idempotency
+  }
+}, [toSend]);
+
+t; // 0
+toSend; // null
+dispatch({ type: "send", message: "hello" });
+t; // 1
+toSend; // { t: 1, message: "hello" }
+dispatch({ type: "receive", t: 3, message: "howdy" });
+t; // 4
+toSend; // null
 ```

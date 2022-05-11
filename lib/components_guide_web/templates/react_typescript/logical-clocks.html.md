@@ -16,7 +16,7 @@ We can implement once as a React hook using `useReducer()`:
 
 ```ts
 function useTicker() {
-  return useReducer(n => n + 1, 0);
+  return useReducer(t => t + 1, 0);
 }
 ```
 
@@ -27,7 +27,7 @@ const [count, advance] = useTicker();
 
 return <>
   <p>You have clicked {count} times</p>
-  <button>Click me!</button>
+  <button onClick={advance}>Click me!</button>
 </>;
 ```
 
