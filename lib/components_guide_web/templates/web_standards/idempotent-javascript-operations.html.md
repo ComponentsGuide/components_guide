@@ -66,7 +66,7 @@ As a bonus, we can add change tracking which would allow us to detect whether th
 
 ```js
 const myList = new Set();
-const myListChangeCount = 0;
+let myListChangeCount = 0;
 
 function add(showID) {
   const before = myList.size;
@@ -154,8 +154,8 @@ myList.remove(123);
 Before:
 
 ```js
-const searchResults = null;
-const searchError = null;
+let searchResults = null;
+let searchError = null;
 
 async function performSearch(searchQuery) {
   const params = new URLSearchParams({ q: searchQuery });
@@ -179,11 +179,11 @@ performSearch('russian doll');
 After:
 
 ```js
-const currentSearchQuery = null;
-const searchQueryChangeCount = 0;
-const searchResultsChangeCount = 0;
-const searchResults = null;
-const searchError = null;
+let currentSearchQuery = null;
+let searchQueryChangeCount = 0;
+let searchResultsChangeCount = 0;
+let searchResults = null;
+let searchError = null;
 
 function performSearch(searchQuery) {
   if (currentSearchQuery === searchQuery) {
@@ -231,10 +231,10 @@ Even better with `AbortSignal`:
 
 ```js
 let aborter = new AbortController();
-const currentSearchQuery = null;
-const searchResultsChangeCount = 0;
-const searchResults = null;
-const searchError = null;
+let currentSearchQuery = null;
+let searchResultsChangeCount = 0;
+let searchResults = null;
+let searchError = null;
 
 function performSearch(searchQuery) {
   if (currentSearchQuery === searchQuery) {
@@ -320,8 +320,8 @@ class ValueTicker extends Ticker {
 
 ```js
 const ticker = new ValueTicker('');
-const searchResults = null;
-const searchError = null;
+let searchResults = null;
+let searchError = null;
 
 function performSearch(searchQuery) {
   if (!ticker.next(searchQuery)) {
@@ -365,16 +365,24 @@ Draft: coming soon perhaps?
 ## Switching profiles
 
 ```js
-const currentProfileID = null;
-const currentProfileChangeCount = 0;
+let currentProfileID = null;
+let currentProfileChangeCount = 0;
 
 function changeProfile(profileID) {
+  if (currentProfileID === profileID) {
+    return;
+  }
+
   currentProfileID = profileID;
+  currentProfileChangeCount++;
 }
 
 // currentProfileID: null
+// currentProfileChangeCount: 0
 changeProfile(123);
 // currentProfileID: 123
+// currentProfileChangeCount: 1
 changeProfile(123);
 // currentProfileID: 123
+// currentProfileChangeCount: 1
 ```
