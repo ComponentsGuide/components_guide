@@ -322,6 +322,7 @@ class ValueTicker extends Ticker {
 const ticker = new ValueTicker('');
 let searchResults = null;
 let searchError = null;
+let searchResultsChangeCount = 0;
 
 function performSearch(searchQuery) {
   if (!ticker.next(searchQuery)) {
