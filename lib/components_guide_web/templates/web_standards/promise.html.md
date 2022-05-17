@@ -2,7 +2,7 @@
 
 ## Promises act as values
 
-You can think of a Promise as an eventual value. It either succeeds with a particular success value, or it possibly fails with an error value.
+You can think of a Promise as an eventual value. This value could be a success value or a failure value. It either succeeds with a particular successful result, or it fails with an error. Importantly, it can’t be both.
 
 <figure>
   <div class="my-4 flex text-center text-3xl text-black bg-white rounded shadow-lg">
@@ -65,20 +65,20 @@ Or it *rejects* with an error value:
 
 ```javascript
 // Fail with the error *out of stock*
-Promise.reject(new Error("out of stock"));
+Promise.reject(Error("out of stock"));
 
 // Longer version of above
 new Promise((resolve, reject) => {
-  reject(new Error("out of stock"));
+  reject(Error("out of stock"));
 });
 
 // Alternate version of above
 new Promise((resolve, reject) => {
-  throw new Error("out of stock");
+  throw Error("out of stock");
 });
 ```
 
-Once a Promise has receive its value, you can’t changed that value. If it was told it failed, it can’t be changed to succeed instead. And if it succeeded, it can’t later fail.
+Once a Promise has receive its value, you can’t changed that value. If it was told it failed, it can’t be later told to succeed instead. And if it succeeded, it can’t later fail.
 
 ```javascript
 new Promise((resolve, reject) => {
@@ -87,7 +87,7 @@ new Promise((resolve, reject) => {
   // it can’t then be resolved again
   resolve(42); // Invalid!
   // or be rejected later
-  reject(new Error("out of stock")); // Invalid!
+  reject(Error("out of stock")); // Invalid!
 });
 ```
 
@@ -169,18 +169,18 @@ The callback to `.then()` can fail, either by throwing an error, or returning a 
 ```javascript
 Promise.resolve(42)
   .then(value => {
-    throw new Error("out of stock");
+    throw Error("out of stock");
   });
   
 // Longer version of above
 Promise.resolve(42)
   .then(value => {
-    return Promise.reject(new Error("out of stock"));
+    return Promise.reject(Error("out of stock"));
   });
 
 // Alternative version of above
 // Note the Promises can be created up-front.
-const outOfStockError = Promise.reject(new Error("out of stock"));
+const outOfStockError = Promise.reject(Error("out of stock"));
 Promise.resolve(42)
   .then(value => {
     return outOfStockError;
@@ -230,7 +230,7 @@ If a Promise fails, any derived Promises will also fail.
 ```javascript
 Promise.resolve(42)
   .then(value => {
-    throw new Error("out of stock");
+    throw Error("out of stock");
   })
   .then(value => {
     // This will never get called as the previous promise was rejected
@@ -283,7 +283,7 @@ A Promise chain can be recovered by calling `.catch()` and returning another val
 ```javascript
 export const a = Promise.resolve(42)
   .then(value => {
-    throw new Error("out of stock");
+    throw Error("out of stock");
   })
   .catch(error => {
     return 3;
@@ -292,7 +292,7 @@ export const a = Promise.resolve(42)
 // Same as above
 export const b = Promise.resolve(42)
   .then(value => {
-    throw new Error("out of stock");
+    throw Error("out of stock");
   })
   .catch(error => {
     return Promise.resolve(3);
@@ -302,7 +302,7 @@ export const b = Promise.resolve(42)
 const fallbackPromise = Promise.resolve(3);
 export const c = Promise.resolve(42)
   .then(value => {
-    throw new Error("out of stock");
+    throw Error("out of stock");
   })
   .catch(error => {
     return fallbackPromise;
@@ -310,7 +310,7 @@ export const c = Promise.resolve(42)
 
 // Same as above
 const promiseThatWillFail = Promise.resolve(42).then(value => {
-  throw new Error("out of stock");
+  throw Error("out of stock");
 });
 export const d = promiseThatWillFail.catch(error => {
   return fallbackPromise;
@@ -508,6 +508,7 @@ function main() {
   promise.then(data => {
     // Do nothing
   });
+  
   promise.then(data => {
     // Do nothing
   });
