@@ -78,6 +78,22 @@ const [openMenu, tap] = useReducer(
 );
 ```
 
+## Jitter Generator
+
+Inspired by [AWS: Exponential Backoff And Jitter](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
+
+```js
+const baseMs = 5;
+const capMs = 2000;
+const [{attempt, delayMs}, dispatch] = useReducer((state, random) => {
+  return {
+    attempt: state.attempt + 1,
+    delayMs: random * Math.min(capMs, baseMs * Math.pow(2, attempt))
+  };
+}, { attempt: 0, delay: baseMs });
+const nextAttempt = useCallback(() => dispatch(Math.random()), [dispatch]);
+```
+
 ## Logical Clock
 
 ```js
