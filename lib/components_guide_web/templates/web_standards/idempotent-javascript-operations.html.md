@@ -295,7 +295,7 @@ class Ticker {
   }
 
   get signal() {
-    this[ABORTER].signal();
+    this[ABORTER].signal;
   }
 }
 
