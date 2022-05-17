@@ -1,14 +1,24 @@
 ## Deciding whether to control a form element
 
-- A controlled element lets you have **full control** over its value.
-- An uncontrolled element can let you handle events with less code.
+If you’ve used React for a while, or have read the [React docs](https://reactjs.org/docs/uncontrolled-components.html), you’ve probably come across controller vs uncontrolled components. Here’s a summary of each’s benefits:
 
-## Controlled form elements
+- A controlled form element lets you have **full control** over its value.
+- An uncontrolled form element can let you handle events with **less code**.
 
-- We store the state for each field using `useState`.
+Instead of thinking about controlled vs uncontrolled components, it can be helpful to think about implicit vs explicit state:
+
+- A form element with **explicit state** has its state managed externally.
+- A form element with **implicit state** manages its own state.
+
+## Controlled form elements, or explicit state
+
+- State is explicit and owned by us.
+- We store the state for each field using `useState` or `useReducer`.
 - We must set the current `value` of the input when rendering.
 - We must listen to when the user changes using `onChange` on each input, and update our state.
-- We can then read our state when the form is submitted.
+- We can then read our local state when say the form is submitted.
+
+Here’s an example of a Sign In form with email and password inputs using controlled state:
 
 ```tsx
 import React, { useState } from "react";
@@ -52,12 +62,14 @@ function SignInForm() {
 }
 ```
 
-## Uncontrolled form elements
+## Uncontrolled form elements, or implicit state
 
-- We have no state — the input itself holds the state.
-- We could set an initial value using `defaultValue`.
-- We don’t have to listen to any change events.
-- We can then read from the form using the DOM when it is submitted.
+- State is implicit, tucked away inside the form control element and managed by React for us.
+- We can set an initial value using `defaultValue`.
+- We don’t _have_ to listen to any change events.
+- We can then read using the DOM when the form is submitted.
+
+Here’s an example of a Sign In form with email and password inputs using uncontrolled state, and reading the inputted values using [`FormData`](https://developer.mozilla.org/en-US/docs/Web/API/FormData):
 
 ```tsx
 import React from "react";
@@ -72,7 +84,9 @@ function SignInForm() {
         const data = new FormData(form);
         const email = data.get('email');
         const password = data.get('password');
-        // Could validate here.
+
+        // We could validate at this point if we wanted.
+
         authService.signIn({ email, password });
       }}
     >
