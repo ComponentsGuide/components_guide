@@ -6,7 +6,7 @@ defmodule ComponentsGuideWeb.WebStandardsController do
     render(conn, "index.html", article: "intro")
   end
 
-  @articles ["url", "promise", "http-caching", "html", "http-headers"]
+  @articles ["url", "promise", "http-caching", "html", "http-headers", "idempotent-javascript-operations"]
 
   def show(conn, %{"id" => article}) when article in @articles do
     render(conn, "index.html", article: article)

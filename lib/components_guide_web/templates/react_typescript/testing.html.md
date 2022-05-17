@@ -343,7 +343,7 @@ getByRole('img', { name: 'New document' });
 
 ## Use accessible names
 
-<table style="width: 100%; text-align: left;">
+<table>
   <thead>
     <tr>
       <th>Role name</th>
