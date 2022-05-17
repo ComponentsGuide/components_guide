@@ -148,25 +148,6 @@ myList.remove(123);
 
 ----
 
-## Switching profiles
-
-```js
-const currentProfileID = null;
-const currentProfileChangeCount = 0;
-
-function changeProfile(profileID) {
-  currentProfileID = profileID;
-}
-
-// currentProfileID: null
-changeProfile(123);
-// currentProfileID: 123
-changeProfile(123);
-// currentProfileID: 123
-```
-
-----
-
 ## Searching
 
 Before:
@@ -374,4 +355,25 @@ performSearch('stranger things');
 // Only one request is made! :)
 performSearch('russian doll');
 // Earlier requests are cancelled :)
+```
+
+----
+
+Draft: coming soon perhaps?
+
+## Switching profiles
+
+```js
+const currentProfileID = null;
+const currentProfileChangeCount = 0;
+
+function changeProfile(profileID) {
+  currentProfileID = profileID;
+}
+
+// currentProfileID: null
+changeProfile(123);
+// currentProfileID: 123
+changeProfile(123);
+// currentProfileID: 123
 ```
