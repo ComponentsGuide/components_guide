@@ -1,5 +1,6 @@
 # Idempotent JavaScript Operations
 
+// Could call this ‘Robust UI State’
 // Could move this to concurrent_safe_models
 
 Here I’m going to use the example of an online video service like Netflix, where we can do things like add a show to a list, start playing a show, perform a search.
