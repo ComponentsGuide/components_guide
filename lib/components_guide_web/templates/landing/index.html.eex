@@ -49,6 +49,7 @@ subhead = "Get better at accessibility, TDD, BDD, naming, performance, and the l
 
 <%= subject_banner(:accessibility_first) %>
 <%= subject_banner(:react_typescript) %>
+<%= subject_banner(:robust_javascript_interactivity) %>
 <%= subject_banner(:web_standards) %>
 <%= subject_banner(:composable_systems) %>
 

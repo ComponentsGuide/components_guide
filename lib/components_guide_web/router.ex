@@ -47,6 +47,12 @@ defmodule ComponentsGuideWeb.Router do
     )
 
     resources(
+      "/robust-javascript",
+      RobustJavascriptInteractivityController,
+      only: [:index, :show]
+    )
+
+    resources(
       "/graphics",
       GraphicsController,
       only: [:index, :show]

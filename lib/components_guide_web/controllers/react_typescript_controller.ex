@@ -11,6 +11,7 @@ defmodule ComponentsGuideWeb.ReactTypescriptController do
     "testing" => %{title: "Testing React"},
     "forms" => %{title: "Creating Forms in React"},
     "reducer-patterns" => %{title: "React Reducer Patterns"},
+    "zero-hook-dependencies" => %{title: "Zero Hook Dependencies"},
     "hooks-concurrent-world" => %{title: "React Hooks in a Concurrent World"},
     "logical-clocks" => %{title: "Logical Clocks in React"},
     "editor" => %{title: "React Online Editor"},

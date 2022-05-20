@@ -2,10 +2,11 @@ defmodule ComponentsGuideWeb.LandingView do
   use ComponentsGuideWeb, :view
   alias ComponentsGuideWeb.ThemeView
 
-  defp subject_to_module(:web_standards), do: ComponentsGuideWeb.WebStandardsView
   defp subject_to_module(:accessibility_first), do: ComponentsGuideWeb.AccessibilityFirstView
-  defp subject_to_module(:composable_systems), do: ComponentsGuideWeb.ComposableSystemsView
   defp subject_to_module(:react_typescript), do: ComponentsGuideWeb.ReactTypescriptView
+  defp subject_to_module(:robust_javascript_interactivity), do: ComponentsGuideWeb.RobustJavascriptInteractivityView
+  defp subject_to_module(:web_standards), do: ComponentsGuideWeb.WebStandardsView
+  defp subject_to_module(:composable_systems), do: ComponentsGuideWeb.ComposableSystemsView
 
   def subject_banner(subject) when is_atom(subject) do
     ~E"""
