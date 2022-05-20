@@ -23,6 +23,6 @@ defmodule ComponentsGuideWeb.RobustJavascriptInteractivityView do
   alias ComponentsGuideWeb.ThemeView
 
   def header_styles() do
-    ThemeView.banner_styles(:web_standards)
+    ThemeView.banner_styles(:robust_javascript_interactivity)
   end
 end
