@@ -1,10 +1,64 @@
 # The pain of useEffect’s dependencies
 
-`useEffect` dependencies considered painful.
+While React is great for diffing elements that get shown to the user, it shouldn’t be used for reliably diffing values that produces side effects.
+
+Or — `useEffect` dependencies considered painful.
+
+## The problem
+
+It can seem like hook dependencies are similar to passed props in React: you simply declare what you want to use, and React works out what has changed and skips work if there are no changes.
+
+```js
+function App({ title }) {
+  return <html>
+    <head>
+      <title>{title}</title>
+    </head>
+  </html>;
+}
+```
+
+```js
+function App({ title }) {
+  useEffect(() => {
+    window.document.title = title;
+  }, [title]);
+
+  return null;
+}
+```
+
+However, there’s one big difference. React’s changes to the DOM are inert: if React accidentally creates a DOM element with the same values that were already rendered, there’s no behaviour difference. (Excepting scenarios where we care about the identity of the element, like focusing). It’s just slightly inefficient.
+
+```js
+const root = createRoot(document.body);
+// We render once with one key:
+root.render(<button key={11}>Some button</button>);
+// and then again with another, which means we’ll destroy the DOM element and create a new one!
+// But… because the DOM output is the same, it’s actually safe. Just a little inefficient.
+root.render(<button key={99}>Some button</button>);
+```
+
+But if React calls your effect more times than you expected, then that’s changing behaviour.
+
+```js
+useEffect(() => {
+  // Are we actually guaranteed that page_view will only be sent when `myAnalytics` or `viewedItem` changes?
+  // Do we actually care if `myAnalytics` changes?
+  // What about <StrictMode>?
+  myAnalytics.send("page_view");
+}, [myAnalytics, viewedItem]);
+```
+
+This why the StrictMode double firing effects has been so disruptive — the actual behavior is different from what the developer intended. But I believe the dependencies to React’s hooks should be treated as an optimization, not as a guarantee of specific behavior.
+
+What we have to do is make side effects as safe as setting an attribute, and we can do that with a helpful property called idempotency.
 
 ## Don’t pass dependencies to `useEffect`
 
-Before:
+Here’s my proposed solution to dependencies — get rid of them! That way we aren’t relying any guarantees from React when your effect is called. Instead that responsibility will lie with you. In general, using React for declaring the *what* and not using for the *when* is a good way to have an easier time with React. React and its scheduler is a black box, and we should treat it as such.
+
+We’ll take code like:
 
 ```js
 useEffect(() => {
@@ -12,7 +66,7 @@ useEffect(() => {
 }, [searchQuery]);
 ```
 
-After:
+And turn it into this:
 
 ```js
 useEffect(() => {
@@ -21,11 +75,95 @@ useEffect(() => {
 });
 ```
 
-Summary:
-- Change your React effects [to be idempotent](/robust-javascript/idempotent-javascript-operations), which means they can be called as multiple times safely.
-- Adding a dependency means both 1. I want to read this value 2. I want to run *when* this value changes. It’s conflating two responsibilities. Removing the dependencies means you can read *any* value, and the when is taken care of with idempotency.
+## If your state is in React
 
-It can seem like hook dependencies are similar to passed props in React: you simply declare what you want to use, and React works out what has changed and skips work if there are no changes. However, there’s one huge difference. React’s changes to the DOM are inert: if React accidentally set a DOM element’s attribute to the same value it already has, there’s no behaviour difference. It’s just slightly inefficient. But if React calls your effect more times than you expected, then that’s changing behaviour. (That’s why the StrictMode double firing effects has been so disruptive) What we have to do is make it as safe as setting an attribute, and we can do that with idempotency.
+```js
+function SearchForm() {
+  const [searchQuery, updateQuery] = useState("");
+
+  useEffect(() => {
+    // Use an idempotent operation which can be requested multiple times safely.
+    performSearch(searchQuery);
+  });
+
+  return <form role="search">
+    <input type="search" onChange={(event) => {
+      updateQuery(event.target.value);
+    }}>
+  </form>;
+}
+```
+
+### Using an external Map and `useId`
+
+```js
+const searchIDToQueries = new Map();
+
+function SearchForm() {
+  const searchID = useId();
+  const [searchQuery, updateQuery] = useState("");
+  const [searchResult, updateResult] = useState(null);
+
+  if (searchResult instanceof Error) {
+    throw searchResult;
+  }
+
+  useEffect(() => {
+    if (searchIDToQueries.get(searchID) === searchQuery) {
+      return;
+    }
+
+    searchIDToQueries.set(searchID, searchQuery);
+
+    performSearch(searchQuery)
+      .then(updateResult)
+      .catch(updateResult);
+  });
+
+  return <form role="search">
+    <input type="search" onChange={event => {
+      updateQuery(event.target.value);
+    }} />
+    <output>
+      <ul>{searchResults.map(result =>
+        <li key={result.key}>{result.title}</li>
+      )}</ul>
+    </output>
+  </form>;
+}
+```
+
+```js
+const searchQueriesToPromises = new Map();
+
+function SearchForm() {
+  const [searchQuery, updateQuery] = useState("");
+  const [searchResults, updateResult] = useState(null);
+
+  useEffect(() => {
+    if (searchQueriesToPromises.has(searchQuery)) {
+      return;
+    }
+
+    searchQueriesToPromises.set(searchQuery, performSearch(searchQuery));
+  });
+
+  return <form role="search">
+    <input type="search" onChange={event => {
+      updateQuery(event.target.value);
+    }} />
+    <output>
+      <ul>{searchResults.map(result =>
+        <li key={result.key}>{result.title}</li>
+      )}</ul>
+    </output>
+  </form>;
+}
+```
+
+Summary:
+- Change your React effects [to be idempotent](/robust-javascript/idempotent-javascript-operations), which means they can be called multiple times safely.
+- Adding a dependency means both 1. I want to read this value 2. I want to run *when* this value changes. It’s conflating two responsibilities. Removing the dependencies means you can read *any* value, and the when is taken care of with idempotency.
 
 ## Example: autosave
 
