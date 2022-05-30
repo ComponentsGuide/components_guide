@@ -75,14 +75,17 @@ defmodule ComponentsGuideWeb.CalendarController do
     links = %{
       chrome99: "https://developer.chrome.com/blog/new-in-chrome-99/",
       chrome100: "https://developer.chrome.com/blog/new-in-chrome-100/",
+      chrome101: "https://developer.chrome.com/blog/new-in-chrome-101/",
       deno1_20: "https://deno.com/blog/v1.20",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
+      firefox100: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/100",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       go1_18: "https://go.dev/doc/go1.18",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
       deno1_21: "https://deno.com/blog/v1.21",
+      deno1_22: "https://deno.com/blog/v1.22",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
 
