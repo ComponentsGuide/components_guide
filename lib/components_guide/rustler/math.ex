@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Rustler.Math do
-  if Mix.env() == :dev do
+  if false and Mix.env() == :dev do
     use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math
     # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, target_dir: System.tmp_dir!()
     # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, cargo: {:rustup, :stable}
