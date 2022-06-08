@@ -20,7 +20,7 @@ export default function App() {
 
 function Inspect({ value }) {
   const inspected = Array.from(inspectObject(value)).join("");
-  return <div class="prose"><pre>{inspected}</pre></div>;
+  return <div className="prose"><pre>{inspected}</pre></div>;
 }
 
 function* inspectObject(object, outerIndent = '') {
