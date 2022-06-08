@@ -13,12 +13,12 @@ export default function App() {
     <Inspect value={<button />} />
     <Inspect value={<React.Fragment />} />
     <Inspect value={<React.Suspense />} />
+    <Inspect value={React.lazy()} />
   </div>;
 }
 
 function Inspect({ value }) {
   const inspected = Array.from(inspectObject(value)).join("");
-  //const inspected = "hello!";
   return <div class="prose"><pre>{inspected}</pre></div>;
 }
 
