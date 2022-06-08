@@ -9,8 +9,9 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     source = ~S"""
 export default function App() {
   return <div className="flex flex-col gap-2 items-center">
-    <Inspect value={<p />} />
-    <Inspect value={<button />} />
+    <Inspect value={<pre />} />
+    <Inspect value={<button type="submit" />} />
+    <Inspect value={<button key="hello" type="submit" onClick={() => {}} />} />
     <Inspect value={<React.Fragment />} />
     <Inspect value={<React.Suspense />} />
     <Inspect value={React.lazy()} />
@@ -41,6 +42,9 @@ function* inspectObject(object, outerIndent = '') {
         } else {
           yield indent + prop + ": " + value.toString();
         }
+      }
+      if (typeof value === 'function') {
+        yield indent + prop + ": " + value.toString();
       }
       if (typeof value === 'object') {
         if (value === null) {
