@@ -330,7 +330,7 @@ require(["vs/editor/editor.main"], function () {
   <div class="flex">
     <output id=result class="block text-xs">
       <div class="text-red-500"><slot name=error></slot></div>
-      <div>It took esbuild <slot name=esbuildMs></slot> a <slot name=esbuildBytes></slot></div>
+      <div>It took esbuild <slot name=esbuildMs></slot> into a <slot name=esbuildBytes></slot></div>
     </output>
     <div id="clientResult" class="ml-auto text-xs"><slot name=reactRenderDuration></slot></div>
   </div>
