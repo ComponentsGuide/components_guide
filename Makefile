@@ -14,8 +14,8 @@ test_watch:
 dev:
 	iex -S mix phx.server
 
-build:
-	MIX_ENV=prod mix deps.get && MIX_ENV=prod mix production_build
+production_build:
+	MIX_ENV=prod mix production_build
 
 cargo_build:
 	cd native/componentsguide_rustler_math/ && cargo build --release
