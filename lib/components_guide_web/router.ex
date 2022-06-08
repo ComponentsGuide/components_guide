@@ -22,7 +22,7 @@ defmodule ComponentsGuideWeb.Router do
 
     get("/", LandingController, :index)
 
-    get "/react-playground", ReactEditorController, :index
+    resources "/react-playground", ReactEditorController, only: [:index, :show]
 
     get("/research", ResearchController, :index)
 
