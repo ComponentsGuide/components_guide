@@ -22,6 +22,8 @@ defmodule ComponentsGuideWeb.Router do
 
     get("/", LandingController, :index)
 
+    get "/react-playground", ReactEditorController, :index
+
     get("/research", ResearchController, :index)
 
     get("/concepts", ConceptsController, :index)
