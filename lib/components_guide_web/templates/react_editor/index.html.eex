@@ -26,9 +26,10 @@ console.log("react", window.React);
 //import "https://cdn.jsdelivr.net/npm/react-dom@18.1.0/umd/react-dom-server.browser.production.min.js";
 
 import * as esbuild from "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.17/esm/browser.min.js";
-const esbuildPromise = Promise.resolve(esbuild.initialize({
+const esbuildPromise = window.esbuildPromise || Promise.resolve(esbuild.initialize({
   wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.17/esbuild.wasm',
 }).then(() => esbuild));
+window.esbuildPromise = esbuildPromise;
 
 require.config({
   paths: {
