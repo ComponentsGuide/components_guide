@@ -5,7 +5,7 @@ defmodule ComponentsGuide.Rustler.Math do
     # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, cargo: {:rustup, :stable}
   end
 
-  if Mix.env() == :prod do
+  if false and Mix.env() == :prod do
     app = Mix.Project.config()[:app]
     version = Mix.Project.config()[:version]
 
