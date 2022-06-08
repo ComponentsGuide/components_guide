@@ -64,13 +64,64 @@ function* inspectObject(object, outerIndent = '') {
     render_source(conn, source)
   end
 
-  def show(conn, params) do
+  def show(conn, %{"id" => "lists"}) do
     source = ~s"""
+const INITIAL_COUNT = 1000;
+const initialItems = Array.from({ length: INITIAL_COUNT }, (_, i) => ({ id: i }));
+
+function Item({ item, onFlip }) {
+  return <li><button onClick={onFlip}>{item.id}</button></li>
+}
+
 export default function App() {
-  const [count, next] = useReducer(n => n + 1, 0);
+  const [items, updateItems] = useState(initialItems);
+
+  function addItem() {
+    updateItems(items => items.concat({ id: Math.random() }))
+  }
+  function flipItem(id) {
+    updateItems(items => items.map(item => item.id === id ? ({ id: -item.id }) : item))
+  }
+
   return <div className="flex flex-col gap-2 items-center">
-    <div className="text-2xl">{count}</div>
-    <button onClick = { next } className ="px-3 py-1 text-xl text-white bg-black rounded-lg">Increment</button>
+    <button onClick={addItem} className ="px-3 py-1 text-xl text-white bg-black rounded-lg">Add Item</button>
+    <ul className="text-center text-2xl">
+      {items.map(item => <Item key={item.id} item={item} onFlip={() => flipItem(item.id)} />)}
+    </ul>
+  </div>;
+}
+"""
+
+    render_source(conn, source)
+  end
+
+  def show(conn, %{"id" => "lists2"}) do
+    source = ~s"""
+const INITIAL_COUNT = 1000;
+const initialItems = Array.from({ length: INITIAL_COUNT }, (_, i) => ({ id: i }));
+
+const Item = React.memo(function Item({ item, onFlip }) {
+  return <li><button onClick={() => onFlip(item.id)}>{item.id}</button></li>
+})
+
+export default function App() {
+  const [items, updateItems] = useState(initialItems);
+
+  const { addItem, flipItem } = useMemo(() => {
+    function addItem() {
+      updateItems(items => items.concat({ id: Math.random() }))
+    }
+    function flipItem(id) {
+      updateItems(items => items.map(item => item.id === id ? ({ id: -item.id }) : item))
+    }
+    return {addItem, flipItem}
+  }, [updateItems]);
+
+  return <div className="flex flex-col gap-2 items-center">
+    <button onClick={addItem} className ="px-3 py-1 text-xl text-white bg-black rounded-lg">Add Item</button>
+    <ul className="text-center text-2xl">
+      {items.map(item => <Item key={item.id} item={item} onFlip={flipItem} />)}
+    </ul>
   </div>;
 }
 """
@@ -84,7 +135,7 @@ export default function App() {
   const [count, next] = useReducer(n => n + 1, 0);
   return <div className="flex flex-col gap-2 items-center">
     <div className="text-2xl">{count}</div>
-    < button onClick = { next } className ="px-3 py-1 text-xl text-white bg-black rounded-lg">Increment</button>
+    <button onClick={next} className="px-3 py-1 text-xl text-white bg-black rounded-lg">Increment</button>
   </div>;
 }
 """
