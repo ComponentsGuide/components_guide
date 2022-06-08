@@ -2,7 +2,7 @@ defmodule ComponentsGuideWeb.ReactEditorController do
   use ComponentsGuideWeb, :controller
 
   defp render_source(conn, source) do
-    render(conn, "index.html", source: source)
+    render(conn, "index.html", source: source, page_title: "React Playground")
   end
 
   def show(conn, %{"id" => "react-elements"}) do
