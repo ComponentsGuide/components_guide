@@ -366,13 +366,13 @@ require(["vs/editor/editor.main"], function () {
 });
 </script>
 <div class="px-4 pb-2 text-white bg-gray-900">
-  <output id=status class="block text-xs opacity-50"></output>
   <div class="flex">
     <output id=result class="block text-xs">
       <div class="text-red-500"><slot name=error></slot></div>
       <div>It took esbuild <slot name=esbuildMs></slot> into a <slot name=esbuildBytes></slot></div>
     </output>
-    <div id="clientResult" class="ml-auto text-xs">
+    <output id=status class="mx-auto block text-xs opacity-50"></output>
+    <div id="clientResult" class="text-xs">
       <slot name=reactVersion></slot>
       <slot name=reactRenderDuration></slot>
     </div>
