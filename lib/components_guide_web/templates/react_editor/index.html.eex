@@ -1,5 +1,7 @@
 <!-- See https://www.sanity.io/guides/server-side-rendering-deno-react -->
 
+<script src="https://unpkg.com/web-streams-polyfill@3.2.1/dist/polyfill.es2018.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/react@18.1.0/umd/react.profiling.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/react-dom@18.1.0/umd/react-dom.profiling.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/react-dom@18.1.0/umd/react-dom-server.browser.production.min.js"></script>
@@ -111,8 +113,30 @@ export function Example() {
       const stream = await ReactDOMServer.renderToReadableStream(<App />);
       await stream.allReady;
       //return stream.getReader().read()
-      return await new Response(stream, { headers: {'Content-Type': 'text/html'} }).text();
-      //return ReactDOMServer.renderToString(wrapped);
+      //return await new Response(stream, { headers: {'Content-Type': 'text/html'} }).text();
+      const reader = stream.getReader();
+      //return reader.read();
+
+      const values = [];
+      async function next() {
+        return await reader.read().then(({ done, value }) => {
+          console.log({ done, value })
+          if (done) {
+            const bytes = Uint8Array.from(function*() {
+              for (const value of values) {
+                yield* value;
+              }
+            }.call());
+            return new TextDecoder().decode(bytes);
+          }
+
+          values.push(value);
+          return next();
+        })
+      }
+
+      return next();
+      //return ReactDOMServer.renderToString(<App />);
     } catch (error) {
       return \`<!-- Uncaught error: \${error.message} -->\n<div class="flex h-full justify-center items-center text-white bg-red-700"><div>Error: \${error.message}</div></div>\`;
     }
@@ -276,13 +300,16 @@ require(["vs/editor/editor.main"], function () {
           })
       })
       .then(({ code, codeBytes, duration }) => {
-        console.log("NEW CODE!");
+        console.log("NEW CODE!", window.React.version);
         const hookNames = Object.keys(window.React).filter(name => name.startsWith('use'));
         const reactGlobals = hookNames.concat(['Fragment']);
-        const preamble = reactGlobals.map(property => `const ${property} = window.React.${property}`).join(';');
+        const statements = reactGlobals.map(property => `const ${property} = window.React.${property}`);
+        statements.push('const React = window.React');
+        const preamble = statements.join(';');
         const executor = new Function(`${preamble}; ${code}; return exports.Example();`);
         const renderServer = executor();
         return new Map()
+          .set('reactVersion', `React ${window.React.version}`)
           .set('renderServer', renderServer)
           .set('error', '')
           .set('esbuildMs', duration.toString() + 'ms to compile')
@@ -299,9 +326,7 @@ require(["vs/editor/editor.main"], function () {
         // htmlOutput.getModel().setValue(data.get('renderServer') || '');
         return data.get('renderServer')();
       })
-      .then(async a => await a)
       .then(html => {
-        console.log("HTML!", html)
         htmlOutput.getModel().setValue(html || '');
       });
 
@@ -347,7 +372,10 @@ require(["vs/editor/editor.main"], function () {
       <div class="text-red-500"><slot name=error></slot></div>
       <div>It took esbuild <slot name=esbuildMs></slot> into a <slot name=esbuildBytes></slot></div>
     </output>
-    <div id="clientResult" class="ml-auto text-xs"><slot name=reactRenderDuration></slot></div>
+    <div id="clientResult" class="ml-auto text-xs">
+      <slot name=reactVersion></slot>
+      <slot name=reactRenderDuration></slot>
+    </div>
   </div>
 </div>
 <div class="flex-container" id="container" style="display: flex; min-height: 100vh;">
