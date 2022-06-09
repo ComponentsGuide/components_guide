@@ -163,6 +163,99 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "reducer-patterns"}) do
+    source = ~s"""
+    function OneWayExample() {
+      const [isEnabled, enable] = useReducer(() => true, false);
+
+      return <article class="flex items-center p-4 gap-2 bg-gray-200 rounded-lg">
+        <output>{isEnabled ? 'Enabled' : 'Disabled'}</output>
+        <button onClick={enable} className="px-3 py-1 text-white bg-black rounded-lg">One Way</button>
+      </article>;
+    }
+
+    export default function App() {
+      return <div className="flex flex-col gap-2 items-center text-lg">
+        <OneWayExample />
+      </div>;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
+  def show(conn, %{"id" => "yieldmachine"}) do
+    source = ~s"""
+    import { start, on } from "https://unpkg.com/yieldmachine@0.5.1/dist/yieldmachine.module.js"
+
+    function SwitchMachine() {
+      const { On, Off } = {
+        *Off() {
+          yield on("FLICK", On);
+        },
+        *On() {
+          yield on("FLICK", Off);
+        }
+      };
+      return Off;
+    }
+
+    function useMachine(machineDefinition) {
+      const instance = useMemo(() => {
+        const aborter = new AbortController();
+        const machine = start(machineDefinition, { signal: aborter.signal });
+        return {
+          aborter, machine, dispatch: machine.next.bind(machine)
+        };
+      }, []);
+      useEffect(() => {
+        return () => {
+          instance.aborter.abort();
+        };
+      });
+
+      const state = useSyncExternalStore(
+        (callback) => {
+          instance.machine.eventTarget.addEventListener(
+            "StateChanged",
+            callback
+          );
+          return () => {
+            instance.machine.eventTarget.removeEventListener(
+              "StateChanged",
+              callback
+            );
+          };
+        },
+        () => instance.machine.value,
+        () => instance.machine.value
+      );
+
+      return Object.freeze([state, instance.dispatch]);
+    }
+
+    export default function App() {
+      const [value, dispatch] = useMachine(SwitchMachine);
+
+      return <article class="flex flex-col gap-2 items-center text-lg">
+      <dl>
+        <div className="flex gap-2">
+          <dt className="font-bold">State:</dt>
+          <dd>{value.state}</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="font-bold">Change</dt>
+          <dd>{"#"}{value.change}</dd>
+        </div>
+      </dl>
+        <button className="px-3 py-1 text-white bg-black rounded-lg" onClick={() => dispatch("FLICK")}>FLICK</button>
+      </article>;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "import-from-the-web"}) do
     source = ~s"""
     import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
