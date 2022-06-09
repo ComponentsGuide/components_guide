@@ -214,6 +214,7 @@ require(["vs/editor/editor.main"], function () {
                 const contentType = res.headers.get('content-type') || '';
 
                 if (contentType.startsWith('image/')) {
+                  // Images get turned into blob URLs.
                   return res.arrayBuffer().then(buffer => {
                     const url = URL.createObjectURL(new Blob([buffer], { type: contentType }));
                     return { contents: url, loader: 'text' };
