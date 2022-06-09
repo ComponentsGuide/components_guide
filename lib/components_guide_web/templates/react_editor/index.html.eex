@@ -226,6 +226,10 @@ require(["vs/editor/editor.main"], function () {
                       return { contents: `export default ${contents};` };
                     }
 
+                    if (args.path.endsWith('.jsx')) {
+                      return { contents, loader: 'jsx' };
+                    }
+
                     return { contents };
                   })
                 }
