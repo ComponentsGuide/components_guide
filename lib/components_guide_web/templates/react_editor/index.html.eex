@@ -143,7 +143,7 @@ require(["vs/editor/editor.main"], function () {
   }
   const input = monaco.editor.create(document.getElementById('input'), {
     language: 'typescript',
-    model: monaco.editor.createModel(value, 'typescript', 'ts:worker.tsx'),
+    model: monaco.editor.createModel(value, 'typescript', 'tsx:worker.tsx'),
     value,
     theme,
     fontSize: 16,
@@ -247,6 +247,7 @@ require(["vs/editor/editor.main"], function () {
             loader: 'jsx',
             sourcefile: 'main.jsx',
           },
+          keepNames: true,
           write: false,
           format: 'iife',
           globalName: 'exports',
