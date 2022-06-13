@@ -174,8 +174,18 @@ defmodule ComponentsGuideWeb.ReactEditorController do
       </article>;
     }
 
+    function ToggleExample() {
+      const [on, toggle] = useReducer(flag => !flag, false);
+
+      return <article class="flex items-center p-4 gap-2 bg-gray-200 rounded-lg">
+        <output>{on ? 'On' : 'Off'}</output>
+        <button onClick={toggle} className="px-3 py-1 text-white bg-black rounded-lg">Toggle</button>
+      </article>;
+    }
+
     export default function App() {
       return <div className="flex flex-col gap-2 items-center text-lg">
+        <ToggleExample />
         <OneWayExample />
       </div>;
     }
@@ -265,6 +275,63 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "fetch"}) do
+    source = ~s"""
+    function fetchCloudFlareJSON() {
+      return fetch("https://workers.cloudflare.com/cf.json").then(res => res.json());
+    }
+
+    function reducer(state, event) {
+      if (event.type === "success") {
+        return { data: event.data, t: event.t }
+      } else if (event.type === "error") {
+        return { error: event.error, t: event.t }
+      } else {
+        return state;
+      }
+    }
+
+    function Result({ result }) {
+      if (result === null) {
+        return <p className="text-2xl">Idle</p>
+      }
+
+      if ("error" in result) {
+        return <p className="text-2xl">Error! {result.error.message}</p>
+      }
+
+      const { country, colo, latitude, longitude } = result.data;
+
+      return <div className="text-2xl">
+        Loaded: {country} {colo} ({latitude}, {longitude})
+        <details><summary>Raw data</summary>{JSON.stringify(result.data, null, 2)}</details></div>
+    }
+
+    export default function App() {
+      const [state, dispatch] = useReducer(reducer, null);
+      const [t, next] = useReducer(n => n + 1, 0);
+      useEffect(() => {
+        if (t === 0) return;
+
+        fetchCloudFlareJSON()
+          .then(data => {
+            dispatch({ type: "success", data, t });
+          })
+          .catch(error => {
+            dispatch({ type: "error", error, t });
+          })
+      }, [t]);
+
+      return <div className="flex flex-col gap-2 items-center">
+        <button onClick={next} className="px-3 py-1 text-xl text-white bg-black rounded-lg">Load</button>
+        <Result result={state} />
+      </div>;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "import-from-the-web"}) do
     source = ~s"""
     import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
@@ -321,11 +388,11 @@ defmodule ComponentsGuideWeb.ReactEditorController do
   def show(conn, params) do
     source = ~s"""
     export default function App() {
-    const [count, next] = useReducer(n => n + 1, 0);
-    return <div className="flex flex-col gap-2 items-center">
-      <div className="text-2xl">{count}</div>
-      <button onClick={next} className="px-3 py-1 text-xl text-white bg-black rounded-lg">Increment</button>
-    </div>;
+      const [count, next] = useReducer(n => n + 1, 0);
+      return <div className="flex flex-col gap-2 items-center">
+        <div className="text-2xl">{count}</div>
+        <button onClick={next} className="px-3 py-1 text-xl text-white bg-black rounded-lg">Increment</button>
+      </div>;
     }
     """
 
@@ -345,6 +412,7 @@ defmodule ComponentsGuideWeb.ReactEditorController do
               <li><a href="/react-playground/lists3" target="_blank">Optimization B</a></li>
             </ul>
           </li>
+          <li><a href="/react-playground/fetch" target="_blank">Fetch</a></li>
           <li><a href="/react-playground/import-from-the-web" target="_blank">Importing from the Web</a></li>
         </ul>
       </nav>;
