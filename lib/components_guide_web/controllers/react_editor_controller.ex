@@ -476,6 +476,7 @@ defmodule ComponentsGuideWeb.ReactEditorController do
       return <nav class="prose">
         <ul>
           <li><a href="/react-playground/react-elements" target="_blank">Understanding React Elements</a></li>
+          <li><a href="/react-playground/useid" target="_blank">useId()</a></li>
           <li>
           <a href="/react-playground/lists" target="_blank">Rendering Lists</a>
             <ul>
