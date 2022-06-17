@@ -157,7 +157,44 @@ defmodule ComponentsGuideWeb.ReactEditorController do
         </ul>
       </div>;
     }
+    """
 
+    render_source(conn, source)
+  end
+
+  def show(conn, %{"id" => "useid"}) do
+    source = ~s"""
+    function Inner() {
+      const id = useId()
+
+      return <p>{id}</p>
+    }
+
+    const items = ["a", "b", "c"];
+
+    export default function App() {
+      const [counter, dispatch] = useReducer(n => n + 1, 0)
+
+      return <nav class="prose">
+        <button onClick={dispatch} className="px-3 border border-gray-700 rounded">Increment</button>
+        <p>{counter}</p>
+        <hr />
+        No key:
+        <Inner />
+        <hr />
+        Key of "a":
+        <Inner key="a" />
+        <hr />
+        Key is counter state:
+        <Inner key={counter} />
+        <hr />
+        <ul>
+        {items.map(item => (
+          <li key={item}><Inner /></li>
+        ))}
+        </ul>
+      </nav>;
+    }
     """
 
     render_source(conn, source)
@@ -183,10 +220,44 @@ defmodule ComponentsGuideWeb.ReactEditorController do
       </article>;
     }
 
+    function MenuBarExample() {
+      const [openMenu, tap] = useReducer(
+        (current, action) => {
+          if (action === current) {
+            return null; // Close if matches
+          }
+
+          return action; // Use passed value
+        },
+        null
+      );
+
+      const buttonClass = "p-2 bg-white";
+
+      function renderButton(id, title) {
+        const isOpen = id === openMenu;
+
+        return <div className="relative">
+          <button className={isOpen ? "px-3 py-2 text-white bg-blue-600" : "px-3 py-2 bg-white"} onClick={() => tap(id)}>{title}</button>
+          {isOpen && <div className="absolute t-full bg-white w-32 h-12 shadow-xl opacity-80" />}
+        </div>
+      }
+
+      return <article class="flex flex-col items-center p-4 gap-4 bg-gray-200 rounded-lg">
+        <output>{JSON.stringify(openMenu)}</output>
+        <section class="flex items-center px-4 bg-white">
+          {renderButton("file", "File")}
+          {renderButton("edit", "Edit")}
+          {renderButton("view", "View")}
+        </section>
+      </article>;
+    }
+
     export default function App() {
       return <div className="flex flex-col gap-2 items-center text-lg">
         <ToggleExample />
         <OneWayExample />
+        <MenuBarExample />
       </div>;
     }
     """
