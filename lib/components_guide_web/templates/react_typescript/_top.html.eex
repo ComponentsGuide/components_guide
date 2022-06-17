@@ -17,7 +17,7 @@
       <li hidden><%= link("Event Handlers", to: '/react+typescript/event-handlers') %>
       <li><%= link("Logical Clocks", to: '/react+typescript/logical-clocks') %>
       <li><%= link("Forms", to: '/react+typescript/forms') %>
-      <li><%= link("Playground", to: '/react+typescript/editor') %>
+      <li><%= link("Playground", to: '/react-playground') %>
     </ul>
   </nav>
 </div>
