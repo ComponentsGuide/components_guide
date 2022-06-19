@@ -16,7 +16,8 @@ defmodule ComponentsGuideWeb.CalendarController do
     deno = %{
       deno1_20: %{release: {2022, 3, 16}},
       deno1_21: %{release: {2022, 4, 20}},
-      deno1_22: %{release: {2022, 5, 18}}
+      deno1_22: %{release: {2022, 5, 18}},
+      deno1_23: %{release: {2022, 6, 16}}
     }
 
     react = %{
@@ -96,6 +97,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
       deno1_21: "https://deno.com/blog/v1.21",
       deno1_22: "https://deno.com/blog/v1.22",
+      deno1_23: "https://deno.com/blog/v1.23",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
 
