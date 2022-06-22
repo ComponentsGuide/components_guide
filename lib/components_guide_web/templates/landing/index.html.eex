@@ -22,7 +22,7 @@ header_links = [
       Want to learn how to improve the <br><span class="text-violet-400">UX &amp; DX</span> of your components?
     </h1>
     <p class="pt-12 mb-8 mx-auto max-w-4xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug text-violet-100 italic">
-      Get better at accessibility, TDD, BDD, naming, performance, and the latest browser features — all for free.
+      Get better at accessibility, testing, naming, performance, and using built-in browser features — all for free.
     </p>
     <p class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
       <span class="font-bold text-blue-300">Topics include:</span>
