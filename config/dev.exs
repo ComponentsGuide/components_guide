@@ -53,7 +53,7 @@ config :components_guide, ComponentsGuideWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/components_guide_web/{live,views}/.*(ex)$",
-      ~r"lib/components_guide_web/templates/.*(eex|md)$"
+      ~r"lib/components_guide_web/templates/.*(heex|eex|md)$"
     ]
   ]
 

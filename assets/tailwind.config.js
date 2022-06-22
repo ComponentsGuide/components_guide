@@ -1,8 +1,6 @@
 // See the Tailwind configuration guide for advanced usage
 // https://tailwindcss.com/docs/configuration
 
-const colors = require('tailwindcss/colors');
-
 module.exports = {
   content: [
     './js/**/*.js',
@@ -18,9 +16,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        teal: colors.teal,
-        cyan: colors.cyan,
-        orange: colors.orange,
         current: 'currentColor',
       },
       zIndex: {

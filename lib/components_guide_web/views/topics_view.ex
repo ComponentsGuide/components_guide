@@ -10,7 +10,7 @@ defmodule ComponentsGuideWeb.TopicsView do
   @backgrounds %{
     accessibility_first: "bg-violet-200",
     react_typescript: "bg-blue-200",
-    robust_javascript_interactivity: "bg-red-200",
+    robust_javascript_interactivity: "bg-orange-200",
     web_standards: "bg-yellow-200",
     composable_systems: "bg-green-200",
   }
