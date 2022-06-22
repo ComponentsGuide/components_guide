@@ -8,6 +8,26 @@ defmodule ComponentsGuideWeb.LandingView do
   defp subject_to_module(:web_standards), do: ComponentsGuideWeb.WebStandardsView
   defp subject_to_module(:composable_systems), do: ComponentsGuideWeb.ComposableSystemsView
 
+  @backgrounds %{
+    accessibility_first: "bg-violet-200",
+    react_typescript: "bg-blue-200",
+    # robust_javascript_interactivity: "bg-yellow-600",
+    robust_javascript_interactivity: "bg-red-200",
+    web_standards: "bg-yellow-200",
+    composable_systems: "bg-green-200",
+  }
+
+  def subject_banner(subject) when is_map_key(@backgrounds, subject) do
+    assigns = %{backgrounds: @backgrounds}
+    ~E"""
+    <div class="py-4 bg-white">
+      <article class="text-gray-900 py-6 <%= @backgrounds[subject] %>">
+        <%= render subject_to_module(subject), "_top.html" %>
+      </article>
+    </div>
+    """
+  end
+
   def subject_banner(subject) when is_atom(subject) do
     ~E"""
     <article class="text-white text-shadow py-6" style="<%= ThemeView.banner_styles(subject) %>">

@@ -403,6 +403,33 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "userecursive"}) do
+    source = ~s"""
+    function useRecursive(initial) {
+      const [builder, dispatch] = useReducer((previous, value) => {
+        return function*() {
+          yield* previous();
+          yield value;
+        }
+      }, function* () { yield initial })
+
+      const values = useMemo(() => Array.from(builder()), [builder]);
+      return [values, dispatch]
+    }
+
+    export default function App() {
+      const [items, dispatch] = useRecursive("first")
+
+      return <div>
+        <button onClick={() => dispatch("New")}>New</button>
+        <ul>{items.map((item, index) => <li key={index}>{item}</li>)}</ul>
+      </div>
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "import-from-the-web"}) do
     source = ~s"""
     import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";

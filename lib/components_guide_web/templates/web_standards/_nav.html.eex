@@ -1,5 +1,5 @@
 <nav class="pt-6 pb-4">
-  <ul y-y x-x=md class="text-lg font-bold text-shadow" data-links="p-3">
+  <ul y-y x-x=md class="text-xl font-bold" data-links="p-3">
     <li><%= link("Why?", to: '/web-standards') %>
     <li><%= link("URL", to: '/web-standards/url') %>
     <li><%= link("HTML", to: '/web-standards/html') %>

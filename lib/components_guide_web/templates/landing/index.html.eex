@@ -10,12 +10,12 @@ subhead = "Get better at accessibility, TDD, BDD, naming, performance, and the l
 
 %>
 
-<div class="text-white" style="<%= header_styles(3) %>">
-  <section class="container px-6 pt-12 pb-8">
-    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center font-bold text-shadow">
+<div class="bg-white text-black">
+  <section class="container px-6 pt-16 pb-8">
+    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center">
       <%= heading %>
     </h1>
-    <p class="mt-6 mb-8 mx-auto max-w-4xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug italic text-gray-100 text-shadow">
+    <p class="pt-12 mb-8 mx-auto max-w-4xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug">
       <%= subhead %>
     </p>
     <p hidden class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">

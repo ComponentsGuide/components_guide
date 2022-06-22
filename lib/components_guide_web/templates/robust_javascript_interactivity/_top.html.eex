@@ -1,5 +1,5 @@
-<div class="mx-auto max-w-4xl text-white">
-  <h1 y-y x-x=md class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
+<div class="mx-auto max-w-4xl">
+  <h1 y-y x-x=md class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight">
     <span class="mr-1 text-5xl">🫵🏾🔨</span>
     <span><%= "Robust JavaScript Interactivity" %></span>
   </h1>
