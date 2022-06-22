@@ -1,38 +1,23 @@
 defmodule ComponentsGuideWeb.LandingView do
   use ComponentsGuideWeb, :view
-  alias ComponentsGuideWeb.ThemeView
+  alias ComponentsGuideWeb.{TopicsView, ThemeView}
 
   defp subject_to_module(:accessibility_first), do: ComponentsGuideWeb.AccessibilityFirstView
   defp subject_to_module(:react_typescript), do: ComponentsGuideWeb.ReactTypescriptView
-  defp subject_to_module(:robust_javascript_interactivity), do: ComponentsGuideWeb.RobustJavascriptInteractivityView
+
+  defp subject_to_module(:robust_javascript_interactivity),
+    do: ComponentsGuideWeb.RobustJavascriptInteractivityView
+
   defp subject_to_module(:web_standards), do: ComponentsGuideWeb.WebStandardsView
   defp subject_to_module(:composable_systems), do: ComponentsGuideWeb.ComposableSystemsView
 
-  @backgrounds %{
-    accessibility_first: "bg-violet-200",
-    react_typescript: "bg-blue-200",
-    # robust_javascript_interactivity: "bg-yellow-600",
-    robust_javascript_interactivity: "bg-red-200",
-    web_standards: "bg-yellow-200",
-    composable_systems: "bg-green-200",
-  }
-
-  def subject_banner(subject) when is_map_key(@backgrounds, subject) do
-    assigns = %{backgrounds: @backgrounds}
+  def subject_banner(subject) do
     ~E"""
     <div class="py-4 bg-white">
-      <article class="text-gray-900 py-6 <%= @backgrounds[subject] %>">
+      <article class="text-gray-900 py-6 <%= TopicsView.class_for_topic(subject) %>">
         <%= render subject_to_module(subject), "_top.html" %>
       </article>
     </div>
-    """
-  end
-
-  def subject_banner(subject) when is_atom(subject) do
-    ~E"""
-    <article class="text-white text-shadow py-6" style="<%= ThemeView.banner_styles(subject) %>">
-      <%= render subject_to_module(subject), "_top.html" %>
-    </article>
     """
   end
 
@@ -51,11 +36,11 @@ defmodule ComponentsGuideWeb.LandingView do
   end
 
   defp stack_item(%{
-    title: title,
-    description: description,
-    to: to,
-    color: color
-  }) do
+         title: title,
+         description: description,
+         to: to,
+         color: color
+       }) do
     ~E"""
     <li>
       <a href="<%= to %>" class="
@@ -75,13 +60,14 @@ defmodule ComponentsGuideWeb.LandingView do
     l = 50
     color = {:lab, l, 90, 20}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, 70, 40, 50},
-      {:lab, 50, 90, 40},
-      color,
-      {:lab, 50, 90, 10},
-      {:lab, 60, 70, 60},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, 70, 40, 50},
+        {:lab, 50, 90, 40},
+        color,
+        {:lab, 50, 90, 10},
+        {:lab, 60, 70, 60}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -92,13 +78,14 @@ defmodule ComponentsGuideWeb.LandingView do
     b = 20
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l + 20, a * 1/2, b * 2.5},
-      {:lab, l, a, b * 2},
-      color,
-      {:lab, l, a, b * 1/2},
-      {:lab, l + 10, a * 3/4, b},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l + 20, a * 1 / 2, b * 2.5},
+        {:lab, l, a, b * 2},
+        color,
+        {:lab, l, a, b * 1 / 2},
+        {:lab, l + 10, a * 3 / 4, b}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -107,15 +94,20 @@ defmodule ComponentsGuideWeb.LandingView do
     l = 30
     color = {:lab, l, -20, -80}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l + 40, 80, -80},
-      {:lab, l - 10, 80, -80},
-      {:lab, l, 40, -80},
-      color,
-      {:lab, l + 40, -80, -80},
-    ] |> Enum.reverse())
+    gradient =
+      Styling.linear_gradient(
+        "150grad",
+        [
+          {:lab, l + 40, 80, -80},
+          {:lab, l - 10, 80, -80},
+          {:lab, l, 40, -80},
+          color,
+          {:lab, l + 40, -80, -80}
+        ]
+        |> Enum.reverse()
+      )
 
-    "background-color: #{color|> Styling.to_css()}; background-image: #{gradient};"
+    "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
 
   def sections_styles(:blue) do
@@ -124,11 +116,12 @@ defmodule ComponentsGuideWeb.LandingView do
     b = -90
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.1, a * 1.1, b * 1.4},
-      color,
-      {:lab, l * 1.3, a * 0.5, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.1, a * 1.1, b * 1.4},
+        color,
+        {:lab, l * 1.3, a * 0.5, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -138,11 +131,12 @@ defmodule ComponentsGuideWeb.LandingView do
 
     l = 20
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l + 20, -40, -40},
-      {:lab, l, -20, -80},
-      {:lab, l - 10, 20, -80},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l + 20, -40, -40},
+        {:lab, l, -20, -80},
+        {:lab, l - 10, 20, -80}
+      ])
 
     "background-color: #{color}; background-image: #{gradient};"
   end
@@ -151,12 +145,12 @@ defmodule ComponentsGuideWeb.LandingView do
     l = 75
     color = {:lab, l, -20, -80}
 
-
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l + 20, -40, -40},
-      {:lab, l, -20, -80},
-      {:lab, l - 5, 20, -80},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l + 20, -40, -40},
+        {:lab, l, -20, -80},
+        {:lab, l - 5, 20, -80}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -164,11 +158,12 @@ defmodule ComponentsGuideWeb.LandingView do
   def sections_styles(:dark) do
     color = {:lab, 10, 1, -23}
 
-    gradient = Styling.linear_gradient("150grad", [
-      color,
-      color,
-      color,
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        color,
+        color,
+        color
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -176,12 +171,13 @@ defmodule ComponentsGuideWeb.LandingView do
   def sections_styles(:warm) do
     color = {:lab, 47, 10, -44}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, 47, 5, -44},
-      {:lab, 47, -24, -44},
-      color,
-      {:lab, 47, 53, -44}
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, 47, 5, -44},
+        {:lab, 47, -24, -44},
+        color,
+        {:lab, 47, 53, -44}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -193,14 +189,15 @@ defmodule ComponentsGuideWeb.LandingView do
 
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.5, a * 0.7, b * 2},
-      {:lab, l * 1.3, a * 0.8, b * 1.6},
-      {:lab, l * 1.1, a * 0.9, b * 1.2},
-      color,
-      {:lab, l * 0.9, a * 1.3, b * 0.7},
-      {:lab, l * 0.8, a * 1.7, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.5, a * 0.7, b * 2},
+        {:lab, l * 1.3, a * 0.8, b * 1.6},
+        {:lab, l * 1.1, a * 0.9, b * 1.2},
+        color,
+        {:lab, l * 0.9, a * 1.3, b * 0.7},
+        {:lab, l * 0.8, a * 1.7, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -212,14 +209,15 @@ defmodule ComponentsGuideWeb.LandingView do
 
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.5, a * 0.7, b * 2},
-      {:lab, l * 1.3, a * 0.8, b * 1.6},
-      {:lab, l * 1.1, a * 0.9, b * 1.2},
-      color,
-      {:lab, l * 0.9, a * 1.3, b * 0.7},
-      {:lab, l * 0.8, a * 1.7, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.5, a * 0.7, b * 2},
+        {:lab, l * 1.3, a * 0.8, b * 1.6},
+        {:lab, l * 1.1, a * 0.9, b * 1.2},
+        color,
+        {:lab, l * 0.9, a * 1.3, b * 0.7},
+        {:lab, l * 0.8, a * 1.7, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
