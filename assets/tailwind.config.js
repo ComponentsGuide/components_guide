@@ -3,11 +3,9 @@
 
 module.exports = {
   content: [
-    './js/**/*.js',
-    '../lib/components_guide_web.ex',
-    '../lib/components_guide_web/**/*.ex',
-    '../lib/components_guide_web/**/*.*ex',
-    '../lib/components_guide_web/templates/**/*.md'
+    './assets/js/**/*.js',
+    './lib/components_guide_web.ex',
+    './lib/components_guide_web/**/*.{ex,heex,eex,md}',
   ],
   plugins: [
     require('@tailwindcss/forms'),

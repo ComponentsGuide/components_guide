@@ -52,11 +52,11 @@ config :tailwind,
   version: "3.1.4",
   default: [
     args: ~w(
-    --config=tailwind.config.js
-    --input=css/app.css
-    --output=../priv/static/assets/app.css
+    --config=assets/tailwind.config.js
+    --input=assets/css/app.css
+    --output=priv/static/assets/app.css
   ),
-    cd: Path.expand("../assets", __DIR__)
+    cd: Path.expand("..", __DIR__)
   ]
 
 # Import environment specific config. This must remain at the bottom
