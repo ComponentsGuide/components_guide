@@ -16,9 +16,9 @@
 
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
-  <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
+  <nav class="w-48 lg:w-64 bg-gray-800 border-r border-gray-700 text-white">
     <div class="sticky top-0">
-      <h2 class="pt-4 pl-4 italic">I want to make an element:</h2>
+      <h2 class="pt-8 pl-4 italic">I want to make my element:</h2>
       <ul class="p-2 pl-8 leading-loose">
         <li><%= link "Hidden", to: "#hidden" %>
         <li><%= link "Current", to: "#current" %>
@@ -32,21 +32,23 @@
     </div>
   </nav>
   <div class="mx-auto flex-shrink">
-    <section aria-label="Accessible Properties Cheatsheet" class="max-w-xl lg:max-w-4xl px-6 pt-8 pb-16 text-white">
+    <section aria-label="Accessible Properties Cheatsheet" class="prose md:prose-lg prose-invert max-w-xl lg:max-w-4xl px-6 pt-16 pb-16 text-white">
+      <h1>Accessible Properties Cheatsheet</h1>
+
       <article aria-labelledby="hidden" class="space-y-4">
         <%= h2.(line("I want to **hide** an element"), id: "hidden") %>
 
-        <p><%= line("When hide content, first ask: whom do I want to **show** the content?") %>
+        <p><%= line("When hiding content, first ask: to whom do I want to **show** the content?") %>
 
         <%= list [
-          "Show to **everyone**. 👂✅ 👁✅",
-          "Hide from **everyone**. 👂❌ 👁❌",
-          "*Screen reader affordance:* show to screen reader users, **hide to sighted users**. 👂✅ 👁❌",
-          "*Visual affordance:* show to sighted users, **hide from screen reader users**. 👂❌ 👁✅"
+          "Do we want to show it to *everyone*? 👂✅ 👁✅",
+          "Do we want to hide it from *everyone*? 👂❌ 👁❌",
+          "Do we want an *audible affordance*? 👂✅ 👁❌ — let screen reader users hear it, yet hide it from sighted users?",
+          "Do we want a *visual affordance*? 👂❌ 👁✅ — let sighted users see it, yet hide it from screen reader users?"
         ] %>
 
         <section aria-labelledby="hidden-all-heading">
-          <%= h3.("Hidden to everyone", id: "hidden-all-heading") %>
+          <%= h3.("Hidden to everyone 👂❌ 👁❌", id: "hidden-all-heading") %>
           <p>To hide from everyone, add the <code>hidden</code> attribute.</p>
           <%= h4.("Test") %>
           <%=
@@ -74,15 +76,14 @@
 
         <section aria-labelledby="hidden-visually-heading">
           <%#= h3.("Visually hidden (assistive technology only)", id: "hidden-visually-heading") %>
-          <%= h3.("Assistive technology affordance (visually hidden)", id: "hidden-visually-heading") %>
+          <%= h3.("Assistive technology affordance (visually hidden) 👂✅ 👁❌", id: "hidden-visually-heading") %>
           <p>To show to people using assistive technology such as screen readers, yet hide from visual users, define and use a <code>visually-hidden</code> class.</p>
           <%= h4.("Test") %>
           <%=
           """
           it("has text that can still be read by tests and by screen readers", () => {
-            expect(
-              screen.getByRole('link', { name: 'Profile' })
-            ).toBeInTheDocument();
+            const link = screen.getByRole('link', { name: 'Profile' });
+            expect(link).toBeInTheDocument();
           })
           """ |> code_block(:js)
           %>
@@ -113,7 +114,7 @@
         </section>
 
         <section aria-labelledby="hidden-screen-heading">
-          <%= h3.("Visual affordance (hidden to assistive technology)", id: "hidden-screen-heading") %>
+          <%= h3.("Visual affordance (hidden to assistive technology) 👂❌ 👁✅", id: "hidden-screen-heading") %>
           <p>To show visually but hide to assistive technology, add the <code>aria-hidden</code> attribute.</p>
           <%= h4.("Test") %>
           <%=
@@ -121,7 +122,7 @@
           it("does not include emoji in accessible name", () => {
             expect(
               screen.getByRole('link', { name: 'Profile' })
-            ).toBeInTheDocument();
+            ).toBeVisible();
           })
           """ |> code_block(:js)
           %>
@@ -147,6 +148,8 @@
         </section>
       </article>
 
+      <hr />
+
       <article aria-labelledby="current" class="space-y-4">
         <%= h2.(line("I want to say this element is **current**"), id: "current") %>
 
@@ -158,8 +161,8 @@
           <%=
           """
           it("is current page", () => {
-            expect(screen.getByRole('link', { name: 'Pricing' }))
-              .toHaveAttribute('aria-current', 'page');
+            const link = screen.getByRole('link', { name: 'Pricing' });
+            expect(link).toHaveAttribute('aria-current', 'page');
           })
           """ |> code_block(:js)
           %>
@@ -192,6 +195,8 @@
         </section>
       </article>
 
+      <hr />
+
       <article aria-labelledby="selected" class="space-y-4">
         <%= h2.(line("I want to say this element is **selected**"), id: "selected") %>
 
@@ -199,6 +204,8 @@
           <li>Selected tab in a list
         </ul>
       </article>
+
+      <hr />
 
       <article aria-labelledby="invalid" class="space-y-4">
         <%= h2.(line("I want to say this element is **invalid**"), id: "invalid") %>
@@ -209,13 +216,13 @@
           <%=
           """
           it("is invalid", () => {
-            expect(screen.getByRole('textbox', { name: 'Email' }))
-              .toBeInvalid();
+            const emailField = screen.getByRole('textbox', { name: 'Email' });
+            expect(emailField).toBeInvalid();
           })
 
           it("shows error message", () => {
-            expect(screen.getByRole('textbox', { name: 'Email' }))
-              .toHaveDescription('Email must be a valid address');
+            const emailField = screen.getByRole('textbox', { name: 'Email' });
+            expect(emailField).toHaveAccessibleDescription('Email must be a valid address');
           })
           """ |> code_block(:js)
           %>
@@ -236,6 +243,8 @@
         </section>
       </article>
 
+      <hr />
+
       <article aria-labelledby="required" class="space-y-4">
         <%= h2.(line("I want to say this element is **required**"), id: "required") %>
 
@@ -245,8 +254,8 @@
           <%=
           """
           it("is required", () => {
-            expect(screen.getByRole('textbox', { name: 'Email' }))
-              .toBeRequired();
+            const emailField = screen.getByRole('textbox', { name: 'Email' })
+            expect(emailField).toBeRequired();
           })
           """ |> code_block(:js)
           %>
@@ -262,6 +271,8 @@
         </section>
       </article>
 
+      <hr />
+
       <article aria-labelledby="disabled" class="space-y-4">
         <%= h2.(line("I want to **disable** an element"), id: "disabled") %>
 
@@ -271,8 +282,8 @@
           <%=
           """
           it("is disabled", () => {
-            expect(screen.getByRole('textbox', { name: 'Email' }))
-              .toBeDisabled();
+            const emailField = screen.getByRole('textbox', { name: 'Email' });
+            expect(emailField).toBeDisabled();
           })
           """ |> code_block(:js)
           %>
