@@ -1,0 +1,3 @@
+<header class="<%= ComponentsGuideWeb.TopicsView.class_for_topic(:react_typescript) %>">
+  <%= render ComponentsGuideWeb.ReactTypescriptView, "_top.html" %>
+</header>

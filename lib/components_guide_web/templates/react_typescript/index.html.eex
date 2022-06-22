@@ -1,4 +1,4 @@
-<header style="<%= header_styles(@article) %>">
+<header class="<%= ComponentsGuideWeb.TopicsView.class_for_topic(:react_typescript) %>">
   <%= render view_module(@conn), "_top.html" %>
 </header>
 
