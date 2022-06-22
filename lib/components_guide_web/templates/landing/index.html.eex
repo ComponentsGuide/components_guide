@@ -1,27 +1,37 @@
 <%
 
-heading = "Great apps start with great components"
-heading = "Want to learn more of the why than the how?"
-heading = raw("Improve the user experience <em>and</em> developer experience of your components")
-heading = raw("Learn how to improve both the user experience <em>and</em> developer experience of your components")
-heading = raw("Learn how to improve the UX <em>and</em> DX of your components.")
-
-subhead = "Get better at accessibility, TDD, BDD, naming, performance, and the latest browser features — all for free."
+header_links = [
+  {"/accessibility-first", "Accessibility"},
+  {"/react+typescript", "TypeScript"},
+  {"/react+typescript", "React"},
+  {"/react+typescript/testing", "Testing"},
+  {"#coming-soon", "Naming"},
+  {"/web-standards/http-headers", "HTTP"},
+  {"#coming-soon", "API Design"},
+  {"#coming-soon", "Managing State"},
+  {"#coming-soon", "Caching"},
+  {"#coming-soon", "Performance"},
+  {"#coming-soon", "Async"}
+]
 
 %>
 
-<div class="bg-white text-black">
+<div class="border-t border-violet-900 bg-gray-900 text-blue-50">
   <section class="container px-6 pt-16 pb-8">
-    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center">
-      <%= heading %>
+    <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center font-bold text-violet-100">
+      Want to learn how to improve the <br><span class="text-violet-400">UX &amp; DX</span> of your components?
     </h1>
-    <p class="pt-12 mb-8 mx-auto max-w-4xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug">
-      <%= subhead %>
+    <p class="pt-12 mb-8 mx-auto max-w-4xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug text-violet-100 italic">
+      Get better at accessibility, TDD, BDD, naming, performance, and the latest browser features — all for free.
     </p>
-    <p hidden class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
-      Topics include:
-      <%= for {text, index} <- Enum.with_index(["SwiftUI", "React", "Combine", "RxJS", "Figma", "Sketch", "Performance", "Clarity", "Documentation", "Responsive", "Design Teams"]) do %>
-        <a href="#" class="inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-white <%= if index <= 5, do: "text-blue-500 hover:bg-blue-600", else: "text-indigo-500 hover:bg-indigo-600" %> hover:text-white rounded shadow-xl"><%= text %></a>
+    <p class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
+      <span class="font-bold text-blue-300">Topics include:</span>
+      <%= for {{path, text}, index} <- Enum.with_index(header_links) do %>
+        <a href="<%= path %>" class="
+          inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-slate-800/50 border-t-2 border-t-white/5 border-l-2 border-l-white/5
+          <%= if index <= 5, do: "text-blue-300 hover:bg-blue-700 border-b-2 border-blue-900 shadow-lg hover:shadow-sm shadow-blue-900/50 bg-gradient-to-br from-blue-100/5 to-blue-900/25", else: "text-indigo-300 hover:bg-indigo-700 border-b-2 border-indigo-900 shadow-lg hover:shadow-sm shadow-indigo-900/50 bg-gradient-to-br from-indigo-100/5 to-indigo-900/25" %>
+          hover:text-white rounded-lg shadow-xl
+          "><%= text %></a>
       <% end  %>
     </p>
     <div hidden class="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row justify-around">

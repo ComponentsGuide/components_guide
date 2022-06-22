@@ -13,7 +13,7 @@ defmodule ComponentsGuideWeb.LandingView do
 
   def subject_banner(subject) do
     ~E"""
-    <div class="py-4 bg-white">
+    <div class="py-4">
       <article class="text-gray-900 py-6 <%= TopicsView.class_for_topic(subject) %>">
         <%= render subject_to_module(subject), "_top.html" %>
       </article>
