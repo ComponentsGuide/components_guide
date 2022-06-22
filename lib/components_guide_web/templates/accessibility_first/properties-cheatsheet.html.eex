@@ -2,18 +2,7 @@
   theme = %Theme{text_color: "blue"}
   [h2, h3, h4] = Theme.headings(theme)
 %>
-<header class="text-white" style="<%= header_styles() %>">
-  <div class="mx-auto max-w-4xl">
-    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
-      <div class="row">
-        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
-      </div>
-      <span><%= "Accessibility-First" %></span>
-    </h1>
-    <%= render view_module(@conn), "_nav.html" %>
-  </div>
-</header>
-
+<%= render view_module(@conn), "_header.html" %>
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
   <nav class="w-48 lg:w-64 bg-gray-800 border-r border-gray-700 text-white">
@@ -32,8 +21,8 @@
     </div>
   </nav>
   <div class="mx-auto flex-shrink">
-    <section aria-label="Accessible Properties Cheatsheet" class="prose md:prose-lg prose-invert max-w-xl lg:max-w-4xl px-6 pt-16 pb-16 text-white">
-      <h1>Accessible Properties Cheatsheet</h1>
+    <section aria-labelledby="primary-heading" class="prose md:prose-lg prose-invert max-w-xl lg:max-w-4xl px-6 pt-16 pb-16 text-white">
+      <h1 id="primary-heading">Accessible Properties Cheatsheet</h1>
 
       <article aria-labelledby="hidden" class="space-y-4">
         <%= h2.(line("I want to **hide** an element"), id: "hidden") %>
@@ -148,7 +137,7 @@
         </section>
       </article>
 
-      <hr />
+      <hr>
 
       <article aria-labelledby="current" class="space-y-4">
         <%= h2.(line("I want to say this element is **current**"), id: "current") %>
@@ -195,7 +184,7 @@
         </section>
       </article>
 
-      <hr />
+      <hr>
 
       <article aria-labelledby="selected" class="space-y-4">
         <%= h2.(line("I want to say this element is **selected**"), id: "selected") %>
@@ -205,7 +194,7 @@
         </ul>
       </article>
 
-      <hr />
+      <hr>
 
       <article aria-labelledby="invalid" class="space-y-4">
         <%= h2.(line("I want to say this element is **invalid**"), id: "invalid") %>
@@ -243,7 +232,7 @@
         </section>
       </article>
 
-      <hr />
+      <hr>
 
       <article aria-labelledby="required" class="space-y-4">
         <%= h2.(line("I want to say this element is **required**"), id: "required") %>
@@ -271,7 +260,7 @@
         </section>
       </article>
 
-      <hr />
+      <hr>
 
       <article aria-labelledby="disabled" class="space-y-4">
         <%= h2.(line("I want to **disable** an element"), id: "disabled") %>

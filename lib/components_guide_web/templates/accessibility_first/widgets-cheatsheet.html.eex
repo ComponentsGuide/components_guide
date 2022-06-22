@@ -2,21 +2,11 @@
   theme = %Theme{text_color: "blue"}
   [h2, h3, h4] = Theme.headings(theme)
 %>
-<header class="text-white" style="<%= header_styles() %>">
-  <div class="mx-auto max-w-4xl">
-    <h1 class="pt-8 row space-x-4 text-4xl text-center font-bold leading-tight text-shadow">
-      <div class="row">
-        <span class="mr-2 text-4xl">💁🏼‍♀️🥇</span>
-      </div>
-      <span><%= "Accessibility-First" %></span>
-    </h1>
-    <%= render view_module(@conn), "_nav.html" %>
-  </div>
-</header>
+<%= render view_module(@conn), "_header.html" %>
 
 <div class="text-base lg:text-lg flex items-stretch bg-gray-900">
-  <nav class="w-48 lg:w-64 bg-gray-100 border-r border-gray-200">
-    <ul class="sticky top-0 p-4 pl-6 list-none leading-loose">
+  <nav class="w-48 lg:w-64 bg-gray-800 border-r border-gray-700 text-white">
+    <ul class="sticky top-0 p-4 pt-8 pl-6 list-none leading-loose">
       <li><%= link "Link", to: "#link" %>
       <li><%= link "Button", to: "#button" %>
       <li><%= link "Checkbox", to: "#checkbox" %>
@@ -32,7 +22,9 @@
     </ul>
   </nav>
   <div class="mx-auto flex-shrink">
-    <section aria-label="Roles Cheatsheet" class="max-w-xl lg:max-w-3xl px-4 pt-8 pb-16 text-white">
+    <section aria-labelledby="primary-heading" class="prose md:prose-lg prose-invert max-w-xl lg:max-w-4xl px-4 pt-16 pb-16 text-white">
+      <h1 id="primary-heading">Accessible Widgets Cheatsheet</h1>
+
       <article>
         <%= h2.("Link", id: "link") %>
 
@@ -47,6 +39,8 @@
         """ |> code_block(:html)
         %>
       </article>
+
+      <hr>
 
       <article>
         <%= h2.("Button", id: "button") %>
@@ -88,6 +82,8 @@
         %>
       </article>
 
+      <hr>
+
       <article>
         <%= h2.("Checkbox", id: "checkbox") %>
 
@@ -117,6 +113,8 @@
         ]
         %>
       </article>
+
+      <hr>
 
       <article>
         <%= h2.("Textbox", id: "textbox") %>
@@ -193,6 +191,8 @@
         %>
       </article>
 
+      <hr>
+
       <article>
         <%= h2.("Radio", id: "radio") %>
 
@@ -211,22 +211,20 @@
         %>
       </article>
 
+      <hr>
+
       <article>
         <%= h2.("Tabs", id: "tabs") %>
 
-        <%= h3.("It is checked", []) %>
-        <%=
-        [
-          """
-          expect(getByRole('radio', { name: 'Blue' })).toBeChecked();
-          """ |> code_block(:js),
-          """
-          <label><input type="radio">Purple</label>
-          <label><input type="radio" checked>Blue</label>
-          <label><input type="radio">Orange</label>
-          """ |> code_block(:html)
-        ]
-        %>
+        <%= h3.("Coming soon", []) %>
+      </article>
+
+      <hr>
+
+      <article>
+        <%= h2.("Modal Dialog", id: "dialog") %>
+
+        <%= h3.("Coming soon", []) %>
       </article>
 
     </section>
