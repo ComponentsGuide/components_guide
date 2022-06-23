@@ -683,4 +683,6 @@ end
 
 defmodule ComponentsGuideWeb.ReactEditorView do
   use ComponentsGuideWeb, :view
+
+  def skip_contentinfo, do: true
 end

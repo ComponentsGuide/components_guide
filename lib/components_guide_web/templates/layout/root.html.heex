@@ -42,7 +42,11 @@
 
     <%= @inner_content %>
 
-    <%= render ComponentsGuideWeb.LayoutView, "_contentinfo.html" %>
+    <%#= render ComponentsGuideWeb.LayoutView, "_contentinfo.html" %>
+    <%= if function_exported?(view_module(@conn), :skip_contentinfo, 0) do %>
+    <% else %>
+      <%= render "_contentinfo.html" %>
+    <% end %>
 
     <!-- Prism syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/components/prism-core.min.js" integrity="sha512-hqRrGU7ys5tkcqxx5FIZTBb7PkO2o3mU6U5+qB9b55kgMlBUT4J2wPwQfMCxeJW1fC8pBxuatxoH//z0FInhrA==" crossorigin="anonymous"></script>
