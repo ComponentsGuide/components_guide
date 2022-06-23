@@ -233,6 +233,21 @@ require(["vs/editor/editor.main"], function () {
             // handle the example import from unpkg.com but in reality this
             // would probably need to be more complex.
             build.onLoad({ filter: /.*/, namespace: 'http-url' }, async (args) => {
+
+              const url = new URL(args.path);
+              if (url.hostname === "jspm.dev") {
+                if (url.pathname === "/npm:react@18") {
+                  const hookNames = Object.keys(window.React).filter(name => name.startsWith('use'));
+                  const reactGlobals = hookNames.concat(['Fragment', 'isValidElement', 'cloneElement', 'createElement', 'forwardRef', 'createContext', 'createRef']);
+                  const statements = reactGlobals.map(property => `export const ${property} = window.React.${property}`).join(";");
+                  return { contents: `export default window.React; ${statements};` };
+                } else if (url.pathname === "/npm:react-dom@18") {
+                  const reactDOMGlobals = ['createPortal'];
+                  const statements = reactDOMGlobals.map(property => `export const ${property} = window.ReactDOM.${property}`).join(";");
+                  return { contents: `export default window.ReactDOM; ${statements};` };
+                }
+              }
+
               //console.log('loading', args.path);
               return await fetch(args.path).then(res => {
                 const contentType = res.headers.get('content-type') || '';
