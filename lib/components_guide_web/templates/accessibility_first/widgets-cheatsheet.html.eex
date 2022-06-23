@@ -214,6 +214,14 @@
       <hr>
 
       <article>
+        <%= h2.("Combobox", id: "combobox") %>
+
+        <%= h3.("Coming soon", []) %>
+      </article>
+
+      <hr>
+
+      <article>
         <%= h2.("Tabs", id: "tabs") %>
 
         <%= h3.("Coming soon", []) %>
