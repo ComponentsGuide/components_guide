@@ -780,6 +780,105 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "downshift-useselect"}) do
+    source = ~s"""
+    import { useSelect } from 'https://jspm.dev/downshift';
+
+    const items = [
+      'apple',
+      'pear',
+      'orange',
+      'grape',
+      'banana',
+    ];
+
+    const menuStyles = {
+      position: 'absolute',
+      insetInlineStart: 0,
+      insetBlockStart: '100%',
+      margin: 0,
+      padding: 0,
+      listStyle: 'none',
+      cursor: 'pointer',
+      maxWidth: 'max-content',
+      boxShadow: '4px 4px 16px #0006'
+    }
+
+    function menuItemStyle(active) {
+      return Object.assign({ paddingInline: '1rem', paddingBlock: '0.25rem' }, active && { backgroundColor: '#bde4ff' })
+    }
+
+    function DropdownSelect() {
+      const {
+        isOpen,
+        selectedItem,
+        getToggleButtonProps,
+        getLabelProps,
+        getMenuProps,
+        highlightedIndex,
+        getItemProps,
+      } = useSelect({ items })
+      return (
+        <div style={{ position: 'relative', display: 'flex', gap: '0.5rem' }}>
+          <label {...getLabelProps()} style={{ fontWeight: 'bold' }}>Choose an element:</label>
+          <div style={{ position: 'relative '}}>
+          <button type="button" {...getToggleButtonProps()}>
+            {selectedItem || 'Elements'}
+          </button>
+            <ul {...getMenuProps()} style={menuStyles}>
+              {isOpen &&
+                items.map((item, index) => (
+                  <li
+                    style={menuItemStyle(highlightedIndex === index)}
+                    key={`${item}${index}`}
+                    {...getItemProps({ item, index })}
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+          </div>
+        </div>
+      )
+    }
+
+    export default function App() {
+      return <main>
+        <DropdownSelect />
+      </main>;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
+  def show(conn, %{"id" => "userecursive"}) do
+    source = ~s"""
+    function useRecursive(initial) {
+      const [builder, dispatch] = useReducer((previous, value) => {
+        return function*() {
+          yield* previous();
+          yield value;
+        }
+      }, function* () { yield initial })
+
+      const values = useMemo(() => Array.from(builder()), [builder]);
+      return [values, dispatch]
+    }
+
+    export default function App() {
+      const [items, dispatch] = useRecursive("first")
+
+      return <div>
+        <button onClick={() => dispatch("New")}>New</button>
+        <ul>{items.map((item, index) => <li key={index}>{item}</li>)}</ul>
+      </div>
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "import-from-the-web"}) do
     source = ~s"""
     import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";

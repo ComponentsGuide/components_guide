@@ -245,6 +245,8 @@ require(["vs/editor/editor.main"], function () {
                   const reactDOMGlobals = ['createPortal'];
                   const statements = reactDOMGlobals.map(property => `export const ${property} = window.ReactDOM.${property}`).join(";");
                   return { contents: `export default window.ReactDOM; ${statements};` };
+                } else if (url.pathname === "/npm:react!cjs") {
+                  return { contents: `export default window.React` };
                 }
               }
 
