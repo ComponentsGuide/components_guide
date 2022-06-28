@@ -144,7 +144,7 @@ export function Example() {
 }
 `;
 
-value = `<%= raw(@source) %>`.trim();
+value = <%= @source |> Jason.encode!() |> raw() %>.trim();
 
 const types = fetch(" ", { cache: 'force-cache' })
   .then((response) => response.text())

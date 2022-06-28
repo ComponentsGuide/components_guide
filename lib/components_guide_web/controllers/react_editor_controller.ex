@@ -753,33 +753,6 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
-  def show(conn, %{"id" => "userecursive"}) do
-    source = ~s"""
-    function useRecursive(initial) {
-      const [builder, dispatch] = useReducer((previous, value) => {
-        return function*() {
-          yield* previous();
-          yield value;
-        }
-      }, function* () { yield initial })
-
-      const values = useMemo(() => Array.from(builder()), [builder]);
-      return [values, dispatch]
-    }
-
-    export default function App() {
-      const [items, dispatch] = useRecursive("first")
-
-      return <div>
-        <button onClick={() => dispatch("New")}>New</button>
-        <ul>{items.map((item, index) => <li key={index}>{item}</li>)}</ul>
-      </div>
-    }
-    """
-
-    render_source(conn, source)
-  end
-
   def show(conn, %{"id" => "downshift-useselect"}) do
     source = ~s"""
     import { useSelect } from 'https://jspm.dev/downshift';
