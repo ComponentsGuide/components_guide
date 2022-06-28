@@ -562,6 +562,197 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "react-aria-useselect"}) do
+    source = ~s"""
+    import { HiddenSelect, useSelect } from 'https://jspm.dev/@react-aria/select';
+    import { Item } from 'https://jspm.dev/@react-stately/collections';
+    import { useButton } from 'https://jspm.dev/@react-aria/button';
+    import { useSelectState } from 'https://jspm.dev/@react-stately/select';
+    import { DismissButton, useOverlay } from 'https://jspm.dev/@react-aria/overlays';
+    import { FocusScope } from 'https://jspm.dev/@react-aria/focus';
+    import { useListBox, useOption } from 'https://jspm.dev/@react-aria/listbox';
+
+    function ListBox(props) {
+      let ref = React.useRef();
+      let { listBoxRef = ref, state } = props;
+      let { listBoxProps } = useListBox(props, state, listBoxRef);
+
+      return (
+        <ul
+          {...listBoxProps}
+          ref={listBoxRef}
+          style={{
+            margin: 0,
+            padding: 0,
+            listStyle: 'none',
+            maxHeight: '150px',
+            overflow: 'auto'
+          }}
+        >
+          {[...state.collection].map((item) => (
+            <Option
+              key={item.key}
+              item={item}
+              state={state}
+            />
+          ))}
+        </ul>
+      );
+    }
+
+    function Option({ item, state }) {
+      let ref = React.useRef();
+      let { optionProps, isSelected, isFocused, isDisabled } = useOption(
+        { key: item.key },
+        state,
+        ref
+      );
+
+      let backgroundColor;
+      let color = 'black';
+
+      if (isSelected) {
+        backgroundColor = 'blueviolet';
+        color = 'white';
+      } else if (isFocused) {
+        backgroundColor = 'gray';
+      } else if (isDisabled) {
+        backgroundColor = 'transparent';
+        color = 'gray';
+      }
+
+      return (
+        <li
+          {...optionProps}
+          ref={ref}
+          style={{
+            background: backgroundColor,
+            color: color,
+            padding: '2px 5px',
+            outline: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          {item.rendered}
+        </li>
+      );
+    }
+
+    function Popover(props) {
+      let ref = React.useRef();
+      let {
+        popoverRef = ref,
+        isOpen,
+        onClose,
+        children
+      } = props;
+
+      // Handle events that should cause the popup to close,
+      // e.g. blur, clicking outside, or pressing the escape key.
+      let { overlayProps } = useOverlay({
+        isOpen,
+        onClose,
+        shouldCloseOnBlur: true,
+        isDismissable: true
+      }, popoverRef);
+
+      // Add a hidden <DismissButton> component at the end of the popover
+      // to allow screen reader users to dismiss the popup easily.
+      return (
+        <FocusScope restoreFocus>
+          <div
+            {...overlayProps}
+            ref={popoverRef}
+            style={{
+              position: "absolute",
+              width: "100%",
+              border: "1px solid gray",
+              background: "lightgray",
+              marginTop: 4
+            }}>
+            {children}
+            <DismissButton onDismiss={onClose} />
+          </div>
+        </FocusScope>
+      );
+    }
+
+    function Select(props) {
+      // Create state based on the incoming props
+      let state = useSelectState(props);
+
+      // Get props for child elements from useSelect
+      let ref = React.useRef();
+      let {
+        labelProps,
+        triggerProps,
+        valueProps,
+        menuProps
+      } = useSelect(props, state, ref);
+
+      // Get props for the button based on the trigger props from useSelect
+      let { buttonProps } = useButton(triggerProps, ref);
+
+      return (
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <div {...labelProps}>{props.label}</div>
+          <HiddenSelect
+            state={state}
+            triggerRef={ref}
+            label={props.label}
+            name={props.name}
+          />
+          <button
+            {...buttonProps}
+            ref={ref}
+            style={{ height: 30, fontSize: 14 }}
+          >
+            <span {...valueProps}>
+              {state.selectedItem
+                ? state.selectedItem.rendered
+                : 'Select an option'}
+            </span>
+            <span
+              aria-hidden="true"
+              style={{ paddingLeft: 5 }}
+            >
+              ▼
+            </span>
+          </button>
+          {state.isOpen &&
+            (
+              <Popover isOpen={state.isOpen} onClose={state.close}>
+                <ListBox
+                  {...menuProps}
+                  state={state}
+                />
+              </Popover>
+            )}
+        </div>
+      );
+    }
+
+    export default function App() {
+      return <main>
+        <Select label="Favorite Color">
+          <Item>Red</Item>
+          <Item>Orange</Item>
+          <Item>Yellow</Item>
+          <Item>Green</Item>
+          <Item>Blue</Item>
+          <Item>Purple</Item>
+          <Item>Black</Item>
+          <Item>White</Item>
+          <Item>Lime</Item>
+          <Item>Fushsia</Item>
+        </Select>
+      </main>;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "userecursive"}) do
     source = ~s"""
     function useRecursive(initial) {
