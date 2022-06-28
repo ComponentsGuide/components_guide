@@ -144,7 +144,7 @@ export function Example() {
 }
 `;
 
-value = <%= @source |> Jason.encode!() |> raw() %>.trim();
+value = <%= @source |> Jason.encode_to_iodata!() |> raw() %>.trim();
 
 const types = fetch(" ", { cache: 'force-cache' })
   .then((response) => response.text())
