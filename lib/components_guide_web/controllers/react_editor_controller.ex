@@ -825,6 +825,80 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "headlessui-combobox"}) do
+    source = ~s"""
+    import { Combobox } from 'https://jspm.dev/@headlessui/react';
+    import { CheckIcon } from 'https://jspm.dev/@heroicons/react/solid'
+
+    const people = [
+      { id: 1, name: 'Durward Reynolds' },
+      { id: 2, name: 'Kenton Towne' },
+      { id: 3, name: 'Therese Wunsch' },
+      { id: 4, name: 'Benedict Kessler' },
+      { id: 5, name: 'Katelyn Rohan' },
+    ]
+
+    function MyCombobox() {
+      const [selectedPerson, setSelectedPerson] = useState(people[0])
+      const [query, setQuery] = useState('')
+
+      const filteredPeople =
+        query === ''
+          ? people
+          : people.filter((person) => {
+            return person.name.toLowerCase().includes(query.toLowerCase())
+          })
+
+      return (
+        <Combobox value={selectedPerson} onChange={setSelectedPerson}>
+          <Combobox.Input
+            onChange={(event) => setQuery(event.target.value)}
+            displayValue={(person) => person.name}
+          />
+          <Combobox.Options>
+            {filteredPeople.map((person) => (
+              /* Use the `active` state to conditionally style the active option. */
+              /* Use the `selected` state to conditionally style the selected option. */
+              <Combobox.Option key={person.id} value={person} as={Fragment}>
+                {({ active, selected }) => (
+                  <li
+                    className={`flex items-center gap-1 p-1 ${active ? 'bg-blue-500 text-white' : 'bg-white text-black'
+                      }`}
+                  >
+                    <div className="w-4">
+                      {selected && <CheckIcon className="w-4 h-4" />}
+                    </div>
+                    {person.name}
+                  </li>
+                )}
+              </Combobox.Option>
+            ))}
+          </Combobox.Options>
+        </Combobox>
+      )
+    }
+
+    export default function App() {
+      useEffect(() => {
+        // Load Tailwind’s dynamic class generator: https://tailwindcss.com/docs/installation/play-cdn
+        const script = Object.assign(document.createElement("script"), {
+          src: "https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp",
+          onload() {
+            document.body.classList.toggle("hello") // Trigger Tailwind’s DOM detection
+          },
+        })
+        document.head.appendChild(script)
+      }, [])
+
+      return <main>
+        <MyCombobox />
+      </main>;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "userecursive"}) do
     source = ~s"""
     function useRecursive(initial) {
