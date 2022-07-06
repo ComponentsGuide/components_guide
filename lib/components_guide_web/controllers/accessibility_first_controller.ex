@@ -8,7 +8,16 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     |> render("index.html", article: "intro")
   end
 
-  @articles ["navigation", "landmarks", "roles", "accessible-name", "forms", "content", "refactoring-accessibility", "accessibility-tree-snapshots"]
+  @articles [
+    "navigation",
+    "landmarks",
+    "roles",
+    "accessible-name",
+    "forms",
+    "content",
+    "refactoring-accessibility",
+    "accessibility-tree-snapshots"
+  ]
 
   def show(conn, %{"id" => article}) when article in @articles do
     conn
@@ -39,10 +48,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
   defp page_title("content"), do: "Accessibility-First Content"
   defp page_title("accessible-name"), do: "Learning Accessible Names"
   defp page_title("refactoring-accessibility"), do: "Refactoring Accessibility"
-
-  defp page_title(_) do
-    "Accessibility-First Development"
-  end
+  defp page_title(_), do: "Accessibility-First Development"
 end
 
 defmodule ComponentsGuideWeb.AccessibilityFirstView do
@@ -50,6 +56,18 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
   require EEx
   use ComponentsGuideWeb.Snippets
   use Phoenix.HTML
+
+  def render_sidebar(_assigns) do
+    render("content_nav.html")
+  end
+
+  def sidebar(assigns = %{article: "content"}) do
+    ~H"""
+    <%= render_slot(@inner_block, render("content_nav.html")) %>
+    """
+  end
+
+  def sidebar(assigns), do: ~H""
 
   # def collected_image(conn, image_name) do
   #   %{static_path: path_to_image, width: width, height: height} = render(image_name)
