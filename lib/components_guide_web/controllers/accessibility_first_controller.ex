@@ -8,6 +8,14 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     |> render("index.html", article: "intro")
   end
 
+  @articles ["navigation", "landmarks", "roles", "accessible-name", "forms", "content", "refactoring-accessibility", "accessibility-tree-snapshots"]
+
+  def show(conn, %{"id" => article}) when article in @articles do
+    conn
+    |> assign(:page_title, page_title(article))
+    |> render("index.html", article: article)
+  end
+
   def show(conn, %{"id" => "widgets-cheatsheet"}) do
     conn
     |> assign(:page_title, "Accessible Widgets Cheatsheet")
@@ -18,14 +26,6 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     conn
     |> assign(:page_title, "Accessible Properties Cheatsheet")
     |> render("properties-cheatsheet.html")
-  end
-
-  @articles ["navigation", "landmarks", "roles", "accessible-name", "forms", "content", "refactoring-accessibility"]
-
-  def show(conn, %{"id" => article}) when article in @articles do
-    conn
-    |> assign(:page_title, page_title(article))
-    |> render("index.html", article: article)
   end
 
   def show(conn, _params) do
