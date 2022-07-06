@@ -16,7 +16,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
     "forms",
     "content",
     "refactoring-accessibility",
-    "accessibility-tree-snapshots"
+    "playwright"
   ]
 
   def show(conn, %{"id" => article}) when article in @articles do
@@ -48,6 +48,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstController do
   defp page_title("content"), do: "Accessibility-First Content"
   defp page_title("accessible-name"), do: "Learning Accessible Names"
   defp page_title("refactoring-accessibility"), do: "Refactoring Accessibility"
+  defp page_title("playwright"), do: "Accessibility Testing in Playwright"
   defp page_title(_), do: "Accessibility-First Development"
 end
 

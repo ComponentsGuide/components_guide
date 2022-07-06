@@ -7,7 +7,7 @@
     <li><%= link("Forms", to: '/accessibility-first/forms') %>
     <li><%= link("All Roles", to: '/accessibility-first/roles') %>
     <li><%= link("Accessible Name", to: '/accessibility-first/accessible-name') %>
-    <li><%= link("Snapshots", to: '/accessibility-first/accessibility-tree-snapshots') %>
+    <li><%= link("Testing with Playwright", to: '/accessibility-first/playwright') %>
     <li><%= link("Properties", to: '/accessibility-first/properties-cheatsheet') %>
     <li><%= link("Widgets", to: '/accessibility-first/widgets-cheatsheet') %>
   </ul>
