@@ -4,7 +4,7 @@
 
 I usually don’t like snapshot “tests” because they don’t really test anything. Instead of documenting behaviour you want demonstrated, they take a shortcut and just save a dump of everything to disk. Also they usually capture implementation details (like the HTML tree) that should be allowed to vary as you refactor — adding or removing whitespace or a `<div>` shouldn’t affect a test.
 
-Instead of snapshotting HTML, consider looking at your accessibility tree. Playwright [lets you inspect this](https://playwright.dev/docs/api/class-accessibility) via `page.accessibility.snapshot()`, and you can capture each tree for Chrome, Safari, and Firefox (each interpret it slightly differently).
+Instead of snapshotting HTML, consider looking at your accessibility tree. Playwright [lets you inspect this](https://playwright.dev/docs/api/class-accessibility) via `page.accessibility.snapshot()`, and you can capture each tree for Chrome, Safari, and Firefox (each browser interprets things slightly differently).
 
 Here is an automated test that retrieves this accessibility tree, and then writes it to a `accessibility-tree.json` file to compare with the next test run.
 
@@ -62,12 +62,13 @@ Here’s what the tree looks like:
     {
       "role": "text",
       "name": "Get better at accessibility, testing, naming, performance, and using built-in browser features — all for free."
-    }
+    },
+    …
   ]
 }
 ```
 
-If you make changes to your app implementation and run the tests again, you’ll see a helpful diff like so:
+If you make changes to your site and run the tests again, you’ll see a helpful diff like so:
 
 <collected-figure image="accessibility-tree-snapshot-failure-diff">
   Diff comparing the accessibility tree after making changes to the components.guide home page.
