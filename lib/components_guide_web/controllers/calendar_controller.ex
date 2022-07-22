@@ -43,6 +43,10 @@ defmodule ComponentsGuideWeb.CalendarController do
       go1_18: %{release: {2022, 3, 15}}
     }
 
+    rust = %{
+      rust1_62: %{release: {2022, 6, 30}}
+    }
+
     browsers = %{
       firefox99: %{release: {2022, 4, 5}},
       firefox100: %{release: {2022, 5, 3}},
@@ -73,6 +77,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       react,
       swift,
       golang,
+      rust,
       browsers,
       postgres,
       aws_lambda,
@@ -100,6 +105,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       go1_18: "https://go.dev/doc/go1.18",
+      rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
@@ -269,6 +275,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"postgres" <> version>> -> "Postgres #{pretty_version(version)}"
       <<"swift" <> version>> -> "Swift #{pretty_version(version)}"
       <<"go" <> version>> -> "Go #{pretty_version(version)}"
+      <<"rust" <> version>> -> "Rust #{pretty_version(version)}"
       <<"react_query" <> version>> -> "React Query #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
       <<"jest" <> version>> -> "Jest #{pretty_version(version)}"
@@ -307,6 +314,9 @@ defmodule ComponentsGuideWeb.CalendarView do
 
         <<"go" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/go.svg"
+
+        <<"rust" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/rust.svg"
 
         <<"react_query" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/reactquery.svg"
