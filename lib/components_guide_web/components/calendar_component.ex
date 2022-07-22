@@ -2,9 +2,21 @@ defmodule ComponentsGuideWeb.CalendarComponent do
   use ComponentsGuideWeb, :component
 
   def calendar_grid(assigns) do
-    %{year: year, month: month, day: day} = today = assigns[:date]
-    start_date = Date.beginning_of_month(today)
-    end_date = Date.end_of_month(today)
+    %{year: year, month: month} = assigns
+
+    day =
+      case assigns[:current_date] do
+        nil ->
+          nil
+
+        %{day: day} ->
+          day
+      end
+
+    # %{year: year, month: month, day: day} = today = assigns[:date]
+    date = Date.new!(year, month, 1)
+    start_date = Date.beginning_of_month(date)
+    end_date = Date.end_of_month(date)
     date_range = Date.range(start_date, end_date)
 
     day_inset = Date.day_of_week(start_date)
