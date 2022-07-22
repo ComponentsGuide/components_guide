@@ -22,7 +22,8 @@ defmodule ComponentsGuideWeb.CalendarController do
     }
 
     react = %{
-      react18: %{release: {2022, 3, 29}}
+      react18: %{release: {2022, 3, 29}},
+      react_query4: %{release: {2022, 7, 18}},
     }
 
     jest = %{
@@ -90,6 +91,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_23: "https://deno.com/blog/v1.23",
       deno1_24: "https://deno.com/blog/v1.24",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
+      react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
       firefox100: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/100",
       firefox101: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/101",
@@ -102,14 +104,44 @@ defmodule ComponentsGuideWeb.CalendarController do
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
 
+    dates_to_items =
+      for group <- groups do
+        for {id, %{release: yymmdd}} <- group do
+          {yymmdd, id}
+        end
+      end
+      |> List.flatten()
+      |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
+      |> Map.new()
+
+    IO.inspect(dates_to_items)
+
     today = Date.utc_today()
+
+    calendar_extra = fn date ->
+      yymmdd = Date.to_erl(date)
+
+      ids = Map.get(dates_to_items, yymmdd, [])
+      ComponentsGuideWeb.CalendarView.icon_links(ids, links)
+
+      # case Map.get(dates_to_items, yymmdd) do
+      #   nil ->
+      #     ""
+
+      #   ids ->
+      #     for id <- ids do
+      #       ComponentsGuideWeb.CalendarView.icon_link(id)
+      #     end
+      # end
+    end
 
     assigns = [
       page_title:
         "Calendar of when important tools are released, become LTS, and reach end-of-life",
       today: today,
       current_week: today |> Date.to_erl() |> iso_week_number(),
-      list: create_list(groups, links)
+      list: create_list(groups, links),
+      calendar_extra: calendar_extra
     ]
 
     render(conn, "index.html", assigns)
@@ -188,6 +220,31 @@ defmodule ComponentsGuideWeb.CalendarView do
     end
   end
 
+  def icon_link(id, link) do
+    assigns = %{
+      what: pretty_name(id),
+      href: link || "#",
+      icon: pretty_icon(id)
+    }
+
+    ~H"""
+    <a href={@href}>
+      <span class="text-3xl not-prose"><%= @icon %></span>
+      <%= @what %>
+    </a>
+    """
+  end
+
+  def icon_links(ids, links) do
+    assigns = %{ids: ids}
+
+    ~H"""
+    <%= for id <- @ids do %>
+    <%= ComponentsGuideWeb.CalendarView.icon_link(id, Map.get(links, id)) %>
+    <% end %>
+    """
+  end
+
   defp week_diff(date) do
     today = Date.utc_today()
     {current_year, current_week} = :calendar.iso_week_number(Date.to_erl(today))
@@ -212,6 +269,7 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"postgres" <> version>> -> "Postgres #{pretty_version(version)}"
       <<"swift" <> version>> -> "Swift #{pretty_version(version)}"
       <<"go" <> version>> -> "Go #{pretty_version(version)}"
+      <<"react_query" <> version>> -> "React Query #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
       <<"jest" <> version>> -> "Jest #{pretty_version(version)}"
       <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
@@ -249,6 +307,9 @@ defmodule ComponentsGuideWeb.CalendarView do
 
         <<"go" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/go.svg"
+
+        <<"react_query" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/reactquery.svg"
 
         <<"react" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"

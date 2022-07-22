@@ -1,20 +1,23 @@
+<div class="prose md:prose-xl prose-invert max-w-6xl mx-auto pt-8 px-3">
+  <h1 class="text-center">Developer Calendar</h1>
+  <CalendarComponent.calendar_grid date={@today} extra={@calendar_extra} />
+</div>
+
 <div class="prose md:prose-xl prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">
-  <h1>Developer Calendar</h1>
-  <form id="filter-calendar" class="flex flex-wrap gap-6 -mt-8 mb-8 select-none">
-    <label><input type="checkbox" name="end_of_life" checked class="rounded text-sky-500"> End of life</label>
-    <label><input type="checkbox" name="released" checked class="rounded text-sky-500"> Released</label>
-    <label><input type="checkbox" name="lts_starts" checked class="rounded text-sky-500"> LTS</label>
-  </form>
   <article>
+    <h2>All releases</h2>
+    <form id="filter-calendar" class="flex flex-wrap gap-6 -mt-8 mb-8 select-none">
+      <label><input type="checkbox" name="end_of_life" checked class="rounded text-sky-500"> End of life</label>
+      <label><input type="checkbox" name="released" checked class="rounded text-sky-500"> Released</label>
+      <label><input type="checkbox" name="lts_starts" checked class="rounded text-sky-500"> LTS</label>
+    </form>
     <%= for item <- @list do %>
     <%= present_item(item) %>
     <% end %>
   </article>
-  <CalendarComponent.calendar_grid date={@today} />
 </div>
 
-<div class="prose prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">
-  <hr>
+<section class="prose prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">
   <p><%= "Why number of weeks? Since most teams work in weekly or fortnightly sprints, I figure it’s helpful to see what will land in the next sprint or so." %></p>
   <p>Sources:</p>
   <ul>
@@ -26,7 +29,7 @@
     <li><a href="https://endoflife.date/postgresql">Postgres on endoflife.date</a></li>
     <li><a href="https://simpleicons.org">Simple Icons</a></li>
   </ul>
-</div>
+</section>
 
 <script type="module">
   const form = document.getElementById("filter-calendar");
