@@ -17,7 +17,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_20: %{release: {2022, 3, 16}},
       deno1_21: %{release: {2022, 4, 20}},
       deno1_22: %{release: {2022, 5, 18}},
-      deno1_23: %{release: {2022, 6, 16}}
+      deno1_23: %{release: {2022, 6, 16}},
+      deno1_24: %{release: {2022, 7, 21}}
     }
 
     react = %{
@@ -86,6 +87,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_20: "https://deno.com/blog/v1.20",
       deno1_21: "https://deno.com/blog/v1.21",
       deno1_22: "https://deno.com/blog/v1.22",
+      deno1_23: "https://deno.com/blog/v1.23",
+      deno1_24: "https://deno.com/blog/v1.24",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
       firefox100: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/100",
@@ -96,9 +99,6 @@ defmodule ComponentsGuideWeb.CalendarController do
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       go1_18: "https://go.dev/doc/go1.18",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
-      deno1_21: "https://deno.com/blog/v1.21",
-      deno1_22: "https://deno.com/blog/v1.22",
-      deno1_23: "https://deno.com/blog/v1.23",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
     }
 
