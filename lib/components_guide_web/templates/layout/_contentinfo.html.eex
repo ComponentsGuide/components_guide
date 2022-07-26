@@ -4,7 +4,12 @@
   </div>
 
   <div class="X pt-8 pb-12">
-    <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
+    <details>
+      <summary class="text-xl text-white text-center">Subscribe to the Newsletter</summary>
+      <div class="mt-2">
+        <%= render ComponentsGuideWeb.IntegrationsView, "convertkit_form.html", [] %>
+      </div>
+    </details>
   </div>
 
   <nav aria-label="Links">
