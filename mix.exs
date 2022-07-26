@@ -74,6 +74,9 @@ defmodule ComponentsGuide.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "cmd npm --prefix assets ci"],
+      "asdf.rust": [
+
+      ],
       "assets.deploy": [
         "template_assets",
         "tailwind.install",
