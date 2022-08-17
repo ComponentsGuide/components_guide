@@ -9,6 +9,7 @@ defmodule ComponentsGuideWeb.LandingView do
     do: ComponentsGuideWeb.RobustJavascriptInteractivityView
 
   defp subject_to_module(:web_standards), do: ComponentsGuideWeb.WebStandardsView
+  defp subject_to_module(:cheatsheets), do: ComponentsGuideWeb.CheatsheetsView
   defp subject_to_module(:composable_systems), do: ComponentsGuideWeb.ComposableSystemsView
 
   def subject_banner(subject) do

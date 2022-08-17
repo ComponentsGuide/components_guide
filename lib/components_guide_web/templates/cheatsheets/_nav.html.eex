@@ -1,7 +1,7 @@
 <nav class="pt-6 pb-4">
-  <ul y-y x-x=md class="text-xl font-bold text-shadow" data-links="p-3">
-    <li><%= link("Intro", to: '/cheatsheets') %>
+  <ul y-y x-x=md class="text-xl font-bold" data-links="p-3">
     <li><%= link("Error Messages", to: '/cheatsheets/error-messages') %>
+    <li><%= link("Cloud Limits", to: '/cheatsheets/cloud-limits') %>
     <li><%= link("RxJS", to: '/cheatsheets/rxjs') %>
   </ul>
 </nav>

@@ -59,9 +59,10 @@ header_links = [
 
 <%= subject_banner(:accessibility_first) %>
 <%= subject_banner(:react_typescript) %>
-<%= subject_banner(:robust_javascript_interactivity) %>
 <%= subject_banner(:web_standards) %>
 <%= subject_banner(:composable_systems) %>
+<%= subject_banner(:cheatsheets) %>
+<%= subject_banner(:robust_javascript_interactivity) %>
 
 <div hidden class="text-white">
   <section class="pt-20 pb-20" style="<%= sections_styles(:dark) %>">

@@ -12,7 +12,8 @@ defmodule ComponentsGuideWeb.TopicsView do
     react_typescript: "bg-blue-200",
     robust_javascript_interactivity: "bg-orange-200",
     web_standards: "bg-yellow-200",
-    composable_systems: "bg-green-200",
+    composable_systems: "bg-lime-200",
+    cheatsheets: "bg-teal-200",
   }
 
   def class_for_topic(topic), do: @backgrounds[topic]

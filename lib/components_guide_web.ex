@@ -56,7 +56,7 @@ defmodule ComponentsGuideWeb do
       @opts Keyword.merge(
               [
                 layout: {ComponentsGuideWeb.LayoutView, "live.html"},
-                container: {:div, class: "relative h-screen flex overflow-hidden bg-white"}
+                container: {:div, class: "relative h-screen flex overflow-hidden"}
               ],
               unquote(opts)
             )
