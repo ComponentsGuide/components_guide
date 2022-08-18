@@ -265,6 +265,80 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "form-reducer-validation"}) do
+    source = ~s"""
+    function formDataFrom(element) {
+      if (element instanceof HTMLFormElement) {
+        return new FormData(element);
+      }
+
+      const formData = new FormData();
+      if (element instanceof HTMLInputElement) {
+        formData.set(element.name, element.value);
+      }
+      return formData;
+    }
+
+    function reducer(state, event) {
+      if (event.type === "submit") {
+        event.preventDefault();
+      }
+
+      const errors = new Map(state.errors);
+      for (const [name, value] of formDataFrom(event.target)) {
+        // TODO: add more advanced validation here
+        if (value.trim() === "") {
+          errors.set(name, "Required");
+        }
+      }
+
+      return { ...state, errors };
+    }
+
+    function Field({ name, label, error, type = "text" }) {
+      const id = useId();
+      return (
+        <div class="flex items-center gap-2">
+          <label for={id}>{label}</label>
+          <input id={id} name={name} type={type} />
+          <span class="italic">{error}</span>
+        </div>
+      );
+    }
+
+    export default function App() {
+      const [state, dispatch] = useReducer(reducer, { errors: new Map() });
+
+      return (
+        <form onBlur={dispatch} onSubmit={dispatch} class="flex flex-col items-start gap-4">
+          <p class="italic">Fields will individually validate on blur, or every field will validate on submit.</p>
+          <fieldset class="flex flex-col gap-2">
+            <Field
+              name="firstName"
+              label="First name"
+              error={state.errors.get("firstName")}
+            />
+            <Field
+              name="lastName"
+              label="Last name"
+              error={state.errors.get("lastName")}
+            />
+            <Field
+              name="email"
+              label="Email"
+              type="email"
+              error={state.errors.get("email")}
+            />
+          </fieldset>
+          <button class="px-3 py-1 bg-blue-300 rounded">Save</button>
+        </form>
+      );
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, %{"id" => "yieldmachine"}) do
     source = ~s"""
     import { start, on } from "https://unpkg.com/yieldmachine@0.5.1/dist/yieldmachine.module.js"
