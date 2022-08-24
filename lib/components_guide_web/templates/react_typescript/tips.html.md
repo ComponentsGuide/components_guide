@@ -1,3 +1,5 @@
+# TypeScript & React Fundamentals
+
 ## Structural vs nominal types
 
 Most statically typed languages use the concept of nominal types.

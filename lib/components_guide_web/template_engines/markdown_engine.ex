@@ -5,21 +5,56 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
   require Earmark
 
+  def slug(text) do
+    slug =
+      text
+      |> String.downcase()
+      |> String.replace(~w{ , ` - – — / { \} [ ] ; : ? !}, "")
+      |> String.replace(" ", "-")
+
+    slug
+    # "-md-" <> slug
+  end
+
   def compile(path, name) do
     IO.puts("compile #{path} #{name}")
+
+    registered_processors = [
+      {"h2",
+       fn node ->
+         html_fragment = Earmark.Transform.transform([node])
+
+         inner_text = Floki.parse_fragment!(html_fragment) |> Floki.text() |> String.trim()
+
+         id = slug(inner_text)
+
+         node
+         |> Earmark.AstTools.merge_atts_in_node(id: slug(inner_text))
+       end}
+    ]
+
+    # |> Earmark.TagSpecificProcessors.new()
+
+    options =
+      Earmark.Options.make_options!(
+        code_class_prefix: "language-",
+        smartypants: false,
+        registered_processors: registered_processors
+      )
 
     html =
       path
       |> File.read!()
-      |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false})
-      # |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false, postprocessor: &map_ast/1})
+      |> Earmark.as_html!(options)
+
+    # |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false, postprocessor: &map_ast/1})
 
     # regex = ~r{<live-([\w-]+)>(.+)</live-([\w-]+)>}
     regex = ~r{<live-([\w-]+)>([^<]+)</live-([^>]+)>}
     # regex = ~r{<live-([\w-]+)>}
 
     html =
-      Regex.replace(regex, html, fn whole, tag_suffix, content ->
+      Regex.replace(regex, html, fn _whole, tag_suffix, content ->
         case tag_suffix do
           "render" ->
             # |> String.to_existing_atom

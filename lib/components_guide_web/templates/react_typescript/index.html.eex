@@ -1,14 +1,69 @@
 <header class="<%= ComponentsGuideWeb.TopicsView.class_for_topic(:react_typescript) %>">
-  <%= render view_module(@conn), "_top.html" %>
+  <%= render view_module(@conn), "_headline.html" %>
 </header>
 
-<article>
-  <div class="text-white bg-gray-900">
-    <div class="<%= view_module(@conn).article_content_class(@article) %>">
-      <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
+<navigable-article class="flex flex-col">
+  <div class="mx-auto grid-flow-col grid grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8" style="--max-width: 46em">
+    <div class="sticky top-0 h-screen pt-16 text-white">
+      <%= render view_module(@conn), "_nav.html", conn: @conn %>
     </div>
+    <article class="text-white bg-gray-900">
+      <div class="<%= view_module(@conn).article_content_class(@article) %>">
+        <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
+      </div>
+    </article>
+    <aside class="sticky top-0 h-screen" hidden>
+      <nav class="pt-16 text-gray-200">
+        <div class="pl-5 pb-2 font-bold uppercase text-white">On this page</div>
+        <slot name="nav-items">
+          <template>
+            <ul class="list-none">
+              <li class="border-l-4 border-gray-800 hover:border-blue-400"></li>
+            </ul>
+            <a href="#" class="inline-flex py-1 pl-4 hover:text-blue-400"></a>
+          </template>
+        </slot>
+      </nav>
+    </aside>
   </div>
-</article>
+</navigable-article>
+
+<script type="module">
+customElements.get('navigable-article') || customElements.define('navigable-article',
+  class extends HTMLElement {
+    constructor() {
+      super();
+
+      const document = this.ownerDocument;
+
+      function El(base, props, ...children) {
+        const el = typeof base === 'string' ? document.createElement(base) : base.cloneNode(false);
+        Object.assign(el, props);
+        el.append(...children);
+        return el;
+      }
+
+      const article = this.querySelector('article');
+      const aside = this.querySelector('aside');
+
+      aside.hidden = false;
+
+      const navItemsSlot = this.querySelector('slot[name=nav-items]');
+      const navItemsTemplates = navItemsSlot.querySelector('template').content;
+      const linkTemplate = navItemsTemplates.querySelector('a');
+      const ulTemplate = navItemsTemplates.querySelector('ul');
+      const liTemplate = navItemsTemplates.querySelector('li');
+
+      const headings = article.querySelectorAll('h2');
+      const items = Array.from(headings, (headingEl) => {
+        return El(liTemplate, {}, El(linkTemplate, { href: '#' + headingEl.id }, headingEl.innerText));
+      });
+
+      navItemsSlot.append(El(ulTemplate, {}, ...items));
+    }
+  }
+);
+</script>
 
 <div class="bg-white" hidden>
   <section class="container pt-8 pb-16 text-2xl">

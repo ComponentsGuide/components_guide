@@ -1,3 +1,5 @@
+# Form Validation with React Reducers
+
 ## Thinking of validation as a linear process
 
 We can think of validation as mapping from events to errors.

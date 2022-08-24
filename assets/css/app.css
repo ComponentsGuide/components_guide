@@ -20,6 +20,7 @@ a:not([class]):not(.prose *) {
   padding-top: var(--link--padding-y);
   padding-bottom: var(--link--padding-y);
   color: var(--link--color);
+  font-weight: var(--link--font-weight);
   text-decoration: var(--link--decoration);
 }
 a:hover:not([class]):not(.prose *) {
@@ -35,6 +36,9 @@ a:hover:not([class]):not(.prose *) {
 [data-links~='current-color'] {
   --link--color: currentColor;
 }
+[data-links~='current-page-bold'] a[aria-current="page"] {
+  --link--font-weight: bold;
+}
 [data-links~='block'] {
   --link--display: block;
 }
@@ -44,6 +48,14 @@ a:hover:not([class]):not(.prose *) {
 [data-links~='underline-on-hover'] {
   --link--decoration: none;
   --link--decoration--hover: underline;
+}
+[data-links~='p-1'] {
+  --link--padding-x: 0.25rem;
+  --link--padding-y: 0.25rem;
+}
+[data-links~='p-2'] {
+  --link--padding-x: 0.5rem;
+  --link--padding-y: 0.5rem;
 }
 [data-links~='p-3'] {
   --link--padding-x: 0.75rem;
