@@ -10,7 +10,6 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
-import * as Turbo from "@hotwired/turbo";
 
 // window.IMPORTS = {
 //   DOMTesting: import("@testing-library/dom")
