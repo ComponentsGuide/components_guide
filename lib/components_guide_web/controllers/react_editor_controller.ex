@@ -286,6 +286,8 @@ defmodule ComponentsGuideWeb.ReactEditorController do
 
       const errors = new Map(state.errors);
       for (const [name, value] of formDataFrom(event.target)) {
+        errors.delete(name);
+
         // TODO: add more advanced validation here
         if (value.trim() === "") {
           errors.set(name, "Required");
