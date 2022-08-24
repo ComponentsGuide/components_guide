@@ -21,11 +21,11 @@ So how do we do each of these steps?
 
 ## Get the fields matching this event
 
-Each event that happens from a user interacting with some UI control has that control as part of the event. These can be accessed via the `.current` property on the event.
+Each event that happens from a user interacting with some UI control has that control as part of the event. These can be accessed via the `.target` property on the event.
 
-For a `blur` event on an `<input>`, the `.current` property will refer to the input’s DOM element. This is an instance of [`HTMLInputElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement), which includes convenient properties like reading the current `.value`.
+For a `blur` event on an `<input>`, the `.target` property will refer to the input’s DOM element. This is an instance of [`HTMLInputElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement), which includes convenient properties like reading the current `.value`.
 
-For a `submit` event on a `<form>`, the `.current` property will refer to the form’s DOM element. This is an instance of [`HTMLFormElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement).
+For a `submit` event on a `<form>`, the `.target` property will refer to the form’s DOM element. This is an instance of [`HTMLFormElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement).
 
 Here’s an example form written in React demonstrating reading from the event:
 
