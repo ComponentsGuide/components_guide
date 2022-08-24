@@ -10,7 +10,9 @@ defmodule ComponentsGuideWeb.ReactTypescriptController do
   @articles %{
     "testing" => %{title: "Testing React"},
     "forms" => %{title: "Creating Forms in React"},
+    "state-levels" => %{title: "Levels of State in React"},
     "reducer-patterns" => %{title: "React Reducer Patterns"},
+    "form-reducers" => %{title: "Form Validation with React Reducers"},
     "zero-hook-dependencies" => %{title: "Zero Hook Dependencies"},
     "hooks-concurrent-world" => %{title: "React Hooks in a Concurrent World"},
     "logical-clocks" => %{title: "Logical Clocks in React"},
