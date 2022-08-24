@@ -15,9 +15,6 @@ module.exports = {
     extend: {
       colors: {
         current: 'currentColor',
-      },
-      zIndex: {
-        'menu': 'var(--z-menu)'
       }
     },
   },
