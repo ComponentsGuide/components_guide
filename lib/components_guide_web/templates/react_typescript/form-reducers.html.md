@@ -6,24 +6,20 @@ We have two events: `blur` and `submit`.
 
 When a field is blurred, we validate whether its value is valid or not.
 
-When a whole form is submitted, we validate all of its fields at once.
+When a whole form is submitted, we validate **all** of its fields at once.
 
 It would be great to write the same code to validate either a single field (when it is blurred) or a whole bunch of fields (when their form is submitted).
 
-If we were to sketch this using TypeScript:
+If we were to sketch out the steps:
 
-```ts
-function validate(event: Event): Map<string, string> {
-  // Get the field(s) matching this event.
-  // Get the values from the fields.
-  // Validate each value.
-  // Return a key-value map for each error, with the key identifying the field, and the value holding the error message.
-}
-```
+1. Get the field(s) matching this event.
+2. Get the values from the fields.
+3. Validate each value.
+4. Store a key-value map for each error, with the key identifying the field, and the value holding the error message.
 
 So how do we do each of these steps?
 
-## Get the field(s) matching this event
+## Get the fields matching this event
 
 Each event that happens from a user interacting with some UI control has that control as part of the event. These can be accessed via the `.current` property on the event.
 
@@ -34,15 +30,21 @@ For a `submit` event on a `<form>`, the `.current` property will refer to the fo
 Here’s an example form written in React demonstrating reading from the event:
 
 ```tsx
-<form onSubmit={(event) => {
-  const form = event.target;
-  console.log(form instanceof HTMLFormElement); // true
-}}>
+<form
+  onSubmit={(event) => {
+    event.preventDefault();
+    const form = event.target;
+    console.log(form instanceof HTMLFormElement); // true
+  }}
+>
   <label for="f">First name</label>
-  <input id="f" onBlur={(event) => {
-    const input = event.target;
-    console.log(input instanceof HTMLInputElement); // true
-  }} />
+  <input
+    id="f"
+    onBlur={(event) => {
+      const input = event.target;
+      console.log(input instanceof HTMLInputElement); // true
+    }}
+  />
 </form>
 ```
 
@@ -73,7 +75,7 @@ values.get("secondField"); // "Another string value"
 
   <label for="f2">Second</label>
   <input id="f2" name="secondField" value="Another string value" />
-</form>
+</form>;
 ```
 
 Note the keys like `firstField` are provided by setting the `name` attribute of each `<input>`.
@@ -94,19 +96,26 @@ function validate(values) {
   // TODO
 }
 
-<form onSubmit={(event) => {
-  const form = event.target;
-  const values = new FormData(form);
-  validate(values);
-}}>
-  <label for="f1">First name</label>
-  <input id="f1" name="firstName" onBlur={(event) => {
-    const input = event.target;
-    const values = new FormData();
-    values.set("firstName", input.value);
+<form
+  onSubmit={(event) => {
+    event.preventDefault();
+    const form = event.target;
+    const values = new FormData(form);
     validate(values);
-  }} />
-</form>
+  }}
+>
+  <label for="f1">First name</label>
+  <input
+    id="f1"
+    name="firstName"
+    onBlur={(event) => {
+      const input = event.target;
+      const values = new FormData();
+      values.set("firstName", input.value);
+      validate(values);
+    }}
+  />
+</form>;
 ```
 
 You can see for both events we get the associated DOM element and their relevant values and turn it into a `FormData`. I like this pattern of turning two different types of input into a consistent output, as now the code that follows can think about things in just one way, instead of requiring two branches say with an `if` statement.
@@ -120,38 +129,54 @@ function validate(values) {
   // TODO
 }
 
-<form onSubmit={(event) => {
-  const form = event.target;
-  const values = new FormData(form);
-  validate(values);
-}}>
-  <label for="f1">First name</label>
-  <input id="f1" name="firstName" onBlur={(event) => {
-    const input = event.target;
-    const values = new FormData();
-    values.set("firstName", input.value);
+<form
+  onSubmit={(event) => {
+    event.preventDefault();
+    const form = event.target;
+    const values = new FormData(form);
     validate(values);
-  }} />
+  }}
+>
+  <label for="f1">First name</label>
+  <input
+    id="f1"
+    name="firstName"
+    onBlur={(event) => {
+      const input = event.target;
+      const values = new FormData();
+      values.set("firstName", input.value);
+      validate(values);
+    }}
+  />
 
   <label for="f2">Last name</label>
-  <input id="f2" name="lastName" onBlur={(event) => {
-    const input = event.target;
-    const values = new FormData();
-    values.set("lastName", input.value);
-    validate(values);
-  }} />
+  <input
+    id="f2"
+    name="lastName"
+    onBlur={(event) => {
+      const input = event.target;
+      const values = new FormData();
+      values.set("lastName", input.value);
+      validate(values);
+    }}
+  />
 
   <label for="f3">Email</label>
-  <input id="f3" name="email" type="email" onBlur={(event) => {
-    const input = event.target;
-    const values = new FormData();
-    values.set("email", input.value);
-    validate(values);
-  }} />
-</form>
+  <input
+    id="f3"
+    name="email"
+    type="email"
+    onBlur={(event) => {
+      const input = event.target;
+      const values = new FormData();
+      values.set("email", input.value);
+      validate(values);
+    }}
+  />
+</form>;
 ```
 
-Ugghh that’s a lot of repetition. Wouldn’† it be great it we could just have one `onBlur` handler? Turns out we can:
+Ugghh that’s a lot of repetition. Wouldn’t it be great it we could just have one `onBlur` handler? Turns out we can:
 
 ```tsx
 function validate(values) {
@@ -166,6 +191,7 @@ function validate(values) {
     validate(values);
   }}
   onSubmit={(event) => {
+    event.preventDefault();
     const form = event.target;
     const values = new FormData(form);
     validate(values);
@@ -179,7 +205,7 @@ function validate(values) {
 
   <label for="f3">Email</label>
   <input id="f3" name="email" type="email" />
-</form>
+</form>;
 ```
 
 This is a feature of JavaScript, not React. Events like `blur` bubble up, so if they aren’t handled by an event listener on the input element itself, then they bubble to its parent and then its parent, right up to the `<body>`.
@@ -190,95 +216,497 @@ Plus we can use the same `name` attribute that `new FormData(form)` uses to iden
 
 ## Validate each value
 
-So given we have a `FormData` object, how can we validate each value?
+So given we have a `FormData` object for both the `blur` and `submit` events, how can we validate each value?
 
-For now, we’ll just validate that the fields were filled in. If the user didn’t type anything in, or only entered whitespace, we’ll flag it as an error. Otherwise, we’ll say the field is valid and therefore has no error.
+We’ll be validating that the fields were filled in. If the user didn’t type anything in, or only entered whitespace, we’ll flag it as an error. Otherwise, we’ll say the field is valid.
 
 We’ll store our errors in a `Map`, which is similar to `FormData` with `.get()` and `.set()` methods, but we can use to store any key-value pairs.
 
 ```ts
-const errors = new Map();
-for (const [name, value] of formDataFromEvent(event)) {
-  errors.delete(name);
+function validate(values: FormData) {
+  const errors = new Map<string, string>();
+  for (const [name, value] of values) {
+    // Ignore whitespace: "   " is still counted as invalid.
+    value = value.trim();
 
-  // TODO: add more advanced validation here
-  if (value.trim() === "") {
-    errors.set(name, "Required");
+    if (value === "") {
+      errors.set(name, `Field ${name} must be filled in.`);
+    }
   }
+  return errors;
 }
 ```
 
-## Return a key-value map for each error
+We can iterate over the `values` since `FormData` is iterable, like an array.
 
-## Making it repeatable with a reducer
+So we have our errors. Let’s store them in state so we can render them using React.
+
+## Store a key-value map for each error
+
+Let’s wrap what we have so far into an actual component, and store the errors using the `useState` hook.
+
+We also display the error message alongside its form field. We use the `aria-describedby` attribute so that assistive technology like screen readers know which input has which error message. (The more specific `aria-errormessage` attribute is unfortunately [not well supported](https://a11ysupport.io/tech/aria/aria-errormessage_attribute).)
 
 ```tsx
-function formDataFromEvent(event: Event) {
+function validate(values: FormData) {
+  const errors = new Map<string, string>();
+  for (const [name, value] of values) {
+    // Ignore whitespace: "   " is still counted as invalid.
+    value = value.trim();
+
+    if (value === "") {
+      errors.set(name, `Field ${name} must be filled in.`);
+    }
+  }
+  return errors;
+}
+
+function ProfileForm() {
+  const [errors, setErrors] = useState(new Map<string, string>());
+
+  return (
+    <form
+      onBlur={(event) => {
+        const input = event.target;
+        const values = new FormData();
+        values.set(input.name, input.value);
+        setErrors(validate(values));
+      }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        const form = event.target;
+        const values = new FormData(form);
+        setErrors(validate(values));
+      }}
+    >
+      <label for="f1">First name</label>
+      <input
+        id="f1"
+        name="firstName"
+        aria-describedby="f1error"
+        aria-invalid={errors.has("firstName")}
+      />
+      <span id="f1error">{errors.get("firstName")}</span>
+
+      <label for="f2">Last name</label>
+      <input
+        id="f2"
+        name="lastName"
+        aria-describedby="f2error"
+        aria-invalid={errors.has("lastName")}
+      />
+      <span id="f2error">{errors.get("lastName")}</span>
+
+      <label for="f3">Email</label>
+      <input
+        id="f3"
+        name="email"
+        type="email"
+        aria-describedby="f3error"
+        aria-invalid={errors.has("email")}
+      />
+      <span id="f3error">{errors.get("email")}</span>
+    </form>
+  );
+}
+```
+
+There’s a bug here though. When we `blur` on a specific field, because we create the `errors` map from scratch, we lose the errors for the other fields.
+
+So we want to reuse the errors that were stored in state previously, being careful to remove the error if the field is now valid.
+
+```tsx
+function validate(values: FormData, previousErrors: Map<string, string>) {
+  // Create a new Map, copying the previous errors across.
+  const errors = new Map<string, string>(previousErrors);
+
+  for (const [name, value] of values) {
+    // Remove the error if there was one before.
+    errors.delete(name);
+
+    // Ignore whitespace: "   " is still counted as invalid.
+    value = value.trim();
+
+    if (value === "") {
+      errors.set(name, `Field ${name} must be filled in.`);
+    }
+  }
+  return errors;
+}
+
+function ProfileForm() {
+  const [errors, setErrors] = useState(new Map<string, string>());
+
+  return (
+    <form
+      onBlur={(event) => {
+        const input = event.target;
+        const values = new FormData();
+        values.set(input.name, input.value);
+        setErrors((previousErrors) => validate(values, previousErrors));
+      }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        const form = event.target;
+        const values = new FormData(form);
+        setErrors((previousErrors) => validate(values, previousErrors));
+      }}
+    >
+      <label for="f1">First name</label>
+      <input
+        id="f1"
+        name="firstName"
+        aria-describedby="f1error"
+        aria-invalid={errors.has("firstName")}
+      />
+      <span id="f1error">{errors.get("firstName")}</span>
+
+      <label for="f2">Last name</label>
+      <input
+        id="f2"
+        name="lastName"
+        aria-describedby="f2error"
+        aria-invalid={errors.has("lastName")}
+      />
+      <span id="f2error">{errors.get("lastName")}</span>
+
+      <label for="f3">Email</label>
+      <input
+        id="f3"
+        name="email"
+        type="email"
+        aria-describedby="f3error"
+        aria-invalid={errors.has("email")}
+      />
+      <span id="f3error">{errors.get("email")}</span>
+    </form>
+  );
+}
+```
+
+Each form field’s HTML is getting lengthy, so I’m going to extract it out into its own `Field` component. This also lets us use the `useId` hook to generate unique DOM IDs instead of having to come up with our own.
+
+```tsx
+function Field({
+  name,
+  label,
+  error,
+  type = "text",
+}: {
+  name: string;
+  label: string;
+  error?: string;
+  type?: string;
+}) {
+  const id = useId();
+  const idError = `${id}-error`;
+
+  return (
+    <>
+      <label for={id}>{label}</label>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        aria-describedby={idError}
+        aria-invalid={typeof error === "string"}
+      />
+      <span id={idError}>{error}</span>
+    </>
+  );
+}
+
+function validate(values: FormData, previousErrors: Map<string, string>) {
+  …
+}
+
+function ProfileForm() {
+  const [errors, setErrors] = useState(new Map<string, string>());
+
+  return (
+    <form
+      onBlur={(event) => {
+        const input = event.target;
+        const values = new FormData();
+        values.set(input.name, input.value);
+        setErrors((previousErrors) => validate(values, previousErrors));
+      }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        const form = event.target;
+        const values = new FormData(form);
+        setErrors((previousErrors) => validate(values, previousErrors));
+      }}
+    >
+      <Field
+        name="firstName"
+        label="First name"
+        error={errors.get("firstName")}
+      />
+      <Field
+        name="lastName"
+        label="Last name"
+        error={errors.get("lastName")}
+      />
+      <Field
+        name="email"
+        label="Email"
+        type="email"
+        error={errors.get("email")}
+      />
+    </form>
+  );
+}
+```
+
+I’m pretty happy with that, and so if that seems clear enough, stick to using the `useState` approach.
+
+However, there’s also a pattern I’m seeing that makes a good fit for a reducer. And that is the way we are passing a callback to the `setErrors` state change callback. We are effectively applying a new event to some state. Let’s see how a reducer is natural for this sort of use case.
+
+## Closing the loop with a reducer
+
+Let’s summarize what we are doing:
+
+1. We listen to both `blur` and `submit` events.
+2. We extract a suitable DOM element from the event.
+3. We read the relevant form values for that DOM element.
+4. We validate each of those form values, creating an error for those that are invalid (or removing errors when valid).
+5. We store the errors in state, merging with the previously stored errors.
+
+This is a loop, starting with events and ending in state. That is the perfect fit for a reducer:
+
+```tsx
+function reducer(state: { errors: Map<string, string> }, event: Event) {
+  …
+}
+```
+
+Reducers are a very React-y concept, because if you squint, it’s a similar shape to a component:
+
+```tsx
+function SomeComponent({
+  state,
+  event,
+}: {
+  state: { errors: Map<string, string> };
+  event: Event;
+}) {
+  …
+}
+```
+
+A React component takes in data and turns it into a view. A React reducer takes in data and an event, and turns it into data.
+
+When the data (props) to a component changes, React re-renders it, running your function again from top-to-bottom.
+
+When a new event is dispatched to a reducer, React re-evaluates it, running your function again from top-to-bottom.
+
+User interactions become data via reducers, data become user interfaces via components.
+
+My reducer becomes concerned with “how do I use this event to change the current state?”
+
+Let’s see how this work with our form validation. We’ll keep the `Field` component and `validate` function from before, but we’ll remove the individual event handlers for `onBlur` and `onSubmit`. Instead, all events will be dispatched to our reducer.
+
+```tsx
+function Field(…) {
+  …
+}
+
+function validate(values: FormData, previousErrors: Map<string, string>) {
+  …
+}
+
+function reducer(state: { errors: Map<string, string> }, event: Event) {
+ // TODO
+}
+
+function ProfileForm() {
+  const [{ errors }, dispatch] = useReducer(reducer, { errors: new Map<string, string>() });
+
+  return (
+    <form
+      onBlur={dispatch}
+      onSubmit={dispatch}
+    >
+      <Field
+        name="firstName"
+        label="First name"
+        error={errors.get("firstName")}
+      />
+      <Field
+        name="lastName"
+        label="Last name"
+        error={errors.get("lastName")}
+      />
+      <Field
+        name="email"
+        label="Email"
+        type="email"
+        error={errors.get("email")}
+      />
+    </form>
+  );
+}
+```
+
+Since our reducer will receive `submit` events, we’ll make sure we prevent the default browser submission behavior:
+
+```tsx
+function reducer(state: { errors: Map<string, string> }, event: Event) {
+  if (event.type === "submit") {
+    event.preventDefault();
+  }
+
+  return state;
+}
+```
+
+We’ll again read the DOM element from the event and create a `FormData` with the relevant form values.
+
+```tsx
+function valuesForEvent(event: Event) {
+  // If we have a form, return all the values from the form.
   if (event.target instanceof HTMLFormElement) {
     return new FormData(event.target);
   }
 
   const formData = new FormData();
+  // If we have just a single input, then add its value.
   if (event.target instanceof HTMLInputElement) {
     formData.set(event.target.name, event.target.value);
   }
   return formData;
 }
 
-function reducer(state, event) {
+function reducer(state: { errors: Map<string, string> }, event: Event) {
   if (event.type === "submit") {
     event.preventDefault();
   }
 
-  const errors = new Map(state.errors);
-  for (const [name, value] of formDataFromEvent(event)) {
-    errors.delete(name);
+  const values = valuesForEvent(event);
 
-    // TODO: add more advanced validation here
-    if (value.trim() === "") {
-      errors.set(name, "Required");
-    }
-  }
+  return state;
+}
+```
 
-  return { ...state, errors };
+We’ll then call our `validate` function with the values to be validated, and also pass along the previous errors:
+
+```tsx
+function valuesForEvent(event: Event) {
+  …
 }
 
-function Field({ name, label, error, type = "text" }) {
+function reducer(state: { errors: Map<string, string> }, event: Event) {
+  if (event.type === "submit") {
+    event.preventDefault();
+  }
+
+  const values = valuesForEvent(event);
+  const errors = validate(values, state.errors)
+
+  return { errors };
+}
+```
+
+The result looks like this:
+
+```tsx
+function Field({
+  name,
+  label,
+  error,
+  type = "text",
+}: {
+  name: string;
+  label: string;
+  error?: string;
+  type?: string;
+}) {
   const id = useId();
+  const idError = `${id}-error`;
+
   return (
-    <div class="flex items-center gap-2">
+    <>
       <label for={id}>{label}</label>
-      <input id={id} name={name} type={type} />
-      <span class="italic">{error}</span>
-    </div>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        aria-describedby={idError}
+        aria-invalid={typeof error === "string"}
+      />
+      <span id={idError}>{error}</span>
+    </>
   );
 }
 
-export default function App() {
-  const [state, dispatch] = useReducer(reducer, { errors: new Map<string, string>() });
+function valuesForEvent(event: Event) {
+  // If we have a form, return all the values from the form.
+  if (event.target instanceof HTMLFormElement) {
+    return new FormData(event.target);
+  }
+
+  const formData = new FormData();
+  // If we have just a single input, then add its value.
+  if (event.target instanceof HTMLInputElement) {
+    formData.set(event.target.name, event.target.value);
+  }
+  return formData;
+}
+
+function validate(values: FormData, previousErrors: Map<string, string>) {
+  // Create a new Map, copying the previous errors across.
+  const errors = new Map<string, string>(previousErrors);
+
+  for (const [name, value] of values) {
+    // Remove the error if there was one before.
+    errors.delete(name);
+
+    // Ignore whitespace: "   " is still counted as invalid.
+    value = value.trim();
+
+    if (value === "") {
+      errors.set(name, `Field ${name} must be filled in.`);
+    }
+  }
+  return errors;
+}
+
+function reducer(state: { errors: Map<string, string> }, event: Event) {
+  if (event.type === "submit") {
+    event.preventDefault();
+  }
+
+  const values = valuesForEvent(event);
+  const errors = validate(values, state.errors)
+
+  return { errors };
+}
+
+function ProfileForm() {
+  const [{ errors }, dispatch] = useReducer(reducer, { errors: new Map<string, string>() });
 
   return (
-    <form onBlur={dispatch} onSubmit={dispatch} class="flex flex-col items-start gap-4">
-      <p class="italic">Fields will individually validate on blur, or every field will validate on submit.</p>
-      <fieldset class="flex flex-col gap-2">
-        <Field
-          name="firstName"
-          label="First name"
-          error={state.errors.get("firstName")}
-        />
-        <Field
-          name="lastName"
-          label="Last name"
-          error={state.errors.get("lastName")}
-        />
-        <Field
-          name="email"
-          label="Email"
-          type="email"
-          error={state.errors.get("email")}
-        />
-      </fieldset>
-      <button class="px-3 py-1 bg-blue-300 rounded">Save</button>
+    <form
+      onBlur={dispatch}
+      onSubmit={dispatch}
+    >
+      <Field
+        name="firstName"
+        label="First name"
+        error={errors.get("firstName")}
+      />
+      <Field
+        name="lastName"
+        label="Last name"
+        error={errors.get("lastName")}
+      />
+      <Field
+        name="email"
+        label="Email"
+        type="email"
+        error={errors.get("email")}
+      />
     </form>
   );
 }
