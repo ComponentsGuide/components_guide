@@ -247,7 +247,7 @@ So we have our errors. Let’s store them in state so we can render them using R
 
 Let’s wrap what we have so far into an actual component, and store the errors using the `useState` hook.
 
-We also display the error message alongside its form field. We use the `aria-describedby` attribute so that assistive technology like screen readers know which input has which error message. (The more specific `aria-errormessage` attribute is unfortunately [not well supported](https://a11ysupport.io/tech/aria/aria-errormessage_attribute).)
+We also display the error message alongside its form field. We use the `aria-describedby` attribute so that assistive technology like screen readers know which input has which error message. (The more specific `aria-errormessage` attribute is unfortunately [not well supported](https://a11ysupport.io/tech/aria/aria-errormessage_attribute) and so it’s [recommended to use `aria-describedby` instead](https://www.davidmacd.com/blog/test-aria-describedby-errormessage-aria-live.html).)
 
 ```tsx
 function validate(values: FormData) {
