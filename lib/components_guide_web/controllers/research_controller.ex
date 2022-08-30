@@ -123,7 +123,7 @@ defmodule ComponentsGuideWeb.ResearchController do
           Section.card([
             content_tag(
               :h3,
-              link("npm add #{name}", to: "https://www.npmjs.com/package/#{name}"),
+              ["npm add ", link(name, to: "https://www.npmjs.com/package/#{name}")],
               class: "text-2xl"
             ),
             content_tag(
