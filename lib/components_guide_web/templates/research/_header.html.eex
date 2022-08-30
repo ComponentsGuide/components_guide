@@ -1,70 +1,70 @@
 <%
-heading = "Research 🔍 specs and implementations"
-heading = "Search across Can I Use, BundlePhobia, RFCs, W3 & WhatWG specs"
+heading = "Search packages, features & specs"
 search_url = fn (q) -> "?" <> URI.encode_query(q: q) end
 search_link = fn (q) -> link(q, to: search_url.(q)) end
 %>
 
-<header class="text-white bg-gray-900">
-  <div class="bg-indigo-900">
-    <h2 class="mx-auto max-w-4xl py-4 text-2xl text-center italic leading-tight text-indigo-100">
-      <%= heading %>
-    </h2>
-  </div>
-  <section class="container px-6 pb-8">
-    <form role=search action="/research" class="flex h-full pt-8 items-center">
+<header class="text-white">
+  <h2 class="pb-4 mx-auto max-w-4xl text-xl text-center font-bold">
+    <%= heading %>
+  </h2>
+  <section class="container px-6">
+    <form role=search action="/research" class="flex h-full items-center">
       <input type=text name=q placeholder="Search" class="w-full py-1 px-6 text-3xl bg-white text-black border rounded-full" value="<%= @query %>">
     </form>
-    <dl
-      class="text-xl grid gap-2 items-center pt-4 px-6"
-      style="
-      grid-template-columns: auto 1fr;
-      --link-color: #76a9fa;
-      --hover\:link-decoration: underline;"
-    >
-      <dt>HTML & Roles</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" data-links="p-3">
-          <li><%= link("form", to: "?q=form") %>
-          <li><%= link("button", to: "?q=button") %>
-          <li><%= link("contentinfo", to: "?q=contentinfo") %>
-          <li><%= link("dialog", to: "?q=dialog") %>
-          <li><%= link("menu", to: "?q=menu") %>
-        </ul>
-      </dd>
-      <dt>Libraries</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" data-links="p-3">
-          <li><%= link("react-dom", to: "?q=react-dom") %>
-          <li><%= link("preact", to: "?q=preact") %>
-          <li><%= link("vue", to: "?q=vue") %>
-          <li><%= link("lit-html", to: "?q=lit-html") %>
-          <li><%= link("xstate", to: "?q=xstate") %>
-          <li><%= link("mobx", to: "?q=mobx") %>
-          <li><%= link("lodash", to: "?q=lodash") %>
-          <li><%= link("wonka", to: "?q=wonka") %>
-        </ul>
-      </dd>
-      <dt>Features</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" data-links="p-3">
-          <li><%= search_link.("CSS Variables") %>
-          <li><%= search_link.("Generators") %>
-          <li><%= search_link.("Template Literals") %>
-          <li><%= search_link.("Proxy") %>
-          <li><%= search_link.("CSS Grid") %>
-          <li><%= search_link.("Dynamic Import") %>
-          <li><%= search_link.("BigInt") %>
-        </ul>
-      </dd>
-      <dt>Specs</dt>
-      <dd>
-        <ul class="list-none flex flex-wrap italic" data-links="p-3">
-          <li><%= link("JSON", to: "?q=JSON") %>
-          <li><%= link("CSV", to: "?q=CSV") %>
-          <li><%= link("ISO 8601", to: "?q=ISO%208601") %>
-        </ul>
-      </dd>
-    </dl>
+    <details>
+      <summary class="pt-2 pl-6 text-sm text-indigo-300"><%= "Expand for example searches. Search across NPM, Can I Use, BundlePhobia, RFCs & specifications." %></summary>
+      <dl
+        class="text-xl grid gap-2 items-center pt-4 px-6"
+        style="
+        grid-template-columns: auto 1fr;
+        --link-color: #76a9fa;
+        --hover\:link-decoration: underline;"
+      >
+        <dt>HTML & Roles</dt>
+        <dd>
+          <ul class="list-none flex flex-wrap italic" data-links="p-3">
+            <li><%= link("form", to: "?q=form") %>
+            <li><%= link("button", to: "?q=button") %>
+            <li><%= link("contentinfo", to: "?q=contentinfo") %>
+            <li><%= link("dialog", to: "?q=dialog") %>
+            <li><%= link("menu", to: "?q=menu") %>
+          </ul>
+        </dd>
+        <dt>Libraries</dt>
+        <dd>
+          <ul class="list-none flex flex-wrap italic" data-links="p-3">
+            <li><%= link("react-dom", to: "?q=react-dom") %>
+            <li><%= link("preact", to: "?q=preact") %>
+            <li><%= link("vue", to: "?q=vue") %>
+            <li><%= link("lit-html", to: "?q=lit-html") %>
+            <li><%= link("xstate", to: "?q=xstate") %>
+            <li><%= link("mobx", to: "?q=mobx") %>
+            <li><%= link("lodash", to: "?q=lodash") %>
+            <li><%= link("wonka", to: "?q=wonka") %>
+          </ul>
+        </dd>
+        <dt>Features</dt>
+        <dd>
+          <ul class="list-none flex flex-wrap italic" data-links="p-3">
+            <li><%= search_link.("CSS Variables") %>
+            <li><%= search_link.("Generators") %>
+            <li><%= search_link.("Template Literals") %>
+            <li><%= search_link.("Proxy") %>
+            <li><%= search_link.("CSS Grid") %>
+            <li><%= search_link.("Dynamic Import") %>
+            <li><%= search_link.("BigInt") %>
+          </ul>
+        </dd>
+        <dt>Specs</dt>
+        <dd>
+          <ul class="list-none flex flex-wrap italic" data-links="p-3">
+            <li><%= link("JSON", to: "?q=JSON") %>
+            <li><%= link("CSV", to: "?q=CSV") %>
+            <li><%= link("ISO 8601", to: "?q=ISO%208601") %>
+          </ul>
+        </dd>
+      </dl>
+    </details>
   </section>
 </header>
