@@ -12,6 +12,7 @@ import Config
 config :components_guide, ComponentsGuideWeb.Endpoint,
   # url: [host: System.get_env("APP_NAME") <> ".gigalixirapp.com", port: 80],
   url: [host: "components.guide", port: 80],
+  check_origin: ["//localhost", "//components.guide"],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
