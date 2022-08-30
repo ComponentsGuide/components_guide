@@ -7,6 +7,8 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuideWeb.ResearchView, as: View
   alias ComponentsGuideWeb.ResearchView.Section, as: Section
 
+  # TODO: add Tailwind search e.g. "ml-4" or "ml-[5rem]" and see what is produced
+
   def index(conn, %{"q" => query, "results" => _}) do
     query = query |> String.trim()
 
@@ -118,19 +120,19 @@ defmodule ComponentsGuideWeb.ResearchController do
     case Spec.search_for(:npm_downloads_last_month, query) do
       %{downloads_count: downloads_count, name: name} ->
         content_tag(:article, [
-          h2("NPM packages"),
           Section.card([
             content_tag(
               :h3,
-              link(name, to: "https://www.npmjs.com/package/#{name}"),
+              link("npm add #{name}", to: "https://www.npmjs.com/package/#{name}"),
               class: "text-2xl"
             ),
             content_tag(
               :dl,
               [
-                content_tag(:dt, "Monthly downloads", class: "text-base font-bold"),
-                content_tag(:dd, View.humanize_count(downloads_count))
-              ]
+                content_tag(:dt, "monthly downloads"),
+                content_tag(:dd, View.humanize_count(downloads_count), class: "font-bold")
+              ],
+              class: "flex flex-row-reverse justify-end gap-2 opacity-75"
             )
           ])
         ])
