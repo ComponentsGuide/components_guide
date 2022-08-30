@@ -1,7 +1,7 @@
 defmodule ComponentsGuide.Research.Source do
   alias ComponentsGuide.Fetch
 
-  @cache_enabled false
+  @cache_enabled true
   @cache_read_from_redis true
 
   @cache_name :research_spec_cache
@@ -134,9 +134,10 @@ defmodule ComponentsGuide.Research.Source do
   end
 
   defp run({:content_length, url}) do
-    # FIXME: remove Mojito
-    with {:ok, response} <- Mojito.request(method: :head, url: url, timeout: 50000),
-         s when is_binary(s) <- Mojito.Headers.get(response.headers, "content-length"),
+    with {:ok, req} <- Fetch.Request.new(url),
+         %Fetch.Response{headers: headers} = Fetch.load!(req),
+         {_, s} <-
+           Enum.find(headers, fn {key, _} -> String.downcase(key) == "content-length" end),
          {n, _} <- Integer.parse(s) do
       {:ok, n}
     else

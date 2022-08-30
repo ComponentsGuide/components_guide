@@ -70,3 +70,25 @@ liveSocket.connect();
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)
 window.liveSocket = liveSocket;
+
+window.customElements.define('loading-stopwatch', class extends HTMLElement {
+  constructor() {
+    super();
+  }
+
+  connectedCallback() {
+    console.log('GO!')
+    const start = Date.now()
+    this.interval = setInterval(() => {
+      const duration = ((Date.now() - start) / 1000).toFixed(1);
+      this.innerText = `${duration}s`;
+    }, 100);
+  }
+
+  disconnectedCallback() {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = undefined;
+    }
+  }
+})

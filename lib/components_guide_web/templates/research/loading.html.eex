@@ -4,10 +4,11 @@
   <div class="container">
     <div class="px-6">
       <include-fragment src="/research?q=<%= @query %>&results=1">
-        <div>Loading…</div>
+        <div>
+          Loading…
+          <loading-stopwatch class="inline-flex opacity-25"></loading-stopwatch>
+        </div>
       </include-fragment>
     </div>
   </div>
 </div>
-
-<%= turbo_frame("content-length", "/~/content-length") %>
