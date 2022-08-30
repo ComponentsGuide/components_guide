@@ -1,6 +1,28 @@
 defmodule ComponentsGuide.Research.Spec do
   alias ComponentsGuide.Research.Source
 
+  def caniuse(query) do
+    %{
+      source: {:json_url, "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"},
+      processor: {:caniuse, query}
+    }
+  end
+
+  def npm_downloads_last_month(query) do
+    query = String.trim(query)
+    %{
+      source: {:json_url, "https://api.npmjs.org/downloads/point/last-month/#{query}"},
+      processor: {:npm_downloads, query}
+    }
+  end
+
+  def whatwg_html_spec(query) do
+    %{
+      source: {:html_document_url, "https://html.spec.whatwg.org/dev/"},
+      processor: {:whatwg_html_spec, query}
+    }
+  end
+
   def search_for(:caniuse, query) when is_binary(query) do
     url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"
     result = Source.json_at(url)
@@ -47,6 +69,7 @@ defmodule ComponentsGuide.Research.Spec do
 
   def search_for(:wai_aria_practices, query) when is_binary(query) do
     url = "https://www.w3.org/TR/wai-aria-practices/"
+    # TODO replace with "https://www.w3.org/WAI/ARIA/apg/example-index/"
     result = Source.html_document_at(url)
     process_search_for(:wai_aria_practices, query, result)
   end
@@ -61,10 +84,9 @@ defmodule ComponentsGuide.Research.Spec do
     end
   end
 
-  defp process_search_for(:caniuse, query, {:ok, data}) when is_binary(query) do
+  defp process_search_for(:caniuse, query, {:ok, %{"data" => table}})
+       when is_binary(query) and is_list(table) do
     query = query |> String.trim() |> String.downcase()
-
-    table = data["data"]
 
     table
     |> Stream.filter(fn {_key, value} ->

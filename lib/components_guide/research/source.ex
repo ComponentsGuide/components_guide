@@ -1,139 +1,197 @@
 defmodule ComponentsGuide.Research.Source do
+  alias ComponentsGuide.Fetch
+
+  @cache_enabled false
+  @cache_read_from_redis true
+
   @cache_name :research_spec_cache
 
   defp read_cache(key) do
-    tuple = {:ok, value} = Cachex.get(@cache_name, key)
-    IO.puts("reading #{if value == nil, do: "nil", else: "present"}")
-    IO.inspect(key)
-    tuple
-    # {:ok, nil}
+    if @cache_enabled do
+      tuple = {:ok, value} = Cachex.get(@cache_name, key)
+      IO.puts("reading #{if value == nil, do: "nil", else: "present"}")
+      IO.inspect(key)
+      tuple
+    else
+      {:ok, nil}
+    end
   end
 
   defp write_cache(key, value) do
-    Cachex.put(@cache_name, key, value)
+    if @cache_enabled do
+      Cachex.put(@cache_name, key, value)
+    end
   end
 
-  defmodule Fetch do
-    defstruct done: false, request_ref: nil, body_list: [], status: nil, headers: []
+  defp redis_config() do
+    upstash_config = Application.fetch_env!(:components_guide, :upstash)
 
-    defp apply_response({:status, _request_ref, status_code}, state = %Fetch{}) do
-      %{state | status: status_code}
-    end
+    %{
+      url: upstash_config[:redis_rest_url],
+      token: upstash_config[:redis_rest_token]
+    }
+  end
 
-    defp apply_response({:headers, _request_ref, headers}, state = %Fetch{}) do
-      %{state | headers: headers}
-    end
-
-    defp apply_response({:data, _request_ref, chunk}, state = %Fetch{body_list: body_list}) do
-      %{state | body_list: [body_list | [chunk]]}
-    end
-
-    defp apply_response({:done, _request_ref}, state = %Fetch{}) do
-      %{state | done: true}
-    end
-
-    defp receive_mint_response(state = %Fetch{}, conn, request_ref) do
-      receive do
-        message ->
-          case Mint.HTTP.stream(conn, message) do
-            :unknown ->
-              receive_mint_response(state, conn, request_ref)
-
-            {:error, _, e, _} ->
-              {:error, e}
-
-            {:ok, conn, responses} ->
-              state = Enum.reduce(responses, state, &apply_response/2)
-
-              if state.done do
-                {:ok, IO.iodata_to_binary(state.body_list)}
-              else
-                receive_mint_response(state, conn, request_ref)
-              end
-          end
-      end
-    end
-
-    def get(url) do
-      uri = URI.parse(url)
-
-      {:ok, conn} = Mint.HTTP.connect(:https, uri.host, 443)
-
-      path =
-        case uri do
-          %{query: nil, path: path} -> path
-          %{query: query, path: path} -> path <> "?" <> query
+  defp read_redis_cache(key) do
+    {duration_microseconds, result} =
+      :timer.tc(fn ->
+        case Redix.command(:upstash_redix, ["GET", key]) do
+          {:ok, value} -> value
+          _ -> nil
         end
+      end)
 
-      IO.puts("fetching URL #{uri} #{uri.host} #{path}")
-      {:ok, conn, request_ref} = Mint.HTTP.request(conn, "GET", path, [], nil)
-
-      receive_mint_response(%Fetch{}, conn, request_ref)
-    end
+    IO.puts("read from redis #{key} in #{duration_microseconds} microseconds")
+    IO.inspect(result)
+    result
   end
 
-  defp body({:fetch, url}) do
-    IO.puts("fetching URL #{url}")
-    # with {:ok, response} <- HTTPClient.get(url) do
-    #   html = response.body
-    #   {:ok, html}
-    # end
+  defp write_redis_cache(key, value) do
+    result = Redix.command(:upstash_redix, ["SET", key, value])
+    IO.puts("REdis write")
+    IO.inspect(result)
+  end
 
-    # Fetch.get(url)
+  defp read_rest_redis_cache(key) do
+    %{url: url, token: token} = redis_config()
+    urlsafe_key = Base.url_encode64(key)
 
-    with {:ok, response} <- Mojito.request(method: :get, url: url, timeout: 50000) do
-      {:ok, response}
+    request =
+      Fetch.Request.new!("#{url}/get/#{urlsafe_key}",
+        headers: [{"Authorization", "Bearer #{token}"}]
+      )
+
+    response = Fetch.load!(request)
+
+    # term = :erlang.binary_to_term(response.body, [:safe])
+    # term
+
+    IO.inspect(response)
+
+    with body when not is_nil(response.body) <- response.body,
+         {:ok, %{"result" => value}} <- Jason.decode(body) do
+      IO.inspect(value)
+      value
     else
-      _ -> :err
+      _ ->
+        nil
     end
   end
 
-  defp body({:html_document, url}) do
-    with {:ok, response} <- read({:fetch, url}),
-         {:ok, document} <- Floki.parse_document(response.body) do
+  defp write_rest_redis_cache(key, value) do
+    urlsafe_key = Base.url_encode64(key)
+    body = ["SET", urlsafe_key, value] |> Jason.encode_to_iodata!()
+    # body = value |> Jason.encode_to_iodata!(value)
+    # body = value
+    # body = :erlang.term_to_iovec(value)
+
+    %{url: url, token: token} = redis_config()
+
+    request =
+      Fetch.Request.new!(url,
+        method: "POST",
+        headers: [
+          {"Authorization", "Bearer #{token}"},
+          {"Content-Type", "application/json"}
+        ],
+        body: body
+      )
+
+    response = Fetch.load!(request)
+    IO.inspect(response)
+  end
+
+  defp run({:fetch_text, url}) do
+    IO.puts("fetching URL #{url}")
+
+    response = Fetch.get!(url)
+
+    case response.status do
+      200 ->
+        {:ok, response.body}
+
+      status ->
+        {:error, {:http_status, status}}
+    end
+  end
+
+  defp run({:html_document, url}) do
+    with {:ok, text} <- read({:fetch_text, url}),
+         {:ok, document} <- Floki.parse_document(text) do
       {:ok, document}
     else
-      _ -> :err
+      _ -> :error
     end
   end
 
-  defp body({:fetch_json, url}) do
-    with {:ok, response} <- read({:fetch, url}),
-         {:ok, data} <- Jason.decode(response.body) do
+  defp run({:fetch_json, url}) do
+    with {:ok, text} when not is_nil(text) <- read({:fetch_text, url}),
+         {:ok, data} <- Jason.decode(text) do
       {:ok, data}
     else
-      _ -> :err
+      _ -> :error
     end
   end
 
-  defp body({:content_length, url}) do
+  defp run({:content_length, url}) do
+    # FIXME: remove Mojito
     with {:ok, response} <- Mojito.request(method: :head, url: url, timeout: 50000),
          s when is_binary(s) <- Mojito.Headers.get(response.headers, "content-length"),
          {n, _} <- Integer.parse(s) do
       {:ok, n}
     else
-      _ -> :err
+      _ -> :error
     end
   end
 
-  defp run(key) do
-    with {:ok, value} <- body(key) do
+  defp cache_key(key) when is_binary(key) do
+    :crypto.hash(:sha256, key) |> Base.encode16(case: :lower)
+  end
+
+  defp run_and_cache(key) do
+    with {:ok, value} <- run(key) do
       write_cache(key, value)
+
+      case key do
+        {:fetch_text, url} ->
+          IO.puts("Writing to redis #{url}")
+          # write_redis_cache(url, value)
+          write_rest_redis_cache(url, value)
+
+        _ ->
+          nil
+      end
+
       {:ok, value}
     else
       _ ->
-        write_cache(key, :err)
-        :err
+        write_cache(key, :error)
+        :error
     end
   end
 
   defp read(key) do
     case read_cache(key) do
       {:ok, nil} ->
-        run(key)
+        from_redis =
+          case key do
+            {:fetch_text, url} ->
+              if @cache_read_from_redis, do: read_rest_redis_cache(url), else: nil
 
-      {:ok, :err} ->
-        :err
+            _ ->
+              nil
+          end
+
+        case from_redis do
+          nil ->
+            run_and_cache(key)
+
+          value ->
+            {:ok, value}
+        end
+
+      {:ok, :error} ->
+        :error
 
       {:ok, value} ->
         {:ok, value}

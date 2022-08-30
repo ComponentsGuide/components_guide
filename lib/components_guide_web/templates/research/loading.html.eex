@@ -1,15 +1,13 @@
-<turbo-frame id=search src="/research?q=<%= @query %>&turbo=1" target=_top>
-
 <%= render view_module(@conn), "_header.html", query: @query %>
 
 <div class="text-white bg-gray-900 py-8">
   <div class="container">
     <div class="px-6">
-      <div>Loading…</div>
+      <include-fragment src="/research?q=<%= @query %>&results=1">
+        <div>Loading…</div>
+      </include-fragment>
     </div>
   </div>
 </div>
-
-</turbo-frame>
 
 <%= turbo_frame("content-length", "/~/content-length") %>

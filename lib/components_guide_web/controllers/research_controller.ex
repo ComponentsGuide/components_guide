@@ -7,7 +7,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuideWeb.ResearchView, as: View
   alias ComponentsGuideWeb.ResearchView.Section, as: Section
 
-  def index(conn, %{"q" => query, "turbo" => _}) do
+  def index(conn, %{"q" => query, "results" => _}) do
     query = query |> String.trim()
 
     case query do
@@ -16,7 +16,11 @@ defmodule ComponentsGuideWeb.ResearchController do
 
       query ->
         results = load_results(query)
-        render(conn, "turbo-results.html", %{query: query, results: results})
+
+        conn
+        |> put_root_layout(false)
+        |> put_layout(false)
+        |> render("results.html", %{query: query, results: results})
     end
   end
 
@@ -28,7 +32,7 @@ defmodule ComponentsGuideWeb.ResearchController do
         render(conn, "empty.html")
 
       query ->
-        render(conn, "turbo-initial.html", %{query: query})
+        render(conn, "loading.html", %{query: query})
     end
   end
 
@@ -187,11 +191,14 @@ defmodule ComponentsGuideWeb.ResearchController do
       [] ->
         []
 
-      results ->
+      results when is_list(results) ->
         content_tag(:article, [
           h2("Can I Use"),
           CanIUse.present(results)
         ])
+
+      _ ->
+        nil
     end
   end
 
@@ -200,7 +207,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       [] ->
         []
 
-      :err ->
+      :error ->
         []
 
       results ->
@@ -259,13 +266,13 @@ defmodule ComponentsGuideWeb.ResearchController do
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
-      static(query),
+      #static(query),
       caniuse(query),
-      bundlephobia(query),
+      #bundlephobia(query),
       npm_downloads(query),
-      html_spec(query),
-      aria_practices(query),
-      html_aria(query)
+      #html_spec(query),
+      # aria_practices(query),
+      #html_aria(query)
     ]
   end
 end

@@ -68,6 +68,7 @@ defmodule ComponentsGuideWeb.Router do
 
     get("/calendar", CalendarController, :index)
 
+    live("/view-source", ViewSourceLive)
     live("/latency-calculator", LatencyCalculatorLive)
 
     live("/color", ColorLive, :index)

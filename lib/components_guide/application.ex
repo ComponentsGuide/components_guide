@@ -7,6 +7,11 @@ defmodule ComponentsGuide.Application do
 
   @impl true
   def start(_type, _args) do
+    upstash_config = Application.fetch_env!(:components_guide, :upstash)
+    redis_url_string = Access.fetch!(upstash_config, :redis_url)
+    redis_uri = URI.new!(redis_url_string)
+    IO.inspect(redis_uri)
+
     children = [
       # Start the Telemetry supervisor
       ComponentsGuideWeb.Telemetry,
@@ -26,7 +31,9 @@ defmodule ComponentsGuide.Application do
       %{
         id: :research_spec_cache,
         start: {Cachex, :start_link, [:research_spec_cache, []]}
-      }
+      },
+      # {Redix, {Access.fetch!(upstash_config, :redis_url), [name: :upstash_redix]}}
+      # {Redix, {redis_url_string, [name: :upstash_redix]}}
       # ComponentsGuide.Worker
     ]
 

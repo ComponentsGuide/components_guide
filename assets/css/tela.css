@@ -1,0 +1,129 @@
+[visually-hidden] {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+/* Font */
+
+[font-size="+7"] {
+  font-size: var(--size-7);
+}
+[font-size="+6"] {
+  font-size: var(--size-6);
+}
+[font-size="+5"] {
+  font-size: var(--size-5);
+}
+[font-size="+4"] {
+  font-size: var(--size-4);
+}
+[font-size="+3"] {
+  font-size: var(--size-3);
+}
+[font-size="+2"] {
+  font-size: var(--size-2);
+}
+[font-size="+1"] {
+  font-size: var(--size-1);
+}
+[font-size="0"] {
+  font-size: var(--size-0);
+}
+[font-size="-1"] {
+  font-size: var(--size--1);
+}
+[font-size="-2"] {
+  font-size: var(--size--2);
+}
+
+/* Sizing */
+
+[w-max="md"] {
+  max-width: 768px;
+}
+
+[w-full] {
+  width: 100%;
+}
+
+/* Flex row */
+
+.X,
+[x-x] {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+[x-space="between"] {
+  justify-content: space-between;
+}
+
+[x-space] > * + * {
+  margin-left: 1rem;
+}
+[x-space="1/2"] > * + * {
+  margin-left: 0.5rem;
+}
+[x-space="1/4"] > * + * {
+  margin-left: 0.25rem;
+}
+[x-space="auto"] > * {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Flex column */
+
+.Y,
+[y-y] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+[y-stretch] {
+  align-items: stretch;
+}
+
+[y-space] > * + * {
+  margin-top: 1rem;
+}
+
+/* Padding */
+
+[p-t] {
+  padding-top: 1rem;
+}
+[p-b] {
+  padding-bottom: 1rem;
+}
+[p-l] {
+  padding-left: 1rem;
+}
+[p-r] {
+  padding-right: 1rem;
+}
+
+/* MEDIUM BREAKPOINT */
+
+/* Flex column (medium) */
+
+/* 48em ~= 768px */
+@media (min-width: 48em) {
+  .X\>\=48em,
+  [x-x~="md"] {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+}
