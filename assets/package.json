@@ -11,7 +11,7 @@
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "phoenix_live_view": "file:../deps/phoenix_live_view",
-    "vite": "^1.0.0-rc.4"
+    "vite": "^2.9.13"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
