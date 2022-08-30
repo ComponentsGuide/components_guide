@@ -18,12 +18,13 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_21: %{release: {2022, 4, 20}},
       deno1_22: %{release: {2022, 5, 18}},
       deno1_23: %{release: {2022, 6, 16}},
-      deno1_24: %{release: {2022, 7, 21}}
+      deno1_24: %{release: {2022, 7, 21}},
+      deno1_25: %{release: {2022, 8, 25}}
     }
 
     react = %{
       react18: %{release: {2022, 3, 29}},
-      react_query4: %{release: {2022, 7, 18}},
+      react_query4: %{release: {2022, 7, 18}}
     }
 
     jest = %{
@@ -61,7 +62,9 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome104: %{release: {2022, 8, 2}},
       chrome105: %{release: {2022, 8, 30}},
       chrome106: %{release: {2022, 9, 27}},
-      safari15_4: %{release: {2022, 3, 14}}
+      safari15_4: %{release: {2022, 3, 14}},
+      safari15_5: %{release: {2022, 5, 16}},
+      safari15_6: %{release: {2022, 7, 20}}
     }
 
     aws_lambda = %{
@@ -90,11 +93,13 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome101: "https://developer.chrome.com/blog/new-in-chrome-101/",
       chrome102: "https://developer.chrome.com/blog/new-in-chrome-102/",
       chrome103: "https://developer.chrome.com/blog/new-in-chrome-103/",
+      chrome104: "https://developer.chrome.com/blog/new-in-chrome-104/",
       deno1_20: "https://deno.com/blog/v1.20",
       deno1_21: "https://deno.com/blog/v1.21",
       deno1_22: "https://deno.com/blog/v1.22",
       deno1_23: "https://deno.com/blog/v1.23",
       deno1_24: "https://deno.com/blog/v1.24",
+      deno1_25: "https://deno.com/blog/v1.25",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
@@ -104,6 +109,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       firefox103: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/103",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
+      safari15_5: "https://webkit.org/blog/12669/new-webkit-features-in-safari-15-5/",
+      safari15_6: "https://webkit.org/blog/13009/new-webkit-features-in-safari-15-6/",
       go1_18: "https://go.dev/doc/go1.18",
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
