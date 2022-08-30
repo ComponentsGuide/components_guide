@@ -56,7 +56,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp h2(text) do
-    content_tag(:h2, text, class: "text-2xl font-bold")
+    content_tag(:h2, text, class: "text-2xl font-bold mb-4")
   end
 
   defp present_results(results) when is_binary(results) do
@@ -143,6 +143,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defmodule CanIUse do
+    # use ComponentsGuideWeb, :view
     alias ComponentsGuideWeb.ResearchView.Section, as: Section
 
     def present(results) when is_list(results) do
@@ -156,17 +157,24 @@ defmodule ComponentsGuideWeb.ResearchController do
              "notes" => notes,
              "categories" => _categories,
              "stats" => stats,
+             "links" => links,
+             "spec" => spec,
              "status" => _status
            }
          ) do
       Section.card([
         # inspect(item),
-        content_tag(:h3, title, class: "text-2xl"),
+        content_tag(:h3, link(title, to: "https://caniuse.com/#{title}"), class: "text-2xl"),
+        content_tag(:p, "#{description}"),
+        content_tag(:ul, [
+          content_tag(:li, link("Spec", to: spec)),
+          Enum.map(links, fn %{"title" => title, "url" => url} ->
+            content_tag(:li, link(title, to: url))
+          end)
+        ]),
         content_tag(
           :dl,
           [
-            content_tag(:dt, "Description", class: "font-bold"),
-            content_tag(:dd, "#{description}", class: "text-base"),
             case notes do
               "" ->
                 []
@@ -177,11 +185,11 @@ defmodule ComponentsGuideWeb.ResearchController do
                   content_tag(:dd, "#{notes}", class: "text-base")
                 ]
             end,
-            content_tag(:dt, "Internet Explorer", class: "font-bold"),
-            content_tag(:dd, "#{inspect(stats["ie"])}", class: "text-sm")
-            # content_tag(:dd, "#{inspect(item)}")
+            #content_tag(:dt, "Browsers", class: "font-bold"),
+            #content_tag(:dd, "#{inspect(stats)}", class: "text-sm"),
+            #content_tag(:dd, "#{inspect(item)}")
           ],
-          class: "grid grid-flow-col gap-4",
+          class: "grid grid-flow-col gap-2 pt-2",
           style: "grid-template-rows: repeat(2, auto);"
         )
       ])
@@ -195,7 +203,6 @@ defmodule ComponentsGuideWeb.ResearchController do
 
       results when is_list(results) ->
         content_tag(:article, [
-          h2("Can I Use"),
           CanIUse.present(results)
         ])
 
@@ -268,13 +275,13 @@ defmodule ComponentsGuideWeb.ResearchController do
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
-      #static(query),
+      # static(query),
       caniuse(query),
-      #bundlephobia(query),
-      npm_downloads(query),
-      #html_spec(query),
+      # bundlephobia(query),
+      npm_downloads(query)
+      # html_spec(query),
       # aria_practices(query),
-      #html_aria(query)
+      # html_aria(query)
     ]
   end
 end
@@ -297,7 +304,7 @@ defmodule ComponentsGuideWeb.ResearchView do
         :article,
         children,
         class:
-          "mb-4 text-xl spacing-y-4 p-4 text-white bg-indigo-900 border border-indigo-800 rounded-lg shadow-lg"
+          "mb-4 text-xl space-y-4 p-4 text-white bg-indigo-900/25 border border-indigo-900 rounded-lg shadow-lg"
       )
     end
 

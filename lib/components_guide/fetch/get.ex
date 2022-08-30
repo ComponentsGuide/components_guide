@@ -43,9 +43,16 @@ defmodule ComponentsGuide.Fetch.Get do
   end
 
   def get_following_redirects!(url_string) when is_binary(url_string) do
-    request = Request.new!(url_string)
+    response =
+      case Request.new(url_string) do
+        {:ok, request} ->
+          load!(request)
 
-    case load!(request) do
+        {:error, reason} ->
+          Response.failed(url_string, reason)
+      end
+
+    case response do
       %Response{status: status, headers: headers} = resp when status >= 300 and status < 400 ->
         case Enum.find(headers, fn {key, _} -> key == "location" end) do
           # No redirect!
@@ -60,8 +67,8 @@ defmodule ComponentsGuide.Fetch.Get do
                 # TODO: use existing conn if host is the same.
                 load!(request)
 
-              _ ->
-                {:error, {:invalid_url, location}}
+              {:error, reason} ->
+                Response.failed(url_string, reason)
             end
         end
 

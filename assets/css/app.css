@@ -43,6 +43,9 @@ a:hover:not([class]):not(.prose *) {
 [data-links~='block'] {
   --link--display: block;
 }
+[data-links~='underline'] {
+  --link--decoration: underline;
+}
 [data-links~='no-underline'] {
   --link--decoration: none;
 }

@@ -26,6 +26,7 @@ defmodule ComponentsGuide.Research.Spec do
   def search_for(:caniuse, query) when is_binary(query) do
     url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"
     result = Source.json_at(url)
+    IO.inspect(result)
     process_search_for(:caniuse, query, result)
   end
 
@@ -85,7 +86,7 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   defp process_search_for(:caniuse, query, {:ok, %{"data" => table}})
-       when is_binary(query) and is_list(table) do
+       when is_binary(query) and is_map(table) do
     query = query |> String.trim() |> String.downcase()
 
     table

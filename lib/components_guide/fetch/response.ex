@@ -5,6 +5,10 @@ defmodule ComponentsGuide.Fetch.Response do
     %__MODULE__{url: url_string, done?: false}
   end
 
+  def failed(url_string, error) do
+    new(url_string) |> add_error(error)
+  end
+
   def add_responses(receiver = %__MODULE__{}, responses, ref) do
     Enum.reduce(responses, receiver, fn
       {:status, ^ref, code}, acc ->

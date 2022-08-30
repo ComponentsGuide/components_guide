@@ -171,13 +171,16 @@ defmodule ComponentsGuide.Research.Source do
     end
   end
 
+  defp should_read_url_from_redis("https://cdn.jsdelivr.net/" <> _), do: false
+  defp should_read_url_from_redis(_url), do: @cache_read_from_redis
+
   defp read(key) do
     case read_cache(key) do
       {:ok, nil} ->
         from_redis =
           case key do
             {:fetch_text, url} ->
-              if @cache_read_from_redis, do: read_rest_redis_cache(url), else: nil
+              if should_read_url_from_redis(url), do: read_rest_redis_cache(url), else: nil
 
             _ ->
               nil
