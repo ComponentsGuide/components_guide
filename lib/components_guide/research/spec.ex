@@ -26,7 +26,6 @@ defmodule ComponentsGuide.Research.Spec do
   def search_for(:caniuse, query) when is_binary(query) do
     url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"
     result = Source.json_at(url)
-    IO.inspect(result)
     process_search_for(:caniuse, query, result)
   end
 
@@ -76,7 +75,7 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   def search_for(:bundlephobia, query) when is_binary(query) do
-    case Source.json_at("https://bundlephobia.com/api/size?package=#{query}") do
+    case Source.json_at("https://bundlephobia.com/api/size?package=#{query}") |> tap(&IO.inspect/1) do
       {:ok, data} ->
         data
 

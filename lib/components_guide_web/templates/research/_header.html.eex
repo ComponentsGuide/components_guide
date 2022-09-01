@@ -16,6 +16,7 @@ search_link = fn (q) -> link(q, to: search_url.(q)) end
       <summary class="pt-2 pl-6 text-sm text-indigo-300"><%= "Expand for example searches. Search across NPM, Can I Use, BundlePhobia, RFCs & specifications." %></summary>
       <dl
         class="text-xl grid gap-2 items-center pt-4 px-6"
+        data-links="underline-on-hover"
         style="
         grid-template-columns: auto 1fr;
         --link-color: #76a9fa;

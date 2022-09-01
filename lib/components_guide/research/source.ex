@@ -66,11 +66,8 @@ defmodule ComponentsGuide.Research.Source do
     # term = :erlang.binary_to_term(response.body, [:safe])
     # term
 
-    IO.inspect(response)
-
     with body when not is_nil(response.body) <- response.body,
          {:ok, %{"result" => value}} <- Jason.decode(body) do
-      IO.inspect(value)
       value
     else
       _ ->
@@ -98,7 +95,6 @@ defmodule ComponentsGuide.Research.Source do
       )
 
     response = Fetch.load!(request)
-    IO.inspect(response)
   end
 
   defp run({:fetch_text, url}) do
@@ -111,7 +107,7 @@ defmodule ComponentsGuide.Research.Source do
         {:ok, response.body}
 
       status ->
-        {:error, {:http_status, status}}
+        {:error, {:http_status, status, response.body}}
     end
   end
 
@@ -129,7 +125,7 @@ defmodule ComponentsGuide.Research.Source do
          {:ok, data} <- Jason.decode(text) do
       {:ok, data}
     else
-      _ -> :error
+      other -> other
     end
   end
 
@@ -165,9 +161,9 @@ defmodule ComponentsGuide.Research.Source do
 
       {:ok, value}
     else
-      _ ->
+      other ->
         write_cache(key, :error)
-        :error
+        other
     end
   end
 
