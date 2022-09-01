@@ -120,6 +120,7 @@ defmodule ComponentsGuide.Research.Source do
     end
   end
 
+  # TODO: Use a Source.FetchJSON module instead that conforms to a particular behavior
   defp run({:fetch_json, url}) do
     with {:ok, text} when not is_nil(text) <- read({:fetch_text, url}),
          {:ok, data} <- Jason.decode(text) do
@@ -200,6 +201,7 @@ defmodule ComponentsGuide.Research.Source do
 
   def html_document_at(url), do: read({:html_document, url})
   def json_at(url), do: read({:fetch_json, url})
+  def text_at(url), do: read({:fetch_text, url})
   def content_length(url), do: read({:content_length, url})
 
   def clear_cache() do

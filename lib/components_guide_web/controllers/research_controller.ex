@@ -73,6 +73,7 @@ defmodule ComponentsGuideWeb.ResearchController do
 
   defp bundlephobia(query) do
     IO.puts("BUNDLEPHOBIA!")
+
     case Spec.search_for(:bundlephobia, query) |> tap(&IO.inspect/1) do
       # %{"assets" => [%{"gzip" => 3920, "name" => "main", "size" => 10047, "type" => "js"}], "dependencyCount" => 0, "dependencySizes" => [%{"approximateSize" => 9537, "name" => "preact"}], "description" => "Fast 3kb React-compatible Virtual DOM library.", "gzip" => 3920, "hasJSModule" => "dist/preact.module.js", "hasJSNext" => false, "hasSideEffects" => true, "name" => "preact", "repository" => "https://github.com/preactjs/preact.git", "scoped" => false, "size" => 10047, "version" => "10.4.1"}
       %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
@@ -143,6 +144,24 @@ defmodule ComponentsGuideWeb.ResearchController do
     end
   end
 
+  defp typescript_dom(query) do
+    case Spec.search_for(:typescript_dom, query) do
+      {_columns, rows} ->
+        content_tag(
+          :div,
+          for row <- rows do
+            content_tag(:pre, content_tag(:code, row, class: "language-ts"),
+              class: "language-ts m-2 whitespace-pre-wrap border border-indigo-700 rounded"
+            )
+          end,
+          class: "mb-4"
+        )
+
+      other ->
+        content_tag(:div, inspect(other), class: "text-red-100")
+    end
+  end
+
   defmodule CanIUse do
     # use ComponentsGuideWeb, :view
     alias ComponentsGuideWeb.ResearchView.Section, as: Section
@@ -185,10 +204,10 @@ defmodule ComponentsGuideWeb.ResearchController do
                   content_tag(:dt, "Notes", class: "font-bold"),
                   content_tag(:dd, "#{notes}", class: "text-base")
                 ]
-            end,
-            #content_tag(:dt, "Browsers", class: "font-bold"),
-            #content_tag(:dd, "#{inspect(stats)}", class: "text-sm"),
-            #content_tag(:dd, "#{inspect(item)}")
+            end
+            # content_tag(:dt, "Browsers", class: "font-bold"),
+            # content_tag(:dd, "#{inspect(stats)}", class: "text-sm"),
+            # content_tag(:dd, "#{inspect(item)}")
           ],
           class: "grid grid-flow-col gap-2 pt-2",
           style: "grid-template-rows: repeat(2, auto);"
@@ -277,9 +296,10 @@ defmodule ComponentsGuideWeb.ResearchController do
     # ComponentsGuide.Research.Source.clear_cache()
     [
       npm_downloads(query),
+      typescript_dom(query),
       bundlephobia(query),
       caniuse(query),
-      static(query),
+      static(query)
       # html_spec(query),
       # aria_practices(query),
       # html_aria(query)

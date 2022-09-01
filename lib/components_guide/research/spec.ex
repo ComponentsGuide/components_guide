@@ -1,6 +1,8 @@
 defmodule ComponentsGuide.Research.Spec do
   alias ComponentsGuide.Research.Source
 
+  # TODO: search https://cdn.jsdelivr.net/npm/tailwindcss@3.1.8/types/generated/colors.d.ts
+
   def caniuse(query) do
     %{
       source: {:json_url, "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"},
@@ -10,6 +12,7 @@ defmodule ComponentsGuide.Research.Spec do
 
   def npm_downloads_last_month(query) do
     query = String.trim(query)
+
     %{
       source: {:json_url, "https://api.npmjs.org/downloads/point/last-month/#{query}"},
       processor: {:npm_downloads, query}
@@ -45,6 +48,12 @@ defmodule ComponentsGuide.Research.Spec do
     end
   end
 
+  def search_for(:typescript_dom, query) when is_binary(query) do
+    types = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
+    result = Source.text_at(types)
+    process_search_for(:typescript_dom, query, result)
+  end
+
   def search_for(:whatwg_html_spec, query) when is_binary(query) do
     # url = "https://html.spec.whatwg.org/"
     url = "https://html.spec.whatwg.org/dev/"
@@ -75,7 +84,8 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   def search_for(:bundlephobia, query) when is_binary(query) do
-    case Source.json_at("https://bundlephobia.com/api/size?package=#{query}") |> tap(&IO.inspect/1) do
+    case Source.json_at("https://bundlephobia.com/api/size?package=#{query}")
+         |> tap(&IO.inspect/1) do
       {:ok, data} ->
         data
 
@@ -162,6 +172,39 @@ defmodule ComponentsGuide.Research.Spec do
           html: el
         }
       end)
+  end
+
+  defp process_search_for(:typescript_dom, query, {:ok, source}) do
+    start = System.monotonic_time()
+
+    # TODO: add types to a SQLite database?
+    {:ok, db} = Exqlite.Sqlite3.open(":memory:")
+    :ok = Exqlite.Sqlite3.execute(db, "CREATE VIRTUAL TABLE files USING FTS5(name, body)")
+
+    {:ok, statement} = Exqlite.Sqlite3.prepare(db, "insert into files (name, body) values (?, ?)")
+    :ok = Exqlite.Sqlite3.bind(db, statement, ["lib.dom.d.ts", source])
+    :done = Exqlite.Sqlite3.step(db, statement)
+    :ok = Exqlite.Sqlite3.release(db, statement)
+
+    # Prepare a select statement
+    # {:ok, statement} = Exqlite.Sqlite3.prepare(db, "select highlight(files, 1, '<b>', '</b>') body from files where files match ? order by rank")
+    {:ok, statement} = Exqlite.Sqlite3.prepare(db, "select snippet(files, 1, '', '', '…', 64) body from files where files match ? order by rank")
+    :ok = Exqlite.Sqlite3.bind(db, statement, [query])
+
+    # Get the results
+    # {:row, row} = Exqlite.Sqlite3.step(db, statement)
+    # :done = Exqlite.Sqlite3.step(db, statement)
+
+    {:ok, rows} = Exqlite.Sqlite3.fetch_all(db, statement)
+    {:ok, columns} = Exqlite.Sqlite3.columns(db, statement)
+    :ok = Exqlite.Sqlite3.release(db, statement)
+
+    Exqlite.Sqlite3.close(db)
+
+    duration = System.monotonic_time() - start
+    IO.puts("SQLite create + text search took #{System.convert_time_unit(duration, :native, :millisecond)}ms")
+
+    {columns, rows}
   end
 
   defp process_search_for(_id, _query, _), do: []

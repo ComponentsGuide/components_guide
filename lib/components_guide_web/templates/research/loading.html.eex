@@ -3,12 +3,22 @@
 <div class="text-white bg-gray-900 py-8">
   <div class="container">
     <div class="px-6" data-links="underline">
-      <include-fragment src="/research?q=<%= @query %>&results=1">
+      <include-fragment src="/research?q=<%= @query %>&results=1" data-results>
         <div>
           Loading…
           <loading-stopwatch class="inline-flex opacity-25"></loading-stopwatch>
         </div>
       </include-fragment>
+
+      <script type="module">
+        const loader = document.querySelector('include-fragment[data-results]');
+        const container = loader.parentElement;
+        //loader.addEventListener('loadstart', () => container.classList.add('is-loading'))
+        //loader.addEventListener('loadend', () => window.Prism.highlightAll());
+        loader.addEventListener('loadend', () => window.Prism.highlightAllUnder(container));
+        //loader.addEventListener('load', () => container.classList.add('is-success'))
+        //loader.addEventListener('error', () => container.classList.add('is-error'))
+      </script>
     </div>
   </div>
 </div>
