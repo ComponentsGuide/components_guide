@@ -7,7 +7,7 @@ defmodule ComponentsGuide.MixProject do
     [
       app: :components_guide,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
