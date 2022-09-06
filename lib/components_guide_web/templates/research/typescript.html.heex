@@ -1,0 +1,101 @@
+<style>
+dt[hidden] + dd {
+  display: none;
+}
+
+pre[class*="language-"] {
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+}
+code[class*="language-"], pre[class*="language-"] {
+  font-family: Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;
+  line-height: 1.5;
+  tab-size: 4;
+}
+</style>
+
+<article class="max-w-5xl mx-auto text-xl text-white">
+
+  <div class="prose prose-invert">
+    <h1 class="mb-4"><%= @page_title %></h1>
+  </div>
+
+  <view-source-filter>
+    <form role="search" id="filter-results" class="mb-8">
+      <input name="q" type="search" placeholder="Filter types" class="text-white bg-gray-800 border-gray-700 rounded">
+    </form>
+  </view-source-filter>
+  
+  <dl>
+    <%= for result <- @results do %>
+      <details open>
+        <summary class="inline-flex cursor-default"><dt class="font-bold" data-body={result.doc || "" <> " " <>  result.source}><%= result.name %></dt></summary>
+        <dd>
+          <lazy-prism class="">
+            <pre class="language-ts"><code><%= result.source %></code></pre>
+          </lazy-prism>
+        </dd>
+      </details>
+    <% end %>
+  </dl>
+
+</article>
+
+<skip-syntax-highlighting></skip-syntax-highlighting>
+
+<script type="module">
+  window.customElements.define('view-source-filter', class extends HTMLElement {
+    connectedCallback() {
+      this.aborter = new AbortController();
+      const signal = this.aborter.signal;
+
+      this.addEventListener('input', () => {
+        this.performSearch();
+      }, { signal });
+
+      const inputEl = this.querySelector('input');
+      inputEl.focus();
+      if (inputEl.value) {
+        this.performSearch();
+      }
+    }
+
+    disconnectedCallback() {
+      this.aborter.abort();
+    }
+
+    performSearch() {
+      const items = this.closest('article').querySelectorAll('dl dt');
+      const values = new FormData(this.querySelector('form'));
+      const q = values.get('q').trim().toLowerCase();
+      for (const item of Array.from(items)) {
+        let matches = q === '';
+        matches ||= item.textContent.toLowerCase().includes(q);
+        matches ||= item.dataset.body.toLowerCase().includes(q);
+        const itemToAffect = item.closest('details');
+        itemToAffect.hidden = !matches;
+      }
+    }
+  })
+  </script>
+
+<script type="module">
+const lazyPrismObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.highlighted) {
+      entry.target.dataset.highlighted = '1';
+      window.Prism.highlightAllUnder(entry.target);
+    }
+  });
+});
+  window.customElements.define('lazy-prism', class extends HTMLElement {
+    connectedCallback() {
+      lazyPrismObserver.observe(this);
+    }
+
+    disconnectedCallback() {
+      lazyPrismObserver.unobserve(this);
+    }
+  })
+  </script>

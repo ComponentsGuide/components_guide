@@ -48,6 +48,10 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
     defstruct name: nil, doc: nil, line_start: nil, line_end: nil
   end
 
+  defmodule Type do
+    defstruct name: nil, doc: nil, line_start: nil, line_end: nil
+  end
+
   defmodule Namespace do
     defstruct name: nil, doc: nil, line_start: nil, line_end: nil
   end
@@ -114,11 +118,86 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
 
     def do_reduce({"interface " <> name_and_extends, n}, %State{mode: nil} = state) do
       name = extract_name(name_and_extends)
-
       {doc, line_start} = read_prev_doc(state, n)
 
-      mode = %ModeDefinition{type: :interface, name: name, doc: doc, line_start: line_start}
-      %State{state | mode: mode, prev_doc: nil}
+      case name_and_extends |> String.trim_trailing() |> String.ends_with?("}") do
+        true ->
+          output_item = %Interface{
+            name: name,
+            doc: doc,
+            line_start: line_start,
+            line_end: n
+          }
+
+          %State{mode: nil, output: [output_item | state.output], prev_doc: nil}
+
+        false ->
+          mode = %ModeDefinition{type: :interface, name: name, doc: doc, line_start: line_start}
+          %State{state | mode: mode, prev_doc: nil}
+      end
+    end
+
+    def do_reduce({"export interface " <> name_and_extends, n}, %State{mode: nil} = state) do
+      name = extract_name(name_and_extends)
+      {doc, line_start} = read_prev_doc(state, n)
+
+      case name_and_extends |> String.trim_trailing() |> String.ends_with?("}") do
+        true ->
+          output_item = %Interface{
+            name: name,
+            doc: doc,
+            line_start: line_start,
+            line_end: n
+          }
+
+          %State{mode: nil, output: [output_item | state.output], prev_doc: nil}
+
+        false ->
+          mode = %ModeDefinition{type: :interface, name: name, doc: doc, line_start: line_start}
+          %State{state | mode: mode, prev_doc: nil}
+      end
+    end
+
+    def do_reduce({"export type " <> name_and_extends, n}, %State{mode: nil} = state) do
+      name = extract_name(name_and_extends)
+      {doc, line_start} = read_prev_doc(state, n)
+
+      case name_and_extends |> String.trim_trailing() |> String.ends_with?(";") do
+        true ->
+          output_item = %Type{
+            name: name,
+            doc: doc,
+            line_start: line_start,
+            line_end: n
+          }
+
+          %State{mode: nil, output: [output_item | state.output], prev_doc: nil}
+
+        false ->
+          mode = %ModeDefinition{type: :type, name: name, doc: doc, line_start: line_start}
+          %State{state | mode: mode, prev_doc: nil}
+      end
+    end
+
+    def do_reduce({"type " <> name_and_extends, n}, %State{mode: nil} = state) do
+      name = extract_name(name_and_extends)
+      {doc, line_start} = read_prev_doc(state, n)
+
+      case name_and_extends |> String.trim_trailing() |> String.ends_with?(";") do
+        true ->
+          output_item = %Type{
+            name: name,
+            doc: doc,
+            line_start: line_start,
+            line_end: n
+          }
+
+          %State{mode: nil, output: [output_item | state.output], prev_doc: nil}
+
+        false ->
+          mode = %ModeDefinition{type: :type, name: name, doc: doc, line_start: line_start}
+          %State{state | mode: mode, prev_doc: nil}
+      end
     end
 
     def do_reduce({"declare namespace " <> name_and_extends, n}, %State{mode: nil} = state) do
@@ -204,6 +283,14 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
               line_end: n
             }
 
+          :type ->
+            %Type{
+              name: mode.name,
+              doc: mode.doc,
+              line_start: mode.line_start,
+              line_end: n
+            }
+
           :namespace ->
             %Namespace{
               name: mode.name,
@@ -224,10 +311,75 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
       %State{mode: nil, output: [output_item | state.output]}
     end
 
+    def do_reduce({line, n}, %State{mode: %ModeDefinition{}} = state) do
+      line = line |> String.trim_trailing()
+      # terminals = ["}", "};", ";"]
+      # done? = Enum.any?(terminals, &String.ends_with?(line, &1))
+
+      # terminals = ["}", "};", ";"]
+      end_curly? = String.ends_with?(line, "}") || String.ends_with?(line, "};")
+      end_semicolon? = String.ends_with?(line, ";")
+
+      done? =
+        case {state.mode.type, end_curly?, end_semicolon?} do
+          {:namespace, _, _} -> false
+          {:type, _, end_semicolon?} -> end_semicolon?
+          {_, end_curly?, _} -> end_curly?
+        end
+
+      case {state.mode.type, done?} do
+        {_, false} ->
+          state
+
+        {:namespace, _} ->
+          state
+
+        {_, true} ->
+          mode = state.mode
+
+          output_item =
+            case mode.type do
+              :interface ->
+                %Interface{
+                  name: mode.name,
+                  doc: mode.doc,
+                  line_start: mode.line_start,
+                  line_end: n
+                }
+
+              :type ->
+                %Type{
+                  name: mode.name,
+                  doc: mode.doc,
+                  line_start: mode.line_start,
+                  line_end: n
+                }
+
+              :namespace ->
+                %Namespace{
+                  name: mode.name,
+                  doc: mode.doc,
+                  line_start: mode.line_start,
+                  line_end: n
+                }
+
+              :global_var ->
+                %GlobalVariable{
+                  name: mode.name,
+                  doc: mode.doc,
+                  line_start: mode.line_start,
+                  line_end: n
+                }
+            end
+
+          %State{mode: nil, output: [output_item | state.output]}
+      end
+    end
+
     def do_reduce(_, state), do: state
 
     defp extract_name(name_and_extends) do
-      case String.split(name_and_extends, [" ", ":", "("], parts: 2) do
+      case String.split(name_and_extends, [" ", ":", "(", "<"], parts: 2) do
         [name | _] -> name
         _ -> nil
       end

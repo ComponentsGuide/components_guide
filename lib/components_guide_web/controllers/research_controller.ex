@@ -8,31 +8,59 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuideWeb.ResearchView.Section, as: Section
   alias ComponentsGuide.Research.Sources.Typescript
 
-  def show(conn, %{"section" => "dom-types"}) do
+  defp process_typescript_source(source) do
     as_ms = &System.convert_time_unit(&1, :native, :millisecond)
 
-    url = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
-    {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
     start = System.monotonic_time()
     types = Typescript.Parser.parse(source)
     duration = System.monotonic_time() - start
-    IO.inspect(as_ms.(duration), label: "parse")
+    IO.inspect(as_ms.(duration), label: "parse types")
     types_sources = Typescript.Parser.extract_line_ranges(source, types)
     duration = System.monotonic_time() - start
-    IO.inspect(as_ms.(duration), label: "parse + extract")
+    IO.inspect(as_ms.(duration), label: "parse + extract types")
 
-    IO.inspect(types |> Enum.map(fn %{__struct__: type} -> type end) |> Enum.uniq(),
-      label: "types"
-    )
+    Enum.zip_with(types, types_sources, fn type, type_source ->
+      %{name: type.name, doc: type.doc, source: type_source}
+    end)
+  end
 
-    results =
-      Enum.zip_with(types, types_sources, fn type, type_source ->
-        %{name: type.name, doc: type.doc, source: type_source}
-      end)
+  def show(conn, %{"section" => "dom-types"}) do
+    url = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
+    {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+    results = process_typescript_source(source)
 
     conn
     |> assign(:page_title, "Search DOM Types")
-    |> render("dom-types.html", results: results)
+    |> render("typescript.html", results: results)
+  end
+
+  def show(conn, %{"section" => "css-types"}) do
+    url = "https://cdn.jsdelivr.net/npm/csstype@3.1.0/index.d.ts"
+    {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+    IO.inspect(source)
+    results = process_typescript_source(source)
+    IO.inspect(results)
+
+    conn
+    |> assign(:page_title, "Search CSS Types")
+    |> render("typescript.html", results: results)
+  end
+
+  def show(conn, %{"section" => "react-types"}) do
+    url = "https://cdn.jsdelivr.net/npm/@types/react@18.0.18/index.d.ts"
+    {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+
+    source =
+      source
+      |> String.replace("declare namespace React {", "", global: false)
+      |> String.replace("\n    ", "\n")
+      # |> String.trim_trailig("declare namespace React {")
+
+    results = process_typescript_source(source)
+
+    conn
+    |> assign(:page_title, "Search React Types")
+    |> render("typescript.html", results: results)
   end
 
   # TODO: add Tailwind search e.g. "ml-4" or "ml-[5rem]" and see what is produced
