@@ -45,16 +45,24 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
   end
 
   defmodule Interface do
-    defstruct name: nil, line_start: nil, line_end: nil
+    defstruct name: nil, doc: nil, line_start: nil, line_end: nil
+  end
+
+  defmodule Namespace do
+    defstruct name: nil, doc: nil, line_start: nil, line_end: nil
   end
 
   defmodule GlobalVariable do
-    defstruct name: nil, line_start: nil, line_end: nil
+    defstruct name: nil, doc: nil, line_start: nil, line_end: nil
+  end
+
+  defmodule GlobalFunction do
+    defstruct name: nil, doc: nil, line_start: nil, line_end: nil
   end
 
   defmodule Parser do
     defmodule State do
-      defstruct mode: nil, output: []
+      defstruct mode: nil, prev_doc: nil, output: []
     end
 
     def parse(source) when is_binary(source) do
@@ -83,19 +91,104 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
     end
 
     defmodule ModeDefinition do
-      defstruct type: nil, name: nil, line_start: nil, line_end: nil
+      defstruct type: nil, name: nil, doc: nil, line_start: nil, line_end: nil
+    end
+
+    defmodule JSDoc do
+      defstruct message: nil, line_start: nil
+    end
+
+    def do_reduce({"/**" <> rest_of_comment, n}, %State{mode: nil} = state) do
+      {mode, prev_doc} =
+        case rest_of_comment |> String.replace_suffix("*/", "") do
+          # <<a:bytes-size(byte_size(rest_of_comment))>> -> {%ModeDefinition{type: :doc_comment, line_start: n}, nil}
+          s when byte_size(rest_of_comment) == byte_size(s) ->
+            {%JSDoc{message: String.trim(rest_of_comment), line_start: n}, nil}
+
+          message ->
+            {nil, %JSDoc{message: String.trim(message), line_start: n}}
+        end
+
+      %State{state | mode: mode, prev_doc: prev_doc}
     end
 
     def do_reduce({"interface " <> name_and_extends, n}, %State{mode: nil} = state) do
       name = extract_name(name_and_extends)
-      mode = %ModeDefinition{type: :interface, name: name, line_start: n}
-      %State{state | mode: mode}
+
+      {doc, line_start} = read_prev_doc(state, n)
+
+      mode = %ModeDefinition{type: :interface, name: name, doc: doc, line_start: line_start}
+      %State{state | mode: mode, prev_doc: nil}
+    end
+
+    def do_reduce({"declare namespace " <> name_and_extends, n}, %State{mode: nil} = state) do
+      name = extract_name(name_and_extends)
+
+      {doc, line_start} = read_prev_doc(state, n)
+
+      mode = %ModeDefinition{type: :namespace, name: name, doc: doc, line_start: line_start}
+      %State{state | mode: mode, prev_doc: nil}
     end
 
     def do_reduce({"declare var " <> name_and_extends, n}, %State{mode: nil} = state) do
       name = extract_name(name_and_extends)
-      mode = %ModeDefinition{type: :global_var, name: name, line_start: n}
-      %State{state | mode: mode}
+
+      case name_and_extends |> String.trim_trailing() |> String.ends_with?(";") do
+        true ->
+          {doc, line_start} = read_prev_doc(state, n)
+
+          output_item = %GlobalVariable{
+            name: name,
+            doc: doc,
+            line_start: line_start,
+            line_end: n
+          }
+
+          %State{mode: nil, output: [output_item | state.output], prev_doc: nil}
+
+        false ->
+          mode = %ModeDefinition{type: :global_var, name: name, line_start: n}
+          %State{state | mode: mode, prev_doc: nil}
+      end
+    end
+
+    def do_reduce({"declare function " <> name_and_more, n}, %State{mode: nil} = state) do
+      name = extract_name(name_and_more)
+
+      {doc, line_start} = read_prev_doc(state, n)
+
+      output_item = %GlobalFunction{
+        name: name,
+        doc: doc,
+        line_start: line_start,
+        line_end: n
+      }
+
+      %State{mode: nil, output: [output_item | state.output], prev_doc: nil}
+    end
+
+    def do_reduce({line, _n}, %State{mode: %JSDoc{message: message}} = state) do
+      case line |> String.ends_with?("*/") do
+        false ->
+          line =
+            case line |> String.trim() do
+              "*" <> rest -> rest |> String.trim_leading()
+              s -> s
+            end
+
+          message =
+            case message do
+              "" -> line
+              message -> message <> "\n" <> line
+            end
+
+          mode = %JSDoc{state.mode | message: message}
+          %State{state | mode: mode}
+
+        true ->
+          prev_doc = %JSDoc{message: message, line_start: state.mode.line_start}
+          %State{state | mode: nil, prev_doc: prev_doc}
+      end
     end
 
     def do_reduce({"}" <> _, n}, %State{mode: %ModeDefinition{}} = state) do
@@ -104,10 +197,28 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
       output_item =
         case mode.type do
           :interface ->
-            %Interface{name: mode.name, line_start: mode.line_start, line_end: n}
+            %Interface{
+              name: mode.name,
+              doc: mode.doc,
+              line_start: mode.line_start,
+              line_end: n
+            }
+
+          :namespace ->
+            %Namespace{
+              name: mode.name,
+              doc: mode.doc,
+              line_start: mode.line_start,
+              line_end: n
+            }
 
           :global_var ->
-            %GlobalVariable{name: mode.name, line_start: mode.line_start, line_end: n}
+            %GlobalVariable{
+              name: mode.name,
+              doc: mode.doc,
+              line_start: mode.line_start,
+              line_end: n
+            }
         end
 
       %State{mode: nil, output: [output_item | state.output]}
@@ -116,10 +227,16 @@ defmodule ComponentsGuide.Research.Sources.Typescript do
     def do_reduce(_, state), do: state
 
     defp extract_name(name_and_extends) do
-      case String.split(name_and_extends, [" ", ":"], parts: 2) do
+      case String.split(name_and_extends, [" ", ":", "("], parts: 2) do
         [name | _] -> name
         _ -> nil
       end
     end
+
+    defp read_prev_doc(%State{prev_doc: %JSDoc{message: doc, line_start: doc_n}}, _n) do
+      {doc, doc_n}
+    end
+
+    defp read_prev_doc(_, n), do: {nil, n}
   end
 end

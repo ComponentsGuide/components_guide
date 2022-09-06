@@ -1,7 +1,13 @@
 defmodule ComponentsGuide.Research.Sources.TypescriptTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Research.Sources.Typescript.{Parser, Interface}
+  alias ComponentsGuide.Research.Sources.Typescript.{
+    Parser,
+    Interface,
+    Namespace,
+    GlobalVariable,
+    GlobalFunction
+  }
 
   @typescript_source ~S"""
   /*! *****************************************************************************
@@ -52,29 +58,100 @@ defmodule ComponentsGuide.Research.Sources.TypescriptTest do
       prototype: Blob;
       new(blobParts?: BlobPart[], options?: BlobPropertyBag): Blob;
   };
+
+  /**
+   * Posts a message to the given window. Messages can be structured objects, e.g. nested objects and arrays, can contain JavaScript values (strings, numbers, Date objects, etc), and can contain certain data objects such as File Blob, FileList, and ArrayBuffer objects.
+   *
+   * Objects listed in the transfer member of options are transferred, not just cloned, meaning that they are no longer usable on the sending side.
+   *
+   * A target origin can be specified using the targetOrigin member of options. If not provided, it defaults to "/". This default restricts the message to same-origin targets only.
+   *
+   * If the origin of the target window doesn't match the given target origin, the message is discarded, to avoid information leakage. To send the message to the target regardless of origin, set the target origin to "*".
+   *
+   * Throws a "DataCloneError" DOMException if transfer array contains duplicate objects or if message could not be cloned.
+   */
+  declare function postMessage(message: any, targetOrigin: string, transfer?: Transferable[]): void;
+
+  /** Moves the focus to the window's browsing context, if any. */
+  declare function focus(): void;
+
+  declare function requestAnimationFrame(callback: FrameRequestCallback): number;
+
+  declare var console: Console;
+
+  /** Holds useful CSS-related methods. No object with this interface are implemented: it contains only static methods and therefore is a utilitarian interface. */
+  declare namespace CSS {
+      function escape(ident: string): string;
+      function supports(property: string, value: string): boolean;
+      function supports(conditionText: string): boolean;
+  }
   """
 
   test "parse" do
     assert Parser.parse(@typescript_source) == [
-             %ComponentsGuide.Research.Sources.Typescript.Interface{
+             %Interface{
                name: "AddEventListenerOptions",
                line_start: 24,
                line_end: 28
              },
-             %ComponentsGuide.Research.Sources.Typescript.Interface{
+             %Interface{
                name: "AesCbcParams",
                line_start: 30,
                line_end: 32
              },
-             %ComponentsGuide.Research.Sources.Typescript.Interface{
+             %Interface{
                name: "Blob",
-               line_start: 35,
+               doc:
+                 "A file-like object of immutable, raw data. Blobs represent data that isn't necessarily in a JavaScript-native format. The File interface is based on Blob, inheriting blob functionality and expanding it to support files on the user's system.",
+               line_start: 34,
                line_end: 42
              },
-             %ComponentsGuide.Research.Sources.Typescript.GlobalVariable{
+             %GlobalVariable{
                name: "Blob",
                line_start: 44,
                line_end: 47
+             },
+             %GlobalFunction{
+               name: "postMessage",
+               doc:
+                 ~S"""
+                 Posts a message to the given window. Messages can be structured objects, e.g. nested objects and arrays, can contain JavaScript values (strings, numbers, Date objects, etc), and can contain certain data objects such as File Blob, FileList, and ArrayBuffer objects.
+
+                 Objects listed in the transfer member of options are transferred, not just cloned, meaning that they are no longer usable on the sending side.
+
+                 A target origin can be specified using the targetOrigin member of options. If not provided, it defaults to "/". This default restricts the message to same-origin targets only.
+
+                 If the origin of the target window doesn't match the given target origin, the message is discarded, to avoid information leakage. To send the message to the target regardless of origin, set the target origin to "*".
+
+                 Throws a "DataCloneError" DOMException if transfer array contains duplicate objects or if message could not be cloned.
+                 """
+                 |> String.trim_trailing(),
+               line_start: 49,
+               line_end: 60
+             },
+             %GlobalFunction{
+               name: "focus",
+               doc: "Moves the focus to the window's browsing context, if any.",
+               line_start: 62,
+               line_end: 63
+             },
+             %GlobalFunction{
+               name: "requestAnimationFrame",
+               line_start: 65,
+               line_end: 65
+             },
+             %GlobalVariable{
+               name: "console",
+               doc: nil,
+               line_start: 67,
+               line_end: 67
+             },
+             %Namespace{
+               name: "CSS",
+               doc:
+                 "Holds useful CSS-related methods. No object with this interface are implemented: it contains only static methods and therefore is a utilitarian interface.",
+               line_start: 69,
+               line_end: 74
              }
            ]
   end

@@ -9,14 +9,26 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuide.Research.Sources.Typescript
 
   def show(conn, %{"section" => "dom-types"}) do
+    as_ms = &System.convert_time_unit(&1, :native, :millisecond)
+
     url = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+    start = System.monotonic_time()
     types = Typescript.Parser.parse(source)
+    duration = System.monotonic_time() - start
+    IO.inspect(as_ms.(duration), label: "parse")
     types_sources = Typescript.Parser.extract_line_ranges(source, types)
+    duration = System.monotonic_time() - start
+    IO.inspect(as_ms.(duration), label: "parse + extract")
 
-    results = Enum.zip_with(types, types_sources, fn type, type_source ->
-      %{name: type.name, source: type_source}
-    end)
+    IO.inspect(types |> Enum.map(fn %{__struct__: type} -> type end) |> Enum.uniq(),
+      label: "types"
+    )
+
+    results =
+      Enum.zip_with(types, types_sources, fn type, type_source ->
+        %{name: type.name, doc: type.doc, source: type_source}
+      end)
 
     conn
     |> assign(:page_title, "Search DOM Types")

@@ -9,7 +9,7 @@
   <dl>
   <%= for result <- @results do %>
     <div>
-      <dt class="font-bold" data-body={result.source}><%= result.name %></dt>
+      <dt class="font-bold" data-body={result.doc || "" <> " " <>  result.source}><%= result.name %></dt>
       <dd><pre class="language-ts"><code><%= result.source %></code></pre></dd>
     </div>
   <% end %>
