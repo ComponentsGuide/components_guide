@@ -25,6 +25,7 @@ defmodule ComponentsGuideWeb.Router do
     resources "/react-playground", ReactEditorController, only: [:index, :show]
 
     get("/research", ResearchController, :index)
+    get("/research/:section", ResearchController, :show)
 
     get("/concepts", ConceptsController, :index)
 

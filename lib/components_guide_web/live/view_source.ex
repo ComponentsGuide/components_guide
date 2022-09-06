@@ -108,10 +108,6 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
       <% end %>
     </output>
     <style>
-    :root {
-      --fetch-html-color: green;
-    }
-
     dt[hidden] + dd {
       display: none;
     }

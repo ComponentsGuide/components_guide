@@ -6,6 +6,22 @@ defmodule ComponentsGuideWeb.ResearchController do
   alias ComponentsGuide.Research.Static
   alias ComponentsGuideWeb.ResearchView, as: View
   alias ComponentsGuideWeb.ResearchView.Section, as: Section
+  alias ComponentsGuide.Research.Sources.Typescript
+
+  def show(conn, %{"section" => "dom-types"}) do
+    url = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
+    {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+    types = Typescript.Parser.parse(source)
+    types_sources = Typescript.Parser.extract_line_ranges(source, types)
+
+    results = Enum.zip_with(types, types_sources, fn type, type_source ->
+      %{name: type.name, source: type_source}
+    end)
+
+    conn
+    |> assign(:page_title, "Search DOM Types")
+    |> render("dom-types.html", results: results)
+  end
 
   # TODO: add Tailwind search e.g. "ml-4" or "ml-[5rem]" and see what is produced
 

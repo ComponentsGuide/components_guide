@@ -1,0 +1,50 @@
+<article class="max-w-5xl mx-auto text-xl text-white">
+
+  <view-source-filter>
+    <form role="search" id="filter-results" class="mb-8">
+      <input name="q" type="search" placeholder="Filter types" class="text-white bg-gray-800 border-gray-700 rounded">
+    </form>
+  </view-source-filter>
+  
+  <dl>
+  <%= for result <- @results do %>
+    <div>
+      <dt class="font-bold" data-body={result.source}><%= result.name %></dt>
+      <dd><pre class="language-ts"><code><%= result.source %></code></pre></dd>
+    </div>
+  <% end %>
+  </dl>
+
+</article>
+
+<style>
+dt[hidden] + dd {
+  display: none;
+}
+</style>
+
+<script type="module">
+  window.customElements.define('view-source-filter', class extends HTMLElement {
+    connectedCallback() {
+      this.aborter = new AbortController();
+      const signal = this.aborter.signal;
+      this.addEventListener('input', () => {
+        const items = this.closest('article').querySelectorAll('dl dt');
+        const values = new FormData(this.querySelector('form'));
+        const q = values.get('q').trim().toLowerCase();
+        for (const item of Array.from(items)) {
+          let matches = q === '';
+          matches ||= item.textContent.toLowerCase().includes(q);
+          matches ||= item.dataset.body.toLowerCase().includes(q);
+          item.hidden = !matches;
+        }
+      }, { signal });
+
+      this.querySelector('input').focus();
+    }
+
+    disconnectedCallback() {
+      this.aborter.abort();
+    }
+  })
+  </script>
