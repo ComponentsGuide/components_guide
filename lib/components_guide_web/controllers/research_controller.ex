@@ -24,31 +24,35 @@ defmodule ComponentsGuideWeb.ResearchController do
     end)
   end
 
-  def show(conn, %{"section" => "dom-types"}) do
+  def show(conn, %{"section" => "dom-types"} = params) do
     url = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
     results = process_typescript_source(source)
 
+    query = Map.get(params, "q", "")
+
     conn
     |> assign(:page_title, "Search DOM Types")
-    |> render("typescript.html", results: results)
+    |> render("typescript.html", results: results, query: query)
   end
 
-  def show(conn, %{"section" => "css-types"}) do
+  def show(conn, %{"section" => "css-types"} = params) do
     url = "https://cdn.jsdelivr.net/npm/csstype@3.1.0/index.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
-    IO.inspect(source)
     results = process_typescript_source(source)
-    IO.inspect(results)
+
+    query = Map.get(params, "q", "")
 
     conn
     |> assign(:page_title, "Search CSS Types")
-    |> render("typescript.html", results: results)
+    |> render("typescript.html", results: results, query: query)
   end
 
-  def show(conn, %{"section" => "react-types"}) do
+  def show(conn, %{"section" => "react-types"} = params) do
     url = "https://cdn.jsdelivr.net/npm/@types/react@18.0.18/index.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+
+    query = Map.get(params, "q", "")
 
     source =
       source
@@ -60,7 +64,7 @@ defmodule ComponentsGuideWeb.ResearchController do
 
     conn
     |> assign(:page_title, "Search React Types")
-    |> render("typescript.html", results: results)
+    |> render("typescript.html", results: results, query: query)
   end
 
   # TODO: add Tailwind search e.g. "ml-4" or "ml-[5rem]" and see what is produced
