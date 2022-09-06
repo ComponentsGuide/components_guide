@@ -127,8 +127,6 @@ defmodule ComponentsGuideWeb.CalendarController do
       |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
       |> Map.new()
 
-    IO.inspect(dates_to_items)
-
     today = Date.utc_today()
 
     calendar_extra = fn date ->
