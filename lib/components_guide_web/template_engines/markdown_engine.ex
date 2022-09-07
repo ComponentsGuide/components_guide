@@ -91,6 +91,21 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
     html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)
 
+    # TODO: use Heex?
+    # unless Macro.Env.has_var?(__CALLER__, {:assigns, nil}) do
+    #   raise "~H requires a variable named \"assigns\" to exist and be set to a map"
+    # end
+
+    # options = [
+    #   engine: Phoenix.LiveView.HTMLEngine,
+    #   file: __CALLER__.file,
+    #   line: __CALLER__.line + 1,
+    #   module: __CALLER__.module,
+    #   indentation: meta[:indentation] || 0
+    # ]
+
+    # EEx.compile_string(expr, options)
+
     # case live? do
     #   true ->
     #     html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)

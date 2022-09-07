@@ -111,6 +111,7 @@ defmodule ComponentsGuideWeb do
       import ComponentsGuideWeb.AssetsHelpers
       alias ComponentsGuideWeb.StylingHelpers, as: Styling
       alias ComponentsGuideWeb.FormattingHelpers, as: Format
+      # alias ComponentsGuideWeb.PrimitiveHelpers, as: Primitives
 
       def markdown!(markdown) do
         Earmark.as_html!(markdown)

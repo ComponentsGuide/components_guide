@@ -2,7 +2,7 @@ defmodule ComponentsGuideWeb.CheatsheetsController do
   use ComponentsGuideWeb, :controller
   require Logger
 
-  @wasm_constant """
+  @wasm_source """
   (module
     (func (export "answer") (result i32)
      i32.const 42
@@ -11,7 +11,7 @@ defmodule ComponentsGuideWeb.CheatsheetsController do
   """
 
   def index(conn, _params) do
-    render(conn, "index.html", article: "intro", wasm_constant: @wasm_constant)
+    render(conn, "index.html", article: "intro", wasm_source: @wasm_source)
   end
 
   @articles ["rxjs", "error-messages", "cloud-limits"]
@@ -29,6 +29,8 @@ defmodule ComponentsGuideWeb.CheatsheetsView do
   use ComponentsGuideWeb, :view
   use ComponentsGuideWeb.Snippets
   alias ComponentsGuideWeb.ThemeView
+
+  defdelegate code_block(assigns), to: ComponentsGuideWeb.PrimitiveHelpers
 
   def header_styles() do
     ThemeView.banner_styles(:cheatsheets)
