@@ -70,6 +70,6 @@ if config_env() == :prod do
 end
 
 config :components_guide, :upstash,
-  redis_url: System.fetch_env!("UPSTASH_REDIS_URL"),
+  redis_url: System.get_env("REDIS_URL", ""),
   redis_rest_url: System.fetch_env!("UPSTASH_REDIS_REST_URL"),
   redis_rest_token: System.fetch_env!("UPSTASH_REDIS_REST_TOKEN")
