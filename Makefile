@@ -14,6 +14,10 @@ test_watch:
 dev:
 	iex -S mix phx.server
 
+.PHONY: test
+test:
+	iex -S mix test
+
 production_build:
 	MIX_ENV=prod mix production_build
 
