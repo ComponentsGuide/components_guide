@@ -32,7 +32,7 @@ defmodule ComponentsGuideWeb.ResearchController do
     query = Map.get(params, "q", "")
 
     conn
-    |> assign(:page_title, "Search DOM Types")
+    |> assign(:page_title, "Search DOM APIs via TypeScript’s build-in types")
     |> render("typescript.html", results: results, query: query)
   end
 
@@ -44,7 +44,7 @@ defmodule ComponentsGuideWeb.ResearchController do
     query = Map.get(params, "q", "")
 
     conn
-    |> assign(:page_title, "Search CSS Types")
+    |> assign(:page_title, "Search CSS properties via TypeScript’s build-in types")
     |> render("typescript.html", results: results, query: query)
   end
 
@@ -63,7 +63,7 @@ defmodule ComponentsGuideWeb.ResearchController do
     results = process_typescript_source(source)
 
     conn
-    |> assign(:page_title, "Search React Types")
+    |> assign(:page_title, "Search React’s APIs via TypeScript’s build-in types")
     |> render("typescript.html", results: results, query: query)
   end
 
