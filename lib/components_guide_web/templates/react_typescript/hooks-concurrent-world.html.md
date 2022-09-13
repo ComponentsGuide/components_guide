@@ -1,6 +1,6 @@
 # Understanding React Hooks in a Concurrent World
 
-- `useId`: generate a unique value consistently on the server & browser side.
+- `useId`: generate a unique value consistently on the server & browser side, usually for `id` attributes.
 - `useMemo` & `useCallback`: recalculate output when inputs change @ render time.
 - `useDeferredValue`: recalculate output to be input when any urgent updates have been committed.
 - `useState`: recalculate output when called @ render time.

@@ -150,16 +150,16 @@ You can see the single responsibility being enforced here — there’s a single
 Functions should ideally be deterministic and referentially transparent. Woah — what are these words? In English:
 
 - _Deterministic:_ always produce the same result given the same input.
-- _Referentially transparent:_ if you can replace the usage of a function with a hard-coded value it produces the same behaviour.
+- _Referentially transparent:_ when you can replace the usage of a function with a hard-coded value without changing the behaviour.
 
 To understand, it might be worth asking what if our functions didn’t have these properties:
 
-- If we couldn’t *determine* all the inputs that affected how a function worked, it would be hard to understand and debug. Think of global variables, or transient state.
-- If we couldn’t just paste in a hard coded value instead of calling a function, it would make caching and mocking difficult.
+- If we couldn’t *determine* all the inputs that affected how a function worked, it would be hard to understand and debug. Think of global variables or deeply nested state.
+- If we couldn’t just paste in a hard coded value instead of using the result of calling a function, it would make caching and mocking those results difficult.
 
 ## What is a React component?
 
-With these concepts down, it’s worth asking what is a React component?
+With these concepts down, it’s worth asking: _what is a React component?_
 
 **A React component is a deterministic and referentially transparent function that takes in props as input, and produce changes to the DOM as output.**
 
@@ -170,9 +170,10 @@ The general life-cycle of the React engine is:
 3. Gather all the leaf HTML elements that all the components produced.
 4. Find the differences since the last render, and build a list of DOM changes to be made.
 5. Actually commit the changes to the DOM.
-6. Call `useLayoutEffect` hooks.
-7. Allow the browser to paint and show the user the changes.
-8. Call `useEffect` hooks.
+6. Register event handlers in a private object owned by React.
+7. Call `useLayoutEffect` hooks.
+8. Allow the browser to paint and show the user the changes.
+9. Call `useEffect` hooks.
 
 There are a few things to note here. The DOM isn’t actually changed until step 5! Our components are merely instructions to the React engine.
 
@@ -231,11 +232,13 @@ A React hook lets component authors perform more advanced things outside the pur
 
 - `useState` — store data that the component relies on for rendering.
 - `useReducer` — more flexible version of `useState`.
+- `useId`: generate a unique value consistently on the server & browser side, usually for `id` attributes.
 - `useEffect` — perform side effect like fetching data or storing in local storage.
 - `useLayoutEffect` — perform change to the DOM like focus.
 - `useRef` — store data that the component relies on for effects or event handlers.
 - `useContext` — use state provided by a higher up component.
 - `useMemo` — perform expensive calculations that would be the same across multiple renders.
+- `useSyncExternalStore`: read changing data from an external store into your component.
 
 ## Prefer composition
 
