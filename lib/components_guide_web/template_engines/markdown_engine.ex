@@ -16,21 +16,20 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
     # "-md-" <> slug
   end
 
+  def h2_add_slug_processor(node) do
+    html_fragment = Earmark.Transform.transform([node])
+    inner_text = Floki.parse_fragment!(html_fragment) |> Floki.text() |> String.trim()
+    id = slug(inner_text)
+
+    node
+    |> Earmark.AstTools.merge_atts_in_node(id: slug(inner_text))
+  end
+
   def compile(path, name) do
     IO.puts("compile #{path} #{name}")
 
     registered_processors = [
-      {"h2",
-       fn node ->
-         html_fragment = Earmark.Transform.transform([node])
-
-         inner_text = Floki.parse_fragment!(html_fragment) |> Floki.text() |> String.trim()
-
-         id = slug(inner_text)
-
-         node
-         |> Earmark.AstTools.merge_atts_in_node(id: slug(inner_text))
-       end}
+      {"h2", &h2_add_slug_processor/1}
     ]
 
     # |> Earmark.TagSpecificProcessors.new()
@@ -42,13 +41,72 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
         registered_processors: registered_processors
       )
 
-    html =
-      path
-      |> File.read!()
-      |> Earmark.as_html!(options)
+    file_contents = File.read!(path)
+
+    {front_matter, markdown} =
+      case file_contents do
+        "---\n---\n" <> markdown ->
+          {nil, markdown}
+
+        "---\n" <> rest ->
+          [front_matter, markdown] = String.split(rest, "\n---\n", parts: 2)
+          {front_matter, markdown}
+
+        markdown ->
+          {nil, markdown}
+      end
+
 
     # |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false, postprocessor: &map_ast/1})
 
+    # html = Regex.replace(regex, html, fn whole, name, content -> "!" <> name <> "!" <> content end)
+
+    # html = Regex.replace(regex, html, fn whole, name, content -> "<div><%= live_render(@conn, ComponentsGuideWeb.FakeSearchLive, session: %{}) %></div>" end)
+
+    case front_matter do
+      nil ->
+        html = Earmark.as_html!(markdown, options)
+        html = todo_remove_old_custom_elements(html, name)
+        html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)
+
+      s ->
+        html = Earmark.as_html!(markdown, options)
+        quote do
+          unquote(Code.string_to_quoted!(s, file: path))
+
+          unquote(
+            html
+            |> EEx.compile_string(engine: Phoenix.LiveView.HTMLEngine, file: path, line: 1)
+          )
+        end
+    end
+
+    # TODO: use Heex?
+    # unless Macro.Env.has_var?(__CALLER__, {:assigns, nil}) do
+    #   raise "~H requires a variable named \"assigns\" to exist and be set to a map"
+    # end
+
+    # options = [
+    #   engine: Phoenix.LiveView.HTMLEngine,
+    #   file: __CALLER__.file,
+    #   line: __CALLER__.line + 1,
+    #   module: __CALLER__.module,
+    #   indentation: meta[:indentation] || 0
+    # ]
+
+    # EEx.compile_string(expr, options)
+
+    # case live? do
+    #   true ->
+    #     html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)
+
+    #   false ->
+
+    # end
+    # html |> EEx.compile_string(engine: Phoenix.LiveView.Engine, file: path, line: 1)
+  end
+
+  defp todo_remove_old_custom_elements(html, name) do
     # regex = ~r{<live-([\w-]+)>(.+)</live-([\w-]+)>}
     regex = ~r{<live-([\w-]+)>([^<]+)</live-([^>]+)>}
     # regex = ~r{<live-([\w-]+)>}
@@ -85,35 +143,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
         end
       end)
 
-    # html = Regex.replace(regex, html, fn whole, name, content -> "!" <> name <> "!" <> content end)
-
-    # html = Regex.replace(regex, html, fn whole, name, content -> "<div><%= live_render(@conn, ComponentsGuideWeb.FakeSearchLive, session: %{}) %></div>" end)
-
-    html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)
-
-    # TODO: use Heex?
-    # unless Macro.Env.has_var?(__CALLER__, {:assigns, nil}) do
-    #   raise "~H requires a variable named \"assigns\" to exist and be set to a map"
-    # end
-
-    # options = [
-    #   engine: Phoenix.LiveView.HTMLEngine,
-    #   file: __CALLER__.file,
-    #   line: __CALLER__.line + 1,
-    #   module: __CALLER__.module,
-    #   indentation: meta[:indentation] || 0
-    # ]
-
-    # EEx.compile_string(expr, options)
-
-    # case live? do
-    #   true ->
-    #     html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)
-
-    #   false ->
-
-    # end
-    # html |> EEx.compile_string(engine: Phoenix.LiveView.Engine, file: path, line: 1)
+    html
   end
 
   # defp map_ast({"h2", attrs, content, options}), do: {"h2", [class: "red"], content, %{class: "blue"}}

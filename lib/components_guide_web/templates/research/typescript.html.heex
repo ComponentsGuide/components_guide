@@ -89,13 +89,13 @@ const lazyPrismObserver = new IntersectionObserver((entries) => {
     }
   });
 });
-  window.customElements.define('lazy-prism', class extends HTMLElement {
-    connectedCallback() {
-      lazyPrismObserver.observe(this);
-    }
+window.customElements.define('lazy-prism', class extends HTMLElement {
+  connectedCallback() {
+    lazyPrismObserver.observe(this);
+  }
 
-    disconnectedCallback() {
-      lazyPrismObserver.unobserve(this);
-    }
-  })
-  </script>
+  disconnectedCallback() {
+    lazyPrismObserver.unobserve(this);
+  }
+})
+</script>

@@ -1,4 +1,4 @@
-# Form Validation with React Reducers
+# Reduce form boilerplate with React reducers
 
 ## Thinking of validation as a linear process
 
@@ -227,7 +227,7 @@ We’ll store our errors in a `Map`, which is similar to `FormData` with `.get()
 ```ts
 function validate(values: FormData) {
   const errors = new Map<string, string>();
-  for (const [name, value] of values) {
+  for (let [name, value] of values) {
     // Ignore whitespace: "   " is still counted as invalid.
     value = value.trim();
 
@@ -252,7 +252,7 @@ We also display the error message alongside its form field. We use the `aria-des
 ```tsx
 function validate(values: FormData) {
   const errors = new Map<string, string>();
-  for (const [name, value] of values) {
+  for (let [name, value] of values) {
     // Ignore whitespace: "   " is still counted as invalid.
     value = value.trim();
 
@@ -322,7 +322,7 @@ function validate(values: FormData, previousErrors: Map<string, string>) {
   // Create a new Map, copying the previous errors across.
   const errors = new Map<string, string>(previousErrors);
 
-  for (const [name, value] of values) {
+  for (let [name, value] of values) {
     // Remove the error if there was one before.
     errors.delete(name);
 
@@ -610,6 +610,8 @@ function reducer(state: { errors: Map<string, string> }, event: Event) {
 }
 ```
 
+## Final code
+
 The result looks like this:
 
 ```tsx
@@ -660,7 +662,7 @@ function validate(values: FormData, previousErrors: Map<string, string>) {
   // Create a new Map, copying the previous errors across.
   const errors = new Map<string, string>(previousErrors);
 
-  for (const [name, value] of values) {
+  for (let [name, value] of values) {
     // Remove the error if there was one before.
     errors.delete(name);
 
@@ -709,7 +711,132 @@ function ProfileForm() {
         type="email"
         error={errors.get("email")}
       />
+      <button type="submit">Save</button>
     </form>
   );
 }
 ```
+
+<code-example-react component-name="ProfileForm" class="block mt-8">
+  <h2 id="interactive-preview">Interactive preview</h2>
+  <style>
+    code-example-react form {
+      max-width: 20em;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    code-example-react input {
+      font-size: 1em;
+      color: black;
+    }
+    code-example-react button {
+      max-width: max-content;
+      margin-top: 1rem;
+      padding: 0.5rem 2rem;
+      color: white;
+      background-color: var(--colors-blue-500) !important;
+      border-radius: 999px;
+    }
+    code-example-react [id$="-error"] {
+      font-style: italic;
+      color: var(--colors-red-500);
+    }
+  </style>
+  <div id="code-example-react-1"></div>
+</code-example-react>
+
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.profiling.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.profiling.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom-server.browser.production.min.js"></script>
+
+<script type="module">
+import * as esbuild from "https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.1/esm/browser.min.js";
+const esbuildPromise = Promise.resolve(esbuild.initialize({
+  wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.1/esbuild.wasm',
+}).then(() => esbuild));
+
+window.customElements.define('code-example-react', class extends HTMLElement {
+  connectedCallback() {
+    // this.attachShadow({mode: 'open'});
+    // this.id = "code-example-react-1";
+    this.doWork().catch(console.error);
+  }
+
+  async doWork() {
+    const componentName = this.getAttribute('component-name');
+    const esbuild = await esbuildPromise;
+    const source = this.previousElementSibling.innerText;
+
+    const suffix = `
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  render() {
+    if (this.state.error) {
+      return <div class="flex h-full justify-center items-center text-white bg-red-700"><div>Error: {this.state.error.message}</div></div>;
+    }
+
+    return <>{this.props.children}</>;
+  }
+}
+
+export function Example(rootEl = document) {
+  console.log("rootEl", rootEl);
+  const clientAppEl = rootEl.querySelector('#code-example-react-1');
+
+  const wrapped = <React.Profiler id="App" onRender={(id, phase, actualDuration, baseDuration, startTime, commitTime, interactions) => {
+    clientAppEl.dispatchEvent(new CustomEvent('DID_RENDER', { detail: { id, phase, actualDuration, baseDuration, startTime, commitTime, interactions } }));
+  }}>
+    <ErrorBoundary>
+      <${componentName} />
+    </ErrorBoundary>
+  </React.Profiler>;
+
+  clientAppEl.dispatchEvent(new CustomEvent('RESET'));
+  ReactDOM.render(wrapped, clientAppEl);
+  clientAppEl.addEventListener('RESET', () => {
+    ReactDOM.unmountComponentAtNode(clientAppEl);
+  }, { once: true });
+
+  try {
+    return ReactDOMServer.renderToString(wrapped);
+  } catch (error) {
+    return \`<!-- Uncaught error: \${error.message} -->\n<div class="flex h-full justify-center items-center text-white bg-red-700"><div>Error: \${error.message}</div></div>\`;
+  }
+}
+`;
+
+    const { outputFiles } = await esbuild.build({
+      bundle: true,
+      minify: true,
+      stdin: {
+        //contents: `${prefix}\n${body ?? ""}\n${suffix}`,
+        contents: `${source ?? ""}\n${suffix}`,
+        //contents: body ?? "",
+        loader: 'tsx',
+        sourcefile: 'main.tsx',
+      },
+      write: false,
+      format: 'iife',
+      globalName: 'exports',
+      plugins: []
+    });
+
+    const code = new TextDecoder().decode(outputFiles[0].contents);
+
+    const hookNames = Object.keys(window.React).filter(name => name.startsWith('use'));
+    const preamble = hookNames.map(hookName => `const ${hookName} = window.React.${hookName}`).join(';');
+    const executor = new Function('rootEl', `${preamble}; ${code}; return exports.Example(rootEl);`);
+    const result = executor(this);
+  }
+});
+</script>

@@ -14,6 +14,11 @@
   --z-menu: 50;
 }
 
+:root {
+  --colors-blue-500: theme('colors.blue.500');
+  --colors-red-500: theme('colors.red.500');
+}
+
 a:not([class]):not(.prose *) {
   display: var(--link--display);
   padding-left: var(--link--padding-x);

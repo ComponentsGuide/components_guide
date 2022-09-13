@@ -37,7 +37,7 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
       for={:editor}
       id="view_source_form"
       phx-submit="submitted"
-      class="max-w-2xl mx-auto space-y-2"
+      class="max-w-2xl mt-12 mx-auto space-y-2"
     >
 
       <fieldset y-y y-stretch class="gap-1">
