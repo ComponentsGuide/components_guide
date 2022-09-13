@@ -1,7 +1,3 @@
-<header class="<%= ComponentsGuideWeb.TopicsView.class_for_topic(:react_typescript) %>">
-  <%= render view_module(@conn), "_headline.html" %>
-</header>
-
 <navigable-article class="flex flex-col">
   <div class="mx-auto grid-flow-col md:grid md:grid-cols-[20rem_minmax(0,var(--max-width))] xl:grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8" style="--max-width: 46em">
     <div class="md:sticky top-0 md:h-screen pl-4 pt-16 text-white">
