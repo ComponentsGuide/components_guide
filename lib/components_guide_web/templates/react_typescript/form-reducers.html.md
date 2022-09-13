@@ -8,22 +8,23 @@ Fortunately the browser has two features to help us out: `FormData` and event de
 
 ## Thinking of validation as a linear process
 
-We can think of validation as mapping from events to errors.
+We can think of validation as mapping from _events_ to _errors_.
 
 We have two events: `blur` and `submit`.
 
-When a field is blurred, we validate whether its value is valid or not.
+When a field is blurred, we validate whether its value is valid or not. This produces either one or no error.
 
-When a whole form is submitted, we validate **all** of its fields at once.
+When a whole form is submitted, we validate **all** of its fields at once. This produces zero or more errors.
 
 It would be great to write the same code to validate either a single field (when it is blurred) or a whole bunch of fields (when their form is submitted).
 
 If we were to sketch out the steps it would look like:
 
 1. Get the field(s) matching this event.
-2. Get the values from the fields.
+2. Get the values from the field(s).
 3. Validate each value.
 4. Store a key-value map for each error, with the key identifying the field, and the value holding the error message.
+5. Render out each field, with its error alongside.
 
 So how do we do each of these steps?
 
