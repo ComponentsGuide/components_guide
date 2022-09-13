@@ -1,5 +1,11 @@
 # Reduce form boilerplate with React reducers
 
+In this tutorial we will create a form that validates both when it is submitted and when individual fields are defocused (aka “blurred”).
+
+Often in React this is done using state and event handlers for every field. This is difficult to scale: as you add new fields, you must add another piece of state and yet another event handler.
+
+Fortunately the browser has two features to help us out: `FormData` and event delegation. We can combine these with React’s `useReducer` hook to create a small amount of reusable code without needing a third-party library.
+
 ## Thinking of validation as a linear process
 
 We can think of validation as mapping from events to errors.
@@ -12,7 +18,7 @@ When a whole form is submitted, we validate **all** of its fields at once.
 
 It would be great to write the same code to validate either a single field (when it is blurred) or a whole bunch of fields (when their form is submitted).
 
-If we were to sketch out the steps:
+If we were to sketch out the steps it would look like:
 
 1. Get the field(s) matching this event.
 2. Get the values from the fields.
