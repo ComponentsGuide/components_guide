@@ -26,6 +26,7 @@ cargo_build:
 
 clean:
 	rm -rf ./_build
+	cd native/componentsguide_rustler_math/ && cargo clean
 
 production:
 	git pull --rebase
