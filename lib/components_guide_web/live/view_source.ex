@@ -121,8 +121,6 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
 
   @impl true
   def mount(%{}, _session, socket) do
-    if connected?(socket), do: :timer.send_interval(5000, self(), :update)
-
     state = State.default()
     socket = assign_state(socket, state)
     {:ok, socket}
@@ -152,11 +150,6 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
       {:error, reason} ->
         {:noreply, socket}
     end
-  end
-
-  @impl true
-  def handle_info(:update, socket) do
-    {:noreply, socket}
   end
 
   def headers_preview(assigns) do
