@@ -102,8 +102,8 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
         <.headers_preview headers={@state.response.headers}>
         </.headers_preview>
         <%= if (@state.response.body || "") != "" do %>
-          <.html_preview html={@state.response.body}>
-          </.html_preview>
+          <.body_preview content_type={Fetch.Response.find_header(@state.response, "content-type")} data={@state.response.body}>
+          </.body_preview>
         <% end %>
       <% end %>
     </output>
@@ -112,6 +112,25 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
       display: none;
     }
     </style>
+    <script type="module">
+    const lazyPrismObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.highlighted) {
+          entry.target.dataset.highlighted = '1';
+          window.Prism.highlightAllUnder(entry.target);
+        }
+      });
+    });
+    window.customElements.define('lazy-prism', class extends HTMLElement {
+      connectedCallback() {
+        lazyPrismObserver.observe(this);
+      }
+
+      disconnectedCallback() {
+        lazyPrismObserver.unobserve(this);
+      }
+    })
+    </script>
     """
   end
 
@@ -161,6 +180,20 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
         <dd class="text-left pl-8"><%= value %></dd>
       <% end %>
     </dl>
+    """
+  end
+
+  def body_preview(assigns) do
+    ~H"""
+    <%= if @content_type == "application/json" do %>
+      <h2>JSON</h2>
+      <lazy-prism>
+        <pre class="text-left"><code class="language-json"><%= @data %></code></pre>
+      </lazy-prism>
+    <% end %>
+    <%= if @content_type in ["text/html", "text/html; charset=utf-8"] do %>
+      <.html_preview html={@data} />
+    <% end %>
     """
   end
 

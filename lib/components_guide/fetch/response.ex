@@ -36,4 +36,15 @@ defmodule ComponentsGuide.Fetch.Response do
   def add_error(receiver = %__MODULE__{}, error) do
     put_in(receiver.error, error)
   end
+
+  def find_header(receiver = %__MODULE__{}, header_name) when is_binary(header_name) do
+    header_name = String.downcase(header_name)
+
+    Enum.find_value(receiver.headers, fn {name, value} ->
+      case String.downcase(name) do
+        ^header_name -> value
+        _ -> nil
+      end
+    end)
+  end
 end
