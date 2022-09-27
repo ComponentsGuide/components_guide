@@ -28,7 +28,8 @@ defmodule ComponentsGuideWeb.CalendarController do
     }
 
     jest = %{
-      jest28: %{release: {2022, 4, 25}}
+      jest28: %{release: {2022, 4, 25}},
+      jest29: %{release: {2022, 8, 25}},
     }
 
     postgres = %{
@@ -45,7 +46,9 @@ defmodule ComponentsGuideWeb.CalendarController do
     }
 
     rust = %{
-      rust1_62: %{release: {2022, 6, 30}}
+      rust1_62: %{release: {2022, 6, 30}},
+      rust1_63: %{release: {2022, 8, 11}},
+      rust1_64: %{release: {2022, 9, 22}},
     }
 
     browsers = %{
@@ -54,6 +57,13 @@ defmodule ComponentsGuideWeb.CalendarController do
       firefox101: %{release: {2022, 5, 31}},
       firefox102: %{release: {2022, 6, 28}},
       firefox103: %{release: {2022, 7, 26}},
+      firefox104: %{release: {2022, 8, 23}},
+      firefox105: %{release: {2022, 9, 20}},
+      firefox106: %{release: {2022, 10, 18}},
+      firefox107: %{release: {2022, 11, 15}},
+      firefox108: %{release: {2022, 12, 13}},
+      firefox109: %{release: {2023, 1, 17}},
+      firefox110: %{release: {2023, 2, 14}},
       chrome99: %{release: {2022, 3, 1}},
       chrome100: %{release: {2022, 3, 29}},
       chrome101: %{release: {2022, 4, 26}},
@@ -62,6 +72,9 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome104: %{release: {2022, 8, 2}},
       chrome105: %{release: {2022, 8, 30}},
       chrome106: %{release: {2022, 9, 27}},
+      chrome107: %{release: {2022, 10, 27}},
+      chrome108: %{release: {2022, 12, 1}},
+      chrome109: %{release: {2023, 1, 10}},
       safari15_4: %{release: {2022, 3, 14}},
       safari15_5: %{release: {2022, 5, 16}},
       safari15_6: %{release: {2022, 7, 20}}
@@ -94,6 +107,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome102: "https://developer.chrome.com/blog/new-in-chrome-102/",
       chrome103: "https://developer.chrome.com/blog/new-in-chrome-103/",
       chrome104: "https://developer.chrome.com/blog/new-in-chrome-104/",
+      chrome105: "https://developer.chrome.com/blog/new-in-chrome-105/",
       deno1_20: "https://deno.com/blog/v1.20",
       deno1_21: "https://deno.com/blog/v1.21",
       deno1_22: "https://deno.com/blog/v1.22",
@@ -107,14 +121,19 @@ defmodule ComponentsGuideWeb.CalendarController do
       firefox101: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/101",
       firefox102: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/102",
       firefox103: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/103",
+      firefox104: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/104",
+      firefox105: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/105",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       safari15_5: "https://webkit.org/blog/12669/new-webkit-features-in-safari-15-5/",
       safari15_6: "https://webkit.org/blog/13009/new-webkit-features-in-safari-15-6/",
       go1_18: "https://go.dev/doc/go1.18",
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
+      rust1_63: "https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html",
+      rust1_64: "https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
-      jest28: "https://jestjs.io/blog/2022/04/25/jest-28"
+      jest28: "https://jestjs.io/blog/2022/04/25/jest-28",
+      jest29: "https://jestjs.io/blog/2022/08/25/jest-29",
     }
 
     dates_to_items =
