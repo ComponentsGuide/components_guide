@@ -1,0 +1,18 @@
+[package]
+name = "molten"
+version = "0.1.0"
+authors = []
+edition = "2018"
+
+[lib]
+name = "molten"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.25.0"
+deno_core = "0.144.0"
+swc_common = "0.25.0"
+swc_ecma_parser = "0.115.0"
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
