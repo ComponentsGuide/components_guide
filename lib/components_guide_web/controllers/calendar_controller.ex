@@ -84,7 +84,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome109: %{release: {2023, 1, 10}},
       safari15_4: %{release: {2022, 3, 14}},
       safari15_5: %{release: {2022, 5, 16}},
-      safari15_6: %{release: {2022, 7, 20}}
+      safari15_6: %{release: {2022, 7, 20}},
+      safari16: %{release: {2022, 9, 12}}
     }
 
     ios = %{
@@ -142,6 +143,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       safari15_5: "https://webkit.org/blog/12669/new-webkit-features-in-safari-15-5/",
       safari15_6: "https://webkit.org/blog/13009/new-webkit-features-in-safari-15-6/",
+      safari16: "https://webkit.org/blog/13152/webkit-features-in-safari-16-0/",
       go1_18: "https://go.dev/doc/go1.18",
       go1_19: "https://go.dev/doc/go1.19",
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
