@@ -19,7 +19,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_22: %{release: {2022, 5, 18}},
       deno1_23: %{release: {2022, 6, 16}},
       deno1_24: %{release: {2022, 7, 21}},
-      deno1_25: %{release: {2022, 8, 25}}
+      deno1_25: %{release: {2022, 8, 25}},
+      deno1_26: %{release: {2022, 9, 29}},
     }
 
     react = %{
@@ -114,6 +115,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_23: "https://deno.com/blog/v1.23",
       deno1_24: "https://deno.com/blog/v1.24",
       deno1_25: "https://deno.com/blog/v1.25",
+      deno1_26: "https://deno.com/blog/v1.26",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
