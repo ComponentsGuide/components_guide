@@ -38,12 +38,18 @@ defmodule ComponentsGuideWeb.CalendarController do
       postgres10: %{end_of_life: {2022, 11, 10}}
     }
 
+    erlang = %{
+      elixir1_14: %{release: {2022, 9, 1}},
+    }
+
     swift = %{
-      swift5_6: %{release: {2022, 3, 14}}
+      swift5_6: %{release: {2022, 3, 14}},
+      swift5_7: %{release: {2022, 9, 12}}
     }
 
     golang = %{
-      go1_18: %{release: {2022, 3, 15}}
+      go1_18: %{release: {2022, 3, 15}},
+      go1_19: %{release: {2022, 8, 2}},
     }
 
     rust = %{
@@ -81,6 +87,10 @@ defmodule ComponentsGuideWeb.CalendarController do
       safari15_6: %{release: {2022, 7, 20}}
     }
 
+    ios = %{
+      ios16: %{release: {2022, 9, 12}}
+    }
+
     aws_lambda = %{
       aws_lambda_nodejs10: %{
         deprecation_phase_1: {2021, 7, 30},
@@ -89,10 +99,12 @@ defmodule ComponentsGuideWeb.CalendarController do
     }
 
     groups = [
+      ios,
       nodejs_lts,
       deno,
       react,
       swift,
+      erlang,
       golang,
       rust,
       browsers,
@@ -126,16 +138,20 @@ defmodule ComponentsGuideWeb.CalendarController do
       firefox104: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/104",
       firefox105: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/105",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
+      swift5_7: "https://www.swift.org/blog/swift-5.7-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       safari15_5: "https://webkit.org/blog/12669/new-webkit-features-in-safari-15-5/",
       safari15_6: "https://webkit.org/blog/13009/new-webkit-features-in-safari-15-6/",
       go1_18: "https://go.dev/doc/go1.18",
+      go1_19: "https://go.dev/doc/go1.19",
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
       rust1_63: "https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html",
       rust1_64: "https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28",
       jest29: "https://jestjs.io/blog/2022/08/25/jest-29",
+      ios16: "https://www.apple.com/newsroom/2022/09/ios-16-is-available-today/",
+      elixir1_14: "https://elixir-lang.org/blog/2022/09/01/elixir-v1-14-0-released/",
     }
 
     dates_to_items =
@@ -271,9 +287,13 @@ defmodule ComponentsGuideWeb.CalendarView do
     assigns = %{ids: ids}
 
     ~H"""
-    <%= for id <- @ids do %>
-    <%= ComponentsGuideWeb.CalendarView.icon_link(id, Map.get(links, id)) %>
-    <% end %>
+    <div>
+      <%= for id <- @ids do %>
+      <div>
+      <%= ComponentsGuideWeb.CalendarView.icon_link(id, Map.get(links, id)) %>
+      </div>
+      <% end %>
+    </div>
     """
   end
 
@@ -300,12 +320,14 @@ defmodule ComponentsGuideWeb.CalendarView do
       <<"safari" <> version>> -> "Safari #{pretty_version(version)}"
       <<"postgres" <> version>> -> "Postgres #{pretty_version(version)}"
       <<"swift" <> version>> -> "Swift #{pretty_version(version)}"
+      <<"elixir" <> version>> -> "Elixir #{pretty_version(version)}"
       <<"go" <> version>> -> "Go #{pretty_version(version)}"
       <<"rust" <> version>> -> "Rust #{pretty_version(version)}"
       <<"react_query" <> version>> -> "React Query #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
       <<"jest" <> version>> -> "Jest #{pretty_version(version)}"
       <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
+      <<"ios" <> version>> -> "iOS #{pretty_version(version)}"
       s -> s
     end
   end
@@ -353,8 +375,14 @@ defmodule ComponentsGuideWeb.CalendarView do
         <<"jest" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/jest.svg"
 
+        <<"elixir" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/elixir.svg"
+
         <<"aws_lambda_nodejs" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/awslambda.svg"
+
+        <<"ios" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/ios.svg"
 
         _ ->
           nil
