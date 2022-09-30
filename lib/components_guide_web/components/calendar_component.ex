@@ -73,8 +73,8 @@ defmodule ComponentsGuideWeb.CalendarComponent do
         <tr class="min-h-16 group">
           <%= for weekday <- 0..6 do %>
             <% date = Date.add(@current, (week_offset - 1) * 7 + weekday - day_offset) %>
-            <% current? = week_offset == 0 && day_of_week == weekday %>
-            <td aria-current={if current?, do: "date", else: "false"} class={td_class(%{current?: current?, weekday: weekday})}>
+            <% current_day? = week_offset == 0 && day_of_week == weekday %>
+            <td aria-current={if current_day?, do: "date", else: "false"} class={td_class(%{current_day?: current_day?, weekday: weekday, week_offset: week_offset})}>
               <div class={cell_text_class(week_offset)}><%= Calendar.strftime(date, "%d %b") %></div>
               <%= @extra.(date) %>
             </td>
@@ -86,8 +86,9 @@ defmodule ComponentsGuideWeb.CalendarComponent do
     """
   end
 
-  defp td_class(%{current?: true}), do: "bg-green-900 text-green-100"
+  defp td_class(%{current_day?: true}), do: "bg-green-900/90 text-green-100"
   defp td_class(%{weekday: weekday}) when weekday in [5, 6], do: "bg-black/40"
+  defp td_class(%{week_offset: 0}), do: "bg-green-900/25"
   defp td_class(_), do: "bg-black"
 
   defp cell_text_class(0), do: "text-sm opacity-100"
