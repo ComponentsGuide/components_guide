@@ -75,7 +75,7 @@ defmodule ComponentsGuideWeb.CalendarComponent do
             <% date = Date.add(@current, (week_offset - 1) * 7 + weekday - day_offset) %>
             <% current_day? = week_offset == 0 && day_of_week == weekday %>
             <td aria-current={if current_day?, do: "date", else: "false"} class={td_class(%{current_day?: current_day?, weekday: weekday, week_offset: week_offset})}>
-              <div class={cell_text_class(week_offset)}><%= Calendar.strftime(date, "%d %b") %></div>
+              <div class={td_text_class(week_offset)}><%= Calendar.strftime(date, "%d %b") %></div>
               <%= @extra.(date) %>
             </td>
           <% end %>
@@ -91,8 +91,8 @@ defmodule ComponentsGuideWeb.CalendarComponent do
   defp td_class(%{week_offset: 0}), do: "bg-green-900/25"
   defp td_class(_), do: "bg-black"
 
-  defp cell_text_class(0), do: "text-sm opacity-100"
-  defp cell_text_class(week_offset) when week_offset in [-1, 1], do: "text-sm opacity-75"
-  defp cell_text_class(week_offset) when week_offset in [-2, 2], do: "text-sm opacity-60"
-  defp cell_text_class(_), do: "text-sm opacity-50"
+  defp td_text_class(0), do: "text-sm opacity-100"
+  defp td_text_class(week_offset) when week_offset in [-1, 1], do: "text-sm opacity-75"
+  defp td_text_class(week_offset) when week_offset in [-2, 2], do: "text-sm opacity-60"
+  defp td_text_class(_), do: "text-sm opacity-50"
 end
