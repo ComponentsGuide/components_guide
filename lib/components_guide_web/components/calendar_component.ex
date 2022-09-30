@@ -51,11 +51,11 @@ defmodule ComponentsGuideWeb.CalendarComponent do
       <tbody>
       <%= for week_n <- 1..max_week do %>
         <tr class="min-h-16">
-          <%= for day_n <- 1..7 do %>
-            <% day = day_n + day_offset + ((week_n - 1) * 7) %>
+          <%= for weekday <- 1..7 do %>
+            <% day = weekday + day_offset + ((week_n - 1) * 7) %>
             <%= if day in @date_range.first.day..@date_range.last.day do %>
               <% current = day == @day %>
-              <td aria-current={if current, do: "date", else: "false"} class={if current, do: "bg-green-900 text-green-100", else: "bg-black"}>
+              <td aria-current={if current, do: "date", else: "false"} class={td_class(%{current: current, weekday: weekday})}>
                 <div class="text-sm"><%= day %></div>
                 <%= @extra.(Date.new!(year, month, day)) %>
               </td>
@@ -69,4 +69,8 @@ defmodule ComponentsGuideWeb.CalendarComponent do
     </table>
     """
   end
+
+  defp td_class(%{current: true}), do: "bg-green-900 text-green-100"
+  defp td_class(%{weekday: weekday}) when weekday in [6, 7], do: "bg-black/40"
+  defp td_class(_), do: "bg-black"
 end
