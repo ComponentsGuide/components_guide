@@ -25,7 +25,8 @@ defmodule ComponentsGuideWeb.CalendarController do
 
     react = %{
       react18: %{release: {2022, 3, 29}},
-      react_query4: %{release: {2022, 7, 18}}
+      react_query4: %{release: {2022, 7, 18}},
+      nextjs13: %{release: {2022, 10, 26}}
     }
 
     jest = %{
@@ -132,6 +133,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_26: "https://deno.com/blog/v1.26",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
+      nextjs13: "https://nextjs.org/blog/next-13",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
       firefox100: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/100",
       firefox101: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/101",
@@ -372,6 +374,9 @@ defmodule ComponentsGuideWeb.CalendarView do
 
         <<"react_query" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/reactquery.svg"
+
+        <<"nextjs" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/nextdotjs.svg"
 
         <<"react" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"
