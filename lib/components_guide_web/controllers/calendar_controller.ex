@@ -56,6 +56,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       rust1_62: %{release: {2022, 6, 30}},
       rust1_63: %{release: {2022, 8, 11}},
       rust1_64: %{release: {2022, 9, 22}},
+      rust1_65: %{release: {2022, 11, 3}}
     }
 
     browsers = %{
@@ -149,6 +150,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
       rust1_63: "https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html",
       rust1_64: "https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html",
+      rust1_65: "https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28",
       jest29: "https://jestjs.io/blog/2022/08/25/jest-29",
