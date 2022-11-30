@@ -1,5 +1,8 @@
 // use std::fmt;
 
+// use comrak::{markdown_to_html, ComrakOptions};
+use comrak::{ComrakOptions};
+
 use deno_core;
 use deno_core::url;
 use deno_core::v8::Handle;
@@ -33,6 +36,11 @@ mod atoms {
 #[rustler::nif]
 fn add(a: i64, b: i64) -> i64 {
     a + b
+}
+
+#[rustler::nif(schedule = "DirtyCpu")]
+fn markdown_to_html(source: String) -> String {
+  return comrak::markdown_to_html(&source, &ComrakOptions::default());
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
@@ -153,5 +161,5 @@ fn parse_js(source: String) -> Result<String, String> {
 
 rustler::init!(
     "Elixir.ComponentsGuide.Rustler.Molten.Native",
-    [add, js, typescript_module, parse_js]
+    [add, markdown_to_html, js, typescript_module, parse_js]
 );

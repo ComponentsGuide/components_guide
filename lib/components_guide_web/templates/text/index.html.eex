@@ -2,7 +2,7 @@
 
 <span><%= link "Write", to: Routes.text_path(@conn, :new) %></span>
 
-<%= live_render(@conn, ComponentsGuideWeb.ActivityLive, session: %{}, router: ComponentsGuideWeb.Router ) %>
+<%= Phoenix.Component.live_render(@conn, ComponentsGuideWeb.ActivityLive, session: %{}, router: ComponentsGuideWeb.Router ) %>
 
 <table>
   <thead>

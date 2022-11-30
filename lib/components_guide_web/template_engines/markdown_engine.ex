@@ -4,6 +4,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
   @behaviour Phoenix.Template.Engine
 
   require Earmark
+  alias ComponentsGuide.Rustler.Molten
 
   def slug(text) do
     slug =
@@ -61,16 +62,18 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
     # html = Regex.replace(regex, html, fn whole, name, content -> "!" <> name <> "!" <> content end)
 
-    # html = Regex.replace(regex, html, fn whole, name, content -> "<div><%= live_render(@conn, ComponentsGuideWeb.FakeSearchLive, session: %{}) %></div>" end)
+    # html = Regex.replace(regex, html, fn whole, name, content -> "<div><%= Phoenix.Component.live_render(@conn, ComponentsGuideWeb.FakeSearchLive, session: %{}) %></div>" end)
 
     case front_matter do
       nil ->
-        html = Earmark.as_html!(markdown, options)
+        # html = Earmark.as_html!(markdown, options)
+        html = Molten.as_html!(markdown)
         html = todo_remove_old_custom_elements(html, name)
         html |> EEx.compile_string(engine: Phoenix.HTML.Engine, file: path, line: 1)
 
       s ->
-        html = Earmark.as_html!(markdown, options)
+        # html = Earmark.as_html!(markdown, options)
+        html = Molten.as_html!(markdown)
         quote do
           unquote(Code.string_to_quoted!(s, file: path))
 
@@ -117,7 +120,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
           "render" ->
             # |> String.to_existing_atom
             module = content |> String.trim()
-            "<div><%= live_render(@conn, #{module}, session: %{}) %></div>"
+            "<div><%= Phoenix.Component.live_render(@conn, #{module}, session: %{}) %></div>"
 
           "component" ->
             # |> String.to_existing_atom

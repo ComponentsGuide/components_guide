@@ -5,8 +5,10 @@ class = "italic"
 
 # Custom Elements
 
+```html
 <p class={class}><%= a %>?</p>
 <p class={class}><%= class %></p>
+```
 
 <script>
 window.customElements.define('custom-element', class extends HTMLElement {

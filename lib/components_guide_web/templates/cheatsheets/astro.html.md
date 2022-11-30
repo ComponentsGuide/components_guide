@@ -5,8 +5,10 @@ class = "italic"
 
 # Astro
 
+```html
 <p class={class}><%= a %>?</p>
 <p class={class}><%= class %></p>
+```
 
 ```astro
 ---

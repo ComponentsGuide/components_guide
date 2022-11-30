@@ -3,6 +3,7 @@ defmodule ComponentsGuide.Rustler.Molten do
     use Rustler, otp_app: :components_guide, crate: "molten"
 
     def add(_, _), do: error()
+    def markdown_to_html(_), do: error()
     def js(_), do: error()
     def typescript_module(_, _, _), do: error()
     def parse_js(_), do: error()
@@ -11,6 +12,7 @@ defmodule ComponentsGuide.Rustler.Molten do
   end
 
   def add(a, b), do: Native.add(a, b)
+  def markdown_to_html(source), do: Native.markdown_to_html(source)
   def js(source), do: Native.js(source)
   def typescript_module(source) do
     ref = make_ref()
