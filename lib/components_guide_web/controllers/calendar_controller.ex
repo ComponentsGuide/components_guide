@@ -10,7 +10,8 @@ defmodule ComponentsGuideWeb.CalendarController do
         maintenance_lts: {2022, 10, 18},
         end_of_life: {2024, 4, 30}
       },
-      nodejs18: %{release: {2022, 4, 19}, lts_start: {2022, 10, 25}, end_of_life: {2025, 4, 30}}
+      nodejs18: %{release: {2022, 4, 19}, lts_start: {2022, 10, 25}, end_of_life: {2025, 4, 30}},
+      nodejs20: %{release: {2023, 4, 18}, lts_start: {2023, 10, 24}, end_of_life: {2026, 4, 30}}
     }
 
     deno = %{
@@ -21,6 +22,9 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_24: %{release: {2022, 7, 21}},
       deno1_25: %{release: {2022, 8, 25}},
       deno1_26: %{release: {2022, 9, 29}},
+      deno1_27: %{release: {2022, 10, 27}},
+      deno1_28: %{release: {2022, 11, 14}},
+      deno1_29: %{release: {2022, 12, 14}}
     }
 
     react = %{
@@ -57,7 +61,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       rust1_62: %{release: {2022, 6, 30}},
       rust1_63: %{release: {2022, 8, 11}},
       rust1_64: %{release: {2022, 9, 22}},
-      rust1_65: %{release: {2022, 11, 3}}
+      rust1_65: %{release: {2022, 11, 3}},
+      rust1_66: %{release: {2022, 12, 15}}
     }
 
     browsers = %{
@@ -87,7 +92,9 @@ defmodule ComponentsGuideWeb.CalendarController do
       safari15_4: %{release: {2022, 3, 14}},
       safari15_5: %{release: {2022, 5, 16}},
       safari15_6: %{release: {2022, 7, 20}},
-      safari16: %{release: {2022, 9, 12}}
+      safari16: %{release: {2022, 9, 12}},
+      safari16_1: %{release: {2022, 10, 24}},
+      safari16_2: %{release: {2022, 12, 13}}
     }
 
     ios = %{
@@ -125,6 +132,8 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome104: "https://developer.chrome.com/blog/new-in-chrome-104/",
       chrome105: "https://developer.chrome.com/blog/new-in-chrome-105/",
       chrome106: "https://developer.chrome.com/blog/new-in-chrome-106/",
+      chrome107: "https://developer.chrome.com/blog/new-in-chrome-107/",
+      chrome108: "https://developer.chrome.com/blog/new-in-chrome-108/",
       deno1_20: "https://deno.com/blog/v1.20",
       deno1_21: "https://deno.com/blog/v1.21",
       deno1_22: "https://deno.com/blog/v1.22",
@@ -132,6 +141,9 @@ defmodule ComponentsGuideWeb.CalendarController do
       deno1_24: "https://deno.com/blog/v1.24",
       deno1_25: "https://deno.com/blog/v1.25",
       deno1_26: "https://deno.com/blog/v1.26",
+      deno1_27: "https://deno.com/blog/v1.27",
+      deno1_28: "https://deno.com/blog/v1.28",
+      deno1_29: "https://deno.com/blog/v1.29",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       nextjs13: "https://nextjs.org/blog/next-13",
@@ -143,18 +155,23 @@ defmodule ComponentsGuideWeb.CalendarController do
       firefox104: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/104",
       firefox105: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/105",
       firefox106: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/106",
+      firefox107: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/107",
+      firefox108: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/108",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       swift5_7: "https://www.swift.org/blog/swift-5.7-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
       safari15_5: "https://webkit.org/blog/12669/new-webkit-features-in-safari-15-5/",
       safari15_6: "https://webkit.org/blog/13009/new-webkit-features-in-safari-15-6/",
       safari16: "https://webkit.org/blog/13152/webkit-features-in-safari-16-0/",
+      safari16_1: "https://webkit.org/blog/13399/webkit-features-in-safari-16-1/",
+      safari16_2: "https://webkit.org/blog/13591/webkit-features-in-safari-16-2/",
       go1_18: "https://go.dev/doc/go1.18",
       go1_19: "https://go.dev/doc/go1.19",
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
       rust1_63: "https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html",
       rust1_64: "https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html",
       rust1_65: "https://blog.rust-lang.org/2022/11/03/Rust-1.65.0.html",
+      rust1_66: "https://blog.rust-lang.org/2022/12/15/Rust-1.66.0.html",
       nodejs18: "https://nodejs.org/en/blog/announcements/v18-release-announce/",
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28",
       jest29: "https://jestjs.io/blog/2022/08/25/jest-29",
