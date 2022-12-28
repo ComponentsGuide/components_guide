@@ -2,44 +2,19 @@ defmodule ComponentsGuideWeb.CalendarComponent do
   use ComponentsGuideWeb, :component
 
   def calendar_grid(assigns) do
-    %{year: year, month: month} = assigns
-
-    day =
-      case assigns[:current_date] do
-        nil ->
-          nil
-
-        %{day: day} ->
-          day
-      end
-
-    # %{year: year, month: month, day: day} = today = assigns[:date]
-    date = Date.new!(year, month, 1)
-    start_date = Date.beginning_of_month(date)
-    end_date = Date.end_of_month(date)
-    date_range = Date.range(start_date, end_date)
-
-    day_of_week = Date.day_of_week(start_date)
-    day_offset = 1 - day_of_week
-    max_week = div(end_date.day + day_of_week + 5, 7)
+    %{current_date: current_date} = assigns
+    current_row_start_date = Date.beginning_of_week(current_date)
+    current_day_of_week = Date.day_of_week(current_date)
 
     assigns =
       assigns
       |> Map.merge(%{
-        date_range: date_range,
-        year: year,
-        month: month,
-        day: day,
-        current: Date.new!(year, month, day),
-        day_of_week: day_of_week,
-        day_offset: day_offset
+        current_row_start_date: current_row_start_date,
+        current_day_of_week: current_day_of_week
       })
       |> Map.put_new(:extra, fn _ -> "" end)
 
     ~H"""
-    <%= if false do %>
-      <h2 class="text-center"><%= Calendar.strftime(@date_range.first, "%B %Y") %></h2>
-    <% end %>
     <table class="text-center">
       <thead class="border-0">
         <tr>
@@ -53,27 +28,11 @@ defmodule ComponentsGuideWeb.CalendarComponent do
         </tr>
       </thead>
       <tbody>
-      <%= for week_n <- 1..max_week, false do %>
-        <tr class="min-h-16">
-          <%= for weekday <- 0..6 do %>
-            <% day = weekday + 1 + day_offset + ((week_n - 1) * 7) %>
-            <%= if day in @date_range.first.day..@date_range.last.day do %>
-              <% current? = day == @day %>
-              <td aria-current={if current?, do: "date", else: "false"} class={td_class(%{current?: current?, weekday: weekday})}>
-                <div class="text-sm"><%= day %></div>
-                <%= @extra.(Date.new!(year, month, day)) %>
-              </td>
-            <% else %>
-              <td role="presentation" class=""></td>
-            <% end %>
-          <% end %>
-        </tr>
-      <% end %>
       <%= for week_offset <- -4..4 do %>
         <tr class="min-h-16 group">
-          <%= for weekday <- 0..6 do %>
-            <% date = Date.add(@current, (week_offset - 1) * 7 + weekday - day_offset) %>
-            <% current_day? = week_offset == 0 && day_of_week == weekday %>
+          <%= for weekday <- 1..7 do %>
+            <% date = Date.add(@current_row_start_date, week_offset * 7 + (weekday - 1)) %>
+            <% current_day? = week_offset == 0 && @current_day_of_week == weekday %>
             <td aria-current={if current_day?, do: "date", else: "false"} class={td_class(%{current_day?: current_day?, weekday: weekday, week_offset: week_offset})}>
               <div class={td_text_class(week_offset)}><%= Calendar.strftime(date, "%d %b") %></div>
               <%= @extra.(date) %>
@@ -87,7 +46,7 @@ defmodule ComponentsGuideWeb.CalendarComponent do
   end
 
   defp td_class(%{current_day?: true}), do: "bg-green-900/90 text-green-100"
-  defp td_class(%{weekday: weekday}) when weekday in [5, 6], do: "bg-black/40"
+  defp td_class(%{weekday: weekday}) when weekday in [6, 7], do: "bg-black/40"
   defp td_class(%{week_offset: 0}), do: "bg-green-900/25"
   defp td_class(_), do: "bg-black"
 
