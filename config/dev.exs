@@ -19,7 +19,8 @@ config :components_guide, ComponentsGuideWeb.Endpoint,
       "watch",
       cd: Path.expand("../assets", __DIR__)
     ],
-    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
+    redis: {System, :cmd, ["redis-server", ~w(--port 4337)]}
   ]
 
 # ## SSL Support
