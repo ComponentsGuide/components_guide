@@ -23,15 +23,6 @@ defmodule ComponentsGuide.Research.Source do
     end
   end
 
-  defp redis_config() do
-    upstash_config = Application.fetch_env!(:components_guide, :upstash)
-
-    %{
-      url: upstash_config[:redis_rest_url],
-      token: upstash_config[:redis_rest_token]
-    }
-  end
-
   defp read_redis_cache(key) do
     {duration_microseconds, result} =
       :timer.tc(fn ->
@@ -48,53 +39,7 @@ defmodule ComponentsGuide.Research.Source do
 
   defp write_redis_cache(key, value) do
     result = Redix.command(:upstash_redix, ["SET", key, value])
-    IO.puts("REdis write")
-    IO.inspect(result)
-  end
-
-  defp read_rest_redis_cache(key) do
-    %{url: url, token: token} = redis_config()
-    urlsafe_key = Base.url_encode64(key)
-
-    request =
-      Fetch.Request.new!("#{url}/get/#{urlsafe_key}",
-        headers: [{"Authorization", "Bearer #{token}"}]
-      )
-
-    response = Fetch.load!(request)
-
-    # term = :erlang.binary_to_term(response.body, [:safe])
-    # term
-
-    with body when not is_nil(response.body) <- response.body,
-         {:ok, %{"result" => value}} <- Jason.decode(body) do
-      value
-    else
-      _ ->
-        nil
-    end
-  end
-
-  defp write_rest_redis_cache(key, value) do
-    urlsafe_key = Base.url_encode64(key)
-    body = ["SET", urlsafe_key, value] |> Jason.encode_to_iodata!()
-    # body = value |> Jason.encode_to_iodata!(value)
-    # body = value
-    # body = :erlang.term_to_iovec(value)
-
-    %{url: url, token: token} = redis_config()
-
-    request =
-      Fetch.Request.new!(url,
-        method: "POST",
-        headers: [
-          {"Authorization", "Bearer #{token}"},
-          {"Content-Type", "application/json"}
-        ],
-        body: body
-      )
-
-    response = Fetch.load!(request)
+    IO.inspect(result, label: "Redis write")
   end
 
   defp run({:fetch_text, url}) do
@@ -153,8 +98,8 @@ defmodule ComponentsGuide.Research.Source do
       case key do
         {:fetch_text, url} ->
           IO.puts("Writing to redis #{url}")
-          # write_redis_cache(url, value)
-          write_rest_redis_cache(url, value)
+          write_redis_cache(url, value)
+          # write_rest_redis_cache(url, value)
 
         _ ->
           nil
@@ -177,7 +122,7 @@ defmodule ComponentsGuide.Research.Source do
         from_redis =
           case key do
             {:fetch_text, url} ->
-              if should_read_url_from_redis(url), do: read_rest_redis_cache(url), else: nil
+              if should_read_url_from_redis(url), do: read_redis_cache(url), else: nil
 
             _ ->
               nil
