@@ -69,5 +69,5 @@ if config_env() == :prod do
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
 
-config :components_guide, :upstash,
-  redis_url: System.get_env("REDIS_URL", "")
+config :components_guide, :redis,
+  url: System.get_env("REDIS_URL", "")

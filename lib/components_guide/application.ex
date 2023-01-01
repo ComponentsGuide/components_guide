@@ -7,8 +7,8 @@ defmodule ComponentsGuide.Application do
 
   @impl true
   def start(_type, _args) do
-    upstash_config = Application.fetch_env!(:components_guide, :upstash)
-    redis_url_string = Access.fetch!(upstash_config, :redis_url)
+    redis_config = Application.fetch_env!(:components_guide, :redis)
+    redis_url_string = Access.fetch!(redis_config, :url)
 
     children = [
       # Start the Telemetry supervisor
@@ -30,19 +30,9 @@ defmodule ComponentsGuide.Application do
         id: :research_spec_cache,
         start: {Cachex, :start_link, [:research_spec_cache, []]}
       },
-      case redis_url_string do
-        "" ->
-          nil
-
-        redis_url_string ->
-          {Redix, {redis_url_string, [name: :upstash_redix]}}
-      end,
-      nil
-      # {Redix, {Access.fetch!(upstash_config, :redis_url), [name: :upstash_redix]}}
+      {Redix, {redis_url_string, [name: :redix_cache]}}
       # ComponentsGuide.Worker
     ]
-
-    children = children |> Enum.reject(&is_nil/1)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

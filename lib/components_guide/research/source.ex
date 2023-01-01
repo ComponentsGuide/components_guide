@@ -26,7 +26,7 @@ defmodule ComponentsGuide.Research.Source do
   defp read_redis_cache(key) do
     {duration_microseconds, result} =
       :timer.tc(fn ->
-        case Redix.command(:upstash_redix, ["GET", key]) do
+        case Redix.command(:redix_cache, ["GET", key]) do
           {:ok, value} -> value
           _ -> nil
         end
@@ -38,7 +38,7 @@ defmodule ComponentsGuide.Research.Source do
   end
 
   defp write_redis_cache(key, value) do
-    result = Redix.command(:upstash_redix, ["SET", key, value])
+    result = Redix.command(:redix_cache, ["SET", key, value])
     IO.inspect(result, label: "Redis write")
   end
 
