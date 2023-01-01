@@ -7,49 +7,77 @@ Here I’m going to use the example of an online video service like Netflix, whe
 
 ## Adding and removing a show from a user’s list
 
-Before, using an Array:
+Apps like Netflix allow you to add a show to a list to watch later. If you’re like me, you rarely get around to actually watching them.
+
+To implement this, we could use an array that holds all the show IDs like so:
 
 ```js
-const myList = [];
+const watchLater = [];
 
 function add(showID) {
-  myList.push(showID);
+  watchLater.push(showID);
+  console.log(watchLater);
 }
 
 add(123);
+// [123]
+```
+
+However, there’s an issue when we add the same item twice:
+
+```js
 add(123);
-myList;
-// Appears twice, not idempotent :(
+add(123);
+// The same show ID appears twice :(
 // [123, 123]
 ```
 
-After, using a Set:
+We could fix this by adding logic to detect whether the item is already in the array, and skip adding it if so:
 
 ```js
-const myList = new Set();
+function add(showID) {
+  if (watchLater.includes(showID)) {
+    return;
+  }
+
+  watchLater.push(showID);
+  console.log(watchLater);
+}
+```
+
+But wouldn’t it be great if we had a simpler solution? It’s annoying to have to think of these edge cases and code around them.
+
+If we change our data structure to one that enforces uniqueness from the beginning, then our double entry problem is solved.
+
+In JavaScript, a `Set` is a data structure that is ordered just like an array, but it enforces uniqueness:
+
+```js
+const watchLater = new Set();
 
 function add(showID) {
-  myList.add(showID);
+  watchLater.add(showID);
+  console.log(watchLater);
 }
 
 add(123);
 add(123);
-myList;
-// Appears once, is idempotent :)
+// Appears only once :)
 // Set { 123 }
 ```
 
 We can extend this for also removing an item from the list:
 
 ```js
-const myList = new Set();
+const watchLater = new Set();
 
 function add(showID) {
-  myList.add(showID);
+  watchLater.add(showID);
+  console.log(watchLater);
 }
 
 function remove(showID) {
-  myList.delete(showID);
+  watchLater.delete(showID);
+  console.log(watchLater);
 }
 
 add(123);
@@ -62,43 +90,43 @@ remove(123);
 // Set {}
 ```
 
-As a bonus, we can add change tracking which would allow us to detect whether the data has actually changed, and if a consumer say needed to update or re-render.
+As a bonus, we can add change tracking which would allow us to detect whether the data has actually changed, and and if not, then avoid say a re-render.
 
 ```js
-const myList = new Set();
-let myListChangeCount = 0;
+const watchLater = new Set();
+let watchLaterChangeCount = 0;
 
 function add(showID) {
-  const before = myList.size;
-  myList.add(showID);
+  const before = watchLater.size;
+  watchLater.add(showID);
 
-  if (myList.size > before) {
-    myListChangeCount++;  
+  if (watchLater.size > before) {
+    watchLaterChangeCount++;  
   }
   // OR
-  // myListChangeCount += myList.size - before;
+  // watchLaterChangeCount += watchLater.size - before;
 }
 
 function remove(showID) {
-  const before = myList.size;
-  myList.delete(showID);
+  const before = watchLater.size;
+  watchLater.delete(showID);
 
-  if (before > myList.size) {
-    myListChangeCount++;  
+  if (before > watchLater.size) {
+    watchLaterChangeCount++;  
   }
   // OR
-  //myListChangeCount += before - myList.size;
+  // watchLaterChangeCount += before - watchLater.size;
 }
 
-// myListChangeCount: 0
+// watchLaterChangeCount: 0
 add(123);
-// myListChangeCount: 1
+// watchLaterChangeCount: 1
 add(123);
-// myListChangeCount: 1
+// watchLaterChangeCount: 1
 remove(123);
-// myListChangeCount: 2
+// watchLaterChangeCount: 2
 remove(123);
-// myListChangeCount: 2
+// watchLaterChangeCount: 2
 ```
 
 If you prefer classes, we could write this as:
