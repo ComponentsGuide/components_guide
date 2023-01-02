@@ -1,5 +1,6 @@
-<nav class="pt-6 pb-4">
-  <ul y-y x-x=md class="flex-wrap gap-4 text-xl font-bold" data-links="p-3">
+<nav>
+  <p class="px-2 pb-6 mb-6 text-5xl text-blue-200 border-b-4 border-blue-200"><%= "Robust JavaScript Interactivity" %></p>
+  <ul class="text-xl" data-links="block p-2 current-page-bold">
     <li><%= link("What goes wrong?", to: '/robust-javascript') %>
     <li><%= link("Idempotency", to: '/robust-javascript/idempotent-javascript-operations') %>
   </ul>

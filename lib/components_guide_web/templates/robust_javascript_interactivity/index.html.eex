@@ -1,5 +1,25 @@
-<%= render view_module(@conn), "_header.html" %>
-
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
-  <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
-</article>
+<navigable-article class="flex flex-col">
+  <div class="mx-auto grid-flow-col md:grid md:grid-cols-[20rem_minmax(0,var(--max-width))] xl:grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8" style="--max-width: 46em">
+    <div class="md:sticky top-0 md:h-screen pl-4 pt-16 text-white">
+      <%= render view_module(@conn), "_nav.html", conn: @conn %>
+    </div>
+    <article class="text-white bg-gray-900 px-4 md:px-0">
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+        <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
+      </div>
+    </article>
+    <aside class="sticky top-0 h-screen hidden xl:block" hidden>
+      <nav class="pt-16 text-gray-200">
+        <div class="pl-5 pb-2 font-bold uppercase text-white">On this page</div>
+        <slot name="nav-items">
+          <template>
+            <ul class="list-none">
+              <li class="border-l-4 border-gray-800 hover:border-blue-400"></li>
+            </ul>
+            <a href="#" class="inline-flex py-1 pl-4 hover:text-blue-400"></a>
+          </template>
+        </slot>
+      </nav>
+    </aside>
+  </div>
+</navigable-article>
