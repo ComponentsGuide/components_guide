@@ -1,5 +1,3 @@
-console.log("app.js executing");
-
 // webpack automatically bundles all modules in your
 // entry points. Those entry points can be configured
 // in "webpack.config.js".
@@ -10,10 +8,6 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
-
-// window.IMPORTS = {
-//   DOMTesting: import("@testing-library/dom")
-// };
 
 window.IMPORT = {
   DOMTesting: () => import("@testing-library/dom")
@@ -27,7 +21,7 @@ let liveSocket = new LiveSocket("/live", Socket, {
   hooks: {
     PreCode: {
       mounted() {
-        this._highlight(); //
+        this._highlight();
       },
       updated() {
         this._highlight();
@@ -72,13 +66,8 @@ liveSocket.connect();
 window.liveSocket = liveSocket;
 
 window.customElements.define('loading-stopwatch', class extends HTMLElement {
-  constructor() {
-    super();
-  }
-
   connectedCallback() {
-    console.log('GO!')
-    const start = Date.now()
+    const start = Date.now();
     this.interval = setInterval(() => {
       const duration = ((Date.now() - start) / 1000).toFixed(1);
       this.innerText = `${duration}s`;
