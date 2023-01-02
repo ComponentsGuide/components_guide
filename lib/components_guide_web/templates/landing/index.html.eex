@@ -57,8 +57,8 @@ header_links = [
   </section>
 </div>
 
-<%= subject_banner(:accessibility_first) %>
 <%= subject_banner(:react_typescript) %>
+<%= subject_banner(:accessibility_first) %>
 <%= subject_banner(:web_standards) %>
 <%= subject_banner(:composable_systems) %>
 <%= subject_banner(:cheatsheets) %>
