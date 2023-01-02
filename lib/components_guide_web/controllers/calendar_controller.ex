@@ -302,7 +302,7 @@ defmodule ComponentsGuideWeb.CalendarView do
     }
 
     ~H"""
-    <a href={@href}>
+    <a href={@href} class="flex flex-col md:block">
       <span class="text-3xl not-prose"><%= @icon %></span>
       <%= @what %>
     </a>
@@ -313,10 +313,10 @@ defmodule ComponentsGuideWeb.CalendarView do
     assigns = %{ids: ids}
 
     ~H"""
-    <div>
+    <div class="flex flex-col gap-2">
       <%= for id <- @ids do %>
       <div>
-      <%= ComponentsGuideWeb.CalendarView.icon_link(id, Map.get(links, id)) %>
+      <%= icon_link(id, Map.get(links, id)) %>
       </div>
       <% end %>
     </div>
