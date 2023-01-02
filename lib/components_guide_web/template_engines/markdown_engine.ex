@@ -117,12 +117,12 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
           "render" ->
             # |> String.to_existing_atom
             module = content |> String.trim()
-            "<div><%= live_render(@conn, #{module}, session: %{}) %></div>"
+            "<div><%= Phoenix.Component.live_render(@conn, #{module}, session: %{}) %></div>"
 
           "component" ->
             # |> String.to_existing_atom
             module = content |> String.trim()
-            "<div><%= live_component(@conn, #{module}) %></div>"
+            "<div><%= Phoenix.Component.live_component(@conn, #{module}) %></div>"
 
           _ ->
             "!" <> name <> "!" <> content

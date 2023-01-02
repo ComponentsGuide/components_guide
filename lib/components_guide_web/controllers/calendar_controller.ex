@@ -273,6 +273,7 @@ end
 
 defmodule ComponentsGuideWeb.CalendarView do
   use ComponentsGuideWeb, :view
+  use Phoenix.Component
 
   alias ComponentsGuideWeb.CalendarComponent
 

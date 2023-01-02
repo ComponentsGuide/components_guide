@@ -1,3 +1,3 @@
 <h1>Color</h1>
 
-<%= live_render(@conn, ComponentsGuideWeb.ColorLive, session: %{}) %>
+<%= Phoenix.Component.live_render(@conn, ComponentsGuideWeb.ColorLive, session: %{}) %>
