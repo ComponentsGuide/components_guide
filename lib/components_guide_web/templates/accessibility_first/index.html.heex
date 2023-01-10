@@ -3,7 +3,7 @@
     <div class="md:sticky top-0 md:h-screen pl-4 pt-16 text-white">
       <%= render view_module(@conn), "_nav.html", conn: @conn %>
     </div>
-    <article class="text-white bg-gray-900 px-4 md:px-0">
+    <article class="text-white bg-gray-900 px-4 md:px-0" id="main-article">
       <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
         <%= render(view_module(@conn), @article <> ".html", conn: @conn) %>
       </div>

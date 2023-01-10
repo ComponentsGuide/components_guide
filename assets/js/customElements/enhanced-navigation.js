@@ -23,8 +23,11 @@ customElements.define('enhanced-navigation', class extends HTMLElement {
       const liTemplate = navItemsTemplates.querySelector('li');
 
       const article = this.querySelector('article');
-      const headings = article.querySelectorAll('h2');
-      const items = Array.from(headings, (headingEl) => {
+      const headings = article.querySelectorAll('h2, table caption');
+      const items = Array.from(headings, (headingEl, index) => {
+        if (!headingEl.id) {
+          headingEl.id = article.id + "-" + index;
+        }
         return El(liTemplate, {}, El(linkTemplate, { href: '#' + headingEl.id }, headingEl.innerText));
       });
 
