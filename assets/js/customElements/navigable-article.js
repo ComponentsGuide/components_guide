@@ -14,7 +14,7 @@ customElements.define('navigable-article', class extends HTMLElement {
     const aside = this.querySelector('aside');
     aside.hidden = false;
 
-    const navItemsSlot = this.querySelector('slot[name=nav-items]');
+    const navItemsSlot = this.querySelector('slot[name=article-navigation-items]');
     const navItemsTemplates = navItemsSlot.querySelector('template').content;
     const linkTemplate = navItemsTemplates.querySelector('a');
     const ulTemplate = navItemsTemplates.querySelector('ul');
