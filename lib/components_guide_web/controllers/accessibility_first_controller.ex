@@ -58,18 +58,6 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
   use ComponentsGuideWeb.Snippets
   use Phoenix.HTML
 
-  def render_sidebar(_assigns) do
-    render("content_nav.html")
-  end
-
-  def sidebar(assigns = %{article: "content"}) do
-    ~H"""
-    <%= render_slot(@inner_block, render("content_nav.html")) %>
-    """
-  end
-
-  def sidebar(assigns), do: ~H""
-
   # def collected_image(conn, image_name) do
   #   %{static_path: path_to_image, width: width, height: height} = render(image_name)
   #   url = Routes.static_path(conn, "/" <> path_to_image)

@@ -28,6 +28,7 @@ a:not([class]):not(.prose *) {
   color: var(--link--color);
   font-weight: var(--link--font-weight);
   text-decoration: var(--link--decoration);
+  font-style: var(--link--font-style);
 }
 a:hover:not([class]):not(.prose *) {
   text-decoration: var(--link--decoration--hover);
@@ -44,6 +45,8 @@ a:hover:not([class]):not(.prose *) {
 }
 [data-links~='current-page-bold'] a[aria-current="page"] {
   --link--font-weight: bold;
+  /* --link--font-style: italic; */
+  /* border-left: 2px solid currentColor; */
 }
 [data-links~='block'] {
   --link--display: block;
