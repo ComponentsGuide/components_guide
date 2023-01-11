@@ -258,7 +258,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     <p data-type="lts_starts">
       <span class="text-3xl">🦍</span>
       <strong><%= @what %></strong>
-      made LTS
+      starts LTS
       <%= render_when(assigns.date) %>
     </p>
     """
