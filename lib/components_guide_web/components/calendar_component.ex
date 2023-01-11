@@ -1,5 +1,9 @@
 defmodule ComponentsGuideWeb.CalendarComponent do
   use ComponentsGuideWeb, :component
+  
+  attr :current_date, Date, required: true
+  
+  slot :cell_content
 
   def calendar_grid(assigns) do
     %{current_date: current_date} = assigns
@@ -12,7 +16,6 @@ defmodule ComponentsGuideWeb.CalendarComponent do
         current_row_start_date: current_row_start_date,
         current_day_of_week: current_day_of_week
       })
-      |> Map.put_new(:extra, fn _ -> "" end)
 
     ~H"""
     <table class="text-center">
@@ -35,7 +38,7 @@ defmodule ComponentsGuideWeb.CalendarComponent do
             <% current_day? = week_offset == 0 && @current_day_of_week == weekday %>
             <td aria-current={if current_day?, do: "date", else: "false"} class={td_class(%{current_day?: current_day?, weekday: weekday, week_offset: week_offset})}>
               <div class={td_text_class(week_offset, weekday, current_day?)}><%= Calendar.strftime(date, "%d %b") %></div>
-              <%= @extra.(date) %>
+              <%= render_slot(@cell_content, date) %>
             </td>
           <% end %>
         </tr>

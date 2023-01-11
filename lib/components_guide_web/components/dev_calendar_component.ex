@@ -17,11 +17,16 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     
     assigns = %{
       today: today,
-      calendar_extra: calendar_extra
+      calendar_extra: calendar_extra,
+      links: links
     }
   
     ~H"""
-    <CalendarComponent.calendar_grid current_date={@today} extra={@calendar_extra} />
+    <CalendarComponent.calendar_grid current_date={@today}>
+      <:cell_content :let={date}>
+        <%= @calendar_extra.(date) %>
+      </:cell_content>
+    </CalendarComponent.calendar_grid>
     """
   end
   
