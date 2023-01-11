@@ -5,26 +5,18 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
   
   def calendar(assigns \\ %{}) do
     today = Date.utc_today()
-    
     %{dates_to_items: dates_to_items, links: links} = get_data()
-    
-    calendar_extra = fn date ->
-      yymmdd = Date.to_erl(date)
-    
-      ids = Map.get(dates_to_items, yymmdd, [])
-      icon_links(ids, links)
-    end
     
     assigns = %{
       today: today,
-      calendar_extra: calendar_extra,
+      dates_to_items: dates_to_items,
       links: links
     }
   
     ~H"""
     <CalendarComponent.calendar_grid current_date={@today}>
       <:cell_content :let={date}>
-        <%= @calendar_extra.(date) %>
+        <.date_links date={date} dates_to_items={@dates_to_items} links={@links} />
       </:cell_content>
     </CalendarComponent.calendar_grid>
     """
@@ -106,6 +98,13 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       :lts_start -> lts_starts(options)
       _ -> ""
     end
+  end
+  
+  defp date_links(assigns) do
+    yymmdd = Date.to_erl(assigns.date)
+    
+    ids = Map.get(assigns.dates_to_items, yymmdd, [])
+    icon_links(ids, assigns.links)
   end
   
   defp icon_links(ids, links) do
@@ -480,6 +479,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       firefox106: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/106",
       firefox107: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/107",
       firefox108: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/108",
+      firefox109: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/109",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       swift5_7: "https://www.swift.org/blog/swift-5.7-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
