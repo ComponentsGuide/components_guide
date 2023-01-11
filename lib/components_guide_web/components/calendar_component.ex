@@ -45,10 +45,10 @@ defmodule ComponentsGuideWeb.CalendarComponent do
     """
   end
 
-  defp td_class(%{current_day?: true}), do: "bg-green-900/90 text-green-100"
-  defp td_class(%{weekday: weekday}) when weekday in [6, 7], do: "bg-black/40"
-  defp td_class(%{week_offset: 0}), do: "bg-green-900/25"
-  defp td_class(_), do: "bg-black"
+  defp td_class(%{current_day?: true}), do: "align-middle bg-green-900/90 text-green-100"
+  defp td_class(%{weekday: weekday}) when weekday in [6, 7], do: "align-middle bg-black/40"
+  defp td_class(%{week_offset: 0}), do: "align-middle bg-green-900/25"
+  defp td_class(_), do: "align-middle bg-black"
 
   defp td_text_class(0, weekday, current_day?), do: "text-sm opacity-100 #{td_text_class_weekday(weekday, current_day?)}"
   defp td_text_class(week_offset, weekday, current_day?) when week_offset in [-1, 1], do: "text-sm opacity-90 #{td_text_class_weekday(weekday, current_day?)}"
