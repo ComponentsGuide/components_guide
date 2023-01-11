@@ -1,20 +1,10 @@
 <div class="prose md:prose-xl prose-invert max-w-6xl mx-auto pt-8 px-3">
   <h1 class="text-center">Developer Calendar</h1>
-  <CalendarComponent.calendar_grid current_date={@today} extra={@calendar_extra} />
+  <ComponentsGuideWeb.DevCalendarComponent.calendar />
 </div>
 
 <div class="prose md:prose-xl prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">
-  <article>
-    <h2>All releases</h2>
-    <form id="filter-calendar" class="flex flex-wrap gap-6 -mt-8 mb-8 select-none">
-      <label><input type="checkbox" name="end_of_life" checked class="rounded text-sky-500"> End of life</label>
-      <label><input type="checkbox" name="released" checked class="rounded text-sky-500"> Released</label>
-      <label><input type="checkbox" name="lts_starts" checked class="rounded text-sky-500"> LTS</label>
-    </form>
-    <%= for item <- @list do %>
-    <%= present_item(item) %>
-    <% end %>
-  </article>
+  <ComponentsGuideWeb.DevCalendarComponent.list />
 </div>
 
 <section class="prose prose-invert max-w-2xl mx-auto pt-8 pb-16 px-3">
@@ -30,16 +20,3 @@
     <li><a href="https://simpleicons.org">Simple Icons</a></li>
   </ul>
 </section>
-
-<script type="module">
-  const form = document.getElementById("filter-calendar");
-  const items = form.parentNode.querySelectorAll('article p');
-  form.addEventListener('change', () => {
-    const values = new FormData(form);
-    const enabledTypes = new Set(values.keys());
-    for (const item of Array.from(items)) {
-      const matches = enabledTypes.has(item.dataset.type);
-      item.hidden = !matches;
-    }
-  });
-</script>
