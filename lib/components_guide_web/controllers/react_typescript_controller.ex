@@ -8,6 +8,7 @@ defmodule ComponentsGuideWeb.ReactTypescriptController do
   end
 
   @articles %{
+    "lifecycle" => %{title: "React Lifecycle"},
     "testing" => %{title: "Testing React"},
     "forms" => %{title: "Creating Forms in React"},
     "state-levels" => %{title: "Levels of State in React"},

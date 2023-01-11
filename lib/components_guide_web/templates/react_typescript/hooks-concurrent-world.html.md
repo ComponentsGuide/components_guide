@@ -1,13 +1,13 @@
 # Understanding React Hooks in a Concurrent World
 
 - `useId`: generate a unique value consistently on the server & browser side, usually for `id` attributes.
+- `useState` & `useReducer`: holds data that can be changed @ any time.
+- `useSyncExternalStore`: subscribes to an external source of data.
 - `useMemo` & `useCallback`: recalculate output when inputs change @ render time.
-- `useDeferredValue`: recalculate output to be input when any urgent updates have been committed.
-- `useState`: recalculate output when called @ render time.
-- `useReducer`: recalculate output when called @ any time.
+- `useContext`: subscribes to data provided by another component further up the tree.
+- `useDeferredValue`: forks a piece of state, rendering in the background until suspended components have loaded, rendering previous state in the meanwhile.
 - `useEffect`: executed by React when inputs change @ commit time.
-- `useContext`: state external to this component provided by another component further up the tree.
-- `useRef`: mutable reference that can be changed @ any time.
+- `useRef`: holds unsafe data that can be changed @ any time.
 - [View Official Hooks Reference](https://reactjs.org/docs/hooks-reference.html)
 
 ## Parallel-Universe-Safe
