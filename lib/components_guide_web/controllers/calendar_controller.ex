@@ -134,6 +134,7 @@ defmodule ComponentsGuideWeb.CalendarController do
       chrome106: "https://developer.chrome.com/blog/new-in-chrome-106/",
       chrome107: "https://developer.chrome.com/blog/new-in-chrome-107/",
       chrome108: "https://developer.chrome.com/blog/new-in-chrome-108/",
+      chrome109: "https://developer.chrome.com/blog/new-in-chrome-109/",
       deno1_20: "https://deno.com/blog/v1.20",
       deno1_21: "https://deno.com/blog/v1.21",
       deno1_22: "https://deno.com/blog/v1.22",
