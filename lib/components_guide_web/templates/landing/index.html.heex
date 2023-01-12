@@ -27,29 +27,29 @@ header_links = [
     <p class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
       <span class="font-bold text-blue-300">Topics include:</span>
       <%= for {{path, text}, index} <- Enum.with_index(header_links) do %>
-        <a href="<%= path %>" class="
+        <a href={path} class={"
           inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-slate-800/50 border-t-2 border-t-white/5 border-l-2 border-l-white/5
-          <%= if index <= 5, do: "text-blue-300 hover:bg-blue-700 border-b-2 border-blue-900 shadow-lg hover:shadow-sm shadow-blue-900/50 bg-gradient-to-br from-blue-100/5 to-blue-900/25", else: "text-indigo-300 hover:bg-indigo-700 border-b-2 border-indigo-900 shadow-lg hover:shadow-sm shadow-indigo-900/50 bg-gradient-to-br from-indigo-100/5 to-indigo-900/25" %>
+          #{if index <= 5, do: "text-blue-300 hover:bg-blue-700 border-b-2 border-blue-900 shadow-lg hover:shadow-sm shadow-blue-900/50 bg-gradient-to-br from-blue-100/5 to-blue-900/25", else: "text-indigo-300 hover:bg-indigo-700 border-b-2 border-indigo-900 shadow-lg hover:shadow-sm shadow-indigo-900/50 bg-gradient-to-br from-indigo-100/5 to-indigo-900/25"}
           hover:text-white rounded-lg shadow-xl
-          "><%= text %></a>
+          "}><%= text %></a>
       <% end  %>
     </p>
     <div hidden class="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row justify-around">
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
-          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white" width=92 height=92>
+          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white" width="92" height="92">
         </div>
         <figcaption class="text-lg md:text-xl font-bold">Watch video lessons</figcaption>
       </figure>
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
-          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/swift.svg?defaultFill=white" width=92 height=92>
+          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/swift.svg?defaultFill=white" width="92" height="92">
         </div>
         <figcaption class="text-lg md:text-xl font-bold">Learn SwiftUI & Combine</figcaption>
       </figure>
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
-          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/react.svg?defaultFill=white" width=92 height=92>
+          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/react.svg?defaultFill=white" width="92" height="92">
         </div>
         <figcaption class="text-lg md:text-xl font-bold">Learn React</figcaption>
       </figure>
@@ -64,8 +64,15 @@ header_links = [
 <%= subject_banner(:cheatsheets) %>
 <%= subject_banner(:robust_javascript_interactivity) %>
 
+<div class="pt-16 pb-16 bg-black">
+  <section class="prose md:prose-xl prose-invert max-w-6xl mx-auto px-3" aria-labelledby="developer-calendar">
+    <h2 class="text-center" id="developer-calendar">Developer Calendar</h2>
+    <ComponentsGuideWeb.DevCalendarComponent.calendar />
+  </section>
+</div>
+
 <div hidden class="text-white">
-  <section class="pt-20 pb-20" style="<%= sections_styles(:dark) %>">
+  <section class="pt-20 pb-20" style={sections_styles(:dark)}>
     <header class="mb-8 mx-auto max-w-4xl px-2 text-center">
       <h2 class="text-3xl sm:text-4xl font-bold leading-snug">
         Learn why accessibility is essential for a great UX, and use the same affordances to improve your own Developer Experience.
@@ -82,7 +89,7 @@ header_links = [
     ]) %>
   </section>
 
-  <section class="pt-20 pb-20 text-blue-800" style="<%= sections_styles(:cool_light) %>">
+  <section class="pt-20 pb-20 text-blue-800" style={sections_styles(:cool_light)}>
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
         Write friendly tests using Jest and BDD.
@@ -97,7 +104,7 @@ header_links = [
     ]) %>
   </section>
 
-  <section class="pt-20 pb-20" style="<%= sections_styles(:warm) %>">
+  <section class="pt-20 pb-20" style={sections_styles(:warm)}>
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
         Naming is hard. Let’s make it easier.
@@ -111,7 +118,7 @@ header_links = [
     ]) %>
   </section>
 
-  <section class="pt-20 pb-20 text-blue-800" style="<%= sections_styles(:cool_light) %>">
+  <section class="pt-20 pb-20 text-blue-800" style={sections_styles(:cool_light)}>
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
         Find the right home for your state.
@@ -126,7 +133,7 @@ header_links = [
     ]) %>
   </section>
 
-  <section hidden class="pt-20 pb-20" style="<%= sections_styles(:cool) %>">
+  <section hidden class="pt-20 pb-20" style={sections_styles(:cool)}>
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold leading-snug">
         Make modern iOS and macOS apps using reusable components, async data flow.
@@ -146,7 +153,7 @@ header_links = [
     </div>
   </section>
 
-  <section class="pt-20 pb-16" style="<%= sections_styles(:warm) %>">
+  <section class="pt-20 pb-16" style={sections_styles(:warm)}>
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
       <h2 class="text-4xl font-bold">Learn to make modern web apps using components, hooks, async data flow.</h2>
     </header>
@@ -181,26 +188,28 @@ header_links = [
     <div class="container space-y-6 text-2xl md:text-3xl rounded">
       <p>
         There’s a lot of learning materials on specific technologies out there. But technologies change — rapidly.
-
+      </p>
       <p>
         Frameworks will come and go.
         React might be the hotness today, but in a few years another framework might well rule the roost.
-
+      </p>
       <p>
         The guides here cover what will remain relevant for decades to come:
+      </p>
 
       <ul class="list-disc pl-8 font-bold">
-        <li class="text-red-300"><%= "Great UX and performance" %>
-        <li class="text-cyan-300"><%= "Accessibility" %>
-        <li class="text-blue-300"><%= "Component naming & responsibility" %>
-        <li class="text-green-300"><%= "TDD & BDD" %>
-        <li class="text-yellow-300"><%= "Thinking about state" %>
-        <li class="text-orange-300"><%= "Modular styling with modern CSS" %>
-        <li class="text-purple-300"><%= "Leveraging what’s built into browsers first" %>
+        <li class="text-red-300"><%= "Great UX and performance" %></li>
+        <li class="text-cyan-300"><%= "Accessibility" %></li>
+        <li class="text-blue-300"><%= "Component naming & responsibility" %></li>
+        <li class="text-green-300"><%= "TDD & BDD" %></li>
+        <li class="text-yellow-300"><%= "Thinking about state" %></li>
+        <li class="text-orange-300"><%= "Modular styling with modern CSS" %></li>
+        <li class="text-purple-300"><%= "Leveraging what’s built into browsers first" %></li>
       </ul>
 
       <p>
         It’s all free to read and share.
+      </p>
     </div>
   </aside>
 </div>
