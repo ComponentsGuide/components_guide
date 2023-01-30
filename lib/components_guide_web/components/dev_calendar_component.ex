@@ -345,13 +345,15 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       deno1_26: %{release: {2022, 9, 29}},
       deno1_27: %{release: {2022, 10, 27}},
       deno1_28: %{release: {2022, 11, 14}},
-      deno1_29: %{release: {2022, 12, 14}}
+      deno1_29: %{release: {2022, 12, 14}},
+      deno1_30: %{release: {2023, 1, 27}}
     }
     
     react = %{
       react18: %{release: {2022, 3, 29}},
       react_query4: %{release: {2022, 7, 18}},
-      nextjs13: %{release: {2022, 10, 26}}
+      nextjs13: %{release: {2022, 10, 26}},
+      nextjs13_1: %{release: {2022, 12, 23}}
     }
     
     jest = %{
@@ -466,9 +468,11 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       deno1_27: "https://deno.com/blog/v1.27",
       deno1_28: "https://deno.com/blog/v1.28",
       deno1_29: "https://deno.com/blog/v1.29",
+      deno1_30: "https://deno.com/blog/v1.30",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       nextjs13: "https://nextjs.org/blog/next-13",
+      nextjs13_1: "https://nextjs.org/blog/next-13-1",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
       firefox100: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/100",
       firefox101: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/101",
