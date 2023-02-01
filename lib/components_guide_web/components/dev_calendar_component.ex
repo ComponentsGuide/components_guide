@@ -150,6 +150,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       <<"rust" <> version>> -> "Rust #{pretty_version(version)}"
       <<"react_query" <> version>> -> "React Query #{pretty_version(version)}"
       <<"react" <> version>> -> "React #{pretty_version(version)}"
+      <<"remix" <> version>> -> "Remix #{pretty_version(version)}"
       <<"jest" <> version>> -> "Jest #{pretty_version(version)}"
       <<"aws_lambda_nodejs" <> version>> -> "AWS Lambda Node.js #{pretty_version(version)}"
       <<"ios" <> version>> -> "iOS #{pretty_version(version)}"
@@ -199,6 +200,9 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
   
         <<"react" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"
+        
+        <<"remix" <> _>> ->
+          "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/remix.svg"
   
         <<"jest" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/jest.svg"
@@ -353,7 +357,8 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       react18: %{release: {2022, 3, 29}},
       react_query4: %{release: {2022, 7, 18}},
       nextjs13: %{release: {2022, 10, 26}},
-      nextjs13_1: %{release: {2022, 12, 23}}
+      nextjs13_1: %{release: {2022, 12, 23}},
+      remix1_12: %{release: {2023, 1, 31}}
     }
     
     jest = %{
@@ -473,6 +478,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       nextjs13: "https://nextjs.org/blog/next-13",
       nextjs13_1: "https://nextjs.org/blog/next-13-1",
+      remix1_12: "https://github.com/remix-run/remix/releases/tag/remix@1.12.0",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
       firefox100: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/100",
       firefox101: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/101",
