@@ -1,18 +1,18 @@
 defmodule ComponentsGuideWeb.DevCalendarComponent do
   use ComponentsGuideWeb, :component
-  
+
   alias ComponentsGuideWeb.CalendarComponent
-  
+
   def calendar(assigns \\ %{}) do
     today = Date.utc_today()
     %{dates_to_items: dates_to_items, links: links} = get_data()
-    
+
     assigns = %{
       today: today,
       dates_to_items: dates_to_items,
       links: links
     }
-  
+
     ~H"""
     <CalendarComponent.calendar_grid current_date={@today}>
       <:cell_content :let={date}>
@@ -21,13 +21,13 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </CalendarComponent.calendar_grid>
     """
   end
-  
+
   def list(assigns \\ %{}) do
     %{groups: groups, links: links} = get_data()
     list = create_list(groups, links)
-    
+
     assigns = %{list: list}
-    
+
     ~H"""
     <article>
       <h2>All releases</h2>
@@ -40,7 +40,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       <%= present_item(item) %>
       <% end %>
     </article>
-    
+
     <script type="module">
       const form = document.getElementById("filter-calendar");
       const items = form.parentNode.querySelectorAll('article p');
@@ -55,17 +55,17 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </script>
     """
   end
-  
+
   defp create_list(groups, links) do
     today = Date.utc_today()
-  
+
     items =
       for group <- groups,
           {id, dates} <- group,
           {type, date} <- dates do
         {id, {date, type}}
       end
-  
+
     items
     |> Enum.filter(&include_date?(&1, today))
     |> Enum.sort_by(fn {key, value} -> {value, key} end, :asc)
@@ -78,11 +78,11 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
         end}}
     end)
   end
-  
+
   defp list_item() do
-    
+
   end
-  
+
   def present_item({id, {date, type, meta}}) do
     options = %{
       what: pretty_name(id),
@@ -90,7 +90,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       href: meta[:link],
       icon: pretty_icon(id)
     }
-  
+
     case type do
       :release -> released(options)
       :end_of_life -> end_of_life(options)
@@ -99,17 +99,17 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       _ -> ""
     end
   end
-  
+
   defp date_links(assigns) do
     yymmdd = Date.to_erl(assigns.date)
-    
+
     ids = Map.get(assigns.dates_to_items, yymmdd, [])
     icon_links(ids, assigns.links)
   end
-  
+
   defp icon_links(ids, links) do
     assigns = %{ids: ids}
-  
+
     ~H"""
     <div class="flex flex-col gap-2">
       <%= for id <- @ids do %>
@@ -120,14 +120,14 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </div>
     """
   end
-  
+
   defp icon_link(id, link) do
     assigns = %{
       what: pretty_name(id),
       href: link || "#",
       icon: pretty_icon(id)
     }
-  
+
     ~H"""
     <a href={@href} class="flex flex-col md:block">
       <span class="text-3xl not-prose"><%= @icon %></span>
@@ -135,7 +135,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </a>
     """
   end
-  
+
   defp pretty_name(id) do
     case Atom.to_string(id) do
       <<"nodejs" <> version>> -> "Node.js #{pretty_version(version)}"
@@ -157,73 +157,73 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       s -> s
     end
   end
-  
+
   defp pretty_version(v_string) do
     v_string |> String.replace("_", ".")
   end
-  
+
   defp pretty_icon(id) do
     url =
       case Atom.to_string(id) do
         <<"nodejs" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/nodedotjs.svg"
-  
+
         <<"deno" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/deno.svg"
-  
+
         <<"firefox" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/firefox.svg"
-  
+
         <<"chrome" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/googlechrome.svg"
-  
+
         <<"safari" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/safari.svg"
-  
+
         <<"postgres" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/postgresql.svg"
-  
+
         <<"swift" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/swift.svg"
-  
+
         <<"go" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/go.svg"
-  
+
         <<"rust" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/rust.svg"
-  
+
         <<"react_query" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/reactquery.svg"
-  
+
         <<"nextjs" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/nextdotjs.svg"
-  
+
         <<"react" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/react.svg"
-        
+
         <<"remix" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/remix.svg"
-  
+
         <<"jest" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/jest.svg"
-  
+
         <<"elixir" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/elixir.svg"
-  
+
         <<"aws_lambda_nodejs" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v6/icons/awslambda.svg"
-  
+
         <<"ios" <> _>> ->
           "https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/ios.svg"
-  
+
         _ ->
           nil
       end
-  
+
     case url do
       nil ->
         nil
-  
+
       url ->
         tag(:img,
           src: url,
@@ -234,7 +234,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
         )
     end
   end
-  
+
   def released(assigns \\ []) do
     ~H"""
     <p data-type="released">
@@ -249,7 +249,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </p>
     """
   end
-  
+
   def end_of_life(assigns \\ []) do
     ~H"""
     <p data-type="end_of_life">
@@ -260,7 +260,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </p>
     """
   end
-  
+
   def lts_starts(assigns \\ []) do
     ~H"""
     <p data-type="lts_starts">
@@ -271,11 +271,11 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     </p>
     """
   end
-  
+
   defp render_when(date_tuple, class \\ nil) do
     datetime = date_tuple |> Date.from_erl!() |> Date.to_iso8601()
     weeks = week_diff(date_tuple)
-  
+
     {prefix, text} =
       case weeks do
         0 -> {"", "this week"}
@@ -284,7 +284,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
         x when x > 0 -> {"in ", "#{x} weeks"}
         x when x < 0 -> {"", "#{-x} weeks ago"}
       end
-  
+
     class =
       case {class, weeks} do
         {class, _} when not is_nil(class) -> class
@@ -292,13 +292,13 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
         {_, x} when x > 0 -> "text-orange-300"
         {_, x} when x < 0 -> "text-blue-300"
       end
-  
+
     content_tag(:span, [
       prefix,
       content_tag(:time, text, datetime: datetime, title: datetime, class: "font-bold #{class}")
     ])
   end
-  
+
   defp include_date?({_, {date, type}}, today) do
     case {type, Date.diff(Date.from_erl!(date), today)} do
       {type, x} when type in [:end_of_life, :deprecation_phase_2] and x in -400..400 -> true
@@ -306,17 +306,17 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       _ -> false
     end
   end
-  
+
   defp iso_week_number(date) do
     {_year, week_n} = :calendar.iso_week_number(date)
     week_n
   end
-  
+
   defp week_diff(date) do
     today = Date.utc_today()
     {current_year, current_week} = :calendar.iso_week_number(Date.to_erl(today))
     {target_year, target_week} = :calendar.iso_week_number(date)
-  
+
     if target_year == current_year do
       target_week - current_week
     else
@@ -325,7 +325,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       div(days_diff, 7)
     end
   end
-  
+
   def get_data() do
     nodejs_lts = %{
       nodejs12: %{lts_start: {2019, 10, 21}, end_of_life: {2022, 4, 30}},
@@ -338,7 +338,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       nodejs18: %{release: {2022, 4, 19}, lts_start: {2022, 10, 25}, end_of_life: {2025, 4, 30}},
       nodejs20: %{release: {2023, 4, 18}, lts_start: {2023, 10, 24}, end_of_life: {2026, 4, 30}}
     }
-    
+
     deno = %{
       deno1_20: %{release: {2022, 3, 16}},
       deno1_21: %{release: {2022, 4, 20}},
@@ -352,7 +352,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       deno1_29: %{release: {2022, 12, 14}},
       deno1_30: %{release: {2023, 1, 27}}
     }
-    
+
     react = %{
       react18: %{release: {2022, 3, 29}},
       react_query4: %{release: {2022, 7, 18}},
@@ -361,31 +361,32 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       remix1_11: %{release: {2023, 1, 19}},
       remix1_12: %{release: {2023, 1, 31}}
     }
-    
+
     jest = %{
       jest28: %{release: {2022, 4, 25}},
       jest29: %{release: {2022, 8, 25}},
     }
-    
+
     postgres = %{
       postgres9_6: %{end_of_life: {2021, 11, 11}},
       postgres10: %{end_of_life: {2022, 11, 10}}
     }
-    
+
     erlang = %{
       elixir1_14: %{release: {2022, 9, 1}},
     }
-    
+
     swift = %{
       swift5_6: %{release: {2022, 3, 14}},
       swift5_7: %{release: {2022, 9, 12}}
     }
-    
+
     golang = %{
       go1_18: %{release: {2022, 3, 15}},
       go1_19: %{release: {2022, 8, 2}},
+      go1_20: %{release: {2023, 2, 1}},
     }
-    
+
     rust = %{
       rust1_62: %{release: {2022, 6, 30}},
       rust1_63: %{release: {2022, 8, 11}},
@@ -393,7 +394,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       rust1_65: %{release: {2022, 11, 3}},
       rust1_66: %{release: {2022, 12, 15}}
     }
-    
+
     browsers = %{
       firefox99: %{release: {2022, 4, 5}},
       firefox100: %{release: {2022, 5, 3}},
@@ -425,18 +426,18 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       safari16_1: %{release: {2022, 10, 24}},
       safari16_2: %{release: {2022, 12, 13}}
     }
-    
+
     ios = %{
       ios16: %{release: {2022, 9, 12}}
     }
-    
+
     aws_lambda = %{
       aws_lambda_nodejs10: %{
         deprecation_phase_1: {2021, 7, 30},
         deprecation_phase_2: {2022, 2, 14}
       }
     }
-    
+
     groups = [
       ios,
       nodejs_lts,
@@ -451,7 +452,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       aws_lambda,
       jest
     ]
-    
+
     links = %{
       chrome99: "https://developer.chrome.com/blog/new-in-chrome-99/",
       chrome100: "https://developer.chrome.com/blog/new-in-chrome-100/",
@@ -492,6 +493,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       firefox107: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/107",
       firefox108: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/108",
       firefox109: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/109",
+      firefox110: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/110",
       swift5_6: "https://www.swift.org/blog/swift-5.6-released/",
       swift5_7: "https://www.swift.org/blog/swift-5.7-released/",
       safari15_4: "https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/",
@@ -502,6 +504,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       safari16_2: "https://webkit.org/blog/13591/webkit-features-in-safari-16-2/",
       go1_18: "https://go.dev/doc/go1.18",
       go1_19: "https://go.dev/doc/go1.19",
+      go1_20: "https://go.dev/doc/go1.20",
       rust1_62: "https://blog.rust-lang.org/2022/06/30/Rust-1.62.0.html",
       rust1_63: "https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html",
       rust1_64: "https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html",
@@ -513,7 +516,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       ios16: "https://www.apple.com/newsroom/2022/09/ios-16-is-available-today/",
       elixir1_14: "https://elixir-lang.org/blog/2022/09/01/elixir-v1-14-0-released/",
     }
-    
+
     dates_to_items =
       for group <- groups do
         for {id, %{release: yymmdd}} <- group do
@@ -523,7 +526,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       |> List.flatten()
       |> Enum.group_by(fn {k, _} -> k end, fn {_, v} -> v end)
       |> Map.new()
-    
+
     %{dates_to_items: dates_to_items, groups: groups, links: links}
   end
 end
