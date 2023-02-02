@@ -399,6 +399,9 @@ require(["vs/editor/editor.main"], function () {
   <div id="input" style="flex: 1;"></div>
   <div class="flex-1 flex flex-col">
     <div id="clientApp" style="flex: 1;" class="bg-white text-black"></div>
-    <div id="htmlOutput" style="flex: 1;"></div>
+    <details>
+      <summary>Server-rendered HTML</summary>
+      <div id="htmlOutput" style="flex: 1;"></div>
+    </details>
   </div>
 </div>
