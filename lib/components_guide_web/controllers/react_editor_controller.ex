@@ -1055,6 +1055,307 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
+  def show(conn, %{"id" => "todo-list-reducer"}) do
+    source = ~s"""
+    function TodoItem({ item }) {
+      const domID = useId();
+      const descriptionID = `${domID}-description`;
+      const completedID = `${domID}-completed`;
+
+      return <fieldset class="flex items-center gap-3 py-2" data-id={item.id}>
+        <input name="completed[]" value={item.id} type="checkbox" checked={item.completed} id={completedID} class="w-5 h-5 text-purple-700 rounded" />
+        <label for={descriptionID} class="sr-only">Description</label>
+        <input name="description[]" id={descriptionID} type="text" value={item.description} class="flex-1 rounded" />
+      </fieldset>
+    }
+
+    const initialState = {
+      values: {
+        focusID: undefined,
+        items: [
+          {
+            id: crypto.randomUUID(),
+            description: "File taxes",
+            completed: false,
+          },
+        ],
+      },
+      errors: {},
+    }
+
+    function TodoList() {
+      const [{ values, errors }, dispatch] = useReducer(reducer, initialState)
+
+      useLayoutEffect(() => {
+        if (!values.focusID) return;
+
+        const el = document.querySelector(`[data-id="${values.focusID}"] input[type=text]`);
+        el?.focus();
+      }, [values.focusID]);
+
+      return <form className="w-full max-w-[40rem] mx-auto pb-16" onSubmit={(event) => {
+        event.preventDefault()
+        dispatch(event)
+      }}>
+        <div onChange={dispatch}>
+          {values.items.map((item, index) => (
+            <>
+              <TodoItem
+                key={item.id}
+                index={index}
+                item={item}
+                dispatch={dispatch}
+              />
+            </>
+          ))}
+        </div>
+        <div className="my-4" />
+        <button
+          type="button"
+          className="py-1 px-3 text-violet-50 bg-violet-800 rounded"
+          onClick={dispatch}
+          data-action="addItem"
+        >Add item</button>
+        <pre class="mt-8">{JSON.stringify(values, null, 2)}</pre>
+      </form>
+    }
+
+    function changed(state, event) {
+      const { form } = event.target
+      if (!form) {
+        return
+      }
+
+      const formData = new FormData(form)
+      const descriptions = formData.getAll("description[]").map(String)
+      const completeds = new Set(formData.getAll("completed[]").map(String))
+
+      for (const [index, item] of state.items.entries()) {
+        item.description = descriptions[index]
+        item.completed = completeds.has(item.id)
+      }
+    }
+
+    function clicked(state, event) {
+      // event.currentTarget should be the button. The first click it is, but the clicks after are null. Not sure why.
+
+      if (!(event.target instanceof Element)) {
+        return
+      }
+      const button = event.target.closest("button")
+      if (!button) {
+        return
+      }
+
+      const {
+        dataset: { action, payload },
+      } = button
+
+      if (action === "addItem") {
+        const id = crypto.randomUUID()
+        state.items.push({
+          id,
+          description: "",
+          completed: false,
+        })
+        state.focusID = id
+      } else if (action === "removeItem") {
+        const { id } = JSON.parse(payload) // TODO: use Zod?
+        const index = state.items.findIndex((q) => q.id === id)
+        state.items.splice(index, 1)
+      }
+    }
+
+    function reducer(state, event) {
+      state = structuredClone(state)
+
+      if (isInputChangeEvent(event)) {
+        changed(state.values, event)
+      } else if (isClickEvent(event)) {
+        clicked(state.values, event)
+      } else if (isSubmitEvent(event)) {
+        state.errors = validate(state.values)
+      }
+
+      return state
+    }
+
+    export function isInputChangeEvent(event) {
+      return event.type === "change" && event.target instanceof HTMLInputElement
+    }
+
+    export function isClickEvent(event) {
+      return event.type === "click"
+    }
+
+    export function isSubmitEvent(event) {
+      return event.type === "submit"
+    }
+
+    export default function App() {
+      return <TodoList />;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
+  def show(conn, %{"id" => "todo-list-reducer-revisions"}) do
+    source = ~s"""
+    function TodoItem({ item }) {
+      const domID = useId();
+      const descriptionID = `${domID}-description`;
+      const completedID = `${domID}-completed`;
+
+      return <fieldset class="flex items-center gap-3 py-2 after:content-[attr(data-revision)]" data-id={item.id}>
+        <input name="completed[]" value={item.id} type="checkbox" checked={item.completed} id={completedID} class="w-5 h-5 text-purple-700 rounded" />
+        <label for={descriptionID} class="sr-only">Description</label>
+        <input name="description[]" id={descriptionID} type="text" value={item.description} class="flex-1 rounded" />
+      </fieldset>
+    }
+
+    const initialState = {
+      values: {
+        focusID: undefined,
+        items: [
+          {
+            id: crypto.randomUUID(),
+            description: "File taxes",
+            completed: false,
+          },
+        ],
+      },
+      errors: {},
+    }
+
+    function TodoList() {
+      const [{ values, errors }, dispatch] = useReducer(reducer, initialState)
+
+      useLayoutEffect(() => {
+        if (!values.focusID) return;
+
+        const el = document.querySelector(`[data-id="${values.focusID}"] input[type=text]`);
+        el?.focus();
+      }, [values.focusID]);
+
+      return <form className="w-full max-w-[40rem] mx-auto pb-16" onSubmit={(event) => {
+        event.preventDefault()
+        dispatch(event)
+      }}>
+        <div onChange={dispatch}>
+          {values.items.map((item, index) => (
+            <>
+              <TodoItem
+                key={item.id}
+                index={index}
+                item={item}
+                dispatch={dispatch}
+              />
+            </>
+          ))}
+        </div>
+        <div className="my-4" />
+        <button
+          type="button"
+          className="py-1 px-3 text-violet-50 bg-violet-800 rounded"
+          onClick={dispatch}
+          data-action="addItem"
+        >Add item</button>
+        <pre class="mt-8">{JSON.stringify(values, null, 2)}</pre>
+      </form>;
+    }
+
+    function elChanged(el) {
+      const newRevision = parseInt(el.dataset.revision ?? "0") + 1;
+      el.dataset.revision = newRevision;
+      return newRevision;
+    }
+
+    function changed(state, event) {
+      const input = event.target;
+      const { form, dataset } = input;
+      if (!form) {
+        return;
+      }
+
+      const formRevision = elChanged(form);
+      dataset.revision = formRevision;
+      input.closest('fieldset').dataset.revision = formRevision;
+
+      const formData = new FormData(form);
+      const descriptions = formData.getAll("description[]").map(String);
+      const completeds = new Set(formData.getAll("completed[]").map(String));
+
+      for (const [index, item] of state.items.entries()) {
+        item.description = descriptions[index];
+        item.completed = completeds.has(item.id);
+      }
+    }
+
+    function clicked(state, event) {
+      // event.currentTarget should be the button. The first click it is, but the clicks after are null. Not sure why.
+
+      if (!(event.target instanceof Element)) {
+        return
+      }
+      const button = event.target.closest("button")
+      if (!button) {
+        return
+      }
+
+      const {
+        dataset: { action, payload },
+      } = button
+
+      if (action === "addItem") {
+        const id = crypto.randomUUID()
+        state.items.push({
+          id,
+          description: "",
+          completed: false,
+        })
+        state.focusID = id
+      } else if (action === "removeItem") {
+        const { id } = JSON.parse(payload) // TODO: use Zod?
+        const index = state.items.findIndex((q) => q.id === id)
+        state.items.splice(index, 1)
+      }
+    }
+
+    function reducer(state, event) {
+      state = structuredClone(state)
+
+      if (isInputChangeEvent(event)) {
+        changed(state.values, event)
+      } else if (isClickEvent(event)) {
+        clicked(state.values, event)
+      } else if (isSubmitEvent(event)) {
+        state.errors = validate(state.values)
+      }
+
+      return state
+    }
+
+    export function isInputChangeEvent(event) {
+      return event.type === "change" && event.target instanceof HTMLInputElement
+    }
+
+    export function isClickEvent(event) {
+      return event.type === "click"
+    }
+
+    export function isSubmitEvent(event) {
+      return event.type === "submit"
+    }
+
+    export default function App() {
+      return <TodoList />;
+    }
+    """
+
+    render_source(conn, source)
+  end
+
   def show(conn, params) do
     source = ~s"""
     export default function App() {
