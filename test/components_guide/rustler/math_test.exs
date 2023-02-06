@@ -71,26 +71,29 @@ defmodule ComponentsGuide.Rustler.MathTest do
     wasm_source = """
     (module
       (func $validate (param $num i32) (result i32)
-        (if (result i32)
-          (i32.lt_u (local.get $num) (i32.const 1))
-          (then return (i32.const 0))
-          (else (if (result i32)
-            (i32.gt_u (local.get $num) (i32.const 255))
-            (then return (i32.const 0))
-            (else return (i32.const 1))
-          ))
-        )
+        (local $lt i32)
+        (local $gt i32)
+        (i32.lt_s (local.get $num) (i32.const 1))
+        local.set $lt
+        (i32.gt_s (local.get $num) (i32.const 255))
+        local.set $gt
+        (i32.or (local.get $lt) (local.get $gt))
+        i32.eqz
       )
       (export "validate" (func $validate))
     )
     """
 
+    assert Math.wasm_example(wasm_source, "validate", -1) == 0
     assert Math.wasm_example(wasm_source, "validate", 0) == 0
     assert Math.wasm_example(wasm_source, "validate", 1) == 1
+    assert Math.wasm_example(wasm_source, "validate", 2) == 1
     assert Math.wasm_example(wasm_source, "validate", 10) == 1
     assert Math.wasm_example(wasm_source, "validate", 13) == 1
     assert Math.wasm_example(wasm_source, "validate", 255) == 1
     assert Math.wasm_example(wasm_source, "validate", 256) == 0
+    assert Math.wasm_example(wasm_source, "validate", 257) == 0
+    assert Math.wasm_example(wasm_source, "validate", 2000) == 0
   end
   
   # defwasm multiply(a, b) do
