@@ -19,7 +19,13 @@ defmodule ComponentsGuide.Rustler.Math do
 
   def add(_, _), do: error()
   def reverse_string(_), do: error()
-  def wasm_example(_, _), do: error()
+  def wasm_example_0(_, _), do: error()
+  def wasm_example_1_i32(_, _, _), do: error()
+  def wasm_example_2_i32(_, _, _, _), do: error()
+  
+  def wasm_example(source, f), do: wasm_example_0(source, f)
+  def wasm_example(source, f, a), do: wasm_example_1_i32(source, f, a)
+  def wasm_example(source, f, a, b), do: wasm_example_2_i32(source, f, a, b)
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)
 end

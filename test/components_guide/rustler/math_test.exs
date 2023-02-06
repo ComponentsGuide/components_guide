@@ -22,4 +22,80 @@ defmodule ComponentsGuide.Rustler.MathTest do
 
     assert Math.wasm_example(wasm_source, "answer") == 42
   end
+  
+  test "wasm_example/2 dsl" do
+    # wasm_source = module(func(export("answer"), :result_i32, {:i32_const, 42}))
+    # wasm_source = module(func(export("answer"), Result.i32, {I32.const, 42}))
+    # wasm_source = module({:func, {:export, "answer"}, {:result, :i32}, {:i32_const, 42}})
+    
+    wasm_source = """
+    (module
+      (func (export "answer") (result i32)
+       i32.const 42
+      )
+    )
+    """
+
+    assert Math.wasm_example(wasm_source, "answer") == 42
+  end
+  
+  test "wasm_example/4 adding two numbers" do
+    wasm_source = """
+    (module
+      (func $add (param $a i32) (param $b i32) (result i32)
+        local.get $a
+        local.get $b
+        i32.add)
+      (export "add" (func $add))
+    )
+    """
+
+    assert Math.wasm_example(wasm_source, "add", 7, 5) == 12
+  end
+  
+  test "wasm_example/4 multiplying two numbers" do
+    wasm_source = """
+    (module
+      (func $multiply (param $a i32) (param $b i32) (result i32)
+        local.get $a
+        local.get $b
+        i32.mul)
+      (export "multiply" (func $multiply))
+    )
+    """
+
+    assert Math.wasm_example(wasm_source, "multiply", 7, 5) == 35
+  end
+  
+  test "wasm_example/4 checking a number is within a range" do
+    wasm_source = """
+    (module
+      (func $validate (param $num i32) (result i32)
+        (if (result i32)
+          (i32.lt_u (local.get $num) (i32.const 1))
+          (then return (i32.const 0))
+          (else (if (result i32)
+            (i32.gt_u (local.get $num) (i32.const 255))
+            (then return (i32.const 0))
+            (else return (i32.const 1))
+          ))
+        )
+      )
+      (export "validate" (func $validate))
+    )
+    """
+
+    assert Math.wasm_example(wasm_source, "validate", 0) == 0
+    assert Math.wasm_example(wasm_source, "validate", 1) == 1
+    assert Math.wasm_example(wasm_source, "validate", 10) == 1
+    assert Math.wasm_example(wasm_source, "validate", 13) == 1
+    assert Math.wasm_example(wasm_source, "validate", 255) == 1
+    assert Math.wasm_example(wasm_source, "validate", 256) == 0
+  end
+  
+  # defwasm multiply(a, b) do
+  #   Wasm.func multiply(a, b) do
+  #     W32.mul(a, b)
+  #   end
+  # end
 end
