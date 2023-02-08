@@ -415,7 +415,7 @@ defmodule ComponentsGuideWeb.ReactEditorController do
 
   def show(conn, %{"id" => "yieldmachine-gist"}) do
     source = ~s"""
-    import { default as App } from "https://gist.githubusercontent.com/BurntCaramel/229db1ce87ea3126c460d232cc1e6b0c/raw/78bdd8c275de4bf38d5430bc0ee6bd6ca7014c84/traffic-lights.jsx";
+    import { default as App } from "https://gist.githubusercontent.com/RoyalIcing/229db1ce87ea3126c460d232cc1e6b0c/raw/78bdd8c275de4bf38d5430bc0ee6bd6ca7014c84/traffic-lights.jsx";
     export default App;
     """
 
@@ -1004,7 +1004,7 @@ defmodule ComponentsGuideWeb.ReactEditorController do
 
   def show(conn, %{"id" => "import-from-the-web"}) do
     source = ~s"""
-    import { flavors } from "https://gist.githubusercontent.com/BurntCaramel/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
+    import { flavors } from "https://gist.githubusercontent.com/RoyalIcing/d9d2ca7ed6f056632696709a2ae3c413/raw/0234322cf854d52e2f2bd33aa37e8c8b00f9df0a/1.js";
     import reactDownloads from "https://api.npmjs.org/downloads/point/last-week/react";
     import image from "https://embed.filekitcdn.com/e/fEiVX4E3EdQhij4RMaw92W/pziZhFNQLKJtwNHMTkDnTD";
 
