@@ -21,10 +21,8 @@ defmodule ComponentsGuideWeb.ContentLengthView do
   use ComponentsGuideWeb, :view
 
   def render("index.html", assigns) do
-    turbo_frame("content-length") do
-      content_tag(:data, Format.humanize_bytes(assigns.content_length),
-        value: assigns.content_length
-      )
-    end
+    content_tag(:data, Format.humanize_bytes(assigns.content_length),
+      value: assigns.content_length
+    )
   end
 end

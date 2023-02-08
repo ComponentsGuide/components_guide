@@ -1,3 +1,0 @@
-<turbo-frame id="<%= @frame_id %>">
-  <%= @inner_content %>
-</turbo-frame>

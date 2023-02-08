@@ -120,9 +120,7 @@ defmodule ComponentsGuideWeb do
         |> raw()
       end
 
-      def turbo_frame(id, src, do: block), do: content_tag("turbo-frame", block, id: id, src: src)
-      def turbo_frame(id, do: block), do: content_tag("turbo-frame", block, id: id)
-      def turbo_frame(id, src), do: content_tag("turbo-frame", [], id: id, src: src)
+      def include_fragment(src), do: content_tag("include-fragment", [], src: src)
 
       def dev_inspect(value) do
         content_tag("pre", inspect(value, pretty: true))

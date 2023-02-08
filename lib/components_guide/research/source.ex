@@ -77,10 +77,14 @@ defmodule ComponentsGuide.Research.Source do
 
   defp run({:content_length, url}) do
     with {:ok, req} <- Fetch.Request.new(url),
-         %Fetch.Response{headers: headers} = Fetch.load!(req),
-         {_, s} <-
-           Enum.find(headers, fn {key, _} -> String.downcase(key) == "content-length" end),
-         {n, _} <- Integer.parse(s) do
+         %Fetch.Response{headers: headers, body: body} = Fetch.load!(req),
+         {n, _} <-
+           headers
+           |> Enum.find(fn {key, _} -> String.downcase(key) == "content-length" end)
+           |> then(fn
+             {_, s} -> Integer.parse(s)
+             nil -> {byte_size(body), ""}
+           end) do
       {:ok, n}
     else
       _ -> :error
@@ -99,7 +103,8 @@ defmodule ComponentsGuide.Research.Source do
         {:fetch_text, url} ->
           IO.puts("Writing to redis #{url}")
           write_redis_cache(url, value)
-          # write_rest_redis_cache(url, value)
+
+        # write_rest_redis_cache(url, value)
 
         _ ->
           nil

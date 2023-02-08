@@ -446,8 +446,7 @@ defmodule ComponentsGuideWeb.ResearchView do
             Section.description_list([
               {"URL", link(url, to: url, class: "text-base")},
               {"Size",
-               ComponentsGuideWeb.ResearchView.turbo_frame(
-                 "content-length",
+               ComponentsGuideWeb.ResearchView.include_fragment(
                  "/~/content-length?" <> URI.encode_query(url: url)
                )}
             ])
