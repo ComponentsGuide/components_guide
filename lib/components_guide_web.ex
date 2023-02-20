@@ -41,7 +41,7 @@ defmodule ComponentsGuideWeb do
       import Phoenix.Component
 
       # Include shared imports and aliases for views
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -49,7 +49,7 @@ defmodule ComponentsGuideWeb do
     quote do
       use Phoenix.Component
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -64,7 +64,7 @@ defmodule ComponentsGuideWeb do
             )
       use Phoenix.LiveView, @opts
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -72,7 +72,7 @@ defmodule ComponentsGuideWeb do
     quote do
       use Phoenix.LiveComponent
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -93,7 +93,7 @@ defmodule ComponentsGuideWeb do
     end
   end
 
-  defp view_helpers do
+  defp html_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML

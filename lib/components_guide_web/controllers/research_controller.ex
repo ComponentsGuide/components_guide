@@ -98,19 +98,6 @@ defmodule ComponentsGuideWeb.ResearchController do
     end
   end
 
-  #   def index(conn, %{"q" => query}) do
-  #     query = query |> String.trim()
-  #
-  #     case query do
-  #       "" ->
-  #         render(conn, "empty.html")
-  #
-  #       query ->
-  #         results = load_results(query)
-  #         render(conn, "index.html", %{query: query, results: results})
-  #     end
-  #   end
-
   def index(conn, _params) do
     index(conn, %{"q" => ""})
   end
@@ -137,36 +124,7 @@ defmodule ComponentsGuideWeb.ResearchController do
     case Spec.search_for(:bundlephobia, query) |> tap(&IO.inspect/1) do
       # %{"assets" => [%{"gzip" => 3920, "name" => "main", "size" => 10047, "type" => "js"}], "dependencyCount" => 0, "dependencySizes" => [%{"approximateSize" => 9537, "name" => "preact"}], "description" => "Fast 3kb React-compatible Virtual DOM library.", "gzip" => 3920, "hasJSModule" => "dist/preact.module.js", "hasJSNext" => false, "hasSideEffects" => true, "name" => "preact", "repository" => "https://github.com/preactjs/preact.git", "scoped" => false, "size" => 10047, "version" => "10.4.1"}
       %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
-        emerging_3g_ms = floor(size_gzip / 50)
-
-        # bundlephobia_url_query = URI.encode_query(%{"p" => "#{name}@#{version}"})
-        bundlephobia_url_query = "p=#{name}@#{version}"
-        bundlephobia_url = "https://bundlephobia.com/result?#{bundlephobia_url_query}"
-
-        Section.card([
-          Section.card_source("Bundlephobia", "http://bundlephobia.com"),
-          content_tag(
-            :h3,
-            link("#{name}@#{version}", to: bundlephobia_url),
-            class: "text-2xl"
-          ),
-          content_tag(
-            :dl,
-            [
-              content_tag(:dt, "Minified", class: "text-base font-bold"),
-              content_tag(:dd, View.humanize_bytes(size)),
-              content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
-              content_tag(:dd, View.humanize_bytes(size_gzip)),
-              content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
-              content_tag(:dd, "#{emerging_3g_ms}ms")
-            ],
-            class: "grid grid-flow-col",
-            style: "grid-template-rows: repeat(2, auto);"
-          )
-        ])
-
-      # %{"error" => %{"code" => "PackageNotFoundError"}} ->
-      #   content_tag(:p, "Not found")
+        View.bundlephobia(name, %{version: version, size: size, size_gzip: size_gzip})
 
       %{"error" => _} ->
         []
@@ -179,24 +137,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   defp npm_downloads(query) do
     case Spec.search_for(:npm_downloads_last_month, query) do
       %{downloads_count: downloads_count, name: name} ->
-        content_tag(:article, [
-          Section.card([
-            Section.card_source("NPM", "https://www.npmjs.com/"),
-            content_tag(
-              :h3,
-              ["npm add ", link(name, to: "https://www.npmjs.com/package/#{name}")],
-              class: "text-2xl"
-            ),
-            content_tag(
-              :dl,
-              [
-                content_tag(:dt, "monthly downloads"),
-                content_tag(:dd, View.humanize_count(downloads_count), class: "font-bold")
-              ],
-              class: "flex flex-row-reverse justify-end gap-2 opacity-75"
-            )
-          ])
-        ])
+        View.npm_downloads(name, downloads_count)
 
       _ ->
         []
@@ -210,7 +151,7 @@ defmodule ComponentsGuideWeb.ResearchController do
           :div,
           for row <- rows do
             content_tag(:pre, content_tag(:code, row, class: "language-ts"),
-              class: "language-ts m-2 whitespace-pre-wrap border border-indigo-700 rounded"
+              class: "language-ts m-2 whitespace-pre-wrap border border-violet-900 rounded"
             )
           end,
           class: "mb-4"
@@ -353,9 +294,9 @@ defmodule ComponentsGuideWeb.ResearchController do
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
-      npm_downloads(query),
+      npm_downloads(query) |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw(),
+      bundlephobia(query) |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw(),
       typescript_dom(query),
-      bundlephobia(query),
       caniuse(query),
       static(query)
       # html_spec(query),
@@ -368,14 +309,29 @@ end
 defmodule ComponentsGuideWeb.ResearchView do
   use ComponentsGuideWeb, :view
 
-  def results(_query) do
-    ~E"""
-    Content!
-    """
-  end
-
   defdelegate humanize_bytes(count), to: Format
   defdelegate humanize_count(count), to: Format
+
+  defmodule Card do
+    use ComponentsGuideWeb, :component
+
+    # attr :title, :string, required: true
+    attr :source, :string, required: true
+    attr :source_url, :string, required: true
+
+    slot :title
+    slot :inner_block, required: true
+
+    def card(assigns) do
+      ~H"""
+      <article class="relative mb-4 flex flex-col gap-4 p-4 text-xl text-white bg-violet-900/25 border border-violet-900 rounded shadow-lg">
+        <h3 class="text-2xl"><%= render_slot(@title) %></h3>
+        <a href={@source_url} class="hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"><%= @source %></a>
+        <%= render_slot(@inner_block) %>
+      </article>
+      """
+    end
+  end
 
   defmodule Section do
     def card(children) do
@@ -419,6 +375,66 @@ defmodule ComponentsGuideWeb.ResearchView do
 
       content_tag(:dl, children)
     end
+  end
+
+  defdelegate card(assigns), to: Card
+
+  def npm_downloads(name, downloads_count) do
+    assigns = %{name: name, downloads_count: downloads_count}
+
+    ~H"""
+    <.card source="NPM" source_url="https://www.npmjs.com/">
+      <:title>npm add <%= link(@name, to: "https://www.npmjs.com/package/#{@name}") %></:title>
+      <dl class="flex flex-row-reverse justify-end gap-2">
+        <dt>monthly downloads</dt>
+        <dd class="font-bold"><%= humanize_count(@downloads_count) %></dd>
+      </dl>
+    </.card>
+    """
+  end
+
+  def bundlephobia(name, assigns) do
+    assigns = assigns |> Map.put(:name, name)
+
+    ~H"""
+    <.card source="Bundlephobia" source_url="https://bundlephobia.com/">
+      <:title>
+        <.link href={"https://bundlephobia.com/result?p=#{@name}@#{@version}"}>
+          <%= "#{@name}@#{@version}" %>
+        </.link>
+      </:title>
+      <dl class="grid grid-flow-col" style="grid-template-rows: repeat(2, auto);">
+        <dt>Minified</dt>
+        <dd class="font-bold"><%= humanize_count(@size) %></dd>
+        <dt>Minified + Gzipped</dt>
+        <dd class="font-bold"><%= humanize_count(@size_gzip) %></dd>
+        <dt>Emerging 3G (50kB/s)</dt>
+        <dd class="font-bold"><%= floor(@size_gzip / 50) %>ms</dd>
+      </dl>
+    </.card>
+    """
+
+    # Section.card([
+    #   Section.card_source("Bundlephobia", "https://bundlephobia.com"),
+    #   content_tag(
+    #     :h3,
+    #     link("#{name}@#{version}", to: bundlephobia_url),
+    #     class: "text-2xl"
+    #   ),
+    #   content_tag(
+    #     :dl,
+    #     [
+    #       content_tag(:dt, "Minified", class: "text-base font-bold"),
+    #       content_tag(:dd, humanize_bytes(size)),
+    #       content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
+    #       content_tag(:dd, humanize_bytes(size_gzip)),
+    #       content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
+    #       content_tag(:dd, "#{emerging_3g_ms}ms")
+    #     ],
+    #     class: "grid grid-flow-col",
+    #     style: "grid-template-rows: repeat(2, auto);"
+    #   )
+    # ])
   end
 
   defmodule Static do
