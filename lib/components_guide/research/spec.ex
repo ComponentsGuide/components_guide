@@ -177,34 +177,42 @@ defmodule ComponentsGuide.Research.Spec do
   defp process_search_for(:typescript_dom, query, {:ok, source}) do
     start = System.monotonic_time()
 
-    # TODO: add types to a SQLite database?
-    {:ok, db} = Exqlite.Sqlite3.open(":memory:")
-    :ok = Exqlite.Sqlite3.execute(db, "CREATE VIRTUAL TABLE files USING FTS5(name, body)")
+    # safe? = Regex.match?(~r/^[\w]+$/, query)
+    safe? = true
 
-    {:ok, statement} = Exqlite.Sqlite3.prepare(db, "insert into files (name, body) values (?, ?)")
-    :ok = Exqlite.Sqlite3.bind(db, statement, ["lib.dom.d.ts", source])
-    :done = Exqlite.Sqlite3.step(db, statement)
-    :ok = Exqlite.Sqlite3.release(db, statement)
+    if safe? do
+      # TODO: add types to a SQLite database?
+      {:ok, db} = Exqlite.Sqlite3.open(":memory:")
+      :ok = Exqlite.Sqlite3.execute(db, "CREATE VIRTUAL TABLE files USING FTS5(name, body)")
 
-    # Prepare a select statement
-    # {:ok, statement} = Exqlite.Sqlite3.prepare(db, "select highlight(files, 1, '<b>', '</b>') body from files where files match ? order by rank")
-    {:ok, statement} = Exqlite.Sqlite3.prepare(db, "select snippet(files, 1, '', '', '…', 64) body from files where files match ? order by rank")
-    :ok = Exqlite.Sqlite3.bind(db, statement, [query])
+      {:ok, statement} = Exqlite.Sqlite3.prepare(db, "insert into files (name, body) values (?, ?)")
+      :ok = Exqlite.Sqlite3.bind(db, statement, ["lib.dom.d.ts", source])
+      :done = Exqlite.Sqlite3.step(db, statement)
+      :ok = Exqlite.Sqlite3.release(db, statement)
 
-    # Get the results
-    # {:row, row} = Exqlite.Sqlite3.step(db, statement)
-    # :done = Exqlite.Sqlite3.step(db, statement)
+      # Prepare a select statement
+      # {:ok, statement} = Exqlite.Sqlite3.prepare(db, "select highlight(files, 1, '<b>', '</b>') body from files where files match ? order by rank")
+      {:ok, statement} = Exqlite.Sqlite3.prepare(db, "select snippet(files, 1, '', '', '…', 64) body from files where files match ? order by rank")
+      # Not sure why we have to wrap in quotes: https://stackoverflow.com/questions/21596069/sqlite-full-text-search-queries-with-hyphens#comment109416178_21599291
+      :ok = Exqlite.Sqlite3.bind(db, statement, [~s{"#{query}"}])
 
-    {:ok, rows} = Exqlite.Sqlite3.fetch_all(db, statement)
-    {:ok, columns} = Exqlite.Sqlite3.columns(db, statement)
-    :ok = Exqlite.Sqlite3.release(db, statement)
+      # Get the results
+      # {:row, row} = Exqlite.Sqlite3.step(db, statement)
+      # :done = Exqlite.Sqlite3.step(db, statement)
 
-    Exqlite.Sqlite3.close(db)
+      {:ok, rows} = Exqlite.Sqlite3.fetch_all(db, statement)
+      {:ok, columns} = Exqlite.Sqlite3.columns(db, statement)
+      :ok = Exqlite.Sqlite3.release(db, statement)
 
-    duration = System.monotonic_time() - start
-    IO.puts("SQLite create + text search took #{System.convert_time_unit(duration, :native, :millisecond)}ms")
+      Exqlite.Sqlite3.close(db)
 
-    {columns, rows}
+      duration = System.monotonic_time() - start
+      IO.puts("SQLite create + text search took #{System.convert_time_unit(duration, :native, :millisecond)}ms")
+
+      {columns, rows}
+    else
+      {[], []}
+    end
   end
 
   defp process_search_for(_id, _query, _), do: []
