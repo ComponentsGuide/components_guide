@@ -84,10 +84,10 @@ defmodule ComponentsGuide.Fetch do
     end
   end
 
-  def load!(req = %Request{uri: %URI{host: host, port: 443}}) do
+  def load!(req = %Request{uri: %URI{host: host, port: 443}}, protocols \\ [:http1, :http2]) do
     t = Timings.start_with_telemetry([:fetch, :load!, :start], %{req: req})
 
-    {:ok, conn} = Mint.HTTP.connect(:https, host, 443, mode: :passive, protocols: [:http1])
+    {:ok, conn} = Mint.HTTP.connect(:https, host, 443, mode: :passive, protocols: protocols)
     {conn, response} = do_request(conn, req)
     Mint.HTTP.close(conn)
 
