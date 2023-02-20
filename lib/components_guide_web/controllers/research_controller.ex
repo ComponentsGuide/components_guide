@@ -143,28 +143,26 @@ defmodule ComponentsGuideWeb.ResearchController do
         bundlephobia_url_query = "p=#{name}@#{version}"
         bundlephobia_url = "https://bundlephobia.com/result?#{bundlephobia_url_query}"
 
-        content_tag(:article, [
-          h2("Bundlephobia"),
-          Section.card([
-            content_tag(
-              :h3,
-              link("#{name}@#{version}", to: bundlephobia_url),
-              class: "text-2xl"
-            ),
-            content_tag(
-              :dl,
-              [
-                content_tag(:dt, "Minified", class: "text-base font-bold"),
-                content_tag(:dd, View.humanize_bytes(size)),
-                content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
-                content_tag(:dd, View.humanize_bytes(size_gzip)),
-                content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
-                content_tag(:dd, "#{emerging_3g_ms}ms")
-              ],
-              class: "grid grid-flow-col",
-              style: "grid-template-rows: repeat(2, auto);"
-            )
-          ])
+        Section.card([
+          Section.card_source("Bundlephobia", "http://bundlephobia.com"),
+          content_tag(
+            :h3,
+            link("#{name}@#{version}", to: bundlephobia_url),
+            class: "text-2xl"
+          ),
+          content_tag(
+            :dl,
+            [
+              content_tag(:dt, "Minified", class: "text-base font-bold"),
+              content_tag(:dd, View.humanize_bytes(size)),
+              content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
+              content_tag(:dd, View.humanize_bytes(size_gzip)),
+              content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
+              content_tag(:dd, "#{emerging_3g_ms}ms")
+            ],
+            class: "grid grid-flow-col",
+            style: "grid-template-rows: repeat(2, auto);"
+          )
         ])
 
       # %{"error" => %{"code" => "PackageNotFoundError"}} ->
@@ -183,6 +181,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       %{downloads_count: downloads_count, name: name} ->
         content_tag(:article, [
           Section.card([
+            Section.card_source("NPM", "https://www.npmjs.com/"),
             content_tag(
               :h3,
               ["npm add ", link(name, to: "https://www.npmjs.com/package/#{name}")],
@@ -223,7 +222,6 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defmodule CanIUse do
-    # use ComponentsGuideWeb, :view
     alias ComponentsGuideWeb.ResearchView.Section, as: Section
 
     def present(results) when is_list(results) do
@@ -243,8 +241,7 @@ defmodule ComponentsGuideWeb.ResearchController do
            }
          ) do
       Section.card([
-        content_tag(:a, "Can I Use", href: "http://caniuse.com", class: "hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"),
-        # inspect(item),
+        Section.card_source("Can I Use", "http://caniuse.com"),
         content_tag(:h3, link(title, to: "https://caniuse.com/#{title}"), class: "text-2xl"),
         content_tag(:p, "#{description}"),
         content_tag(:ul, [
@@ -386,8 +383,12 @@ defmodule ComponentsGuideWeb.ResearchView do
         :article,
         children,
         class:
-          "relative mb-4 text-xl space-y-4 p-4 text-white bg-indigo-900/25 border border-indigo-900 rounded-lg shadow-lg"
+          "relative mb-4 flex flex-col gap-4 p-4 text-xl text-white bg-violet-900/25 border border-violet-900 rounded-lg shadow-lg"
       )
+    end
+
+    def card_source(title, href) do
+      content_tag(:a, title, href: href, class: "hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75")
     end
 
     def unordered_list(items, attrs \\ []) do
@@ -425,6 +426,7 @@ defmodule ComponentsGuideWeb.ResearchView do
 
     def render(:http_status, {name, description}) do
       Section.card([
+        Section.card_source("HTTP", "https://en.wikipedia.org/wiki/List_of_HTTP_status_codes"),
         content_tag(:h3, "HTTP Status: #{name}", class: "text-2xl font-bold"),
         content_tag(:p, description)
       ])
@@ -432,6 +434,7 @@ defmodule ComponentsGuideWeb.ResearchView do
 
     def render(:rfc, {name, specs, metadata}) do
       Section.card([
+        Section.card_source("RFC", "https://www.rfc-editor.org"),
         content_tag(:h3, "#{name} Spec", class: "text-2xl font-bold"),
         Section.description_list([
           {"Specs",
@@ -445,6 +448,7 @@ defmodule ComponentsGuideWeb.ResearchView do
 
     def render(:super_tiny_icon, %{name: name, url: url, urls: urls}) do
       Section.card([
+        Section.card_source("Super Tiny Icons", "https://www.supertinyicons.org/"),
         content_tag(:h3, "#{name |> String.capitalize()} Icon", class: "text-2xl font-bold"),
         content_tag(
           :div,

@@ -1,9 +1,7 @@
 <%= render view_module(@conn), "_header.html", query: @query %>
 
-<div class="text-white bg-gray-900 py-8">
-  <div class="container">
-    <div class="px-6" data-links="underline">
-      <%= @results %>
-    </div>
+<div class="py-8">
+  <div class="max-w-4xl mx-auto px-4" data-links="underline">
+    <%= @results %>
   </div>
 </div>
