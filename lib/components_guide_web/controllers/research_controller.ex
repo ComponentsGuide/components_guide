@@ -450,7 +450,7 @@ defmodule ComponentsGuideWeb.ResearchView do
     <.card source="Simple Icons" source_url="https://simpleicons.org">
       <:title><%= "#{@name |> String.capitalize()} icon" %></:title>
       <div class="flex flex-row items-center space-x-8">
-        <img src={@url} width={80} height={80} class="bg-white max-h-max p-2">
+        <img src={@url} width={80} height={80} class="bg-fixed bg-repeat bg-center bg-gradient-to-br from-white via-sky-200 hover:via-white to-white max-h-max p-1" style="background-size: 17px 17px">
         <.description_list>
           <:item title="URL" data={for(url <- @urls, do: link(url, to: url))} />
           <:item title="Size">
