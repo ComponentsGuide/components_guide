@@ -103,10 +103,6 @@ defmodule ComponentsGuideWeb.ResearchController do
     index(conn, %{"q" => ""})
   end
 
-  defp h2(text) do
-    content_tag(:h2, text, class: "text-2xl font-bold mb-4")
-  end
-
   defp present_results(results) when is_binary(results) do
     results
   end
@@ -184,7 +180,7 @@ defmodule ComponentsGuideWeb.ResearchController do
 
       results ->
         content_tag(:article, [
-          h2("HTML spec"),
+          content_tag(:h2, "HTML spec"),
           results |> present_results()
         ])
     end
@@ -196,14 +192,7 @@ defmodule ComponentsGuideWeb.ResearchController do
         []
 
       results ->
-        content_tag(:article, [
-          h2("ARIA Practices"),
-          Enum.map(results, fn %{heading: heading} ->
-            Section.card([
-              content_tag(:h3, heading)
-            ])
-          end)
-        ])
+        View.aria_practices(results)
     end
   end
 
@@ -213,29 +202,13 @@ defmodule ComponentsGuideWeb.ResearchController do
         []
 
       results ->
-        content_tag(:article, [
-          h2("HTML ARIA"),
-          Enum.map(results, fn %{heading: heading, implicit_semantics: implicit_semantics} ->
-            Section.card([
-              content_tag(:h3, heading, class: "text-2xl"),
-              content_tag(
-                :dl,
-                [
-                  content_tag(:dt, "Implicit semantics"),
-                  content_tag(:dd, "#{implicit_semantics}")
-                ]
-              )
-            ])
-          end)
-        ])
+        View.html_aria(results)
     end
   end
 
   defp static(query) do
     for result <- Static.search_for(query) do
-      result
-      |> View.render_static()
-      |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw()
+      result |> View.render_static() |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw()
     end
   end
 
@@ -246,10 +219,10 @@ defmodule ComponentsGuideWeb.ResearchController do
       bundlephobia(query),
       typescript_dom(query),
       caniuse(query),
-      static(query)
+      static(query),
       # html_spec(query),
-      # aria_practices(query),
-      # html_aria(query)
+      aria_practices(query),
+      html_aria(query)
     ]
     |> Enum.map(fn el -> el |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw() end)
   end
@@ -264,9 +237,8 @@ defmodule ComponentsGuideWeb.ResearchView do
   defmodule Components do
     use ComponentsGuideWeb, :component
 
-    # attr :title, :string, required: true
-    attr :source, :string, required: true
-    attr :source_url, :string, required: true
+    attr(:source, :string, required: true)
+    attr(:source_url, :string, required: true)
 
     slot(:title)
     slot(:inner_block, required: true)
@@ -274,12 +246,14 @@ defmodule ComponentsGuideWeb.ResearchView do
     def card(assigns) do
       ~H"""
       <article class="relative mb-4 flex flex-col gap-4 p-4 text-xl text-white bg-violet-900/25 border border-violet-900 rounded shadow-lg">
-        <h3 class="text-2xl"><%= render_slot(@title) %></h3>
+        <h3 class="pr-16 text-2xl"><%= render_slot(@title) %></h3>
         <a href={@source_url} class="hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"><%= @source %></a>
         <%= render_slot(@inner_block) %>
       </article>
       """
     end
+
+    slot(:item)
 
     def description_list(assigns) do
       ~H"""
@@ -295,53 +269,6 @@ defmodule ComponentsGuideWeb.ResearchView do
         <% end %>
       </dl>
       """
-    end
-  end
-
-  defmodule Section do
-    def card(children) do
-      content_tag(
-        :article,
-        children,
-        class:
-          "relative mb-4 flex flex-col gap-4 p-4 text-xl text-white bg-violet-900/25 border border-violet-900 rounded-lg shadow-lg"
-      )
-    end
-
-    def card_source(title, href) do
-      content_tag(:a, title,
-        href: href,
-        class: "hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"
-      )
-    end
-
-    def unordered_list(items, attrs \\ []) do
-      children =
-        Enum.map(items, fn text ->
-          content_tag(:li, text)
-        end)
-
-      content_tag(:ul, children, attrs)
-    end
-
-    def description_list(items) do
-      children =
-        items
-        |> Stream.filter(fn {_title, value} -> value != nil end)
-        |> Enum.map(fn {title, value} ->
-          content_tag(:div, [
-            content_tag(:dt, title, class: "text-base font-bold"),
-            case value do
-              list when is_list(list) ->
-                for item <- list, do: content_tag(:dd, item, class: "text-base pl-4")
-
-              value ->
-                content_tag(:dd, value, class: "text-base pl-4")
-            end
-          ])
-        end)
-
-      content_tag(:dl, children)
     end
   end
 
@@ -491,16 +418,12 @@ defmodule ComponentsGuideWeb.ResearchView do
     ~H"""
     <.card source="RFC" source_url="https://www.rfc-editor.org">
       <:title><%= "#{@name} Spec" %></:title>
-      <%= Section.description_list([
-          {"Specs",
-           @specs
-           |> Enum.map(fn
-            "rfc" <> _ = spec -> link(spec, to: "https://tools.ietf.org/html/" <> spec)
-            spec -> spec
-           end)
-           |> Section.unordered_list(class: "flex list-disc ml-4 space-x-8")},
-          {"Media (MIME) Type", Keyword.get(@metadata, :media_type)}
-        ]) %>
+      <.description_list>
+        <:item title="Specs" data={for(spec <- @specs, do: link(spec, to: "https://tools.ietf.org/html/" <> spec))} />
+        <:item title="Media (MIME) Type">
+          <%= Keyword.get(@metadata, :media_type) %>
+        </:item>
+      </.description_list>
     </.card>
     """
   end
@@ -535,5 +458,34 @@ defmodule ComponentsGuideWeb.ResearchView do
       :super_tiny_icon ->
         super_tiny_icon(info)
     end
+  end
+
+  def aria_practices(results) do
+    assigns = %{results: results}
+
+    ~H"""
+    <%= for result <- @results do %>
+      <.card source="ARIA Practices" source_url="https://www.w3.org/TR/wai-aria-practices/">
+        <:title><%= result.heading %></:title>
+      </.card>
+    <% end %>
+    """
+  end
+
+  def html_aria(results) do
+    assigns = %{results: results}
+
+    ~H"""
+    <%= for result <- @results do %>
+      <.card source="HTML ARIA" source_url="https://www.w3.org/TR/html-aria/">
+        <:title><%= result.heading %></:title>
+        <.description_list>
+          <:item title="Implicit semantics">
+            <%= result.implicit_semantics %>
+          </:item>
+        </.description_list>
+      </.card>
+    <% end %>
+    """
   end
 end
