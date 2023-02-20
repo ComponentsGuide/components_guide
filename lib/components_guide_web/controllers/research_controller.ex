@@ -348,9 +348,9 @@ defmodule ComponentsGuideWeb.ResearchView do
       </:title>
       <dl class="grid grid-flow-col" style="grid-template-rows: repeat(2, auto);">
         <dt>Minified</dt>
-        <dd class="font-bold"><%= humanize_count(@size) %></dd>
+        <dd class="font-bold"><%= humanize_bytes(@size) %></dd>
         <dt>Minified + Gzipped</dt>
-        <dd class="font-bold"><%= humanize_count(@size_gzip) %></dd>
+        <dd class="font-bold"><%= humanize_bytes(@size_gzip) %></dd>
         <dt>Emerging 3G (50kB/s)</dt>
         <dd class="font-bold"><%= floor(@size_gzip / 50) %>ms</dd>
       </dl>
