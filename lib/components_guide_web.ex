@@ -111,20 +111,15 @@ defmodule ComponentsGuideWeb do
       import Paredown
       import ComponentsGuideWeb.LinkHelpers
       import ComponentsGuideWeb.AssetsHelpers
+      import ComponentsGuideWeb.MarkdownHelpers
+      import ComponentsGuideWeb.CustomElementHelpers
       alias ComponentsGuideWeb.StylingHelpers, as: Styling
       alias ComponentsGuideWeb.FormattingHelpers, as: Format
       # alias ComponentsGuideWeb.PrimitiveHelpers, as: Primitives
 
-      def markdown!(markdown) do
-        Earmark.as_html!(markdown)
-        |> raw()
-      end
-
-      def include_fragment(src), do: content_tag("include-fragment", [], src: src)
-
-      def dev_inspect(value) do
-        content_tag("pre", inspect(value, pretty: true))
-      end
+      # def dev_inspect(value) do
+      #   content_tag("pre", inspect(value, pretty: true))
+      # end
     end
   end
 

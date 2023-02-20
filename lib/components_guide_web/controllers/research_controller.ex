@@ -58,7 +58,8 @@ defmodule ComponentsGuideWeb.ResearchController do
       source
       |> String.replace("declare namespace React {", "", global: false)
       |> String.replace("\n    ", "\n")
-      # |> String.trim_trailig("declare namespace React {")
+
+    # |> String.trim_trailig("declare namespace React {")
 
     results = process_typescript_source(source)
 
@@ -231,7 +232,11 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp static(query) do
-    Enum.map(Static.search_for(query), &View.render_static/1)
+    for result <- Static.search_for(query) do
+      result
+      |> View.render_static()
+      |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw()
+    end
   end
 
   defp load_results(query) when is_binary(query) do
@@ -245,7 +250,8 @@ defmodule ComponentsGuideWeb.ResearchController do
       # html_spec(query),
       # aria_practices(query),
       # html_aria(query)
-    ] |> Enum.map(fn el -> el |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw() end)
+    ]
+    |> Enum.map(fn el -> el |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw() end)
   end
 end
 
@@ -255,15 +261,15 @@ defmodule ComponentsGuideWeb.ResearchView do
   defdelegate humanize_bytes(count), to: Format
   defdelegate humanize_count(count), to: Format
 
-  defmodule Card do
+  defmodule Components do
     use ComponentsGuideWeb, :component
 
     # attr :title, :string, required: true
     attr :source, :string, required: true
     attr :source_url, :string, required: true
 
-    slot :title
-    slot :inner_block, required: true
+    slot(:title)
+    slot(:inner_block, required: true)
 
     def card(assigns) do
       ~H"""
@@ -272,6 +278,22 @@ defmodule ComponentsGuideWeb.ResearchView do
         <a href={@source_url} class="hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"><%= @source %></a>
         <%= render_slot(@inner_block) %>
       </article>
+      """
+    end
+
+    def description_list(assigns) do
+      ~H"""
+      <dl>
+        <%= for item <- @item do %>
+          <dt class="font-bold"><%= item.title %></dt>
+          <%= for datum <- item[:data] || [] do %>
+            <dd class="pl-4"><%= datum %></dd>
+          <% end %>
+          <%= if item[:inner_block] do %>
+            <dd class="pl-4"><%= render_slot(item) %></dd>
+          <% end %>
+        <% end %>
+      </dl>
       """
     end
   end
@@ -287,7 +309,10 @@ defmodule ComponentsGuideWeb.ResearchView do
     end
 
     def card_source(title, href) do
-      content_tag(:a, title, href: href, class: "hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75")
+      content_tag(:a, title,
+        href: href,
+        class: "hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"
+      )
     end
 
     def unordered_list(items, attrs \\ []) do
@@ -320,7 +345,8 @@ defmodule ComponentsGuideWeb.ResearchView do
     end
   end
 
-  defdelegate card(assigns), to: Card
+  defdelegate card(assigns), to: Components
+  defdelegate description_list(assigns), to: Components
 
   def npm_downloads(name, downloads_count) do
     assigns = %{name: name, downloads_count: downloads_count}
@@ -381,6 +407,7 @@ defmodule ComponentsGuideWeb.ResearchView do
 
   defp caniuse_markdown(source) do
     html = source |> String.trim() |> Earmark.as_html!()
+
     case Floki.parse_fragment(html, html_parser: Floki.HTMLParser.Mochiweb) do
       {:ok, el} ->
         el
@@ -394,8 +421,8 @@ defmodule ComponentsGuideWeb.ResearchView do
         |> Floki.raw_html()
         |> raw()
 
-        _ ->
-          html
+      _ ->
+        html
     end
   end
 
@@ -411,15 +438,16 @@ defmodule ComponentsGuideWeb.ResearchView do
            "status" => status
          }
        ) do
-        assigns = %{
-          title: title,
-          description: description,
-          notes: notes,
-          links: links,
-          spec: spec,
-          stats: stats,
-          status: status
-        }
+    assigns = %{
+      title: title,
+      description: description,
+      notes: notes,
+      links: links,
+      spec: spec,
+      stats: stats,
+      status: status
+    }
+
     ~H"""
     <.card source="Can I Use" source_url="https://caniuse.com">
       <:title>
@@ -446,62 +474,66 @@ defmodule ComponentsGuideWeb.ResearchView do
     """
   end
 
-  defmodule Static do
-    # use ComponentsGuideWeb, :view
+  def http_status(name, description) do
+    assigns = %{name: name, description: description}
 
-    def render(:http_status, {name, description}) do
-      Section.card([
-        Section.card_source("HTTP", "https://en.wikipedia.org/wiki/List_of_HTTP_status_codes"),
-        content_tag(:h3, "HTTP Status: #{name}", class: "text-2xl font-bold"),
-        content_tag(:p, description)
-      ])
-    end
+    ~H"""
+    <.card source="HTTP" source_url="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">
+      <:title><%= "HTTP Status: #{@name}" %></:title>
+      <p><%= @description %></p>
+    </.card>
+    """
+  end
 
-    def render(:rfc, {name, specs, metadata}) do
-      Section.card([
-        Section.card_source("RFC", "https://www.rfc-editor.org"),
-        content_tag(:h3, "#{name} Spec", class: "text-2xl font-bold"),
-        Section.description_list([
+  def rfc(name, specs, metadata) do
+    assigns = %{name: name, specs: specs, metadata: metadata}
+
+    ~H"""
+    <.card source="RFC" source_url="https://www.rfc-editor.org">
+      <:title><%= "#{@name} Spec" %></:title>
+      <%= Section.description_list([
           {"Specs",
            specs
-           |> Enum.map(&link_to_spec/1)
+           |> Enum.map(fn
+            "rfc" <> _ = spec -> link(spec, to: "https://tools.ietf.org/html/" <> spec)
+            spec -> spec
+           end)
            |> Section.unordered_list(class: "flex list-disc ml-4 space-x-8")},
           {"Media (MIME) Type", Keyword.get(metadata, :media_type)}
-        ])
-      ])
-    end
+        ]) %>
+    </.card>
+    """
+  end
 
-    def render(:super_tiny_icon, %{name: name, url: url, urls: urls}) do
-      Section.card([
-        Section.card_source("Super Tiny Icons", "https://www.supertinyicons.org/"),
-        content_tag(:h3, "#{name |> String.capitalize()} Icon", class: "text-2xl font-bold"),
-        content_tag(
-          :div,
-          [
-            tag(:img, src: url, width: 80, height: 80),
-            Section.description_list([
-              {"URL", for(url <- urls, do: link(url, to: url))},
-              {"Size",
-               ComponentsGuideWeb.ResearchView.include_fragment(
-                 "/~/content-length?" <> URI.encode_query(url: url)
-               )}
-            ])
-          ],
-          class: "flex flex-row space-x-4"
-        )
-      ])
-    end
-
-    def link_to_spec("rfc" <> _ = spec) do
-      link(spec, to: "https://tools.ietf.org/html/" <> spec)
-    end
-
-    def link_to_spec(spec) do
-      spec
-    end
+  def super_tiny_icon(%{name: name, url: url, urls: urls} = assigns) do
+    ~H"""
+    <.card source="Super Tiny Icons" source_url="https://www.supertinyicons.org/">
+      <:title><%= "#{name |> String.capitalize()} Icon" %></:title>
+      <div class="flex flex-row space-x-4">
+        <img src={@url} width={80} height={80}>
+        <.description_list>
+          <:item title="URL" data={for(url <- urls, do: link(url, to: url))} />
+          <:item title="Size">
+            <%= client_include("/~/content-length?" <> URI.encode_query(url: url), "loading…") %>
+          </:item>
+        </.description_list>
+      </div>
+    </.card>
+    """
   end
 
   def render_static({type, info}) do
-    Static.render(type, info)
+    case type do
+      :http_status ->
+        {name, description} = info
+        http_status(name, description)
+
+      :rfc ->
+        {name, specs, metadata} = info
+        rfc(name, specs, metadata)
+
+      :super_tiny_icon ->
+        super_tiny_icon(info)
+    end
   end
 end
