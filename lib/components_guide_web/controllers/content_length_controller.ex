@@ -1,9 +1,10 @@
 defmodule ComponentsGuideWeb.ContentLengthController do
   use ComponentsGuideWeb, :controller
   alias ComponentsGuide.Research.Source
-  alias ComponentsGuideWeb.ResearchView, as: View
 
-  def index(conn, %{"url" => "https://unpkg.com/" <> _ = url}) do
+  @allowed_prefixes ["https://cdn.jsdelivr.net/", "https://unpkg.com/"]
+
+  def index(conn, %{"url" => "https://cdn.jsdelivr.net/" <> _ = url}) do
     case Source.content_length(url) do
       {:ok, content_length} ->
         conn
