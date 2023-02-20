@@ -382,7 +382,7 @@ defmodule ComponentsGuide.Research.Static do
     end
   end
 
-  @simple_icons ComponentsGuide.Research.Static.Sources.fetch_simple_icon_names()
+  # @simple_icons ComponentsGuide.Research.Static.Sources.fetch_simple_icon_names()
 
   @aliases %{
     "redirect" => ["301", "302"],
