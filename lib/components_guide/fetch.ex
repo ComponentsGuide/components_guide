@@ -158,15 +158,16 @@ defmodule ComponentsGuide.Fetch do
          conn,
          %Request{
            method: method,
-           uri: %URI{path: path},
+           uri: uri,
            headers: headers,
            body: body,
            url_string: url_string
          }
        ) do
     result = Response.new(url_string)
+    path_and_query = %URI{path: uri.path || "/", query: uri.query} |> URI.to_string()
 
-    case Mint.HTTP.request(conn, method, path || "/", headers, body) do
+    case Mint.HTTP.request(conn, method, path_and_query, headers, body) do
       {:error, conn, reason} ->
         {conn, Response.add_error(result, reason)}
 
