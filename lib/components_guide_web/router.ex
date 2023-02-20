@@ -71,7 +71,9 @@ defmodule ComponentsGuideWeb.Router do
 
     live("/view-source", ViewSourceLive)
     live("/view-github-repo", ViewGithubRepoLive)
+
     live("/latency-calculator", LatencyCalculatorLive)
+    live("/latency-status", LatencyStatusLive)
 
     live("/color", ColorLive, :index)
     live("/color/:definition", ColorLive, :show)
