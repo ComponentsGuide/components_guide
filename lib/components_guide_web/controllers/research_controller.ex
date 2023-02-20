@@ -119,8 +119,6 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   defp bundlephobia(query) do
-    IO.puts("BUNDLEPHOBIA!")
-
     case Spec.search_for(:bundlephobia, query) |> tap(&IO.inspect/1) do
       # %{"assets" => [%{"gzip" => 3920, "name" => "main", "size" => 10047, "type" => "js"}], "dependencyCount" => 0, "dependencySizes" => [%{"approximateSize" => 9537, "name" => "preact"}], "description" => "Fast 3kb React-compatible Virtual DOM library.", "gzip" => 3920, "hasJSModule" => "dist/preact.module.js", "hasJSNext" => false, "hasSideEffects" => true, "name" => "preact", "repository" => "https://github.com/preactjs/preact.git", "scoped" => false, "size" => 10047, "version" => "10.4.1"}
       %{"name" => name, "size" => size, "gzip" => size_gzip, "version" => version} ->
@@ -162,68 +160,13 @@ defmodule ComponentsGuideWeb.ResearchController do
     end
   end
 
-  defmodule CanIUse do
-    alias ComponentsGuideWeb.ResearchView.Section, as: Section
-
-    def present(results) when is_list(results) do
-      Enum.map(results, &item/1)
-    end
-
-    defp item(
-           item = %{
-             "title" => title,
-             "description" => description,
-             "notes" => notes,
-             "categories" => _categories,
-             "stats" => stats,
-             "links" => links,
-             "spec" => spec,
-             "status" => _status
-           }
-         ) do
-      Section.card([
-        Section.card_source("Can I Use", "http://caniuse.com"),
-        content_tag(:h3, link(title, to: "https://caniuse.com/#{title}"), class: "text-2xl"),
-        content_tag(:p, "#{description}"),
-        content_tag(:ul, [
-          content_tag(:li, link("Spec", to: spec)),
-          Enum.map(links, fn %{"title" => title, "url" => url} ->
-            content_tag(:li, link(title, to: url))
-          end)
-        ]),
-        content_tag(
-          :dl,
-          [
-            case notes do
-              "" ->
-                []
-
-              notes ->
-                [
-                  content_tag(:dt, "Notes", class: "font-bold"),
-                  content_tag(:dd, "#{notes}", class: "text-base")
-                ]
-            end
-            # content_tag(:dt, "Browsers", class: "font-bold"),
-            # content_tag(:dd, "#{inspect(stats)}", class: "text-sm"),
-            # content_tag(:dd, "#{inspect(item)}")
-          ],
-          class: "grid grid-flow-col gap-2 pt-2",
-          style: "grid-template-rows: repeat(2, auto);"
-        )
-      ])
-    end
-  end
-
   defp caniuse(query) do
     case Spec.search_for(:caniuse, query) do
       [] ->
         []
 
       results when is_list(results) ->
-        content_tag(:article, [
-          CanIUse.present(results)
-        ])
+        View.caniuse(results)
 
       _ ->
         nil
@@ -294,15 +237,15 @@ defmodule ComponentsGuideWeb.ResearchController do
   defp load_results(query) when is_binary(query) do
     # ComponentsGuide.Research.Source.clear_cache()
     [
-      npm_downloads(query) |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw(),
-      bundlephobia(query) |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw(),
+      npm_downloads(query),
+      bundlephobia(query),
       typescript_dom(query),
       caniuse(query),
       static(query)
       # html_spec(query),
       # aria_practices(query),
       # html_aria(query)
-    ]
+    ] |> Enum.map(fn el -> el |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw() end)
   end
 end
 
@@ -413,28 +356,94 @@ defmodule ComponentsGuideWeb.ResearchView do
       </dl>
     </.card>
     """
+  end
 
-    # Section.card([
-    #   Section.card_source("Bundlephobia", "https://bundlephobia.com"),
-    #   content_tag(
-    #     :h3,
-    #     link("#{name}@#{version}", to: bundlephobia_url),
-    #     class: "text-2xl"
-    #   ),
-    #   content_tag(
-    #     :dl,
-    #     [
-    #       content_tag(:dt, "Minified", class: "text-base font-bold"),
-    #       content_tag(:dd, humanize_bytes(size)),
-    #       content_tag(:dt, "Minified + Gzipped", class: "text-base font-bold"),
-    #       content_tag(:dd, humanize_bytes(size_gzip)),
-    #       content_tag(:dt, "Emerging 3G (50kB/s)", class: "text-base font-bold"),
-    #       content_tag(:dd, "#{emerging_3g_ms}ms")
-    #     ],
-    #     class: "grid grid-flow-col",
-    #     style: "grid-template-rows: repeat(2, auto);"
-    #   )
-    # ])
+  def caniuse(results) when is_list(results) do
+    Enum.map(results, fn result ->
+      caniuse_item(result) |> Phoenix.HTML.Safe.to_iodata() |> Phoenix.HTML.raw()
+    end)
+  end
+
+  # From https://docs.rs/caniuse/latest/caniuse/enum.Status.html
+  @caniuse_statuses_to_en %{
+    "rec" => "Recommendation",
+    "cr" => "Candidate Recommendation",
+    "ls" => "Living Standard",
+    "pr" => "Proposed Recommendation",
+    "wd" => "Working Draft",
+    "other" => "Other",
+    "unoff" => "Unofficial"
+  }
+
+  defp caniuse_status(status) do
+    @caniuse_statuses_to_en |> Map.get(status, status)
+  end
+
+  defp caniuse_markdown(source) do
+    html = source |> String.trim() |> Earmark.as_html!()
+    case Floki.parse_fragment(html, html_parser: Floki.HTMLParser.Mochiweb) do
+      {:ok, el} ->
+        el
+        |> Floki.find_and_update("a[href]", fn
+          {"a", [{"href", href}]} ->
+            {"a", [{"href", URI.merge(URI.parse("https://caniuse2.com/"), href) |> to_string()}]}
+
+          other ->
+            other
+        end)
+        |> Floki.raw_html()
+        |> raw()
+
+        _ ->
+          html
+    end
+  end
+
+  defp caniuse_item(
+         _item = %{
+           "title" => title,
+           "description" => description,
+           "notes" => notes,
+           "categories" => _categories,
+           "stats" => stats,
+           "links" => links,
+           "spec" => spec,
+           "status" => status
+         }
+       ) do
+        assigns = %{
+          title: title,
+          description: description,
+          notes: notes,
+          links: links,
+          spec: spec,
+          stats: stats,
+          status: status
+        }
+    ~H"""
+    <.card source="Can I Use" source_url="https://caniuse.com">
+      <:title>
+        <.link href={"https://caniuse.com/#{@title}"}>
+          <%= @title %>
+        </.link>
+      </:title>
+      <%= caniuse_markdown(@description) %>
+      <ul>
+        <li>Status: <%= caniuse_status(@status) %></li>
+        <li><.link href={@spec}>Read the spec</.link></li>
+        <%= for %{"title" => title, "url" => url} <- links do %>
+          <li><.link href={url}><%= title %></.link></li>
+        <% end %>
+      </ul>
+      <dl>
+        <%= if (@notes || "") != "" do %>
+          <dt class="font-bold">Notes</dt>
+          <dd><%= caniuse_markdown(@notes) %></dd>
+        <% end %>
+      </dl>
+      <details><summary>Browser support</summary><%= inspect(@stats) %></details>
+      </.card>
+    """
   end
 
   defmodule Static do
