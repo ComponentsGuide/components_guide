@@ -51,7 +51,6 @@ defmodule ComponentsGuide.MixProject do
       {:castore, "~> 0.1.0"},
       {:cachex, "~> 3.1"},
       {:ecto, "~> 3.8.4"},
-      {:httpotion, "~> 3.1.0"},
       {:jason, "~> 1.0"},
       {:mojito, "~> 0.6.1"},
       {:mint, "~> 1.0"},
@@ -65,8 +64,7 @@ defmodule ComponentsGuide.MixProject do
       {:rustler_precompiled, "~> 0.5.1"},
       {:exqlite, "~> 0.13.3"},
       {:redix, "~> 1.1"},
-      {:benchee, "~> 1.0", only: :dev},
-      {:reverse_proxy_plug, "~> 1.3.1", only: :dev}
+      {:benchee, "~> 1.0", only: :dev}
     ]
   end
 
