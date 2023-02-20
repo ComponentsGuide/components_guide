@@ -392,7 +392,7 @@ defmodule ComponentsGuide.Research.Static do
           {:super_tiny_icon,
            %{
              name: query,
-             url: "https://unpkg.com/super-tiny-icons@0.4.0/images/svg/#{query}.svg",
+             url: "https://cdn.jsdelivr.net/npm/super-tiny-icons@0.4.0/images/svg/#{query}.svg",
              urls: [
                "https://cdn.jsdelivr.net/npm/super-tiny-icons@0.4.0/images/svg/#{query}.svg",
                "https://unpkg.com/super-tiny-icons@0.4.0/images/svg/#{query}.svg",

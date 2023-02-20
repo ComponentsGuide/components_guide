@@ -1,6 +1,6 @@
 defmodule ComponentsGuide.Research.Sources.Typescript do
   def fetch(_query) do
-    {:text_url, "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"}
+    {:text_url, "https://cdn.jsdelivr.net/npm/typescript@4.9.5/lib/lib.dom.d.ts"}
   end
 
   def search(query, {:ok, source}) do

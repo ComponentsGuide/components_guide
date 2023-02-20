@@ -25,7 +25,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   def show(conn, %{"section" => "dom-types"} = params) do
-    url = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
+    url = "https://cdn.jsdelivr.net/npm/typescript@4.9.5/lib/lib.dom.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
     results = process_typescript_source(source)
 
@@ -37,7 +37,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   def show(conn, %{"section" => "css-types"} = params) do
-    url = "https://cdn.jsdelivr.net/npm/csstype@3.1.0/index.d.ts"
+    url = "https://cdn.jsdelivr.net/npm/csstype@3.1.1/index.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
     results = process_typescript_source(source)
 
@@ -49,7 +49,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   def show(conn, %{"section" => "react-types"} = params) do
-    url = "https://cdn.jsdelivr.net/npm/@types/react@18.0.18/index.d.ts"
+    url = "https://cdn.jsdelivr.net/npm/@types/react@18.0.28/index.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
 
     query = Map.get(params, "q", "")
@@ -243,6 +243,7 @@ defmodule ComponentsGuideWeb.ResearchController do
            }
          ) do
       Section.card([
+        content_tag(:a, "Can I Use", href: "http://caniuse.com", class: "hover:underline absolute top-0 right-0 mt-4 mr-4 text-sm opacity-75"),
         # inspect(item),
         content_tag(:h3, link(title, to: "https://caniuse.com/#{title}"), class: "text-2xl"),
         content_tag(:p, "#{description}"),
@@ -385,7 +386,7 @@ defmodule ComponentsGuideWeb.ResearchView do
         :article,
         children,
         class:
-          "mb-4 text-xl space-y-4 p-4 text-white bg-indigo-900/25 border border-indigo-900 rounded-lg shadow-lg"
+          "relative mb-4 text-xl space-y-4 p-4 text-white bg-indigo-900/25 border border-indigo-900 rounded-lg shadow-lg"
       )
     end
 
@@ -405,7 +406,13 @@ defmodule ComponentsGuideWeb.ResearchView do
         |> Enum.map(fn {title, value} ->
           content_tag(:div, [
             content_tag(:dt, title, class: "text-base font-bold"),
-            content_tag(:dd, value, class: "text-base pl-4")
+            case value do
+              list when is_list(list) ->
+                for item <- list, do: content_tag(:dd, item, class: "text-base pl-4")
+
+              value ->
+                content_tag(:dd, value, class: "text-base pl-4")
+            end
           ])
         end)
 
@@ -436,7 +443,7 @@ defmodule ComponentsGuideWeb.ResearchView do
       ])
     end
 
-    def render(:super_tiny_icon, %{name: name, url: url}) do
+    def render(:super_tiny_icon, %{name: name, url: url, urls: urls}) do
       Section.card([
         content_tag(:h3, "#{name |> String.capitalize()} Icon", class: "text-2xl font-bold"),
         content_tag(
@@ -444,7 +451,7 @@ defmodule ComponentsGuideWeb.ResearchView do
           [
             tag(:img, src: url, width: 80, height: 80),
             Section.description_list([
-              {"URL", link(url, to: url, class: "text-base")},
+              {"URL", for(url <- urls, do: link(url, to: url))},
               {"Size",
                ComponentsGuideWeb.ResearchView.include_fragment(
                  "/~/content-length?" <> URI.encode_query(url: url)
