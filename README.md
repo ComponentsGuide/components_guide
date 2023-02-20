@@ -10,6 +10,14 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4333`](http://localhost:4333) from your browser.
 
+## Dependencies
+
+<https://gustavoaraujo.dev/elixir/2022/12/07/til-elixir-how-to-unlock-dependencies.html>
+
+```console
+mix deps.clean --unused --unlock
+```
+
 ----
 
 This work is licensed under a
