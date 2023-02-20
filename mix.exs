@@ -63,7 +63,7 @@ defmodule ComponentsGuide.MixProject do
       {:ex_image_info, "~> 0.2.4"},
       {:rustler, "~> 0.25.0"},
       {:rustler_precompiled, "~> 0.5.1"},
-      {:exqlite, "~> 0.11.4"},
+      {:exqlite, "~> 0.13.3"},
       {:redix, "~> 1.1"},
       {:benchee, "~> 1.0", only: :dev},
       {:reverse_proxy_plug, "~> 1.3.1", only: :dev}
