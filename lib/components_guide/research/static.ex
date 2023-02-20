@@ -1,4 +1,6 @@
 defmodule ComponentsGuide.Research.Static do
+  alias ComponentsGuide.Fetch
+
   @http_statuses_list [
     {101, "Switching Protocols", ""},
     {200, "OK", ""},
@@ -338,6 +340,50 @@ defmodule ComponentsGuide.Research.Static do
               ]
               |> MapSet.new()
 
+  defmodule Sources do
+    @cache_enabled true
+    @cache_name :static_sources_cache
+
+    def cache_name(), do: @cache_name
+
+    defp read_cache(key) do
+      if @cache_enabled do
+        {:ok, value} = Cachex.get(@cache_name, key)
+        value
+      else
+        nil
+      end
+    end
+
+    defp write_cache(key, value) do
+      if @cache_enabled do
+        Cachex.put(@cache_name, key, value)
+      end
+    end
+
+    def fetch_simple_icon_names() do
+      url = "https://unpkg.com/browse/simple-icons@8.5.0/icons/"
+
+      case cached = read_cache(url) do
+        nil ->
+          link_els =
+            Fetch.get!(url).body
+            |> Floki.parse_document!()
+            |> Floki.find("table tbody td a")
+
+          names = for {"a", _attrs, [text]} <- link_els, text != "..", do: text
+          names = MapSet.new(names)
+          write_cache(url, names)
+          names
+
+        names ->
+          names
+      end
+    end
+  end
+
+  @simple_icons ComponentsGuide.Research.Static.Sources.fetch_simple_icon_names()
+
   @aliases %{
     "redirect" => ["301", "302"],
     "invalid" => ["412", "422"],
@@ -348,7 +394,8 @@ defmodule ComponentsGuide.Research.Static do
     [
       search_for(:http_status, query),
       search_for(:rfc, query),
-      search_for(:super_tiny_icon, query)
+      search_for(:super_tiny_icon, query),
+      search_for(:simple_icons, query)
     ]
     |> List.flatten()
   end
@@ -395,7 +442,31 @@ defmodule ComponentsGuide.Research.Static do
              url: "https://cdn.jsdelivr.net/npm/super-tiny-icons@0.4.0/images/svg/#{query}.svg",
              urls: [
                "https://cdn.jsdelivr.net/npm/super-tiny-icons@0.4.0/images/svg/#{query}.svg",
-               "https://unpkg.com/super-tiny-icons@0.4.0/images/svg/#{query}.svg",
+               "https://unpkg.com/super-tiny-icons@0.4.0/images/svg/#{query}.svg"
+             ]
+           }}
+        ]
+
+      false ->
+        []
+    end
+  end
+
+  defp search_for(:simple_icons, query) when is_binary(query) do
+    query = query |> String.downcase() |> String.trim()
+    names = ComponentsGuide.Research.Static.Sources.fetch_simple_icon_names()
+    # names = @simple_icons
+
+    case MapSet.member?(names, query <> ".svg") do
+      true ->
+        [
+          {:simple_icon,
+           %{
+             name: query,
+             url: "https://cdn.jsdelivr.net/npm/simple-icons@8.5.0/icons/#{query}.svg",
+             urls: [
+               "https://cdn.jsdelivr.net/npm/simple-icons@8.5.0/icons/#{query}.svg",
+               "https://unpkg.com/simple-icons@8.5.0/icons/#{query}.svg"
              ]
            }}
         ]

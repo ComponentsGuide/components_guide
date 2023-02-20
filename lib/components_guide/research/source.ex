@@ -6,6 +6,8 @@ defmodule ComponentsGuide.Research.Source do
 
   @cache_name :research_spec_cache
 
+  def cache_name(), do: @cache_name
+
   defp read_cache(key) do
     if @cache_enabled do
       tuple = {:ok, value} = Cachex.get(@cache_name, key)

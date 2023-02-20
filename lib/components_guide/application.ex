@@ -27,8 +27,12 @@ defmodule ComponentsGuide.Application do
         start: {Cachex, :start_link, [:content_cache, []]}
       },
       %{
-        id: :research_spec_cache,
-        start: {Cachex, :start_link, [:research_spec_cache, []]}
+        id: ComponentsGuide.Research.Source.cache_name(),
+        start: {Cachex, :start_link, [ComponentsGuide.Research.Source.cache_name(), []]}
+      },
+      %{
+        id: ComponentsGuide.Research.Static.Sources.cache_name(),
+        start: {Cachex, :start_link, [ComponentsGuide.Research.Static.Sources.cache_name(), []]}
       },
       {Redix, {redis_url_string, [name: :redix_cache]}}
       # ComponentsGuide.Worker
