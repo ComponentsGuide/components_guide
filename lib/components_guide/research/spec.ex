@@ -1,11 +1,11 @@
 defmodule ComponentsGuide.Research.Spec do
   alias ComponentsGuide.Research.Source
 
-  # TODO: search https://cdn.jsdelivr.net/npm/tailwindcss@3.1.8/types/generated/colors.d.ts
+  # TODO: search https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/types/generated/colors.d.ts
 
   def caniuse(query) do
     %{
-      source: {:json_url, "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"},
+      source: {:json_url, "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001456/data.json"},
       processor: {:caniuse, query}
     }
   end
@@ -27,7 +27,7 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   def search_for(:caniuse, query) when is_binary(query) do
-    url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001142/data.json"
+    url = "https://cdn.jsdelivr.net/npm/caniuse-db@1.0.30001456/data.json"
     result = Source.json_at(url)
     process_search_for(:caniuse, query, result)
   end
@@ -49,7 +49,7 @@ defmodule ComponentsGuide.Research.Spec do
   end
 
   def search_for(:typescript_dom, query) when is_binary(query) do
-    types = "https://cdn.jsdelivr.net/npm/typescript@4.7.4/lib/lib.dom.d.ts"
+    types = "https://cdn.jsdelivr.net/npm/typescript@4.9.5/lib/lib.dom.d.ts"
     result = Source.text_at(types)
     process_search_for(:typescript_dom, query, result)
   end
