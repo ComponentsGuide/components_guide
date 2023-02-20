@@ -459,8 +459,8 @@ defmodule ComponentsGuideWeb.ResearchView do
       <ul>
         <li>Status: <%= caniuse_status(@status) %></li>
         <li><.link href={@spec}>Read the spec</.link></li>
-        <%= for %{"title" => title, "url" => url} <- links do %>
-          <li><.link href={url}><%= title %></.link></li>
+        <%= for link <- @links do %>
+          <li><.link href={link["url"]}><%= link["title"] %></.link></li>
         <% end %>
       </ul>
       <dl>
@@ -493,28 +493,28 @@ defmodule ComponentsGuideWeb.ResearchView do
       <:title><%= "#{@name} Spec" %></:title>
       <%= Section.description_list([
           {"Specs",
-           specs
+           @specs
            |> Enum.map(fn
             "rfc" <> _ = spec -> link(spec, to: "https://tools.ietf.org/html/" <> spec)
             spec -> spec
            end)
            |> Section.unordered_list(class: "flex list-disc ml-4 space-x-8")},
-          {"Media (MIME) Type", Keyword.get(metadata, :media_type)}
+          {"Media (MIME) Type", Keyword.get(@metadata, :media_type)}
         ]) %>
     </.card>
     """
   end
 
-  def super_tiny_icon(%{name: name, url: url, urls: urls} = assigns) do
+  def super_tiny_icon(%{name: _, url: _, urls: _} = assigns) do
     ~H"""
     <.card source="Super Tiny Icons" source_url="https://www.supertinyicons.org/">
-      <:title><%= "#{name |> String.capitalize()} Icon" %></:title>
+      <:title><%= "#{@name |> String.capitalize()} Icon" %></:title>
       <div class="flex flex-row space-x-4">
         <img src={@url} width={80} height={80}>
         <.description_list>
-          <:item title="URL" data={for(url <- urls, do: link(url, to: url))} />
+          <:item title="URL" data={for(url <- @urls, do: link(url, to: url))} />
           <:item title="Size">
-            <%= client_include("/~/content-length?" <> URI.encode_query(url: url), "loading…") %>
+            <%= client_include("/~/content-length?" <> URI.encode_query(url: @url), "loading…") %>
           </:item>
         </.description_list>
       </div>

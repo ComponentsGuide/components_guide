@@ -56,7 +56,6 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
           {nil, markdown}
       end
 
-
     # |> Earmark.as_html!(%Earmark.Options{code_class_prefix: "language-", smartypants: false, postprocessor: &map_ast/1})
 
     # html = Regex.replace(regex, html, fn whole, name, content -> "!" <> name <> "!" <> content end)
@@ -71,12 +70,19 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
 
       s ->
         html = Earmark.as_html!(markdown, options)
+
         quote do
           unquote(Code.string_to_quoted!(s, file: path))
 
           unquote(
             html
-            |> EEx.compile_string(engine: Phoenix.LiveView.HTMLEngine, file: path, line: 1)
+            |> EEx.compile_string(
+              engine: Phoenix.LiveView.HTMLEngine,
+              file: path,
+              line: 1,
+              caller: __ENV__,
+              source: html
+            )
           )
         end
     end
