@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Content do
   alias ComponentsGuide.Content.Text
   alias ComponentsGuide.Content.TextImport
+  alias ComponentsGuide.Fetch
 
   @cache_name :content_cache
 
@@ -32,7 +33,7 @@ defmodule ComponentsGuide.Content do
   end
 
   defp get_url(url) do
-    HTTPotion.get(url, follow_redirects: true)
+    Fetch.get_following_redirects!(url)
   end
 
   def import_text(params) do
@@ -43,8 +44,6 @@ defmodule ComponentsGuide.Content do
       {:ok, _} <- Cachex.put(@cache_name, text.id, text.content)
     do
       {:ok, text}
-    else
-      %HTTPotion.ErrorResponse{message: message} -> {:error, message}
     end
   end
 
