@@ -63,8 +63,11 @@ defmodule ComponentsGuideWeb.LatencyStatusLive do
 
   @impl true
   def mount(%{}, _session, socket) do
+    socket = assign(socket, page_title: "Latency Comparison")
+
     state = State.default()
     socket = assign_state(socket, state)
+
     {:ok, socket}
   end
 
