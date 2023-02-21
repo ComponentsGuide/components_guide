@@ -41,9 +41,15 @@ defmodule ComponentsGuideWeb.LatencyStatusLive do
       <%= for response <- @state.responses || [], response != nil do %>
         <div class="p-4 text-white bg-black font-mono">
           <pre class="bg-transparent"><%= response.url %></pre>
-          <p>
-            <span class="text-green-100"><%= response.status %></span>
-            in <data class="text-lg text-sky-200"><%= System.convert_time_unit(response.timings.duration, :native, :millisecond) %>ms</data>
+          <div class="my-1 flex justify-center">
+            <div class="h-1 bg-yellow-200" style={"width: #{System.convert_time_unit(response.timings.connected, :native, :millisecond)}px"}></div>
+            <div class="h-1 bg-green-500" style={"width: #{System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond)}px"}></div>
+            <div class="h-1 bg-purple-200" style={"width: #{System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond)}px"}></div>
+          </div>
+          <p class="text-lg">
+            🤝 <data class="text-yellow-200"><%= System.convert_time_unit(response.timings.connected, :native, :millisecond) %>ms</data>
+            | <span class="py-1 px-1 text-green-100 bg-green-900/50 rounded"><%= response.status %></span> <data class="text-green-200">+<%= System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond) %>ms</data>
+            | <span class="py-1 px-1 text-purple-100 bg-purple-900/50 rounded"><%= Format.humanize_bytes(byte_size(response.body)) %></span> body <data class="text-purple-200">+<%= System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond) %>ms</data>
           </p>
         </div>
       <% end %>
@@ -67,7 +73,11 @@ defmodule ComponentsGuideWeb.LatencyStatusLive do
     urls = [
       "https://workers.cloudflare.com/cf.json",
       "https://api.github.com/rate_limit",
-      "https://unpkg.com/robots.txt"
+      "https://unpkg.com/robots.txt",
+      "https://api.npmjs.org/downloads/point/last-month/react",
+      "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      "https://vercel.com/blog",
+      "https://vercel.com/atom",
     ]
 
     responses =
