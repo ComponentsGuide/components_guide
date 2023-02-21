@@ -1,4 +1,4 @@
-defmodule ComponentsGuideWeb.LatencyStatusLive do
+defmodule ComponentsGuideWeb.LatencyComparisonLive do
   use ComponentsGuideWeb,
       {:live_view, container: {:div, class: "max-w-6xl mx-auto text-lg text-white pb-24"}}
 

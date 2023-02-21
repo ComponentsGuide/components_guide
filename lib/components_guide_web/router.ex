@@ -73,7 +73,7 @@ defmodule ComponentsGuideWeb.Router do
     live("/view-github-repo", ViewGithubRepoLive)
 
     live("/latency-calculator", LatencyCalculatorLive)
-    live("/latency-status", LatencyStatusLive)
+    live("/latency-comparison", LatencyComparisonLive)
 
     live("/color", ColorLive, :index)
     live("/color/:definition", ColorLive, :show)
