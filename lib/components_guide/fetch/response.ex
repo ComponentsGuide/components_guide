@@ -1,23 +1,37 @@
 defmodule ComponentsGuide.Fetch.Response do
-  defstruct done?: false, url: nil, status: nil, headers: [], body: "", error: nil, timings: nil
+  alias ComponentsGuide.Fetch.Timings
 
-  def new(url_string) do
-    %__MODULE__{url: url_string, done?: false}
+  defstruct done?: false,
+            url: nil,
+            status: nil,
+            headers: [],
+            body: "",
+            error: nil,
+            timings: %Timings{}
+
+  def new(url_string, timings = %Timings{}) do
+    %__MODULE__{url: url_string, done?: false, timings: timings}
   end
 
   def failed(url_string, error) do
-    new(url_string) |> add_error(error)
+    new(url_string, nil) |> add_error(error)
   end
 
   def add_responses(receiver = %__MODULE__{}, responses, ref) do
     Enum.reduce(responses, receiver, fn
       {:status, ^ref, code}, acc ->
         IO.puts("status #{code}")
-        Map.put(acc, :status, code)
+
+        acc
+        |> Map.update!(:timings, &Timings.did_receive_status/1)
+        |> Map.put(:status, code)
 
       {:headers, ^ref, headers}, acc ->
         IO.puts("headers")
-        Map.update(acc, :headers, headers, &(&1 ++ headers))
+
+        acc
+        |> Map.update!(:timings, &Timings.did_receive_headers/1)
+        |> Map.update(:headers, headers, &(&1 ++ headers))
 
       {:data, ^ref, data}, acc ->
         IO.puts("data")
@@ -29,8 +43,8 @@ defmodule ComponentsGuide.Fetch.Response do
     end)
   end
 
-  def add_timings(receiver = %__MODULE__{}, timings) do
-    put_in(receiver.timings, timings)
+  def finish_timings(receiver = %__MODULE__{}, event_name, metadata \\ %{}) do
+    update_in(receiver.timings, &Timings.finish_with_telemetry(&1, event_name, metadata))
   end
 
   def add_error(receiver = %__MODULE__{}, error) do

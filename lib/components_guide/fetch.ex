@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Fetch do
-  alias ComponentsGuide.Fetch.{Request, Response}
+  alias ComponentsGuide.Fetch.{Request, Response, Timings}
 
   @timeout 5000
 
@@ -8,45 +8,6 @@ defmodule ComponentsGuide.Fetch do
   """
   def get!(url_string) when is_binary(url_string) do
     get_following_redirects!(url_string)
-  end
-
-  defmodule Timings do
-    defstruct [:duration, :start]
-
-    def start() do
-      %__MODULE__{
-        start: System.monotonic_time()
-      }
-    end
-
-    def finish(timings = %__MODULE__{start: start}) do
-      duration = System.monotonic_time() - start
-      put_in(timings.duration, duration)
-    end
-
-    def start_with_telemetry(event_name, metadata \\ %{}) do
-      t = start()
-
-      :telemetry.execute(
-        event_name,
-        %{start: t.start},
-        metadata
-      )
-
-      t
-    end
-
-    def finish_with_telemetry(t = %__MODULE__{}, event_name, metadata \\ %{}) do
-      t = finish(t)
-
-      :telemetry.execute(
-        event_name,
-        %{duration: t.duration},
-        metadata
-      )
-
-      t
-    end
   end
 
   def get_following_redirects!(url_string) when is_binary(url_string) do
@@ -88,18 +49,14 @@ defmodule ComponentsGuide.Fetch do
     t = Timings.start_with_telemetry([:fetch, :load!, :start], %{req: req})
 
     {:ok, conn} = Mint.HTTP.connect(:https, host, 443, mode: :passive, protocols: protocols)
-    {conn, response} = do_request(conn, req)
+    t = t |> Timings.did_connect()
+    {conn, response} = do_request(conn, req, t)
     Mint.HTTP.close(conn)
 
-    t =
-      Timings.finish_with_telemetry(t, [:fetch, :load!, :done], %{
-        req: req
-      })
-
-    response = Response.add_timings(response, t)
+    response = Response.finish_timings(response, [:fetch, :load!, :done], %{req: req})
 
     IO.puts(
-      "Loaded #{req.url_string} in #{System.convert_time_unit(t.duration, :native, :millisecond)}ms. #{inspect(response.done?)}"
+      "Loaded #{req.url_string} in #{System.convert_time_unit(response.timings.duration, :native, :millisecond)}ms. #{inspect(response.done?)}"
     )
 
     response
@@ -116,20 +73,16 @@ defmodule ComponentsGuide.Fetch do
     t = Timings.start_with_telemetry([:fetch, :load_many!, :start], %{host: host})
 
     {:ok, conn} = Mint.HTTP.connect(:https, host, 443, mode: :passive, protocols: [:http1])
+    t = t |> Timings.did_connect()
 
     {conn, results} =
       Enum.reduce(reqs, {conn, []}, fn
         %Request{uri: %URI{host: ^host, port: 443}} = req, {conn, results} ->
           t = Timings.start_with_telemetry([:fetch, :load_many!, :request, :start], %{req: req})
 
-          {conn, response} = do_request(conn, req)
+          {conn, response} = do_request(conn, req, t)
 
-          t =
-            Timings.finish_with_telemetry(t, [:fetch, :load_many!, :request, :done], %{
-              req: req
-            })
-
-          response = Response.add_timings(response, t)
+          response = Response.finish_timings(response, [:fetch, :load_many!, :request, :done], %{req: req})
 
           {conn, [response | results]}
       end)
@@ -162,9 +115,10 @@ defmodule ComponentsGuide.Fetch do
            headers: headers,
            body: body,
            url_string: url_string
-         }
+         },
+         timings = %Timings{}
        ) do
-    result = Response.new(url_string)
+    result = Response.new(url_string, timings)
     path_and_query = %URI{path: uri.path || "/", query: uri.query} |> URI.to_string()
 
     case Mint.HTTP.request(conn, method, path_and_query, headers, body) do
