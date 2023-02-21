@@ -76,6 +76,11 @@ defmodule ComponentsGuideWeb.LatencyStatusLive do
       "https://unpkg.com/robots.txt",
       "https://api.npmjs.org/downloads/point/last-month/react",
       "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      # "https://aws.amazon.com/blogs/aws/",
+      # "https://aws.amazon.com/blogs/aws/feed/",
+      # "https://cloud.google.com/blog/",
+      "https://blog.cloudflare.com/",
+      "https://blog.cloudflare.com/rss/",
       "https://vercel.com/blog",
       "https://vercel.com/atom",
     ]
