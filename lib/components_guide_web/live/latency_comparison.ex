@@ -61,9 +61,9 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
           </div>
           <p class="flex justify-center items-center gap-3 text-lg">
             <data class="text-yellow-200"><%= System.convert_time_unit(response.timings.connected, :native, :millisecond) %>ms</data> <span>🤝</span>
-            <data class="text-green-200"><%= System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond) %>ms</data> <span class="px-1 text-sm text-green-900 bg-green-100 border border-green-200 rounded-full"><%= response.status %></span>
-            <data class="text-purple-200"><%= System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond) %>ms</data> <span class="px-1 text-sm text-purple-900 bg-purple-100 border border-purple-200 rounded-full"><%= Format.humanize_bytes(byte_size(response.body)) %></span>
-            <span class="text-blue-200/50">|</span> <data class="text-blue-200"><%= System.convert_time_unit(response.timings.duration, :native, :millisecond) %>ms</data>
+            <span class="text-blue-200/75">+</span> <data class="text-green-200"><%= System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond) %>ms</data> <span class="px-1 text-sm text-green-900 bg-green-100 border border-green-200 rounded-full"><%= response.status %></span>
+            <span class="text-blue-200/75">+</span> <data class="text-purple-200"><%= System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond) %>ms</data> <span class="px-1 text-sm text-purple-900 bg-purple-100 border border-purple-200 rounded-full"><%= Format.humanize_bytes(byte_size(response.body)) %></span>
+            <span class="text-blue-200/75">=</span> <data class="text-blue-200"><%= System.convert_time_unit(response.timings.duration, :native, :millisecond) %>ms</data>
           </p>
         </div>
       <% end %>
