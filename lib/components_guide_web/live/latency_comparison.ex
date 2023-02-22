@@ -27,6 +27,12 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
         | form_values: form_values
       }
     end
+
+    def get_fastest_slowest_responses(%__MODULE__{responses: nil}), do: nil
+
+    def get_fastest_slowest_responses(%__MODULE__{responses: responses}) do
+      Enum.min_max_by(responses, fn response -> response.timings.duration end)
+    end
   end
 
   @impl true
@@ -61,44 +67,39 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
           </p>
         </div>
       <% end %>
+      <%= if tuple = State.get_fastest_slowest_responses(@state) do %>
+        <% {fastest, slowest} = tuple %>
+        <ul class="list-none">
+          <li>Fastest is <%= fastest.url %> in <data><%= System.convert_time_unit(fastest.timings.duration, :native, :millisecond) %>ms</data></li>
+          <li>Slowest is <%= slowest.url %> in <data><%= System.convert_time_unit(slowest.timings.duration, :native, :millisecond) %>ms</data></li>
+        </ul>
+      <% end %>
     </output>
     """
   end
 
-  defp assign_state(socket, state) do
-    assign(socket, state: state)
-  end
+  defp assign_state(socket, state), do: assign(socket, state: state)
 
   @impl true
-  def mount(%{}, _session, socket) do
+  def mount(params, _session, socket) do
     socket = assign(socket, page_title: "Latency Comparison")
 
+    section = Map.get(params, "section")
+    default_urls = default_urls(section)
+
     state = State.default()
-    socket = assign_state(socket, state)
+
+    socket =
+      socket
+      |> assign_state(state)
+      |> assign(:default_urls, default_urls)
 
     {:ok, socket}
   end
 
   @impl true
   def handle_event("submitted", form_values = %{"user_url" => user_url}, socket) do
-    urls = [
-      "https://workers.cloudflare.com/cf.json",
-      "https://components-guide-deno.deno.dev/cf.json",
-      "https://api.github.com/rate_limit",
-      "https://unpkg.com/robots.txt",
-      "https://api.npmjs.org/downloads/point/last-month/react",
-      "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
-      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
-      # "https://aws.amazon.com/blogs/aws/",
-      # "https://aws.amazon.com/blogs/aws/feed/",
-      # "https://cloud.google.com/blog/",
-      "https://github.blog/",
-      "https://github.blog/feed/",
-      "https://blog.cloudflare.com/",
-      "https://blog.cloudflare.com/rss/",
-      "https://vercel.com/blog",
-      "https://vercel.com/atom"
-    ]
+    urls = socket.assigns[:default_urls]
 
     urls =
       case URI.new(user_url) do
@@ -132,5 +133,50 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
 
     socket = socket |> assign_state(state)
     {:noreply, socket}
+  end
+
+  def default_urls("dev-blogs") do
+    [
+      "https://aws.amazon.com/blogs/aws/",
+      "https://aws.amazon.com/blogs/aws/feed/",
+      "https://cloud.google.com/blog/",
+      "https://github.blog/",
+      "https://github.blog/feed/",
+      "https://blog.cloudflare.com/",
+      "https://blog.cloudflare.com/rss/",
+      "https://vercel.com/blog",
+      "https://vercel.com/atom",
+      "https://fly.io/blog",
+      "https://fly.io/blog/feed.xml",
+      "https://render.com/blog",
+      "https://render.com/blog/rss.xml"
+    ]
+  end
+
+  def default_urls("robots.txt") do
+    [
+      "https://github.com/robots.txt",
+      "https://www.youtube.com/robots.txt",
+      "https://medium.com/robots.txt",
+      "https://twitter.com/robots.txt",
+      "https://instagram.com/robots.txt",
+      "https://www.apple.com/robots.txt",
+      "https://www.cloudflare.com/robots.txt",
+      "https://unpkg.com/robots.txt",
+      "https://vercel.com/robots.txt",
+      "https://render.com/robots.txt"
+    ]
+  end
+
+  def default_urls(_) do
+    [
+      "https://workers.cloudflare.com/cf.json",
+      "https://components-guide-deno.deno.dev/cf.json",
+      "https://api.github.com/rate_limit",
+      "https://unpkg.com/robots.txt",
+      "https://api.npmjs.org/downloads/point/last-month/react",
+      "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js"
+    ]
   end
 end

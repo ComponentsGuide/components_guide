@@ -74,6 +74,7 @@ defmodule ComponentsGuideWeb.Router do
 
     live("/latency-calculator", LatencyCalculatorLive)
     live("/latency-comparison", LatencyComparisonLive)
+    live("/latency-comparison/:section", LatencyComparisonLive)
 
     live("/color", ColorLive, :index)
     live("/color/:definition", ColorLive, :show)
