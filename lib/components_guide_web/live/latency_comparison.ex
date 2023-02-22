@@ -33,6 +33,20 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     def get_fastest_slowest_responses(%__MODULE__{responses: responses}) do
       Enum.min_max_by(responses, fn response -> response.timings.duration end)
     end
+
+    def get_headers_of_interest(%Fetch.Response{} = response) do
+      h = response.headers
+      content_length = Enum.find(h, fn {key, _} -> String.downcase(key) == "content-length" end)
+      content_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "content_encoding" end)
+      transfer_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "transfer-encoding" end)
+      cache_control = Enum.find(h, fn {key, _} -> String.downcase(key) == "cache-control" end)
+      inspect([
+        content_length,
+        content_encoding,
+        transfer_encoding,
+        cache_control
+      ])
+    end
   end
 
   @impl true
@@ -53,7 +67,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     <output form="latency_comparison_form" class="flex flex-col gap-4 pt-4 max-w-none text-center">
       <%= for response <- @state.responses || [], response != nil do %>
         <div class="p-4 text-white bg-black font-mono">
-          <pre class="bg-transparent"><%= response.url %></pre>
+          <pre class="bg-transparent" title={State.get_headers_of_interest(response)}><%= response.url %></pre>
           <div class="my-1 flex justify-center">
             <div class="h-1 bg-yellow-200" style={"width: #{System.convert_time_unit(response.timings.connected, :native, :millisecond)}px"}></div>
             <div class="h-1 bg-green-500" style={"width: #{System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond)}px"}></div>
@@ -146,6 +160,8 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       "https://blog.cloudflare.com/rss/",
       "https://vercel.com/blog",
       "https://vercel.com/atom",
+      "https://tailwindcss.com/blog",
+      "https://tailwindcss.com/feeds/atom.xml",
       "https://fly.io/blog",
       "https://fly.io/blog/feed.xml",
       "https://render.com/blog",
