@@ -54,11 +54,18 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <nav class="pt-8 pb-8">
+      <ul class="list-none flex justify-center gap-4">
+        <li><.link href="/latency-comparison/cdns">CDNs</.link></li>
+        <li><.link href="/latency-comparison/dev-blogs">Dev Blogs</.link></li>
+        <li><.link href="/latency-comparison/robots.txt">Robots.txt</.link></li>
+      </ul>
+    </nav>
     <.form
       for={:editor}
       id="latency_comparison_form"
       phx-submit="submitted"
-      class="max-w-2xl mt-12 mx-auto space-y-2"
+      class="max-w-2xl mx-auto space-y-2"
     >
       <div class="flex flex-col items-center gap-4">
         <button type="submit" class="px-3 py-1 text-xl text-blue-900 bg-blue-200 rounded" autofocus>Load</button>
@@ -183,6 +190,15 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       "https://unpkg.com/robots.txt",
       "https://vercel.com/robots.txt",
       "https://render.com/robots.txt"
+    ]
+  end
+
+  def default_urls("cdns") do
+    [
+      "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
+      "https://esm.sh/v107/underscore@1.13.6/es2021/underscore.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-esm-min.min.js"
     ]
   end
 
