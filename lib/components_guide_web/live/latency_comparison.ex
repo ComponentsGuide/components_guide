@@ -202,15 +202,32 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     ]
   end
 
+  def default_urls("edge") do
+    [
+      "https://workers.cloudflare.com/cf.json",
+      "https://components-guide.collected.workers.dev/cf.json",
+      "https://components-guide.deno.dev/cf.json",
+      "https://components-guide.collected.workers.dev/time",
+      "https://components-guide.deno.dev/time",
+      "https://components-guide.collected.workers.dev/deno/time",
+      "https://components-guide.deno.dev/cf/time",
+      "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      "https://components-guide.collected.workers.dev/cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      "https://components-guide.deno.dev/cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
+      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
+      "https://components-guide.collected.workers.dev/unpkg.com/underscore@1.13.6/underscore-esm-min.js",
+      "https://components-guide.deno.dev/unpkg.com/underscore@1.13.6/underscore-esm-min.js",
+    ]
+  end
+
   def default_urls(_) do
     [
       "https://workers.cloudflare.com/cf.json",
-      "https://components-guide-deno.deno.dev/cf.json",
       "https://api.github.com/rate_limit",
       "https://unpkg.com/robots.txt",
       "https://api.npmjs.org/downloads/point/last-month/react",
       "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
-      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js"
+      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
     ]
   end
 end
