@@ -193,6 +193,9 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     [
       "https://github.com/robots.txt",
       "https://www.youtube.com/robots.txt",
+      "https://cloud.google.com/robots.txt",
+      "https://www.amazon.com/robots.txt",
+      "https://aws.amazon.com/robots.txt",
       "https://medium.com/robots.txt",
       "https://twitter.com/robots.txt",
       "https://instagram.com/robots.txt",
