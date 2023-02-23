@@ -36,17 +36,21 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
 
     def get_headers_of_interest(%Fetch.Response{} = response) do
       h = response.headers
+      location = Enum.find(h, fn {key, _} -> String.downcase(key) == "location" end)
       content_length = Enum.find(h, fn {key, _} -> String.downcase(key) == "content-length" end)
       content_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "content_encoding" end)
       transfer_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "transfer-encoding" end)
       cache_control = Enum.find(h, fn {key, _} -> String.downcase(key) == "cache-control" end)
-      location = Enum.find(h, fn {key, _} -> String.downcase(key) == "location" end)
+      server = Enum.find(h, fn {key, _} -> String.downcase(key) == "server" end)
+      cf_ray = Enum.find(h, fn {key, _} -> String.downcase(key) == "cf-ray" end)
       inspect([
+        location,
         content_length,
         content_encoding,
         transfer_encoding,
         cache_control,
-        location
+        server,
+        cf_ray
       ] |> Enum.filter(fn v -> v != nil end))
     end
   end
@@ -59,6 +63,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
         <li><.link href="/latency-comparison/cdns">CDNs</.link></li>
         <li><.link href="/latency-comparison/dev-blogs">Dev Blogs</.link></li>
         <li><.link href="/latency-comparison/robots.txt">Robots.txt</.link></li>
+        <li><.link href="/latency-comparison/edge">Edge</.link></li>
       </ul>
     </nav>
     <.form
