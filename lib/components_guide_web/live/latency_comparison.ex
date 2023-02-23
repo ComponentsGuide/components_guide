@@ -43,6 +43,9 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       cache_control = Enum.find(h, fn {key, _} -> String.downcase(key) == "cache-control" end)
       server = Enum.find(h, fn {key, _} -> String.downcase(key) == "server" end)
       cf_ray = Enum.find(h, fn {key, _} -> String.downcase(key) == "cf-ray" end)
+      cf_cache_status = Enum.find(h, fn {key, _} -> String.downcase(key) == "cf-cache-status" end)
+      x_vercel_cache = Enum.find(h, fn {key, _} -> String.downcase(key) == "x-vercel-cache" end)
+      x_vercel_id = Enum.find(h, fn {key, _} -> String.downcase(key) == "x-vercel-id" end)
       inspect([
         location,
         content_length,
@@ -50,7 +53,10 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
         transfer_encoding,
         cache_control,
         server,
-        cf_ray
+        cf_ray,
+        cf_cache_status,
+        x_vercel_cache,
+        x_vercel_id
       ] |> Enum.filter(fn v -> v != nil end))
     end
   end
