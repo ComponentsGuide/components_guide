@@ -40,12 +40,14 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       content_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "content_encoding" end)
       transfer_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "transfer-encoding" end)
       cache_control = Enum.find(h, fn {key, _} -> String.downcase(key) == "cache-control" end)
+      location = Enum.find(h, fn {key, _} -> String.downcase(key) == "location" end)
       inspect([
         content_length,
         content_encoding,
         transfer_encoding,
-        cache_control
-      ])
+        cache_control,
+        location
+      ] |> Enum.filter(fn v -> v != nil end))
     end
   end
 
@@ -162,7 +164,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       "https://vercel.com/atom",
       "https://tailwindcss.com/blog",
       "https://tailwindcss.com/feeds/atom.xml",
-      "https://fly.io/blog",
+      "https://fly.io/blog/",
       "https://fly.io/blog/feed.xml",
       "https://render.com/blog",
       "https://render.com/blog/rss.xml"
