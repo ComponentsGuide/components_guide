@@ -148,18 +148,6 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
         Fetch.load!(req)
       end
 
-    # redis_timings = Fetch.Timings.start()
-    # {duration_microseconds, _result} =
-    #   :timer.tc(fn ->
-    #     case Redix.command(:redix_cache, ["GET", "whatever"]) do
-    #       {:ok, value} -> value
-    #       _ -> nil
-    #     end
-    #   end)
-    # redis_timings = Fetch.Timings.finish(redis_timings)
-    # redis_res = Fetch.Response.new("redis:") |> Fetch.Response.add_timings(redis_timings)
-    # responses = [redis_res | responses]
-
     state =
       socket.assigns.state
       |> State.add_responses(responses)
