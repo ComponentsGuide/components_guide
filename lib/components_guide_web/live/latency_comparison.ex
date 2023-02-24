@@ -136,8 +136,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     urls = socket.assigns[:default_urls]
 
     urls =
-      case URI.new(user_url) do
-        {:ok, %URI{host: ""}} -> urls
+      case URI.new(String.trim(user_url)) do
         {:ok, uri = %URI{host: host, port: 443}} when is_binary(host) -> [to_string(uri) | urls]
         _ -> urls
       end
