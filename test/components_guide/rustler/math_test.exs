@@ -22,12 +22,12 @@ defmodule ComponentsGuide.Rustler.MathTest do
 
     assert Math.wasm_example(wasm_source, "answer") == 42
   end
-  
+
   test "wasm_example/2 dsl" do
     # wasm_source = module(func(export("answer"), :result_i32, {:i32_const, 42}))
     # wasm_source = module(func(export("answer"), Result.i32, {I32.const, 42}))
     # wasm_source = module({:func, {:export, "answer"}, {:result, :i32}, {:i32_const, 42}})
-    
+
     wasm_source = """
     (module
       (func (export "answer") (result i32)
@@ -38,7 +38,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
 
     assert Math.wasm_example(wasm_source, "answer") == 42
   end
-  
+
   test "wasm_example/4 adding two numbers" do
     wasm_source = """
     (module
@@ -52,7 +52,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
 
     assert Math.wasm_example(wasm_source, "add", 7, 5) == 12
   end
-  
+
   test "wasm_example/4 multiplying two numbers" do
     wasm_source = """
     (module
@@ -66,7 +66,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
 
     assert Math.wasm_example(wasm_source, "multiply", 7, 5) == 35
   end
-  
+
   test "wasm_example/4 checking a number is within a range" do
     wasm_source = """
     (module
@@ -95,7 +95,21 @@ defmodule ComponentsGuide.Rustler.MathTest do
     assert Math.wasm_example(wasm_source, "validate", 257) == 0
     assert Math.wasm_example(wasm_source, "validate", 2000) == 0
   end
-  
+
+  test "wasm_example/4 spits out HTML strings" do
+    wasm_source = """
+    (module
+      (import "env" "buffer" (memory 1))
+      (data (i32.const 256) "Know the length of this string")
+      (func (export "main") (param $num i32) (param $unused i32) (result i32 i32)
+        (i32.const 256) (i32.const 30)
+      )
+    )
+    """
+
+    assert Math.wasm_buffer(wasm_source, "main", 0, 0) == [256, 30]
+  end
+
   # defwasm multiply(a, b) do
   #   Wasm.func multiply(a, b) do
   #     W32.mul(a, b)
