@@ -133,7 +133,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
 
   @impl true
   def handle_event("submitted", form_values = %{"user_url" => user_url}, socket) do
-    urls = socket.assigns[:default_urls]
+    urls = socket.assigns.default_urls
 
     urls =
       case URI.new(String.trim(user_url)) do
