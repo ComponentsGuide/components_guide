@@ -199,7 +199,11 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
       "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
       "https://esm.sh/v107/underscore@1.13.6/es2021/underscore.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-esm-min.min.js"
+      "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-esm-min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-esm-min.min.js",
+      "https://cdn.skypack.dev/underscore@v1.13.6",
+      "https://cdn.skypack.dev/pin/underscore@v1.13.6-qqsvzISgOvUxq4S56818/mode=imports,min/optimized/underscore.js",
+      "https://cdn.skypack.dev/-/underscore@v1.13.6-qqsvzISgOvUxq4S56818/dist=es2020,mode=imports,min/optimized/underscore.js"
     ]
   end
 
