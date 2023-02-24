@@ -107,7 +107,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_buffer(wasm_source, "main", 0, 0) == [256, 30]
+    assert Math.wasm_buffer(wasm_source, "main", 0, 0) == {256, 30}
     assert Math.wasm_string(wasm_source, "main", 0, 0) == "Know the length of this string"
   end
 

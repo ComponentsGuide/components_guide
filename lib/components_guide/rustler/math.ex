@@ -29,7 +29,7 @@ defmodule ComponentsGuide.Rustler.Math do
   def wasm_example(source, f, a), do: wasm_example_1_i32(source, f, a)
   def wasm_example(source, f, a, b), do: wasm_example_2_i32(source, f, a, b)
 
-  def wasm_buffer(source, f, a, b), do: wasm_buffer_2_i32(source, f, a, b)
+  def wasm_buffer(source, f, a, b), do: wasm_buffer_2_i32(source, f, a, b) |> List.to_tuple()
   def wasm_string(source, f, a, b), do: wasm_string_2_i32(source, f, a, b)
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)
