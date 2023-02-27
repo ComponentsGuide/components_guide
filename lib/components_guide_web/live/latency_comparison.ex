@@ -21,13 +21,6 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       }
     end
 
-    def set_form_values(%__MODULE__{} = state, form_values = %{}) do
-      %__MODULE__{
-        state
-        | form_values: form_values
-      }
-    end
-
     def get_fastest_slowest_responses(%__MODULE__{responses: nil}), do: nil
 
     def get_fastest_slowest_responses(%__MODULE__{responses: responses}) do
@@ -38,26 +31,35 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       h = response.headers
       location = Enum.find(h, fn {key, _} -> String.downcase(key) == "location" end)
       content_length = Enum.find(h, fn {key, _} -> String.downcase(key) == "content-length" end)
-      content_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "content_encoding" end)
-      transfer_encoding = Enum.find(h, fn {key, _} -> String.downcase(key) == "transfer-encoding" end)
+
+      content_encoding =
+        Enum.find(h, fn {key, _} -> String.downcase(key) == "content_encoding" end)
+
+      transfer_encoding =
+        Enum.find(h, fn {key, _} -> String.downcase(key) == "transfer-encoding" end)
+
       cache_control = Enum.find(h, fn {key, _} -> String.downcase(key) == "cache-control" end)
       server = Enum.find(h, fn {key, _} -> String.downcase(key) == "server" end)
       cf_ray = Enum.find(h, fn {key, _} -> String.downcase(key) == "cf-ray" end)
       cf_cache_status = Enum.find(h, fn {key, _} -> String.downcase(key) == "cf-cache-status" end)
       x_vercel_cache = Enum.find(h, fn {key, _} -> String.downcase(key) == "x-vercel-cache" end)
       x_vercel_id = Enum.find(h, fn {key, _} -> String.downcase(key) == "x-vercel-id" end)
-      inspect([
-        location,
-        content_length,
-        content_encoding,
-        transfer_encoding,
-        cache_control,
-        server,
-        cf_ray,
-        cf_cache_status,
-        x_vercel_cache,
-        x_vercel_id
-      ] |> Enum.filter(fn v -> v != nil end))
+
+      inspect(
+        [
+          location,
+          content_length,
+          content_encoding,
+          transfer_encoding,
+          cache_control,
+          server,
+          cf_ray,
+          cf_cache_status,
+          x_vercel_cache,
+          x_vercel_id
+        ]
+        |> Enum.filter(fn v -> v != nil end)
+      )
     end
   end
 
@@ -66,21 +68,36 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     ~H"""
     <nav class="pt-8 pb-8">
       <ul class="list-none flex justify-center gap-4">
-        <li><.link href="/latency-comparison/cdns">CDNs</.link></li>
-        <li><.link href="/latency-comparison/dev-blogs">Dev Blogs</.link></li>
-        <li><.link href="/latency-comparison/robots.txt">Robots.txt</.link></li>
-        <li><.link href="/latency-comparison/edge">Edge</.link></li>
+        <li>
+          <.link href="/latency-comparison/cdns">CDNs</.link>
+        </li>
+        <li>
+          <.link href="/latency-comparison/dev-blogs">Dev Blogs</.link>
+        </li>
+        <li>
+          <.link href="/latency-comparison/robots.txt">Robots.txt</.link>
+        </li>
+        <li>
+          <.link href="/latency-comparison/edge">Edge</.link>
+        </li>
       </ul>
     </nav>
     <.form
-      for={:editor}
+      for={@form}
       id="latency_comparison_form"
       phx-submit="submitted"
       class="max-w-2xl mx-auto space-y-2"
     >
       <div class="flex flex-col items-center gap-4">
-        <button type="submit" class="px-3 py-1 text-xl text-blue-900 bg-blue-200 rounded" autofocus>Load</button>
-        <input type="url" id="user_url" name="user_url" value={@state.form_values["user_url"]} class="w-80 text-sm text-white bg-black border border-gray-700 rounded" placeholder="Compare your URL (optional)" aria-label="">
+        <button type="submit" class="px-3 py-1 text-xl text-blue-900 bg-blue-200 rounded" autofocus>
+          Load
+        </button>
+        <.input
+          field={@form[:user_url]}
+          type="url"
+          label="URL"
+          placeholder="Compare your URL (optional)"
+        />
       </div>
     </.form>
 
@@ -89,23 +106,71 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
         <div class="p-4 text-white bg-black font-mono">
           <pre class="bg-transparent" title={State.get_headers_of_interest(response)}><%= response.url %></pre>
           <div class="my-1 flex justify-center">
-            <div class="h-1 bg-yellow-200" style={"width: #{System.convert_time_unit(response.timings.connected, :native, :millisecond)}px"}></div>
-            <div class="h-1 bg-green-500" style={"width: #{System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond)}px"}></div>
-            <div class="h-1 bg-purple-200" style={"width: #{System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond)}px"}></div>
+            <div
+              class="h-1 bg-yellow-200"
+              style={"width: #{System.convert_time_unit(response.timings.connected, :native, :millisecond)}px"}
+            >
+            </div>
+            <div
+              class="h-1 bg-green-500"
+              style={"width: #{System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond)}px"}
+            >
+            </div>
+            <div
+              class="h-1 bg-purple-200"
+              style={"width: #{System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond)}px"}
+            >
+            </div>
           </div>
           <p class="flex justify-center items-center gap-3 text-lg">
-            <data class="text-yellow-200"><%= System.convert_time_unit(response.timings.connected, :native, :millisecond) %>ms</data> <span>🤝</span>
-            <span class="text-blue-200/75">+</span> <data class="text-green-200"><%= System.convert_time_unit(response.timings.received_status - response.timings.connected, :native, :millisecond) %>ms</data> <span class="px-1 text-sm text-green-900 bg-green-100 border border-green-200 rounded-full"><%= response.status %></span>
-            <span class="text-blue-200/75">+</span> <data class="text-purple-200"><%= System.convert_time_unit(response.timings.duration - response.timings.received_status, :native, :millisecond) %>ms</data> <span class="px-1 text-sm text-purple-900 bg-purple-100 border border-purple-200 rounded-full"><%= Format.humanize_bytes(byte_size(response.body)) %></span>
-            <span class="text-blue-200/75">=</span> <data class="text-blue-200"><%= System.convert_time_unit(response.timings.duration, :native, :millisecond) %>ms</data>
+            <data class="text-yellow-200">
+              <%= System.convert_time_unit(response.timings.connected, :native, :millisecond) %>ms
+            </data>
+             <span>🤝</span>
+            <span class="text-blue-200/75">+</span>
+            <data class="text-green-200">
+              <%= System.convert_time_unit(
+                response.timings.received_status - response.timings.connected,
+                :native,
+                :millisecond
+              ) %>ms
+            </data>
+            <span class="px-1 text-sm text-green-900 bg-green-100 border border-green-200 rounded-full">
+              <%= response.status %>
+            </span>
+            <span class="text-blue-200/75">+</span>
+            <data class="text-purple-200">
+              <%= System.convert_time_unit(
+                response.timings.duration - response.timings.received_status,
+                :native,
+                :millisecond
+              ) %>ms
+            </data>
+            <span class="px-1 text-sm text-purple-900 bg-purple-100 border border-purple-200 rounded-full">
+              <%= Format.humanize_bytes(byte_size(response.body)) %>
+            </span>
+            <span class="text-blue-200/75">=</span>
+            <data class="text-blue-200">
+              <%= System.convert_time_unit(response.timings.duration, :native, :millisecond) %>ms
+            </data>
           </p>
         </div>
       <% end %>
       <%= if tuple = State.get_fastest_slowest_responses(@state) do %>
         <% {fastest, slowest} = tuple %>
         <ul class="list-none">
-          <li>Fastest is <%= fastest.url %> in <data><%= System.convert_time_unit(fastest.timings.duration, :native, :millisecond) %>ms</data></li>
-          <li>Slowest is <%= slowest.url %> in <data><%= System.convert_time_unit(slowest.timings.duration, :native, :millisecond) %>ms</data></li>
+          <li>
+            Fastest is <%= fastest.url %> in
+            <data>
+              <%= System.convert_time_unit(fastest.timings.duration, :native, :millisecond) %>ms
+            </data>
+          </li>
+          <li>
+            Slowest is <%= slowest.url %> in
+            <data>
+              <%= System.convert_time_unit(slowest.timings.duration, :native, :millisecond) %>ms
+            </data>
+          </li>
         </ul>
       <% end %>
     </output>
@@ -127,7 +192,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       socket
       |> assign_state(state)
       |> assign(:default_urls, default_urls)
-      |> assign(form: to_form(%{}, as: :editor))
+      |> assign(form: to_form(%{}))
 
     {:ok, socket}
   end
@@ -151,9 +216,12 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
     state =
       socket.assigns.state
       |> State.add_responses(responses)
-      |> State.set_form_values(form_values)
 
-    socket = socket |> assign_state(state)
+    socket =
+      socket
+      |> assign_state(state)
+      |> assign(form: to_form(form_values))
+
     {:noreply, socket}
   end
 
@@ -222,7 +290,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       "https://components-guide.deno.dev/cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
       "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
       "https://components-guide.collected.workers.dev/unpkg.com/underscore@1.13.6/underscore-esm-min.js",
-      "https://components-guide.deno.dev/unpkg.com/underscore@1.13.6/underscore-esm-min.js",
+      "https://components-guide.deno.dev/unpkg.com/underscore@1.13.6/underscore-esm-min.js"
     ]
   end
 
@@ -233,7 +301,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       "https://unpkg.com/robots.txt",
       "https://api.npmjs.org/downloads/point/last-month/react",
       "https://cdn.jsdelivr.net/npm/underscore@1.13.6/underscore-esm-min.js",
-      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js",
+      "https://unpkg.com/underscore@1.13.6/underscore-esm-min.js"
     ]
   end
 end
