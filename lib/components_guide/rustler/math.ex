@@ -19,6 +19,7 @@ defmodule ComponentsGuide.Rustler.Math do
 
   def add(_, _), do: error()
   def reverse_string(_), do: error()
+  def wasm_example_n_i32(_, _, _), do: error()
   def wasm_example_0(_, _), do: error()
   def wasm_example_1_i32(_, _, _), do: error()
   def wasm_example_2_i32(_, _, _, _), do: error()
@@ -26,11 +27,17 @@ defmodule ComponentsGuide.Rustler.Math do
   def wasm_string_2_i32(_, _, _, _), do: error()
 
   def wasm_example(source, f), do: wasm_example_0(source, f)
-  def wasm_example(source, f, a), do: wasm_example_1_i32(source, f, a)
-  def wasm_example(source, f, a, b), do: wasm_example_2_i32(source, f, a, b)
+  def wasm_example(source, f, a), do: wasm_example_n_i32(source, f, [a]) |> process_result()
+  def wasm_example(source, f, a, b), do: wasm_example_n_i32(source, f, [a, b]) |> process_result()
 
-  def wasm_buffer(source, f, a, b), do: wasm_buffer_2_i32(source, f, a, b) |> List.to_tuple()
+  def wasm_buffer(source, f, a, b) do
+    wasm_buffer_2_i32(source, f, a, b) |> process_result()
+  end
   def wasm_string(source, f, a, b), do: wasm_string_2_i32(source, f, a, b)
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)
+
+  defp process_result([]), do: nil
+  defp process_result([a]), do: a
+  defp process_result(multiple_items), do: List.to_tuple(multiple_items)
 end

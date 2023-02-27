@@ -51,6 +51,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
     """
 
     assert Math.wasm_example(wasm_source, "add", 7, 5) == 12
+    assert Math.wasm_buffer(wasm_source, "add", 7, 5) == 12
   end
 
   test "wasm_example/4 multiplying two numbers" do
