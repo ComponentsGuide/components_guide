@@ -108,13 +108,13 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
   end
 
   defp icon_links(ids, links) do
-    assigns = %{ids: ids}
+    assigns = %{ids: ids, links: links}
 
     ~H"""
     <div class="flex flex-col gap-2">
       <%= for id <- @ids do %>
       <div>
-      <%= icon_link(id, Map.get(links, id)) %>
+      <%= icon_link(id, Map.get(@links, id)) %>
       </div>
       <% end %>
     </div>

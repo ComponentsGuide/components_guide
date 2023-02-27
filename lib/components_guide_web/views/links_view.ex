@@ -30,7 +30,7 @@ defmodule ComponentsGuideWeb.LinksView do
     content_tag(:li) do
       [
         {:safe, content},
-        list(nested_items)
+        ul_list(nested_items)
       ]
     end
   end
@@ -39,7 +39,7 @@ defmodule ComponentsGuideWeb.LinksView do
     content_tag(:li, {:safe, content})
   end
 
-  def list(items) when is_list(items) do
+  def ul_list(items) when is_list(items) do
     content_tag(:ul, Enum.map(items, &list_item/1))
   end
 

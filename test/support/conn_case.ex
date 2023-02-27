@@ -26,6 +26,8 @@ defmodule ComponentsGuideWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint ComponentsGuideWeb.Endpoint
+
+      use ComponentsGuideWeb, :verified_routes
     end
   end
 

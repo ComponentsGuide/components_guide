@@ -6,7 +6,12 @@
   <% end %>
 
   <%= label f, :url, "URL" %>
-  <%= error_tag f, :url %>
+  <.error
+    field={:url}
+    input_name="url"
+    errors={@changeset.errors}
+    class="pt-2 pl-4 pr-4 ml-2 text-center"
+  />
   <%= text_input f, :url %>
 
   <div>

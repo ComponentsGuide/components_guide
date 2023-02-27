@@ -1,6 +1,6 @@
-<h1>New Text</h1>
+<h1>Edit Text</h1>
 
-<.simple_form :let={f} for={@changeset} action={~p"/texts"}>
+<.simple_form :let={f} for={@changeset} method="put" action={~p"/text/#{@text}"}>
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>

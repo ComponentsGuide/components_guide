@@ -49,7 +49,7 @@
       <h2 class="text-4xl leading-normal font-bold text-red-800 border-b-4 border-red-200">Combine</h2>
 
       <h3 class="mt-4 mb-2 text-2xl leading-normal italic">WWDC 2019</h3>
-      <%= list [
+      <%= ul_list [
         link(span("415: Modern Swift API Design", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/415/"),
         link(span("722: Introducing Combine", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/722/"),
         link(span("721: Combine in Practice", [:nums_tabular]), to: "https://developer.apple.com/videos/play/wwdc2019/721/"),
@@ -57,7 +57,7 @@
       ] %>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Articles</h3>
-      <%= list [
+      <%= ul_list [
         link(span("Understanding Combine by Matt Neuberg", []), to: "https://www.apeth.com/UnderstandingCombine/toc.html"),
         link("22 short tests of Combine – Part 1: Protocols", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-1.html"),
         link("22 short tests of Combine – Part 2: Sharing", to: "https://www.cocoawithlove.com/blog/twenty-two-short-tests-of-combine-part-2.html"),
@@ -65,7 +65,7 @@
       ] %>
 
       <h3 class="mt-6 mb-2 text-2xl leading-normal italic">Tools and libraries for Combine</h3>
-      <%= list [
+      <%= ul_list [
         {
           link("Joe Heck’s in-depth notes", to: "https://heckj.github.io/swiftui-notes/"),
           [

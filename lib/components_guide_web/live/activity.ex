@@ -1,5 +1,6 @@
 defmodule ComponentsGuideWeb.ActivityLive do
   use Phoenix.LiveView
+  use Phoenix.Component
 
   @impl true
   def render(assigns) do

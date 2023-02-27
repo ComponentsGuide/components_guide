@@ -65,4 +65,100 @@ defmodule ComponentsGuide.Content do
       Cachex.del(@cache_name, id)
     end
   end
+
+  alias ComponentsGuide.Content.Text2
+
+  @doc """
+  Returns the list of texts2.
+
+  ## Examples
+
+      iex> list_texts2()
+      [%Text2{}, ...]
+
+  """
+  def list_texts2 do
+    Repo.all(Text2)
+  end
+
+  @doc """
+  Gets a single text2.
+
+  Raises `Ecto.NoResultsError` if the Text2 does not exist.
+
+  ## Examples
+
+      iex> get_text2!(123)
+      %Text2{}
+
+      iex> get_text2!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_text2!(id), do: Repo.get!(Text2, id)
+
+  @doc """
+  Creates a text2.
+
+  ## Examples
+
+      iex> create_text2(%{field: value})
+      {:ok, %Text2{}}
+
+      iex> create_text2(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_text2(attrs \\ %{}) do
+    %Text2{}
+    |> Text2.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a text2.
+
+  ## Examples
+
+      iex> update_text2(text2, %{field: new_value})
+      {:ok, %Text2{}}
+
+      iex> update_text2(text2, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_text2(%Text2{} = text2, attrs) do
+    text2
+    |> Text2.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a text2.
+
+  ## Examples
+
+      iex> delete_text2(text2)
+      {:ok, %Text2{}}
+
+      iex> delete_text2(text2)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_text2(%Text2{} = text2) do
+    Repo.delete(text2)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking text2 changes.
+
+  ## Examples
+
+      iex> change_text2(text2)
+      %Ecto.Changeset{data: %Text2{}}
+
+  """
+  def change_text2(%Text2{} = text2, attrs \\ %{}) do
+    Text2.changeset(text2, attrs)
+  end
 end

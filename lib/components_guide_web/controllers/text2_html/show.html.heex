@@ -1,0 +1,15 @@
+<.header>
+  Text2 <%= @text2.id %>
+  <:subtitle>This is a text2 record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/texts2/#{@text2}/edit"}>
+      <.button>Edit text2</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Content"><%= @text2.content %></:item>
+</.list>
+
+<.back navigate={~p"/texts2"}>Back to texts2</.back>

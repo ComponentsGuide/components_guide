@@ -29,7 +29,7 @@ defmodule ComponentsGuideWeb.Endpoint do
     at: "/",
     from: :components_guide,
     gzip: false,
-    only: ~w(assets css fonts images js favicon.ico robots.txt)
+    only: ComponentsGuideWeb.static_paths()
   )
 
   # Code reloading can be explicitly enabled under the

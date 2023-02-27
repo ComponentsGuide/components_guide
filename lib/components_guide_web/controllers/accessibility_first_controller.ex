@@ -56,7 +56,6 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
   use ComponentsGuideWeb, :view
   require EEx
   use ComponentsGuideWeb.Snippets
-  use Phoenix.HTML
 
   # def collected_image(conn, image_name) do
   #   %{static_path: path_to_image, width: width, height: height} = render(image_name)
@@ -118,7 +117,7 @@ defmodule ComponentsGuideWeb.AccessibilityFirstView do
     """
   end
 
-  def list(items) do
+  def ul_list(items) do
     ~E"""
     <ul>
     <%= for item <- items do %>

@@ -127,6 +127,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
       socket
       |> assign_state(state)
       |> assign(:default_urls, default_urls)
+      |> assign(form: to_form(%{}, as: :editor))
 
     {:ok, socket}
   end
