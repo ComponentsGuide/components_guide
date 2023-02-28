@@ -187,7 +187,7 @@ fn wasm_example_n_i32_internal(wat_source: String, buffer: bool, f: String, args
   return Ok(result);
 }
 
-rustler::init!("Elixir.ComponentsGuide.Rustler.Math", [
+rustler::init!("Elixir.ComponentsGuide.Rustler.Wasm", [
   add,
   reverse_string,
   wasm_example_n_i32,

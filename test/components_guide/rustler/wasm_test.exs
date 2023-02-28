@@ -1,14 +1,14 @@
-defmodule ComponentsGuide.Rustler.MathTest do
+defmodule ComponentsGuide.Rustler.WasmTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Rustler.Math
+  alias ComponentsGuide.Rustler.Wasm
 
   test "add/2" do
-    assert Math.add(3, 4) == 7
+    assert Wasm.add(3, 4) == 7
   end
 
   test "reverse_string/1" do
-    assert Math.reverse_string("abcd") == "dcba"
+    assert Wasm.reverse_string("abcd") == "dcba"
   end
 
   test "wasm_example/2" do
@@ -20,7 +20,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_example(wasm_source, "answer") == 42
+    assert Wasm.wasm_example(wasm_source, "answer") == 42
   end
 
   test "wasm_example/2 dsl" do
@@ -36,7 +36,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_example(wasm_source, "answer") == 42
+    assert Wasm.wasm_example(wasm_source, "answer") == 42
   end
 
   test "wasm_example/4 adding two numbers" do
@@ -50,7 +50,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_example(wasm_source, "add", 7, 5) == 12
+    assert Wasm.wasm_example(wasm_source, "add", 7, 5) == 12
   end
 
   test "wasm_example/4 multiplying two numbers" do
@@ -64,7 +64,7 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_example(wasm_source, "multiply", 7, 5) == 35
+    assert Wasm.wasm_example(wasm_source, "multiply", 7, 5) == 35
   end
 
   test "wasm_example/4 checking a number is within a range" do
@@ -84,16 +84,16 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_example(wasm_source, "validate", -1) == 0
-    assert Math.wasm_example(wasm_source, "validate", 0) == 0
-    assert Math.wasm_example(wasm_source, "validate", 1) == 1
-    assert Math.wasm_example(wasm_source, "validate", 2) == 1
-    assert Math.wasm_example(wasm_source, "validate", 10) == 1
-    assert Math.wasm_example(wasm_source, "validate", 13) == 1
-    assert Math.wasm_example(wasm_source, "validate", 255) == 1
-    assert Math.wasm_example(wasm_source, "validate", 256) == 0
-    assert Math.wasm_example(wasm_source, "validate", 257) == 0
-    assert Math.wasm_example(wasm_source, "validate", 2000) == 0
+    assert Wasm.wasm_example(wasm_source, "validate", -1) == 0
+    assert Wasm.wasm_example(wasm_source, "validate", 0) == 0
+    assert Wasm.wasm_example(wasm_source, "validate", 1) == 1
+    assert Wasm.wasm_example(wasm_source, "validate", 2) == 1
+    assert Wasm.wasm_example(wasm_source, "validate", 10) == 1
+    assert Wasm.wasm_example(wasm_source, "validate", 13) == 1
+    assert Wasm.wasm_example(wasm_source, "validate", 255) == 1
+    assert Wasm.wasm_example(wasm_source, "validate", 256) == 0
+    assert Wasm.wasm_example(wasm_source, "validate", 257) == 0
+    assert Wasm.wasm_example(wasm_source, "validate", 2000) == 0
   end
 
   test "wasm_example/4 spits out HTML strings" do
@@ -107,8 +107,8 @@ defmodule ComponentsGuide.Rustler.MathTest do
     )
     """
 
-    assert Math.wasm_example(wasm_source, "main", 0, 0) == {256, 30}
-    assert Math.wasm_string(wasm_source, "main", 0, 0) == "Know the length of this string"
+    assert Wasm.wasm_example(wasm_source, "main", 0, 0) == {256, 30}
+    assert Wasm.wasm_string(wasm_source, "main", 0, 0) == "Know the length of this string"
   end
 
   # defwasm multiply(a, b) do
