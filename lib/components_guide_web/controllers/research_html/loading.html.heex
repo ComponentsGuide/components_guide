@@ -1,8 +1,9 @@
-<%= render view_module(@conn), "_header.html", query: @query %>
+<%#= render view_module(@conn), "_header.html", query: @query %>
+<.search_header query={@query}></.search_header>
 
 <div class="py-8 text-white">
   <div class="max-w-4xl mx-auto px-4" data-links="underline">
-    <include-fragment src="/research?q=<%= @query %>&results=1" data-results>
+    <include-fragment src={"/research?q=#{@query}&results=1"} data-results>
       <div>
         Loading…
         <loading-stopwatch class="inline-flex opacity-25"></loading-stopwatch>

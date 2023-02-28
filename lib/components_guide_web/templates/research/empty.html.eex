@@ -1,1 +1,0 @@
-<%= render view_module(@conn), "_header.html", query: "", show_help: true %>

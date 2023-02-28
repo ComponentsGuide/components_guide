@@ -229,9 +229,9 @@ defmodule ComponentsGuideWeb.ResearchController do
 end
 
 defmodule ComponentsGuideWeb.ResearchView do
-  use ComponentsGuideWeb, :view
+  use ComponentsGuideWeb, :html
 
-  # embed_templates("research_html/*")
+  embed_templates("research_html/*")
 
   defdelegate humanize_bytes(count), to: Format
   defdelegate humanize_count(count), to: Format
