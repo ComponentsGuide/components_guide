@@ -79,10 +79,6 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     end)
   end
 
-  defp list_item() do
-
-  end
-
   def present_item({id, {date, type, meta}}) do
     options = %{
       what: pretty_name(id),

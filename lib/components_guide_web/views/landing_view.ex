@@ -1,6 +1,6 @@
 defmodule ComponentsGuideWeb.LandingView do
   use ComponentsGuideWeb, :view
-  alias ComponentsGuideWeb.{TopicsView, ThemeView}
+  alias ComponentsGuideWeb.TopicsView
 
   defp subject_to_module(:accessibility_first), do: ComponentsGuideWeb.AccessibilityFirstView
   defp subject_to_module(:react_typescript), do: ComponentsGuideWeb.ReactTypescriptView

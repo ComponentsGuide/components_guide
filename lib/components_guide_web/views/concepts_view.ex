@@ -24,7 +24,7 @@ defmodule ComponentsGuideWeb.ConceptsView do
         </h2>
         <%= block[:do] %>
       </article>
-    <%= end %>
+    <% end %>
     """
   end
 end
