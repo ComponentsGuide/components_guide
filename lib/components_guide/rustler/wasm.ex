@@ -19,6 +19,9 @@ defmodule ComponentsGuide.Rustler.Wasm do
 
   def add(_, _), do: error()
   def reverse_string(_), do: error()
+
+  def wasm_list_exports(_), do: error()
+
   def wasm_example_n_i32(_, _, _), do: error()
   def wasm_example_0(_, _), do: error()
   def wasm_string_2_i32(_, _, _, _), do: error()

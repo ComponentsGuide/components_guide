@@ -11,6 +11,18 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.reverse_string("abcd") == "dcba"
   end
 
+  test "wasm_list_exports/1" do
+    wasm_source = """
+    (module
+      (func (export "answer") (result i32)
+       i32.const 42
+      )
+    )
+    """
+
+    assert Wasm.wasm_list_exports(wasm_source) == ["answer"]
+  end
+
   test "wasm_example/2" do
     wasm_source = """
     (module
@@ -67,7 +79,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.wasm_example(wasm_source, "multiply", 7, 5) == 35
   end
 
-  test "wasm_example/4 checking a number is within a range" do
+  test "wasm_example/3 checking a number is within a range" do
     wasm_source = """
     (module
       (func $validate (param $num i32) (result i32)
