@@ -1,7 +1,7 @@
-defmodule ComponentsGuideWeb.ResearchViewTest do
+defmodule ComponentsGuideWeb.ResearchHTMLTest do
   use ComponentsGuideWeb.ConnCase, async: true
 
-  alias ComponentsGuideWeb.ResearchView, as: Subject
+  alias ComponentsGuideWeb.ResearchHTML, as: Subject
 
   describe "humanize_bytes/1" do
     test "0" do

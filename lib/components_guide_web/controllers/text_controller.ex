@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.TextController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
 
   alias ComponentsGuide.Content
   alias ComponentsGuide.Content.Text

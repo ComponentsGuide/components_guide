@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.CalendarController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
 
   def index(conn, _params) do
     today = Date.utc_today()

@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.ReactEditorController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
 
   defp render_source(conn, source) do
     render(conn, "index.html", source: source, page_title: "React Playground")

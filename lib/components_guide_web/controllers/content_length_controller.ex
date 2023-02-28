@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.ContentLengthController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
   alias ComponentsGuide.Research.Source
 
   @allowed_prefixes ["https://cdn.jsdelivr.net/", "https://unpkg.com/"]

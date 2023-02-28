@@ -4,8 +4,7 @@ defmodule ComponentsGuideWeb.ResearchController do
 
   alias ComponentsGuide.Research.Spec
   alias ComponentsGuide.Research.Static
-  alias ComponentsGuideWeb.ResearchView, as: View
-  alias ComponentsGuideWeb.ResearchView.Section, as: Section
+  alias ComponentsGuideWeb.ResearchHTML, as: View
   alias ComponentsGuide.Research.Sources.Typescript
 
   defp process_typescript_source(source) do
@@ -75,7 +74,7 @@ defmodule ComponentsGuideWeb.ResearchController do
 
     case query do
       "" ->
-        render(conn, "empty.html")
+        render(conn, :empty)
 
       query ->
         results = load_results(query)
@@ -83,7 +82,7 @@ defmodule ComponentsGuideWeb.ResearchController do
         conn
         |> put_root_layout(false)
         |> put_layout(false)
-        |> render("results.html", %{query: query, results: results})
+        |> render(:results, %{query: query, results: results})
     end
   end
 
@@ -92,10 +91,10 @@ defmodule ComponentsGuideWeb.ResearchController do
 
     case query do
       "" ->
-        render(conn, "empty.html")
+        render(conn, :empty)
 
       query ->
-        render(conn, "loading.html", %{query: query})
+        render(conn, :loading, %{query: query})
     end
   end
 
@@ -228,7 +227,7 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 end
 
-defmodule ComponentsGuideWeb.ResearchView do
+defmodule ComponentsGuideWeb.ResearchHTML do
   use ComponentsGuideWeb, :html
 
   embed_templates("research_html/*")

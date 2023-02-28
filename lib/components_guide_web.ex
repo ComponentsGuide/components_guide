@@ -5,7 +5,7 @@ defmodule ComponentsGuideWeb do
 
   This can be used in your application as:
 
-      use ComponentsGuideWeb, :controller
+      use ComponentsGuideWeb, :controller_view
       use ComponentsGuideWeb, :view
 
   The definitions below will be executed for every view,
@@ -20,6 +20,19 @@ defmodule ComponentsGuideWeb do
   def static_paths, do: ~w(assets css fonts images js favicon.ico robots.txt)
 
   def controller do
+    quote do
+      use Phoenix.Controller, namespace: ComponentsGuideWeb, formats: [:html]
+
+      import Plug.Conn
+      import ComponentsGuideWeb.Gettext
+      import Phoenix.LiveView.Controller
+      alias ComponentsGuideWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
+    end
+  end
+
+  def controller_view do
     quote do
       use Phoenix.Controller, namespace: ComponentsGuideWeb
 

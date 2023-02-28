@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.EncodingController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
   require Logger
 
   def index(conn, _params) do

@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.CheatsheetsController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
   require Logger
 
   @wasm_source """

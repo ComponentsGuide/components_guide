@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.FakeSearchController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
 
   alias ComponentsGuide.FakeSearch
 

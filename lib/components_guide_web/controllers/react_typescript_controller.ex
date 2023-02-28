@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.ReactTypescriptController do
-  use ComponentsGuideWeb, :controller
+  use ComponentsGuideWeb, :controller_view
 
   def index(conn, _params) do
     conn
