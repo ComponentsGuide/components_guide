@@ -28,8 +28,8 @@ fn error_from(error: anyhow::Error) -> Error {
 enum WasmExport {
     Func(String),
     Global(String),
-    Table(String),
     Memory(String),
+    Table(String),
     // Baz{ a: i32, b: i32 },
 }
 
@@ -40,15 +40,21 @@ struct ExportFunc {
 }
 
 #[rustler::nif]
-fn wasm_list_exports(source: String) -> Result<Vec<String>, Error> {
+fn wasm_list_exports(source: String) -> Result<Vec<WasmExport>, Error> {
     let engine = Engine::default();
     let module = Module::new(&engine, source).map_err(error_from)?;
     let exports = module.exports();
 
-    let exports: Vec<String> = exports
+    let exports: Vec<WasmExport> = exports
         .into_iter()
         .map(|export| {
-            return export.name().to_string();
+            let name = export.name().to_string();
+            return match export.ty() {
+                ExternType::Func(_f) => WasmExport::Func(name),
+                ExternType::Global(_g) => WasmExport::Global(name),
+                ExternType::Memory(_m) => WasmExport::Memory(name),
+                ExternType::Table(_t) => WasmExport::Table(name),
+            }
         })
         .collect();
 
