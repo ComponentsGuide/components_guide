@@ -1,6 +1,6 @@
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
-use rustler::{Atom, Env, Error, NifRecord, NifStruct, NifTaggedEnum, ResourceArc, Term};
+use rustler::{Env, Term, Atom, Binary, Error, NifRecord, NifStruct, NifTaggedEnum, ResourceArc};
 use std::convert::TryInto;
 
 #[rustler::nif]
@@ -33,16 +33,27 @@ enum WasmExport {
     // Baz{ a: i32, b: i32 },
 }
 
-#[derive(Debug, NifRecord)]
-#[tag = "func"]
-struct ExportFunc {
-    name: String,
+#[derive(NifTaggedEnum)]
+enum WasmModuleDefinition<'a> {
+    Wat(String),
+    Wasm(Binary<'a>),
+}
+
+impl AsRef<[u8]> for WasmModuleDefinition<'_>
+{
+    fn as_ref(&self) -> &[u8] {
+        match self {
+            WasmModuleDefinition::Wat(s) => s.as_ref(),
+            WasmModuleDefinition::Wasm(b) => &*b,
+        }
+    }
 }
 
 #[rustler::nif]
-fn wasm_list_exports(source: String) -> Result<Vec<WasmExport>, Error> {
+fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Error> {
+    // fn wasm_list_exports(source: String) -> Result<Vec<WasmExport>, Error> {
     let engine = Engine::default();
-    let module = Module::new(&engine, source).map_err(error_from)?;
+    let module = Module::new(&engine, &source).map_err(error_from)?;
     let exports = module.exports();
 
     let exports: Vec<WasmExport> = exports
@@ -54,7 +65,7 @@ fn wasm_list_exports(source: String) -> Result<Vec<WasmExport>, Error> {
                 ExternType::Global(_g) => WasmExport::Global(name),
                 ExternType::Memory(_m) => WasmExport::Memory(name),
                 ExternType::Table(_t) => WasmExport::Table(name),
-            }
+            };
         })
         .collect();
 

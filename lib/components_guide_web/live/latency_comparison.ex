@@ -5,7 +5,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
   alias ComponentsGuide.Fetch
 
   defmodule State do
-    defstruct responses: nil, form_values: %{}
+    defstruct responses: nil
 
     def default() do
       %__MODULE__{}

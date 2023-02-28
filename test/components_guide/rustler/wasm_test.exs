@@ -20,7 +20,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_list_exports(wasm_source) == [{:func, "answer"}]
+    assert Wasm.wasm_list_exports({:wat, wasm_source}) == [{:func, "answer"}]
   end
 
   test "wasm_list_exports/1 two funcs" do
@@ -29,13 +29,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       (func (export "answer") (result i32)
        i32.const 42
       )
+      (memory (export "mem") 1)
       (func (export "get_pi") (result f32)
        f32.const 3.14
       )
     )
     """
 
-    assert Wasm.wasm_list_exports(wasm_source) == [{:func, "answer"}, {:func, "get_pi"}]
+    assert Wasm.wasm_list_exports({:wat, wasm_source}) == [{:func, "answer"}, {:memory, "mem"}, {:func, "get_pi"}]
   end
 
   test "wasm_example/2" do
