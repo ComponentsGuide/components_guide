@@ -1,5 +1,5 @@
 defmodule ComponentsGuideWeb.CalendarController do
-  use ComponentsGuideWeb, :controller_view
+  use ComponentsGuideWeb, :controller
 
   def index(conn, _params) do
     today = Date.utc_today()
@@ -14,9 +14,9 @@ defmodule ComponentsGuideWeb.CalendarController do
   end
 end
 
-defmodule ComponentsGuideWeb.CalendarView do
-  use ComponentsGuideWeb, :view
+defmodule ComponentsGuideWeb.CalendarHTML do
+  use ComponentsGuideWeb, :html
   use Phoenix.Component
 
-  alias ComponentsGuideWeb.CalendarComponent
+  embed_templates("calendar_html/*")
 end
