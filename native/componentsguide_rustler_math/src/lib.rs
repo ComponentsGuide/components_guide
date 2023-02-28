@@ -1,6 +1,8 @@
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
-use rustler::{Env, Term, Atom, Binary, Error, NifRecord, NifStruct, NifTaggedEnum, ResourceArc};
+use rustler::{Atom, Binary, Env, Error, NifRecord, NifStruct, NifTaggedEnum, ResourceArc, Term};
+use std::slice;
+use std::ffi::CStr;
 use std::convert::TryInto;
 
 #[rustler::nif]
@@ -39,8 +41,7 @@ enum WasmModuleDefinition<'a> {
     Wasm(Binary<'a>),
 }
 
-impl AsRef<[u8]> for WasmModuleDefinition<'_>
-{
+impl AsRef<[u8]> for WasmModuleDefinition<'_> {
     fn as_ref(&self) -> &[u8] {
         match self {
             WasmModuleDefinition::Wat(s) => s.as_ref(),
@@ -130,8 +131,8 @@ fn wasm_example_0_internal(source: String, f: String) -> Result<i32, anyhow::Err
 }
 
 #[rustler::nif]
-fn wasm_string_2_i32(wat_source: String, f: String, a: i32, b: i32) -> Result<String, Error> {
-    return match wasm_example_2_i32_string_internal(wat_source, f, a, b) {
+fn wasm_string_2_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
+    return match wasm_example_2_i32_string_internal(wat_source, f, args) {
         Ok(v) => Ok(v),
         Err(e) => Err(error_from(e)),
     };
@@ -140,8 +141,7 @@ fn wasm_string_2_i32(wat_source: String, f: String, a: i32, b: i32) -> Result<St
 fn wasm_example_2_i32_string_internal(
     wat_source: String,
     f: String,
-    a: i32,
-    b: i32,
+    args: Vec<i32>,
 ) -> Result<String, anyhow::Error> {
     let engine = Engine::default();
 
@@ -152,7 +152,7 @@ fn wasm_example_2_i32_string_internal(
     let mut store = Store::new(&engine, ());
     let mut linker = Linker::new(&engine);
 
-    let memory_ty = MemoryType::new(1, None);
+    let memory_ty = MemoryType::new(2, None);
     let memory = Memory::new(&mut store, memory_ty)?;
     linker.define(&store, "env", "buffer", memory)?;
 
@@ -173,23 +173,56 @@ fn wasm_example_2_i32_string_internal(
         .get_func(&mut store, &f)
         .expect(&format!("{} was not an exported function", f));
 
+    let func_type = answer.ty(&store);
     // There's a few ways we can call the `answer` `Func` value. The easiest
     // is to statically assert its signature with `typed` (in this case
     // asserting it takes no arguments and returns one i32) and then call it.
-    let answer = answer.typed::<(i32, i32), (i32, i32)>(&store)?;
+    // let answer = answer.typed::<(i32, i32), i32>(&store)?;
+
+    // let args = vec![a, b];
+    // let args: &[Val] = &[Val::I32(a), Val::I32(b)];
+    // let args: &[Val] = args.iter().map(|i| Val::I32(i)).collect();
+    let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+
+    let mut result: Vec<Val> = Vec::with_capacity(16);
+    // result.resize(2, Val::I32(0));
+    let result_length = func_type.results().len();
+    result.resize(result_length, Val::I32(0));
 
     // And finally we can call our function! Note that the error propagation
     // with `?` is done to handle the case where the wasm function traps.
-    let (start, length) = answer.call(&mut store, (a, b))?;
-    let start: usize = start.try_into().unwrap();
-    let length: usize = length.try_into().unwrap();
+    answer.call(&mut store, &args, &mut result)?;
 
-    let mut string_buffer: Vec<u8> = Vec::with_capacity(length);
-    string_buffer.resize(length, 0);
-    memory.read(&store, start, &mut string_buffer)?;
-    let string = String::from_utf8(string_buffer)?;
+    let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
 
-    return Ok(string);
+    match result.as_slice() {
+        [] => anyhow::bail!("Receive empty result"),
+        [start, length] => {
+            let start = *start;
+            let length = *length;
+            let start: usize = start.try_into().unwrap();
+            let length: usize = length.try_into().unwrap();
+        
+            let mut string_buffer: Vec<u8> = Vec::with_capacity(length);
+            string_buffer.resize(length, 0);
+            memory.read(&store, start, &mut string_buffer)?;
+            let string = String::from_utf8(string_buffer)?;
+            return Ok(string);
+        },
+        [start] => {
+            let start = *start;
+            let start: usize = start.try_into().unwrap();
+
+            let data = &memory.data(&store)[start..];
+            let data: &[i8] = unsafe { slice::from_raw_parts(data.as_ptr() as *const i8, data.len()) };
+
+            let cstr = unsafe { CStr::from_ptr(data.as_ptr()) };
+            let string = String::from_utf8_lossy(cstr.to_bytes()).to_string();
+        
+            return Ok(string);
+        },
+        _items => anyhow::bail!("Receive result with too many items")
+    }
 }
 
 fn wasm_example_n_i32_internal(
@@ -208,7 +241,7 @@ fn wasm_example_n_i32_internal(
     let mut linker = Linker::new(&engine);
 
     if buffer {
-        let memory_ty = MemoryType::new(1, None);
+        let memory_ty = MemoryType::new(2, None);
         let memory = Memory::new(&mut store, memory_ty)?;
         linker.define(&store, "env", "buffer", memory)?;
     }

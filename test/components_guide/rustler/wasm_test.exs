@@ -124,19 +124,50 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.wasm_example(wasm_source, "validate", 2000) == 0
   end
 
-  test "wasm_example/4 spits out HTML strings" do
+  test "wasm_example/4 spits out string" do
     wasm_source = """
     (module
       (import "env" "buffer" (memory 1))
       (data (i32.const 256) "Know the length of this string")
-      (func (export "main") (param $num i32) (param $unused i32) (result i32 i32)
+      (func (export "main") (result i32 i32)
         (i32.const 256) (i32.const 30)
       )
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "main", 0, 0) == {256, 30}
-    assert Wasm.wasm_string(wasm_source, "main", 0, 0) == "Know the length of this string"
+    assert Wasm.wasm_example(wasm_source, "main") == {256, 30}
+    assert Wasm.wasm_string(wasm_source, "main") == "Know the length of this string"
+  end
+
+  test "wasm_example/4 spits out null-terminated string" do
+    wasm_source = """
+    (module
+      (import "env" "buffer" (memory 1))
+      (data (i32.const 256) "No need to know the length of this string")
+      (func (export "main") (result i32)
+        (i32.const 256)
+      )
+    )
+    """
+
+    assert Wasm.wasm_example(wasm_source, "main") == 256
+    assert Wasm.wasm_string(wasm_source, "main") == "No need to know the length of this string"
+  end
+
+  test "wasm_example/4 spits out HTML strings" do
+    wasm_source = """
+    (module
+      (import "env" "buffer" (memory 1))
+      (global $doctype (mut i32) (i32.const 65536))
+      (data (i32.const 65536) "<!doctype html>")
+      (func (export "main") (param $num i32) (param $unused i32) (result i32 i32)
+        (get_global $doctype) (i32.const 15)
+      )
+    )
+    """
+
+    assert Wasm.wasm_example(wasm_source, "main", 0, 0) == {65536, 15}
+    assert Wasm.wasm_string(wasm_source, "main", 0, 0) == "<!doctype html>"
   end
 
   # defwasm multiply(a, b) do
