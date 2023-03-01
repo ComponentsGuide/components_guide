@@ -160,14 +160,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       (import "env" "buffer" (memory 1))
       (global $doctype (mut i32) (i32.const 65536))
       (data (i32.const 65536) "<!doctype html>")
-      (func (export "main") (param $num i32) (param $unused i32) (result i32 i32)
+      (func (export "main") (result i32 i32)
         (get_global $doctype) (i32.const 15)
       )
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "main", 0, 0) == {65536, 15}
-    assert Wasm.wasm_string(wasm_source, "main", 0, 0) == "<!doctype html>"
+    assert Wasm.wasm_example(wasm_source, "main") == {65536, 15}
+    assert Wasm.wasm_string(wasm_source, "main") == "<!doctype html>"
   end
 
   # defwasm multiply(a, b) do
