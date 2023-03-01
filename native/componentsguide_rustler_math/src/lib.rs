@@ -73,6 +73,25 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
     return Ok(exports);
 }
 
+/*
+struct StartedInstance {
+    instance: Instance,
+}
+
+#[rustler::nif]
+fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc<StartedInstance>, Error> {
+    let engine = Engine::default();
+    let module = Module::new(&engine, &source).map_err(error_from)?;
+    let mut store = Store::new(&engine, ());
+    let instance = Instance::new(&mut store, &module, &[]).map_err(error_from)?;
+
+    let _ = rustler::resource!(StartedInstance, env);
+    let resource = ResourceArc::new(StartedInstance { instance: instance });
+
+    return Ok(resource);
+}
+*/
+
 #[rustler::nif]
 fn wasm_example_n_i32(source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
     // return Ok(5);
