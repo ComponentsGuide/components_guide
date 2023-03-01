@@ -1,11 +1,30 @@
 defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   use ExUnit.Case, async: true
 
-  import ComponentsGuide.Rustler.WasmBuilder
+  use ComponentsGuide.Rustler.WasmBuilder
 
   test "to_wat/1 single func" do
     wasm =
       module("single_func") do
+        func(export("answer"), result(:i32), [
+          42
+        ])
+      end
+
+    wasm_source = """
+    (module $single_func
+      (func (export "answer") (result i32)
+        i32.const 42
+      )
+    )
+    """
+
+    assert to_wat(wasm) == wasm_source
+  end
+
+  test "to_wat/1 defwasmmodule single func" do
+    wasm =
+      defwasmmodule single_func do
         func(export("answer"), result(:i32), [
           42
         ])
@@ -33,6 +52,42 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
           3.14
         ])
       ])
+
+    wasm_source = """
+    (module $two_funcs
+      (memory (export "mem") 1)
+      (func (export "answer") (result i32)
+        i32.const 42
+      )
+      (func (export "get_pi") (result f32)
+        f32.const 3.14
+      )
+    )
+    """
+
+    assert to_wat(wasm) == wasm_source
+  end
+
+  # defwasmmodule TwoFuncs do
+
+  # end
+
+  test "to_wat/1 defwasmmodule two funcs" do
+    wasm =
+      defwasmmodule two_funcs do
+        memory(export("mem"), 1)
+
+        # defwasmfunc answer, result: i32 do
+        #   42
+        # end
+        func(export("answer"), result(:i32), [
+          42
+        ])
+
+        func(export("get_pi"), result(:f32), [
+          3.14
+        ])
+      end
 
     wasm_source = """
     (module $two_funcs
@@ -79,9 +134,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
           data(status * 24, "#{message}\\00")
         end,
         func(export("lookup"), param("status", :i32), result(:i32), [
+          # quote(do: status * 24),
           local_get("status"),
           24,
-          :i32_mul
+          i32(:mul)
         ])
       ])
 

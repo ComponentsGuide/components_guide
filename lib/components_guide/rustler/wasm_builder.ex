@@ -1,4 +1,10 @@
 defmodule ComponentsGuide.Rustler.WasmBuilder do
+  defmacro __using__(_) do
+    quote do
+      import ComponentsGuide.Rustler.WasmBuilder
+    end
+  end
+
   defmodule Module do
     defstruct [:name, :body]
   end
@@ -31,6 +37,26 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def module(name, body) do
     %Module{name: name, body: body}
+  end
+
+  # defmacro defwasmmodule(call, do: block) when is_list(block) do
+  #   define_module(call, block)
+  # end
+
+  defmacro defwasmmodule(call, do: block) do
+    define_module(call, block)
+  end
+
+  defp define_module(call, block) do
+    block_items = case block do
+      {:__block__, [], block_items} -> block_items
+      single -> [single]
+    end
+
+    {name, _args} = Macro.decompose_call(call)
+    quote do
+      %Module{name: unquote(name), body: unquote(block_items)}
+    end
   end
 
   def memory(name \\ nil, min) do
@@ -66,6 +92,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def i32_const(value), do: {:i32_const, value}
+  def i32(:mul), do: {:i32, :mul}
 
   def local_get(identifier), do: {:local_get, identifier}
 
@@ -119,5 +146,5 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:local_get, identifier}, indent), do: "#{indent}local.get $#{identifier}"
   def to_wat(value, indent) when is_integer(value), do: "#{indent}i32.const #{value}"
   def to_wat(value, indent) when is_float(value), do: "#{indent}f32.const #{value}"
-  def to_wat(:i32_mul, indent), do: "#{indent}i32.mul"
+  def to_wat({:i32, :mul}, indent), do: "#{indent}i32.mul"
 end
