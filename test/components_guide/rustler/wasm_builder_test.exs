@@ -50,10 +50,34 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   test "to_wat/1 many data" do
+    statuses = [
+      {200, "OK"},
+      {201, "Created"},
+      {204, "No Content"},
+      {205, "Reset Content"},
+      {301, "Moved Permanently"},
+      {302, "Found"},
+      {303, "See Other"},
+      {304, "Not Modified"},
+      {307, "Temporary Redirect"},
+      {400, "Bad Request"},
+      {401, "Unauthorized"},
+      {403, "Forbidden"},
+      {404, "Not Found"},
+      {405, "Method Not Allowed"},
+      {409, "Conflict"},
+      {412, "Precondition Failed"},
+      {413, "Payload Too Large"},
+      {422, "Unprocessable Entity"},
+      {429, "Too Many Requests"}
+    ]
+
     wasm =
       module("string_html", [
         wasm_import("env", "buffer", memory(1)),
-        data(200 * 24, "OK\\00"),
+        for {status, message} <- statuses do
+          data(status * 24, "#{message}\\00")
+        end,
         func(export("lookup"), param("status", :i32), result(:i32), [
           local_get("status"),
           24,
@@ -65,6 +89,24 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     (module $string_html
       (import "env" "buffer" (memory 1))
       (data (i32.const #{200 * 24}) "OK\\00")
+      (data (i32.const #{201 * 24}) "Created\\00")
+      (data (i32.const #{204 * 24}) "No Content\\00")
+      (data (i32.const #{205 * 24}) "Reset Content\\00")
+      (data (i32.const #{301 * 24}) "Moved Permanently\\00")
+      (data (i32.const #{302 * 24}) "Found\\00")
+      (data (i32.const #{303 * 24}) "See Other\\00")
+      (data (i32.const #{304 * 24}) "Not Modified\\00")
+      (data (i32.const #{307 * 24}) "Temporary Redirect\\00")
+      (data (i32.const #{400 * 24}) "Bad Request\\00")
+      (data (i32.const #{401 * 24}) "Unauthorized\\00")
+      (data (i32.const #{403 * 24}) "Forbidden\\00")
+      (data (i32.const #{404 * 24}) "Not Found\\00")
+      (data (i32.const #{405 * 24}) "Method Not Allowed\\00")
+      (data (i32.const #{409 * 24}) "Conflict\\00")
+      (data (i32.const #{412 * 24}) "Precondition Failed\\00")
+      (data (i32.const #{413 * 24}) "Payload Too Large\\00")
+      (data (i32.const #{422 * 24}) "Unprocessable Entity\\00")
+      (data (i32.const #{429 * 24}) "Too Many Requests\\00")
       (func (export "lookup") (param $status i32) (result i32)
         local.get $status
         i32.const 24
