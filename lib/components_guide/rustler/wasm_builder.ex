@@ -48,14 +48,59 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defp define_module(call, block) do
-    block_items = case block do
-      {:__block__, [], block_items} -> block_items
-      single -> [single]
-    end
+    block_items =
+      case block do
+        {:__block__, [], block_items} -> block_items
+        single -> [single]
+      end
 
     {name, _args} = Macro.decompose_call(call)
+
     quote do
       %Module{name: unquote(name), body: unquote(block_items)}
+    end
+  end
+
+  defmacro defwasmfunc(call, options \\ [], do: block) do
+    define_func(call, :public, options, block)
+  end
+
+  defp define_func(call, visibility, options, block) do
+    {name, args} = Macro.decompose_call(call)
+
+    name =
+      case visibility do
+        :public -> export(name)
+        :private -> name
+      end
+
+    params =
+      for {name, _meta, [type]} <- args do
+        Macro.escape(param(name, type))
+      end
+
+    locals =
+      Map.new(
+        for {name, _meta, [type]} <- args do
+          {name, type}
+        end
+      )
+
+    block_items =
+      case block do
+        {:__block__, _meta, block_items} -> block_items
+        single -> [single]
+      end
+
+    result_type = Keyword.get(options, :result, :i32)
+
+    quote do
+      %Func{
+        name: unquote(name),
+        params: unquote(params),
+        result: result(unquote(result_type)),
+        body: unquote(block_items)
+      }
     end
   end
 

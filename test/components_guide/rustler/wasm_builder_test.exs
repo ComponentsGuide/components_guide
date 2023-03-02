@@ -72,28 +72,53 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
 
   # end
 
+  test "defwasmfunc" do
+    wasm =
+      defwasmfunc answer, result: :i32 do
+        42
+      end
+
+    wasm_source = """
+    (func (export "answer") (result i32)
+      i32.const 42
+    )\
+    """
+
+    assert to_wat(wasm) == wasm_source
+  end
+
   test "to_wat/1 defwasmmodule two funcs" do
     wasm =
       defwasmmodule two_funcs do
         memory(export("mem"), 1)
+        # memory mem, min: 1
 
-        # defwasmfunc answer, result: i32 do
-        #   42
-        # end
-        func(export("answer"), result(:i32), [
-          42
-        ])
+        defwasmfunc answer, result: :i32 do
+          2
+          21
+          i32(:mul)
+        end
 
-        func(export("get_pi"), result(:f32), [
+        defwasmfunc get_pi, result: :f32 do
           3.14
-        ])
+        end
+
+        # func(export("answer"), result(:i32), [
+        #   42
+        # ])
+
+        # func(export("get_pi"), result(:f32), [
+        #   3.14
+        # ])
       end
 
     wasm_source = """
     (module $two_funcs
       (memory (export "mem") 1)
       (func (export "answer") (result i32)
-        i32.const 42
+        i32.const 2
+        i32.const 21
+        i32.mul
       )
       (func (export "get_pi") (result f32)
         f32.const 3.14
@@ -128,18 +153,26 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     ]
 
     wasm =
-      module("string_html", [
-        wasm_import("env", "buffer", memory(1)),
+      defwasmmodule string_html do
+        wasm_import("env", "buffer", memory(1))
+
         for {status, message} <- statuses do
           data(status * 24, "#{message}\\00")
-        end,
-        func(export("lookup"), param("status", :i32), result(:i32), [
-          # quote(do: status * 24),
-          local_get("status"),
-          24,
+        end
+
+        defwasmfunc lookup(status(:i32)), result: :i32 do
+          local_get(:status)
+          24
           i32(:mul)
-        ])
-      ])
+        end
+
+        # func(export("lookup"), param("status", :i32), result(:i32), [
+        #   # quote(do: status * 24),
+        #   local_get("status"),
+        #   24,
+        #   i32(:mul)
+        # ])
+      end
 
     wasm_source = ~s"""
     (module $string_html
