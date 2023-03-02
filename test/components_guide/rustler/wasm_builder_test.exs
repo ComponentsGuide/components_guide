@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   use ExUnit.Case, async: true
 
   use ComponentsGuide.Rustler.WasmBuilder
+  alias ComponentsGuide.Rustler.WasmBuilder
 
   test "func" do
     wasm =
@@ -18,16 +19,78 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert to_wat(wasm) == wasm_source
   end
 
+  defmodule SingleFunc do
+    use ComponentsGuide.Rustler.WasmBuilder
+
+    defwasm do
+      memory(export(:mem), 1)
+
+      func answer, result: :i32 do
+        42
+      end
+    end
+  end
+
+  test "defwasm/1 defines __wasm_module__/0" do
+    alias ComponentsGuide.Rustler.WasmBuilder
+
+    wasm = SingleFunc.__wasm_module__()
+
+    assert wasm == %WasmBuilder.Module{
+             name: "SingleFunc",
+             body: [
+               %WasmBuilder.Memory{name: {:export, :mem}, min: 1},
+               %WasmBuilder.Func{
+                 name: {:export, :answer},
+                 params: [],
+                 result: {:result, :i32},
+                 body: [42]
+               }
+             ]
+           }
+  end
+
+  test "to_wat/1 defwasm" do
+    wasm_source = """
+    (module $SingleFunc
+      (memory (export "mem") 1)
+      (func (export "answer") (result i32)
+        i32.const 42
+      )
+    )
+    """
+
+    assert to_wat(SingleFunc) == wasm_source
+  end
+
   test "to_wat/1 defwasmmodule single func" do
+    alias ComponentsGuide.Rustler.WasmBuilder
+
     wasm =
-      defwasmmodule single_func do
+      defwasmmodule SomeName do
+        memory(export(:mem), 1)
+
         func answer, result: :i32 do
           42
         end
       end
 
+    assert wasm == %WasmBuilder.Module{
+             name: "SomeName",
+             body: [
+               %WasmBuilder.Memory{name: {:export, :mem}, min: 1},
+               %WasmBuilder.Func{
+                 name: {:export, :answer},
+                 body: [42],
+                 params: [],
+                 result: {:result, :i32}
+               }
+             ]
+           }
+
     wasm_source = """
-    (module $single_func
+    (module $SomeName
+      (memory (export "mem") 1)
       (func (export "answer") (result i32)
         i32.const 42
       )
@@ -74,34 +137,34 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert to_wat(wasm) == wasm_source
   end
 
-  test "to_wat/1 many data" do
-    statuses = [
-      {200, "OK"},
-      {201, "Created"},
-      {204, "No Content"},
-      {205, "Reset Content"},
-      {301, "Moved Permanently"},
-      {302, "Found"},
-      {303, "See Other"},
-      {304, "Not Modified"},
-      {307, "Temporary Redirect"},
-      {400, "Bad Request"},
-      {401, "Unauthorized"},
-      {403, "Forbidden"},
-      {404, "Not Found"},
-      {405, "Method Not Allowed"},
-      {409, "Conflict"},
-      {412, "Precondition Failed"},
-      {413, "Payload Too Large"},
-      {422, "Unprocessable Entity"},
-      {429, "Too Many Requests"}
-    ]
+  @statuses [
+    {200, "OK"},
+    {201, "Created"},
+    {204, "No Content"},
+    {205, "Reset Content"},
+    {301, "Moved Permanently"},
+    {302, "Found"},
+    {303, "See Other"},
+    {304, "Not Modified"},
+    {307, "Temporary Redirect"},
+    {400, "Bad Request"},
+    {401, "Unauthorized"},
+    {403, "Forbidden"},
+    {404, "Not Found"},
+    {405, "Method Not Allowed"},
+    {409, "Conflict"},
+    {412, "Precondition Failed"},
+    {413, "Payload Too Large"},
+    {422, "Unprocessable Entity"},
+    {429, "Too Many Requests"}
+  ]
 
+  test "to_wat/1 many data" do
     wasm =
       defwasmmodule string_html do
         wasm_import(:env, :buffer, memory(1))
 
-        for {status, message} <- statuses do
+        for {status, message} <- @statuses do
           data(status * 24, "#{message}\\00")
         end
 
@@ -143,6 +206,58 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     """
 
     assert to_wat(wasm) == wasm_source
+  end
+
+  defmodule WithinRange do
+    use WasmBuilder
+
+    defwasm do
+      func validate(num(:i32)), result: :i32 do
+        # lt is_integer()
+        # gt is_integer()
+        local(:lt, :i32)
+        local(:gt, :i32)
+        local_get(:num)
+        1
+        i32(:lt_s)
+        local_set(:lt)
+        local_get(:num)
+        255
+        i32(:gt_s)
+        local_set(:gt)
+        local_get(:lt)
+        local_get(:gt)
+        i32(:or)
+        i32(:eqz)
+      end
+
+      # export(:validate, validate)
+    end
+  end
+
+  test "wasm_example/3 checking a number is within a range" do
+    wasm_source = """
+    (module $WithinRange
+      (func (export "validate") (param $num i32) (result i32)
+        local $lt i32
+        local $gt i32
+        local.get $num
+        i32.const 1
+        i32.lt_s
+        local.set $lt
+        local.get $num
+        i32.const 255
+        i32.gt_s
+        local.set $gt
+        local.get $lt
+        local.get $gt
+        i32.or
+        i32.eqz
+      )
+    )
+    """
+
+    assert to_wat(WithinRange) == wasm_source
   end
 
   # defwasm multiply(a, b) do

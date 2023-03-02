@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Rustler.Wasm do
   # if false and Mix.env() == :dev do
   use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math
+
   #   # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, target_dir: System.tmp_dir!()
   #   # use Rustler, otp_app: :components_guide, crate: :componentsguide_rustler_math, cargo: {:rustup, :stable}
   # end
@@ -26,9 +27,17 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_example_0(_, _), do: error()
   def wasm_string_2_i32(_, _, _), do: error()
 
-  def wasm_example(source, f), do: wasm_example_n_i32(source, f, []) |> process_result()
-  def wasm_example(source, f, a), do: wasm_example_n_i32(source, f, [a]) |> process_result()
-  def wasm_example(source, f, a, b), do: wasm_example_n_i32(source, f, [a, b]) |> process_result()
+  def wasm_example(source, f) do
+    process_source(source) |> wasm_example_n_i32(f, []) |> process_result()
+  end
+
+  def wasm_example(source, f, a) do
+    process_source(source) |> wasm_example_n_i32(f, [a]) |> process_result()
+  end
+
+  def wasm_example(source, f, a, b) do
+    process_source(source) |> wasm_example_n_i32(f, [a, b]) |> process_result()
+  end
 
   def wasm_string(source, f), do: wasm_string_2_i32(source, f, [])
   def wasm_string(source, f, a), do: wasm_string_2_i32(source, f, [a])
@@ -36,9 +45,17 @@ defmodule ComponentsGuide.Rustler.Wasm do
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)
 
+  defp process_source(string) when is_binary(string), do: string
+
+  defp process_source(atom) when is_atom(atom),
+    do: ComponentsGuide.Rustler.WasmBuilder.to_wat(atom)
+
   defp process_result([]), do: nil
   defp process_result([a]), do: a
-  defp process_result(multiple_items) when is_list(multiple_items), do: List.to_tuple(multiple_items)
+
+  defp process_result(multiple_items) when is_list(multiple_items),
+    do: List.to_tuple(multiple_items)
+
   defp process_result({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
   defp process_result({:error, s}), do: {:error, s}
 end

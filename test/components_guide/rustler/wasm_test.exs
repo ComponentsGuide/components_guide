@@ -55,24 +55,6 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.wasm_example(wasm_source, "answer") == 42
   end
 
-  test "wasm_example/2 dsl" do
-    # wasm_source = module([
-    #   func(export("answer"), {:result, :i32}, {:i32_const, 42})
-    # ])
-    # wasm_source = module(func(export("answer"), Result.i32, {I32.const, 42}))
-    # wasm_source = module({:func, {:export, "answer"}, {:result, :i32}, {:i32_const, 42}})
-
-    wasm_source = """
-    (module
-      (func (export "answer") (result i32)
-       i32.const 42
-      )
-    )
-    """
-
-    assert Wasm.wasm_example(wasm_source, "answer") == 42
-  end
-
   test "wasm_example/4 adding two numbers" do
     wasm_source = """
     (module $add_func
@@ -85,6 +67,22 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     """
 
     assert Wasm.wasm_example(wasm_source, "add", 7, 5) == 12
+  end
+
+  defmodule Add2Ints do
+    use ComponentsGuide.Rustler.WasmBuilder
+
+    defwasm do
+      func add(a(:i32), b(:i32)), result: :i32 do
+        local_get(a)
+        local_get(b)
+        i32(:add)
+      end
+    end
+  end
+
+  test "wasm_example/4 defwasm adding two numbers" do
+    assert Wasm.wasm_example(Add2Ints, "add", 7, 5) == 12
   end
 
   test "wasm_example/4 multiplying two numbers" do

@@ -44,20 +44,30 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   # end
 
   defmacro defwasmmodule(call, do: block) do
-    define_module(call, block)
+    define_module(Macro.to_string(call), block)
   end
 
-  defp define_module(call, block) do
+  defp define_module(name, block) do
     block_items =
       case block do
         {:__block__, [], block_items} -> block_items
         single -> [single]
       end
 
-    {name, _args} = Macro.decompose_call(call)
-
     quote do
       %Module{name: unquote(name), body: unquote(block_items)}
+    end
+  end
+
+  defmacro defwasm(do: block) do
+    name = __CALLER__.module |> Elixir.Module.split() |> List.last()
+
+    definition = define_module(name, block)
+
+    quote do
+      Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
+
+      def __wasm_module__(), do: unquote(definition)
     end
   end
 
@@ -128,14 +138,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Import{module: module, name: name, type: type}
   end
 
-  def make_func(name = {:export, _}, result = {:result, _}, body) do
-    %Func{name: name, params: [], result: result, body: body}
-  end
-
-  def make_func(name = {:export, _}, param = %Param{}, result = {:result, _}, body) do
-    %Func{name: name, params: [param], result: result, body: body}
-  end
-
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
   end
@@ -148,11 +150,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     {:result, type}
   end
 
+  @i32_ops ~w(mul add lt_s gt_s or eqz)a
+
   def i32_const(value), do: {:i32_const, value}
-  def i32(:mul), do: {:i32, :mul}
+  def i32(op) when op in @i32_ops, do: {:i32, op}
 
+  def local(identifier, type), do: {:local, identifier, type}
   def local_get(identifier), do: {:local_get, identifier}
+  def local_set(identifier), do: {:local_set, identifier}
 
+  def to_wat(term) when is_atom(term), do: to_wat(term.__wasm_module__(), "")
   def to_wat(term), do: to_wat(term, "")
 
   def to_wat(term, indent)
@@ -200,8 +207,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}i32.const #{value}"
+  def to_wat({:local, identifier, type}, indent), do: "#{indent}local $#{identifier} #{type}"
   def to_wat({:local_get, identifier}, indent), do: "#{indent}local.get $#{identifier}"
+  def to_wat({:local_set, identifier}, indent), do: "#{indent}local.set $#{identifier}"
   def to_wat(value, indent) when is_integer(value), do: "#{indent}i32.const #{value}"
   def to_wat(value, indent) when is_float(value), do: "#{indent}f32.const #{value}"
-  def to_wat({:i32, :mul}, indent), do: "#{indent}i32.mul"
+  def to_wat({:i32, op}, indent) when op in @i32_ops, do: "#{indent}i32.#{op}"
 end
