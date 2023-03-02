@@ -27,15 +27,20 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_example_0(_, _), do: error()
   def wasm_string_2_i32(_, _, _), do: error()
 
-  def wasm_example(source, f) do
+  # TODO: remove these, replaced by call
+  defdelegate wasm_example(source, f), to: __MODULE__, as: :call
+  defdelegate wasm_example(source, f, a), to: __MODULE__, as: :call
+  defdelegate wasm_example(source, f, a, b), to: __MODULE__, as: :call
+
+  def call(source, f) do
     process_source(source) |> wasm_example_n_i32(f, []) |> process_result()
   end
 
-  def wasm_example(source, f, a) do
+  def call(source, f, a) do
     process_source(source) |> wasm_example_n_i32(f, [a]) |> process_result()
   end
 
-  def wasm_example(source, f, a, b) do
+  def call(source, f, a, b) do
     process_source(source) |> wasm_example_n_i32(f, [a, b]) |> process_result()
   end
 

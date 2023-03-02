@@ -213,24 +213,23 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
 
     defwasm do
       # func validate(num(:i32)), result(:i32), locals(lt(:i32), gt(:i32)) do
+      # func validate(num = :i32), result: :i32 do
       func validate(num(:i32)), result: :i32 do
-        # is_integer(lt)
-        # is_integer(gt)
         local(:lt, :i32)
         local(:gt, :i32)
+        # lt = 0
+        # gt = 0
 
-        I32.lt_s(local_get(:num), 1)
-        local_set(:lt)
+        # I32.lt_s(local_get(:num), 1)
+        # local_set(:lt)
+        lt = I32.lt_s(num, 1)
 
-        I32.gt_s(local_get(:num), 255)
-        local_set(:gt)
+        gt = I32.gt_s(num, 255)
 
         I32.or(local_get(:lt), local_get(:gt))
 
         I32.eqz()
       end
-
-      # export(:validate, validate)
     end
   end
 
@@ -253,11 +252,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     """
 
     assert to_wat(WithinRange) == wasm_source
-    assert Wasm.wasm_example(WithinRange, "validate", 0) == 0
-    # assert Wasm.wasm_example(WithinRange, "validate", 1) == 1
-    # assert Wasm.wasm_example(WithinRange, "validate", 100) == 1
-    # assert Wasm.wasm_example(WithinRange, "validate", 255) == 1
-    # assert Wasm.wasm_example(WithinRange, "validate", 256) == 0
+    assert Wasm.call(WithinRange, "validate", 0) == 0
+    assert Wasm.call(WithinRange, "validate", 1) == 1
+    assert Wasm.call(WithinRange, "validate", 100) == 1
+    assert Wasm.call(WithinRange, "validate", 255) == 1
+    assert Wasm.call(WithinRange, "validate", 256) == 0
   end
 
   # defwasm multiply(a, b) do

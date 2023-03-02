@@ -55,6 +55,33 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.wasm_example(wasm_source, "answer") == 42
   end
 
+  test "wasm_example/2 uninitialized local" do
+    wasm_source = """
+    (module $single_func
+      (func (export "answer") (result i32)
+        (local $a i32)
+        local.get $a
+      )
+    )
+    """
+
+    assert Wasm.wasm_example(wasm_source, "answer") == 0
+  end
+
+  test "wasm_example/2 mutating a param" do
+    wasm_source = """
+    (module $single_func
+      (func (export "answer") (param $a i32) (result i32)
+        i32.const 42
+        local.set $a
+        local.get $a
+      )
+    )
+    """
+
+    assert Wasm.wasm_example(wasm_source, "answer", 17) == 42
+  end
+
   test "wasm_example/4 adding two numbers" do
     wasm_source = """
     (module $add_func

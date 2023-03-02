@@ -103,6 +103,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   defp define_func(call, visibility, options, block) do
     {name, args} = Macro.decompose_call(call)
 
+    # if name == :validate do
+    #   IO.inspect(block)
+    # end
+
     name =
       case visibility do
         :public -> export(name)
@@ -125,14 +129,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       case block do
         {:__block__, _meta, block_items} ->
           for block_item <- block_items do
-            case block_item do
-              {f, meta, [{atom, _, nil}]}
-              when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) ->
-                {f, meta, [atom]}
-
-              _ ->
-                block_item
-            end
+            magic_func_item(block_item, locals)
           end
 
         single ->
@@ -149,6 +146,27 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         body: unquote(block_items)
       }
     end
+  end
+
+  defp magic_func_item({f, meta, [{atom, _, nil}]}, params)
+       when f in [:local_get] and is_atom(atom) and is_map_key(params, atom) do
+    {f, meta, [atom]}
+  end
+
+  defp magic_func_item(
+         {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, [{atom, meta4, nil}, b]},
+         params
+       )
+       when is_atom(atom) and is_map_key(params, atom) and op in @i32_ops_2 do
+    {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, [{:local_get, meta4, [atom]}, b]}
+  end
+
+  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, params) do
+    [magic_func_item(input, params), local_set(local)]
+  end
+
+  defp magic_func_item(item, _params) do
+    item
   end
 
   def memory(name \\ nil, min) do
