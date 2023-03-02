@@ -61,7 +61,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  defmacro defwasmfunc(call, options \\ [], do: block) do
+  defmacro func(call, options \\ [], do: block) do
     define_func(call, :public, options, block)
   end
 
@@ -128,11 +128,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Import{module: module, name: name, type: type}
   end
 
-  def func(name = {:export, _}, result = {:result, _}, body) do
+  def make_func(name = {:export, _}, result = {:result, _}, body) do
     %Func{name: name, params: [], result: result, body: body}
   end
 
-  def func(name = {:export, _}, param = %Param{}, result = {:result, _}, body) do
+  def make_func(name = {:export, _}, param = %Param{}, result = {:result, _}, body) do
     %Func{name: name, params: [param], result: result, body: body}
   end
 
