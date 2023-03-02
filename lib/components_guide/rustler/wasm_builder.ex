@@ -88,8 +88,20 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     block_items =
       case block do
-        {:__block__, _meta, block_items} -> block_items
-        single -> [single]
+        {:__block__, _meta, block_items} ->
+          for block_item <- block_items do
+            case block_item do
+              {f, meta, [{atom, _, nil}]}
+              when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) ->
+                {f, meta, [atom]}
+
+              _ ->
+                block_item
+            end
+          end
+
+        single ->
+          [single]
       end
 
     result_type = Keyword.get(options, :result, :i32)

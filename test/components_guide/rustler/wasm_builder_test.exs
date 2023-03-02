@@ -102,14 +102,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         defwasmfunc get_pi, result: :f32 do
           3.14
         end
-
-        # func(export("answer"), result(:i32), [
-        #   42
-        # ])
-
-        # func(export("get_pi"), result(:f32), [
-        #   3.14
-        # ])
       end
 
     wasm_source = """
@@ -154,24 +146,17 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
 
     wasm =
       defwasmmodule string_html do
-        wasm_import("env", "buffer", memory(1))
+        wasm_import(:env, :buffer, memory(1))
 
         for {status, message} <- statuses do
           data(status * 24, "#{message}\\00")
         end
 
         defwasmfunc lookup(status(:i32)), result: :i32 do
-          local_get(:status)
+          local_get(status)
           24
           i32(:mul)
         end
-
-        # func(export("lookup"), param("status", :i32), result(:i32), [
-        #   # quote(do: status * 24),
-        #   local_get("status"),
-        #   24,
-        #   i32(:mul)
-        # ])
       end
 
     wasm_source = ~s"""
