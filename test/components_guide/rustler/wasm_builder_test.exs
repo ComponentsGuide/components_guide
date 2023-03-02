@@ -212,23 +212,22 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     use WasmBuilder
 
     defwasm do
+      # func validate(num(:i32)), result(:i32), locals(lt(:i32), gt(:i32)) do
       func validate(num(:i32)), result: :i32 do
-        # lt is_integer()
-        # gt is_integer()
+        # is_integer(lt)
+        # is_integer(gt)
         local(:lt, :i32)
         local(:gt, :i32)
-        local_get(:num)
-        1
-        i32(:lt_s)
+
+        I32.lt_s(local_get(:num), 1)
         local_set(:lt)
-        local_get(:num)
-        255
-        i32(:gt_s)
+
+        I32.gt_s(local_get(:num), 255)
         local_set(:gt)
-        local_get(:lt)
-        local_get(:gt)
-        i32(:or)
-        i32(:eqz)
+
+        I32.or(local_get(:lt), local_get(:gt))
+
+        I32.eqz()
       end
 
       # export(:validate, validate)
@@ -236,28 +235,29 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   test "wasm_example/3 checking a number is within a range" do
+    alias ComponentsGuide.Rustler.Wasm
+
     wasm_source = """
     (module $WithinRange
       (func (export "validate") (param $num i32) (result i32)
-        local $lt i32
-        local $gt i32
-        local.get $num
-        i32.const 1
-        i32.lt_s
+        (local $lt i32)
+        (local $gt i32)
+        (i32.lt_s (local.get $num) (i32.const 1))
         local.set $lt
-        local.get $num
-        i32.const 255
-        i32.gt_s
+        (i32.gt_s (local.get $num) (i32.const 255))
         local.set $gt
-        local.get $lt
-        local.get $gt
-        i32.or
+        (i32.or (local.get $lt) (local.get $gt))
         i32.eqz
       )
     )
     """
 
     assert to_wat(WithinRange) == wasm_source
+    assert Wasm.wasm_example(WithinRange, "validate", 0) == 0
+    # assert Wasm.wasm_example(WithinRange, "validate", 1) == 1
+    # assert Wasm.wasm_example(WithinRange, "validate", 100) == 1
+    # assert Wasm.wasm_example(WithinRange, "validate", 255) == 1
+    # assert Wasm.wasm_example(WithinRange, "validate", 256) == 0
   end
 
   # defwasm multiply(a, b) do

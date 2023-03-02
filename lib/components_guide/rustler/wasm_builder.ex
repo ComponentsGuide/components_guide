@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   defmacro __using__(_) do
     quote do
       import ComponentsGuide.Rustler.WasmBuilder
+      alias ComponentsGuide.Rustler.WasmBuilder.{I32}
     end
   end
 
@@ -27,6 +28,30 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmodule Param do
     defstruct [:name, :type]
+  end
+
+  @i32_ops_2 ~w(mul add lt_s gt_s or)a
+  @i32_ops ~w(mul add lt_s gt_s or eqz)a
+
+  defmodule I32 do
+    def unquote(:or)(first, second) do
+      # [first, second, {:i32, :or}]
+      {:i32, :or, {first, second}}
+    end
+
+    def unquote(:lt_s)(first, second) do
+      # [first, second, {:i32, :lt_s}]
+      {:i32, :lt_s, {first, second}}
+    end
+
+    def unquote(:gt_s)(first, second) do
+      # [first, second, {:i32, :gt_s}]
+      {:i32, :gt_s, {first, second}}
+    end
+
+    def unquote(:eqz)() do
+      {:i32, :eqz}
+    end
   end
 
   @primitive_types [:i32, :f32]
@@ -150,8 +175,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     {:result, type}
   end
 
-  @i32_ops ~w(mul add lt_s gt_s or eqz)a
-
   def i32_const(value), do: {:i32_const, value}
   def i32(op) when op in @i32_ops, do: {:i32, op}
 
@@ -207,10 +230,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}i32.const #{value}"
-  def to_wat({:local, identifier, type}, indent), do: "#{indent}local $#{identifier} #{type}"
+  def to_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"
   def to_wat({:local_get, identifier}, indent), do: "#{indent}local.get $#{identifier}"
   def to_wat({:local_set, identifier}, indent), do: "#{indent}local.set $#{identifier}"
   def to_wat(value, indent) when is_integer(value), do: "#{indent}i32.const #{value}"
   def to_wat(value, indent) when is_float(value), do: "#{indent}f32.const #{value}"
   def to_wat({:i32, op}, indent) when op in @i32_ops, do: "#{indent}i32.#{op}"
+
+  def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2,
+    do: "#{indent}(i32.#{op} (#{to_wat(a)}) (#{to_wat(b)}))"
 end
