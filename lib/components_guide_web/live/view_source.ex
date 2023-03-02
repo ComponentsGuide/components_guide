@@ -33,7 +33,7 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
   def render(assigns) do
     ~H"""
     <.form
-      let={f}
+      :let={f}
       for={:editor}
       id="view_source_form"
       phx-submit="submitted"
