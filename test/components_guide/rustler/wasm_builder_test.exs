@@ -213,12 +213,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
 
     defwasm do
       # func validate(num(:i32)), result(:i32), locals(lt(:i32), gt(:i32)) do
-      # func validate(num = :i32), result: :i32 do
-      func validate(num(:i32)), result: :i32 do
-        local(:lt, :i32)
-        local(:gt, :i32)
+      # func validate(num = :i32), :i32 do
+      func validate(num(:i32)), result: :i32, locals: [lt: :i32, gt: :i32] do
+        # local(:lt, :i32)
+        # local(:gt, :i32)
         # lt = 0
         # gt = 0
+
+        # local_get(:num)
+        # 1
+        # {:i32, :lt_s}
 
         # I32.lt_s(local_get(:num), 1)
         # local_set(:lt)

@@ -23,7 +23,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Func do
-    defstruct [:name, :params, :result, :body]
+    defstruct [:name, :params, :result, :local_types, :body]
   end
 
   defmodule Param do
@@ -137,12 +137,14 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
 
     result_type = Keyword.get(options, :result, :i32)
+    local_types = Keyword.get(options, :locals, nil)
 
     quote do
       %Func{
         name: unquote(name),
         params: unquote(params),
         result: result(unquote(result_type)),
+        local_types: unquote(local_types),
         body: unquote(block_items)
       }
     end
@@ -233,10 +235,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ~s"#{indent}(memory #{to_wat(name)} #{min})"
   end
 
-  def to_wat(%Func{name: name, params: params, result: result, body: body}, indent) do
+  def to_wat(%Func{name: name, params: params, result: result, local_types: local_types, body: body}, indent) do
     ~s"""
     #{indent}(func #{to_wat(name)} #{for param <- params, do: [to_wat(param), " "]}#{to_wat(result)}
-    #{to_wat(body, "  " <> indent)}
+    #{for {id, type} <- local_types || [], do: ["  " <> indent, "(local $#{id} #{type})", "\n"]}#{to_wat(body, "  " <> indent)}
     #{indent})\
     """
   end
