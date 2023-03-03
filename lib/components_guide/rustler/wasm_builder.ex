@@ -150,24 +150,31 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  defp magic_func_item({f, meta, [{atom, _, nil}]}, params)
-       when f in [:local_get] and is_atom(atom) and is_map_key(params, atom) do
+  defp magic_func_item({f, meta, [{atom, _, nil}]}, locals)
+       when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) do
     {f, meta, [atom]}
   end
 
-  defp magic_func_item(
-         {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, [{atom, meta4, nil}, b]},
-         params
-       )
-       when is_atom(atom) and is_map_key(params, atom) and op in @i32_ops_2 do
-    {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, [{:local_get, meta4, [atom]}, b]}
+  defp magic_func_item({{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, args}, locals)
+       when op in @i32_ops_2 do
+    {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3,
+     Enum.map(args, &magic_func_arg(&1, locals))}
   end
 
-  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, params) do
-    [magic_func_item(input, params), local_set(local)]
+  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals) do
+    [magic_func_item(input, locals), local_set(local)]
   end
 
-  defp magic_func_item(item, _params) do
+  defp magic_func_item(item, _locals) do
+    item
+  end
+
+  defp magic_func_arg({atom, meta, nil}, locals)
+       when is_atom(atom) and is_map_key(locals, atom) do
+    {:local_get, meta, [atom]}
+  end
+
+  defp magic_func_arg(item, _locals) do
     item
   end
 
