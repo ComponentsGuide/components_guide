@@ -44,6 +44,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
                  name: {:export, :answer},
                  params: [],
                  result: {:result, :i32},
+                 local_types: [],
                  body: [42]
                }
              ]
@@ -81,9 +82,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
                %WasmBuilder.Memory{name: {:export, :mem}, min: 1},
                %WasmBuilder.Func{
                  name: {:export, :answer},
-                 body: [42],
                  params: [],
-                 result: {:result, :i32}
+                 result: {:result, :i32},
+                 local_types: [],
+                 body: [42]
                }
              ]
            }
@@ -215,22 +217,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
       # func validate(num(:i32)), result(:i32), locals(lt(:i32), gt(:i32)) do
       # func validate(num = :i32), :i32 do
       func validate(num(:i32)), result: :i32, locals: [lt: :i32, gt: :i32] do
-        # local(:lt, :i32)
-        # local(:gt, :i32)
-        # lt = 0
-        # gt = 0
-
-        # local_get(:num)
-        # 1
-        # {:i32, :lt_s}
-
-        # I32.lt_s(local_get(:num), 1)
-        # local_set(:lt)
         lt = I32.lt_s(num, 1)
-
         gt = I32.gt_s(num, 255)
 
-        I32.or(local_get(:lt), local_get(:gt))
+        I32.or(lt, local_get(:gt))
 
         I32.eqz()
       end

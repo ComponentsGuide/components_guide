@@ -118,12 +118,15 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         Macro.escape(param(name, type))
       end
 
-    locals =
-      Map.new(
-        for {name, _meta, [type]} <- args do
-          {name, type}
-        end
-      )
+    arg_types =
+      for {name, _meta, [type]} <- args do
+        {name, type}
+      end
+
+    result_type = Keyword.get(options, :result, :i32)
+    local_types = Keyword.get(options, :locals, [])
+
+    locals = Map.new(arg_types ++ local_types)
 
     block_items =
       case block do
@@ -135,9 +138,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         single ->
           [single]
       end
-
-    result_type = Keyword.get(options, :result, :i32)
-    local_types = Keyword.get(options, :locals, nil)
 
     quote do
       %Func{
@@ -235,10 +235,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ~s"#{indent}(memory #{to_wat(name)} #{min})"
   end
 
-  def to_wat(%Func{name: name, params: params, result: result, local_types: local_types, body: body}, indent) do
+  def to_wat(
+        %Func{name: name, params: params, result: result, local_types: local_types, body: body},
+        indent
+      ) do
     ~s"""
     #{indent}(func #{to_wat(name)} #{for param <- params, do: [to_wat(param), " "]}#{to_wat(result)}
-    #{for {id, type} <- local_types || [], do: ["  " <> indent, "(local $#{id} #{type})", "\n"]}#{to_wat(body, "  " <> indent)}
+    #{for {id, type} <- local_types, do: ["  " <> indent, "(local $#{id} #{type})", "\n"]}#{to_wat(body, "  " <> indent)}
     #{indent})\
     """
   end
