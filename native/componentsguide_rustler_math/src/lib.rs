@@ -150,14 +150,14 @@ fn wasm_example_0_internal(source: String, f: String) -> Result<i32, anyhow::Err
 }
 
 #[rustler::nif]
-fn wasm_string_2_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
-    return match wasm_example_2_i32_string_internal(wat_source, f, args) {
+fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
+    return match wasm_example_i32_string_internal(wat_source, f, args) {
         Ok(v) => Ok(v),
         Err(e) => Err(error_from(e)),
     };
 }
 
-fn wasm_example_2_i32_string_internal(
+fn wasm_example_i32_string_internal(
     wat_source: String,
     f: String,
     args: Vec<i32>,
@@ -315,6 +315,6 @@ rustler::init!(
         wasm_list_exports,
         wasm_example_n_i32,
         wasm_example_0,
-        wasm_string_2_i32
+        wasm_string_i32
     ]
 );
