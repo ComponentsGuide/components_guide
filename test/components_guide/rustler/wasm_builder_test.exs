@@ -224,7 +224,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     end
   end
 
-  test "wasm_example/3 checking a number is within a range" do
+  test "checking a number is within a range" do
     alias ComponentsGuide.Rustler.Wasm
 
     wasm_source = """

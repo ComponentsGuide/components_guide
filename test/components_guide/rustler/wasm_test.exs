@@ -43,7 +43,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
            ]
   end
 
-  test "wasm_example/2" do
+  test "call/2" do
     wasm_source = """
     (module $single_func
       (func (export "answer") (result i32)
@@ -52,10 +52,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "answer") == 42
+    assert Wasm.call(wasm_source, "answer") == 42
   end
 
-  test "wasm_example/2 uninitialized local" do
+  test "call/2 uninitialized local" do
     wasm_source = """
     (module $single_func
       (func (export "answer") (result i32)
@@ -65,10 +65,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "answer") == 0
+    assert Wasm.call(wasm_source, "answer") == 0
   end
 
-  test "wasm_example/2 mutating a param" do
+  test "call/2 mutating a param" do
     wasm_source = """
     (module $single_func
       (func (export "answer") (param $a i32) (result i32)
@@ -79,10 +79,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "answer", 17) == 42
+    assert Wasm.call(wasm_source, "answer", 17) == 42
   end
 
-  test "wasm_example/4 adding two numbers" do
+  test "call/4 adding two numbers" do
     wasm_source = """
     (module $add_func
       (func $add (param $a i32) (param $b i32) (result i32)
@@ -93,7 +93,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "add", 7, 5) == 12
+    assert Wasm.call(wasm_source, "add", 7, 5) == 12
   end
 
   defmodule Add2Ints do
@@ -108,11 +108,11 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     end
   end
 
-  test "wasm_example/4 defwasm adding two numbers" do
-    assert Wasm.wasm_example(Add2Ints, "add", 7, 5) == 12
+  test "call/4 defwasm adding two numbers" do
+    assert Wasm.call(Add2Ints, "add", 7, 5) == 12
   end
 
-  test "wasm_example/4 multiplying two numbers" do
+  test "call/4 multiplying two numbers" do
     wasm_source = """
     (module $multiply_func
       (func $multiply (param $a i32) (param $b i32) (result i32)
@@ -123,10 +123,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "multiply", 7, 5) == 35
+    assert Wasm.call(wasm_source, "multiply", 7, 5) == 35
   end
 
-  test "wasm_example/3 checking a number is within a range" do
+  test "call/3 checking a number is within a range" do
     wasm_source = """
     (module $range_func
       (func $validate (param $num i32) (result i32)
@@ -143,16 +143,16 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "validate", -1) == 0
-    assert Wasm.wasm_example(wasm_source, "validate", 0) == 0
-    assert Wasm.wasm_example(wasm_source, "validate", 1) == 1
-    assert Wasm.wasm_example(wasm_source, "validate", 2) == 1
-    assert Wasm.wasm_example(wasm_source, "validate", 10) == 1
-    assert Wasm.wasm_example(wasm_source, "validate", 13) == 1
-    assert Wasm.wasm_example(wasm_source, "validate", 255) == 1
-    assert Wasm.wasm_example(wasm_source, "validate", 256) == 0
-    assert Wasm.wasm_example(wasm_source, "validate", 257) == 0
-    assert Wasm.wasm_example(wasm_source, "validate", 2000) == 0
+    assert Wasm.call(wasm_source, "validate", -1) == 0
+    assert Wasm.call(wasm_source, "validate", 0) == 0
+    assert Wasm.call(wasm_source, "validate", 1) == 1
+    assert Wasm.call(wasm_source, "validate", 2) == 1
+    assert Wasm.call(wasm_source, "validate", 10) == 1
+    assert Wasm.call(wasm_source, "validate", 13) == 1
+    assert Wasm.call(wasm_source, "validate", 255) == 1
+    assert Wasm.call(wasm_source, "validate", 256) == 0
+    assert Wasm.call(wasm_source, "validate", 257) == 0
+    assert Wasm.call(wasm_source, "validate", 2000) == 0
   end
 
   test "wasm_string/2 spits out string" do
@@ -166,7 +166,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "main") == {256, 30}
+    assert Wasm.call(wasm_source, "main") == {256, 30}
     assert Wasm.wasm_string(wasm_source, "main") == "Know the length of this string"
   end
 
@@ -181,7 +181,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "main") == 256
+    assert Wasm.call(wasm_source, "main") == 256
     assert Wasm.wasm_string(wasm_source, "main") == "No need to know the length of this string"
   end
 
@@ -197,7 +197,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_example(wasm_source, "main") == {65536, 15}
+    assert Wasm.call(wasm_source, "main") == {65536, 15}
     assert Wasm.wasm_string(wasm_source, "main") == "<!doctype html>"
   end
 
