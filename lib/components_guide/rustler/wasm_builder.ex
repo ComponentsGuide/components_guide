@@ -22,6 +22,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     defstruct [:offset, :value]
   end
 
+  defmodule Global do
+    defstruct [:name, :type, :initial_value]
+  end
+
   defmodule Func do
     defstruct [:name, :params, :result, :local_types, :body]
   end
@@ -30,10 +34,20 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     defstruct [:name, :type]
   end
 
-  @i32_ops_2 ~w(mul add lt_s gt_s or)a
-  @i32_ops ~w(mul add lt_s gt_s or eqz)a
+  @i32_ops_2 ~w(mul add lt_s gt_s or div_u)a
+  @i32_ops ~w(mul add lt_s gt_s or div_u eqz)a
 
   defmodule I32 do
+    def unquote(:add)(first, second) do
+      # [first, second, {:i32, :add}]
+      {:i32, :add, {first, second}}
+    end
+
+    def unquote(:div_u)(first, second) do
+      # [first, second, {:i32, :add}]
+      {:i32, :div_u, {first, second}}
+    end
+
     def unquote(:or)(first, second) do
       # [first, second, {:i32, :or}]
       {:i32, :or, {first, second}}
@@ -190,6 +204,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Import{module: module, name: name, type: type}
   end
 
+  def global(name, type, initial_value) do
+    %Global{name: name, type: type, initial_value: initial_value}
+  end
+
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
   end
@@ -204,6 +222,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def i32_const(value), do: {:i32_const, value}
   def i32(op) when op in @i32_ops, do: {:i32, op}
+
+  def global_get(identifier), do: {:global_get, identifier}
+  def global_set(identifier), do: {:global_set, identifier}
 
   def local(identifier, type), do: {:local, identifier, type}
   def local_get(identifier), do: {:local_get, identifier}
@@ -234,12 +255,17 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ~s[#{indent}(memory #{min})]
   end
 
+  def to_wat(%Memory{name: name, min: min}, indent) do
+    ~s"#{indent}(memory #{to_wat(name)} #{min})"
+  end
+
   def to_wat(%Data{offset: offset, value: value}, indent) do
     ~s[#{indent}(data (i32.const #{offset}) "#{value}")]
   end
 
-  def to_wat(%Memory{name: name, min: min}, indent) do
-    ~s"#{indent}(memory #{to_wat(name)} #{min})"
+  def to_wat(%Global{name: name, type: type, initial_value: initial_value}, indent) do
+    # (global $count (mut i32) (i32.const 0))
+    ~s[#{indent}(global $#{name} (mut #{type}) (i32.const #{initial_value}))]
   end
 
   def to_wat(
@@ -260,6 +286,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}i32.const #{value}"
+  def to_wat({:global_get, identifier}, indent), do: "#{indent}global.get $#{identifier}"
+  def to_wat({:global_set, identifier}, indent), do: "#{indent}global.set $#{identifier}"
   def to_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"
   def to_wat({:local_get, identifier}, indent), do: "#{indent}local.get $#{identifier}"
   def to_wat({:local_set, identifier}, indent), do: "#{indent}local.set $#{identifier}"

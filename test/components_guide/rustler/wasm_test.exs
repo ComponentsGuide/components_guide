@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
+  alias ComponentsGuide.Rustler.WasmBuilder
 
   test "add/2" do
     assert Wasm.add(3, 4) == 7
@@ -255,34 +256,53 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     # assert Wasm.call_string(wasm_source, "lookup", -1) == ""
   end
 
+  defmodule CalculateMean do
+    use WasmBuilder
+
+    # defwasm, globals: [count: :i32, tally: :i32] do
+    defwasm do
+      wasm_import(:env, :buffer, memory(1))
+      global(:count, :i32, 0)
+      global(:tally, :i32, 0)
+      # count = 0
+      # tally = 0
+
+      func insert(element(:i32)), result: :i32 do
+        I32.add(global_get(:count), 1)
+        global_set(:count)
+
+        I32.add(global_get(:tally), element)
+        global_set(:tally)
+
+        0
+      end
+
+      func calculate_mean(), result: :i32 do
+        I32.div_u(global_get(:tally), global_get(:count))
+      end
+    end
+  end
+
+  test "bulk_call/2 global calculates mean" do
+    [_, _, _, result] = Wasm.bulk_call(CalculateMean, [
+      {"insert", [5]},
+      {"insert", [7]},
+      {"insert", [9]},
+      {"calculate_mean", []},
+    ])
+
+    assert result == 7
+  end
+
   # test "global calculates mean" do
-  #   wasm_source = ~S"""
-  #   (module $calculate_mean
-  #     (import "env" "buffer" (memory 1))
-  #     (global $count (mut i32) (i32.const 0))
-  #     (global $tally (mut i32) (i32.const 0))
-  #     (func (export "insert") (param $element i32)
-  #       global.get $count
-  #       i32.const 1
-  #       global.set $count
-
-  #       global.get $tally
-  #       local.get $element
-  #       global.set $tally
-  #     )
-  #     (func (export "calculate_mean") (result i32)
-  #       global.get $tally
-  #       global.get $count
-  #       i32.div_u
-  #     )
-  #   )
-  #   """
-
-  #   instance = Wasm.create_instance(wasm_source)
+  #   instance = Wasm.start(CalculateMean)
   #   Wasm.call(instance, "insert", 1)
   #   Wasm.call(instance, "insert", 2)
   #   Wasm.call(instance, "insert", 3)
-  #   assert Wasm.call_string(instance, "calculate_mean") == 2
+
+  #   assert Wasm.call(instance, "calculate_mean") == 2
+
+  #   Wasm.stop(instance)
   # end
 
   # defwasm multiply(a, b) do

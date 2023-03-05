@@ -1,9 +1,9 @@
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
-use rustler::{Atom, Binary, Env, Error, NifRecord, NifStruct, NifTaggedEnum, ResourceArc, Term};
-use std::slice;
-use std::ffi::CStr;
+use rustler::{Atom, Binary, Env, Error, NifRecord, NifStruct, NifTaggedEnum, NifTuple, ResourceArc, Term};
 use std::convert::TryInto;
+use std::ffi::CStr;
+use std::slice;
 
 #[rustler::nif]
 fn add(a: i64, b: i64) -> i64 {
@@ -221,26 +221,27 @@ fn wasm_example_i32_string_internal(
             let length = *length;
             let start: usize = start.try_into().unwrap();
             let length: usize = length.try_into().unwrap();
-        
+
             let mut string_buffer: Vec<u8> = Vec::with_capacity(length);
             string_buffer.resize(length, 0);
             memory.read(&store, start, &mut string_buffer)?;
             let string = String::from_utf8(string_buffer)?;
             return Ok(string);
-        },
+        }
         [start] => {
             let start = *start;
             let start: usize = start.try_into().unwrap();
 
             let data = &memory.data(&store)[start..];
-            let data: &[i8] = unsafe { slice::from_raw_parts(data.as_ptr() as *const i8, data.len()) };
+            let data: &[i8] =
+                unsafe { slice::from_raw_parts(data.as_ptr() as *const i8, data.len()) };
 
             let cstr = unsafe { CStr::from_ptr(data.as_ptr()) };
             let string = String::from_utf8_lossy(cstr.to_bytes()).to_string();
-        
+
             return Ok(string);
-        },
-        _items => anyhow::bail!("Receive result with too many items")
+        }
+        _items => anyhow::bail!("Receive result with too many items"),
     }
 }
 
@@ -307,6 +308,73 @@ fn wasm_example_n_i32_internal(
     return Ok(result);
 }
 
+#[derive(NifTuple)]
+struct WasmBulkCall {
+    f: String,
+    args: Vec<i32>,
+}
+
+#[rustler::nif]
+fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<i32>>, Error> {
+    return match wasm_call_bulk_internal(wat_source, true, calls) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(error_from(e)),
+    };
+}
+
+fn wasm_call_bulk_internal(
+    wat_source: String,
+    buffer: bool,
+    calls: Vec<WasmBulkCall>,
+) -> Result<Vec<Vec<i32>>, anyhow::Error> {
+    let engine = Engine::default();
+
+    // A `Store` is what will own instances, functions, globals, etc. All wasm
+    // items are stored within a `Store`, and it's what we'll always be using to
+    // interact with the wasm world. Custom data can be stored in stores but for
+    // now we just use `()`.
+    let mut store = Store::new(&engine, ());
+    let mut linker = Linker::new(&engine);
+
+    if buffer {
+        let memory_ty = MemoryType::new(2, None);
+        let memory = Memory::new(&mut store, memory_ty)?;
+        linker.define(&store, "env", "buffer", memory)?;
+    }
+
+    // We start off by creating a `Module` which represents a compiled form
+    // of our input wasm module. In this case it'll be JIT-compiled after
+    // we parse the text format.
+    let module = Module::new(&engine, wat_source)?;
+
+    // With a compiled `Module` we can then instantiate it, creating
+    // an `Instance` which we can actually poke at functions on.
+    // let instance = Instance::new(&mut store, &module, &[])?;
+    let instance = linker.instantiate(&mut store, &module)?;
+
+    let mut results: Vec<Vec<i32>> = Vec::with_capacity(calls.len());
+    for call in calls {
+        let func = instance
+            .get_func(&mut store, &call.f)
+            .expect(&format!("{} was not an exported function", call.f));
+
+        let func_type = func.ty(&store);
+        let args: Vec<Val> = call.args.into_iter().map(|i| Val::I32(i)).collect();
+
+        let mut result: Vec<Val> = Vec::with_capacity(16);
+        let result_length = func_type.results().len();
+        result.resize(result_length, Val::I32(0));
+
+        func.call(&mut store, &args, &mut result)?;
+
+        let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
+
+        results.push(result);
+    }
+
+    return Ok(results);
+}
+
 rustler::init!(
     "Elixir.ComponentsGuide.Rustler.Wasm",
     [
@@ -315,6 +383,7 @@ rustler::init!(
         wasm_list_exports,
         wasm_example_n_i32,
         wasm_example_0,
-        wasm_string_i32
+        wasm_string_i32,
+        wasm_call_bulk,
     ]
 );
