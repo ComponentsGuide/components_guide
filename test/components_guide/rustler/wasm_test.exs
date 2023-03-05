@@ -167,7 +167,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     """
 
     assert Wasm.call(wasm_source, "main") == {256, 30}
-    assert Wasm.wasm_string(wasm_source, "main") == "Know the length of this string"
+    assert Wasm.call_string(wasm_source, "main") == "Know the length of this string"
   end
 
   test "wasm_string/2 spits out null-terminated string" do
@@ -182,7 +182,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     """
 
     assert Wasm.call(wasm_source, "main") == 256
-    assert Wasm.wasm_string(wasm_source, "main") == "No need to know the length of this string"
+    assert Wasm.call_string(wasm_source, "main") == "No need to know the length of this string"
   end
 
   test "wasm_string/2 spits out HTML strings" do
@@ -198,7 +198,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     """
 
     assert Wasm.call(wasm_source, "main") == {65536, 15}
-    assert Wasm.wasm_string(wasm_source, "main") == "<!doctype html>"
+    assert Wasm.call_string(wasm_source, "main") == "<!doctype html>"
   end
 
   test "wasm_string/2 looks up HTTP status" do
@@ -232,27 +232,27 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_string(wasm_source, "lookup", 200) == "OK"
-    assert Wasm.wasm_string(wasm_source, "lookup", 201) == "Created"
-    assert Wasm.wasm_string(wasm_source, "lookup", 204) == "No Content"
-    assert Wasm.wasm_string(wasm_source, "lookup", 205) == "Reset Content"
-    assert Wasm.wasm_string(wasm_source, "lookup", 301) == "Moved Permanently"
-    assert Wasm.wasm_string(wasm_source, "lookup", 302) == "Found"
-    assert Wasm.wasm_string(wasm_source, "lookup", 303) == "See Other"
-    assert Wasm.wasm_string(wasm_source, "lookup", 304) == "Not Modified"
-    assert Wasm.wasm_string(wasm_source, "lookup", 307) == "Temporary Redirect"
-    assert Wasm.wasm_string(wasm_source, "lookup", 401) == "Unauthorized"
-    assert Wasm.wasm_string(wasm_source, "lookup", 403) == "Forbidden"
-    assert Wasm.wasm_string(wasm_source, "lookup", 404) == "Not Found"
-    assert Wasm.wasm_string(wasm_source, "lookup", 405) == "Method Not Allowed"
-    assert Wasm.wasm_string(wasm_source, "lookup", 409) == "Conflict"
-    assert Wasm.wasm_string(wasm_source, "lookup", 412) == "Precondition Failed"
-    assert Wasm.wasm_string(wasm_source, "lookup", 413) == "Payload Too Large"
-    assert Wasm.wasm_string(wasm_source, "lookup", 422) == "Unprocessable Entity"
-    assert Wasm.wasm_string(wasm_source, "lookup", 429) == "Too Many Requests"
-    assert Wasm.wasm_string(wasm_source, "lookup", 100) == ""
+    assert Wasm.call_string(wasm_source, "lookup", 200) == "OK"
+    assert Wasm.call_string(wasm_source, "lookup", 201) == "Created"
+    assert Wasm.call_string(wasm_source, "lookup", 204) == "No Content"
+    assert Wasm.call_string(wasm_source, "lookup", 205) == "Reset Content"
+    assert Wasm.call_string(wasm_source, "lookup", 301) == "Moved Permanently"
+    assert Wasm.call_string(wasm_source, "lookup", 302) == "Found"
+    assert Wasm.call_string(wasm_source, "lookup", 303) == "See Other"
+    assert Wasm.call_string(wasm_source, "lookup", 304) == "Not Modified"
+    assert Wasm.call_string(wasm_source, "lookup", 307) == "Temporary Redirect"
+    assert Wasm.call_string(wasm_source, "lookup", 401) == "Unauthorized"
+    assert Wasm.call_string(wasm_source, "lookup", 403) == "Forbidden"
+    assert Wasm.call_string(wasm_source, "lookup", 404) == "Not Found"
+    assert Wasm.call_string(wasm_source, "lookup", 405) == "Method Not Allowed"
+    assert Wasm.call_string(wasm_source, "lookup", 409) == "Conflict"
+    assert Wasm.call_string(wasm_source, "lookup", 412) == "Precondition Failed"
+    assert Wasm.call_string(wasm_source, "lookup", 413) == "Payload Too Large"
+    assert Wasm.call_string(wasm_source, "lookup", 422) == "Unprocessable Entity"
+    assert Wasm.call_string(wasm_source, "lookup", 429) == "Too Many Requests"
+    assert Wasm.call_string(wasm_source, "lookup", 100) == ""
     # Crashes:
-    # assert Wasm.wasm_string(wasm_source, "lookup", -1) == ""
+    # assert Wasm.call_string(wasm_source, "lookup", -1) == ""
   end
 
   # test "global calculates mean" do
