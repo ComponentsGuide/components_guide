@@ -212,7 +212,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
      Enum.map(args, &magic_func_arg(&1, locals, globals))}
   end
 
-  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals, globals) do
+  defp magic_func_item({:=, _meta1, [{global, _meta2, nil}, input]}, locals, globals)
+       when is_map_key(globals, global) do
+    [magic_func_item(input, locals, globals), global_set(global)]
+  end
+
+  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals, globals)
+       when is_map_key(locals, local) do
     [magic_func_item(input, locals, globals), local_set(local)]
   end
 
@@ -273,7 +279,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def local_get(identifier), do: {:local_get, identifier}
   def local_set(identifier), do: {:local_set, identifier}
 
-  def to_wat(term) when is_atom(term), do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
+  def to_wat(term) when is_atom(term),
+    do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
+
   def to_wat(term), do: to_wat(term, "") |> IO.chardata_to_string()
 
   def to_wat(term, indent)

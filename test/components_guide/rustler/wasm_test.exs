@@ -267,11 +267,8 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               tally: i32(0)
             ] do
       func insert(element(:i32)) do
-        I32.add(count, 1)
-        global_set(:count)
-
-        I32.add(tally, element)
-        global_set(:tally)
+        count = I32.add(count, 1)
+        tally = I32.add(tally, element)
 
         0
       end
