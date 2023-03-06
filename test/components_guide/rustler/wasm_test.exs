@@ -259,20 +259,18 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   defmodule CalculateMean do
     use WasmBuilder
 
-    # defwasm import(env.buffer(memory(1))), globals: [count: :i32, tally: :i32] do
-    defwasm imports: [env: [buffer: memory(1)]], globals: [count: i32(0), tally: i32(0)] do
-    # defwasm do
-      # wasm_import(:env, :buffer, memory(1))
-      # global(:count, :i32, 0)
-      # global(:tally, :i32, 0)
-      # count = 0
-      # tally = 0
-
+    defwasm imports: [
+              env: [buffer: memory(1)]
+            ],
+            globals: [
+              count: i32(0),
+              tally: i32(0)
+            ] do
       func insert(element(:i32)) do
-        I32.add(global_get(:count), 1)
+        I32.add(count, 1)
         global_set(:count)
 
-        I32.add(global_get(:tally), element)
+        I32.add(tally, element)
         global_set(:tally)
 
         0
@@ -281,6 +279,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       func calculate_mean(), result: :i32 do
         I32.div_u(tally, count)
       end
+
       # func calculate_mean(), result: :i32 do
       #   I32.div_u(global_get(:tally), global_get(:count))
       # end
@@ -288,12 +287,13 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   end
 
   test "bulk_call/2 global calculates mean" do
-    [_, _, _, result] = Wasm.bulk_call(CalculateMean, [
-      {"insert", [5]},
-      {"insert", [7]},
-      {"insert", [9]},
-      {"calculate_mean", []},
-    ])
+    [_, _, _, result] =
+      Wasm.bulk_call(CalculateMean, [
+        {"insert", [5]},
+        {"insert", [7]},
+        {"insert", [9]},
+        {"calculate_mean", []}
+      ])
 
     assert result == 7
   end
