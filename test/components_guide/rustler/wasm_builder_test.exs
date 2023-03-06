@@ -112,9 +112,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         memory(export(:mem), 1)
 
         func answer, result: :i32 do
-          2
-          21
-          i32(:mul)
+          I32.mul(2, 21)
         end
 
         func get_pi, result: :f32 do
@@ -126,9 +124,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     (module $two_funcs
       (memory (export "mem") 1)
       (func (export "answer") (result i32)
-        i32.const 2
-        i32.const 21
-        i32.mul
+        (i32.mul (i32.const 2) (i32.const 21))
       )
       (func (export "get_pi") (result f32)
         f32.const 3.14
