@@ -34,23 +34,36 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     defstruct [:name, :type]
   end
 
-  @i32_ops_2 ~w(mul add lt_s gt_s or div_u)a
-  @i32_ops ~w(mul add lt_s gt_s or div_u eqz)a
+  # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
+  @i_unary_ops ~w(clz ctz popcnt)a
+  @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
+  @i_test_ops ~w(eqz)a
+  @i_relative_ops ~w(eq ne lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a
+  @i32_ops_1 @i_unary_ops ++ @i_test_ops
+  @i32_ops_2 @i_binary_ops ++ @i_relative_ops
+  @i32_ops_all @i32_ops_1 ++ @i32_ops_2
 
   defmodule I32 do
-    def unquote(:add)(first, second) do
-      # [first, second, {:i32, :add}]
-      {:i32, :add, {first, second}}
-    end
+    def add(first, second)
+    def sub(first, second)
+    def mul(first, second)
+    def div_u(first, second)
+    def div_s(first, second)
+    def rem_u(first, second)
+    def rem_s(first, second)
+    def unquote(:and)(first, second)
+    def unquote(:or)(first, second)
+    def xor(first, second)
+    def shl(first, second)
+    def shr_u(first, second)
+    def shr_s(first, second)
+    def rotl(first, second)
+    def rotr(first, second)
 
-    def unquote(:div_u)(first, second) do
-      # [first, second, {:i32, :add}]
-      {:i32, :div_u, {first, second}}
-    end
-
-    def unquote(:or)(first, second) do
-      # [first, second, {:i32, :or}]
-      {:i32, :or, {first, second}}
+    for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a do
+      def unquote(op)(first, second) do
+        {:i32, unquote(op), {first, second}}
+      end
     end
 
     def unquote(:lt_s)(first, second) do
@@ -265,7 +278,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def i32_const(value), do: {:i32_const, value}
-  def i32(op) when op in @i32_ops, do: {:i32, op}
+  def i32(op) when op in @i32_ops_all, do: {:i32, op}
   def i32(op) when is_number(op), do: {:i32_const, op}
 
   def global_get(identifier), do: {:global_get, identifier}
@@ -355,7 +368,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:local_set, identifier}, indent), do: "#{indent}local.set $#{identifier}"
   def to_wat(value, indent) when is_integer(value), do: "#{indent}i32.const #{value}"
   def to_wat(value, indent) when is_float(value), do: "#{indent}f32.const #{value}"
-  def to_wat({:i32, op}, indent) when op in @i32_ops, do: "#{indent}i32.#{op}"
+  def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}i32.#{op}"
 
   def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2,
     do: "#{indent}(i32.#{op} (#{to_wat(a)}) (#{to_wat(b)}))"
