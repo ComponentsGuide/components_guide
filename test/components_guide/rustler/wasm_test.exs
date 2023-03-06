@@ -269,17 +269,11 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       func insert(element(:i32)) do
         count = I32.add(count, 1)
         tally = I32.add(tally, element)
-
-        0
       end
 
       func calculate_mean(), result: :i32 do
         I32.div_u(tally, count)
       end
-
-      # func calculate_mean(), result: :i32 do
-      #   I32.div_u(global_get(:tally), global_get(:count))
-      # end
     end
   end
 

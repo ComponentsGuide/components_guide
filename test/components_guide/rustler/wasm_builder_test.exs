@@ -250,6 +250,55 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert Wasm.call(WithinRange, "validate", 256) == 0
   end
 
+  defmodule CalculateMean do
+    use WasmBuilder
+
+    defwasm imports: [
+              env: [buffer: memory(1)]
+            ],
+            globals: [
+              count: i32(0),
+              tally: i32(0)
+            ] do
+      func insert(element(:i32)) do
+        count = I32.add(count, 1)
+        tally = I32.add(tally, element)
+      end
+
+      func calculate_mean(), result: :i32 do
+        I32.div_u(tally, count)
+      end
+
+      # func calculate_mean(), result: :i32 do
+      #   I32.div_u(global_get(:tally), global_get(:count))
+      # end
+    end
+  end
+
+  test "stateful module calculating mean" do
+    alias ComponentsGuide.Rustler.Wasm
+
+    wasm_source = """
+    (module $CalculateMean
+      (import "env" "buffer" (memory 1))
+      (global $count (mut i32) (i32.const 0))
+      (global $tally (mut i32) (i32.const 0))
+      (func (export "insert") (param $element i32)
+        (i32.add (global.get $count) (i32.const 1))
+        global.set $count
+        (i32.add (global.get $tally) (local.get $element))
+        global.set $tally
+      )
+      (func (export "calculate_mean") (result i32)
+        (i32.div_u (global.get $tally) (global.get $count))
+      )
+    )
+    """
+
+    assert to_wat(CalculateMean) == wasm_source
+    assert Wasm.call(CalculateMean, "insert", 0) == nil
+  end
+
   # defwasm multiply(a, b) do
   #   Build.func multiply(a, b) do
   #     I32.mul(a, b)

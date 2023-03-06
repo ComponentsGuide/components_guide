@@ -87,10 +87,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defp define_module(name, options, block) do
-    if name == "CalculateMean" do
-      IO.inspect(options)
-    end
-
     imports = Keyword.get(options, :imports, [])
 
     imports =
@@ -167,7 +163,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         {name, type}
       end
 
-    result_type = Keyword.get(options, :result, :i32)
+    result_type = Keyword.get(options, :result, nil)
     local_types = Keyword.get(options, :locals, [])
     global_types = Keyword.get(options, :globals, [])
 
@@ -189,7 +185,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       %Func{
         name: unquote(name),
         params: unquote(params),
-        result: result(unquote(result_type)),
+        result: unquote(result_type) && result(unquote(result_type)),
         local_types: unquote(local_types),
         body: unquote(block_items)
       }
@@ -293,14 +289,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat(%Module{name: name, imports: imports, globals: globals, body: body}, indent) do
     [
       [indent, "(module $#{name}", "\n"],
-      [indent, for(import_def <- imports, do: [to_wat(import_def), "\n"])],
-      [
-        indent,
-        for(
-          {name, {:i32_const, initial_value}} <- globals,
-          do: ["(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]
-        )
-      ],
+      [for(import_def <- imports, do: [to_wat(import_def, "  " <> indent), "\n"])],
+      for(
+        {name, {:i32_const, initial_value}} <- globals,
+        do: ["  " <> indent, "(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]
+      ),
       [indent, to_wat(body, "  " <> indent), "\n"],
       [indent, ")", "\n"]
     ]
@@ -331,11 +324,21 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         %Func{name: name, params: params, result: result, local_types: local_types, body: body},
         indent
       ) do
-    ~s"""
-    #{indent}(func #{to_wat(name)} #{for param <- params, do: [to_wat(param), " "]}#{to_wat(result)}
-    #{for {id, type} <- local_types, do: ["  " <> indent, "(local $#{id} #{type})", "\n"]}#{to_wat(body, "  " <> indent)}
-    #{indent})\
-    """
+    [
+      [
+        indent,
+        "(func #{to_wat(name)} ",
+        Enum.intersperse(
+          for(param <- params, do: to_wat(param)) ++ if(result, do: [to_wat(result)], else: []),
+          " "
+        ),
+        "\n"
+      ],
+      for({id, type} <- local_types, do: ["  " <> indent, "(local $#{id} #{type})", "\n"]),
+      to_wat(body, "  " <> indent),
+      "\n",
+      [indent, ")"]
+    ]
   end
 
   def to_wat(%Param{name: name, type: type}, indent) do
