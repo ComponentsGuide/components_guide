@@ -64,64 +64,23 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert to_wat(SingleFunc) == wasm_source
   end
 
-  test "to_wat/1 defwasmmodule single func" do
-    alias ComponentsGuide.Rustler.WasmBuilder
+  defmodule TwoFuncs do
+    defwasm do
+      memory(export(:mem), 1)
 
-    wasm =
-      defwasmmodule SomeName do
-        memory(export(:mem), 1)
-
-        func answer, result: :i32 do
-          42
-        end
+      func answer, result: :i32 do
+        I32.mul(2, 21)
       end
 
-    assert wasm == %WasmBuilder.Module{
-             name: "SomeName",
-             body: [
-               %WasmBuilder.Memory{name: {:export, :mem}, min: 1},
-               %WasmBuilder.Func{
-                 name: {:export, :answer},
-                 params: [],
-                 result: {:result, :i32},
-                 local_types: [],
-                 body: [42]
-               }
-             ]
-           }
-
-    wasm_source = """
-    (module $SomeName
-      (memory (export "mem") 1)
-      (func (export "answer") (result i32)
-        i32.const 42
-      )
-    )
-    """
-
-    assert to_wat(wasm) == wasm_source
+      func get_pi, result: :f32 do
+        3.14
+      end
+    end
   end
 
-  # defwasmmodule TwoFuncs do
-
-  # end
-
-  test "to_wat/1 defwasmmodule two funcs" do
-    wasm =
-      defwasmmodule two_funcs do
-        memory(export(:mem), 1)
-
-        func answer, result: :i32 do
-          I32.mul(2, 21)
-        end
-
-        func get_pi, result: :f32 do
-          3.14
-        end
-      end
-
+  test "to_wat/1 defwasm two funcs" do
     wasm_source = """
-    (module $two_funcs
+    (module $TwoFuncs
       (memory (export "mem") 1)
       (func (export "answer") (result i32)
         (i32.mul (i32.const 2) (i32.const 21))
@@ -132,47 +91,48 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     )
     """
 
-    assert to_wat(wasm) == wasm_source
+    assert to_wat(TwoFuncs) == wasm_source
   end
 
-  @statuses [
-    {200, "OK"},
-    {201, "Created"},
-    {204, "No Content"},
-    {205, "Reset Content"},
-    {301, "Moved Permanently"},
-    {302, "Found"},
-    {303, "See Other"},
-    {304, "Not Modified"},
-    {307, "Temporary Redirect"},
-    {400, "Bad Request"},
-    {401, "Unauthorized"},
-    {403, "Forbidden"},
-    {404, "Not Found"},
-    {405, "Method Not Allowed"},
-    {409, "Conflict"},
-    {412, "Precondition Failed"},
-    {413, "Payload Too Large"},
-    {422, "Unprocessable Entity"},
-    {429, "Too Many Requests"}
-  ]
+  defmodule HTTPStatusLookup do
+    @statuses [
+      {200, "OK"},
+      {201, "Created"},
+      {204, "No Content"},
+      {205, "Reset Content"},
+      {301, "Moved Permanently"},
+      {302, "Found"},
+      {303, "See Other"},
+      {304, "Not Modified"},
+      {307, "Temporary Redirect"},
+      {400, "Bad Request"},
+      {401, "Unauthorized"},
+      {403, "Forbidden"},
+      {404, "Not Found"},
+      {405, "Method Not Allowed"},
+      {409, "Conflict"},
+      {412, "Precondition Failed"},
+      {413, "Payload Too Large"},
+      {422, "Unprocessable Entity"},
+      {429, "Too Many Requests"}
+    ]
 
-  test "to_wat/1 many data" do
-    wasm =
-      defwasmmodule string_html do
-        wasm_import(:env, :buffer, memory(1))
+    defwasm do
+      wasm_import(:env, :buffer, memory(1))
 
-        for {status, message} <- @statuses do
-          data(status * 24, "#{message}\\00")
-        end
-
-        func lookup(status(:i32)), result: :i32 do
-          I32.mul(status, 24)
-        end
+      for {status, message} <- @statuses do
+        data(status * 24, "#{message}\\00")
       end
 
+      func lookup(status(:i32)), result: :i32 do
+        I32.mul(status, 24)
+      end
+    end
+  end
+
+  test "to_wat/1 many data" do
     wasm_source = ~s"""
-    (module $string_html
+    (module $HTTPStatusLookup
       (import "env" "buffer" (memory 1))
       (data (i32.const #{200 * 24}) "OK\\00")
       (data (i32.const #{201 * 24}) "Created\\00")
@@ -199,7 +159,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     )
     """
 
-    assert to_wat(wasm) == wasm_source
+    assert to_wat(HTTPStatusLookup) == wasm_source
   end
 
   defmodule WithinRange do
@@ -290,17 +250,4 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert to_wat(CalculateMean) == wasm_source
     assert Wasm.call(CalculateMean, "insert", 0) == nil
   end
-
-  # defwasm multiply(a, b) do
-  #   Build.func multiply(a, b) do
-  #     I32.mul(a, b)
-  #   end
-  # end
-
-  # defwasmmodule multiply do
-  #   Build.func multiply(a, b) do
-  #     I32.mul(a, b)
-  #   end
-  #   export(multiply)
-  # end
 end
