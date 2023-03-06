@@ -171,9 +171,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         end
 
         func lookup(status(:i32)), result: :i32 do
-          local_get(status)
-          24
-          i32(:mul)
+          I32.mul(status, 24)
         end
       end
 
@@ -200,9 +198,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
       (data (i32.const #{422 * 24}) "Unprocessable Entity\\00")
       (data (i32.const #{429 * 24}) "Too Many Requests\\00")
       (func (export "lookup") (param $status i32) (result i32)
-        local.get $status
-        i32.const 24
-        i32.mul
+        (i32.mul (local.get $status) (i32.const 24))
       )
     )
     """
