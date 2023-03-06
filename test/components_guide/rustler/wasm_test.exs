@@ -278,7 +278,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   end
 
   test "bulk_call/2 global calculates mean" do
-    [_, _, _, result] =
+    [nil, nil, nil, result] =
       Wasm.bulk_call(CalculateMean, [
         {"insert", [5]},
         {"insert", [7]},
