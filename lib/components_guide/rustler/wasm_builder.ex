@@ -273,8 +273,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def local_get(identifier), do: {:local_get, identifier}
   def local_set(identifier), do: {:local_set, identifier}
 
-  def to_wat(term) when is_atom(term), do: to_wat(term.__wasm_module__(), "")
-  def to_wat(term), do: to_wat(term, "")
+  def to_wat(term) when is_atom(term), do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
+  def to_wat(term), do: to_wat(term, "") |> IO.chardata_to_string()
 
   def to_wat(term, indent)
 
@@ -283,11 +283,19 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def to_wat(%Module{name: name, imports: imports, globals: globals, body: body}, indent) do
-    ~s"""
-    #{indent}(module $#{name}
-    #{indent}#{for import_def <- imports, do: [to_wat(import_def), "\n"]}#{indent}#{for {name, {:i32_const, initial_value}} <- globals, do: ["(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]}#{indent}#{to_wat(body, "  " <> indent)}
-    #{indent})
-    """
+    [
+      [indent, "(module $#{name}", "\n"],
+      [indent, for(import_def <- imports, do: [to_wat(import_def), "\n"])],
+      [
+        indent,
+        for(
+          {name, {:i32_const, initial_value}} <- globals,
+          do: ["(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]
+        )
+      ],
+      [indent, to_wat(body, "  " <> indent), "\n"],
+      [indent, ")", "\n"]
+    ]
   end
 
   def to_wat(%Import{module: module, name: name, type: type}, indent) do
