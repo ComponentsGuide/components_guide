@@ -64,7 +64,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert to_wat(SingleFunc) == wasm_source
   end
 
-  defmodule TwoFuncs do
+  defmodule ManyFuncs do
     defwasm do
       memory(export(:mem), 1)
 
@@ -75,12 +75,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
       func get_pi, result: :f32 do
         3.14
       end
+
+      funcp internal, result: :f32 do
+        99.0
+      end
     end
   end
 
-  test "to_wat/1 defwasm two funcs" do
+  test "to_wat/1 defwasm many funcs" do
     wasm_source = """
-    (module $TwoFuncs
+    (module $ManyFuncs
       (memory (export "mem") 1)
       (func (export "answer") (result i32)
         (i32.mul (i32.const 2) (i32.const 21))
@@ -88,10 +92,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
       (func (export "get_pi") (result f32)
         f32.const 3.14
       )
+      (func $internal (result f32)
+        f32.const 99.0
+      )
     )
     """
 
-    assert to_wat(TwoFuncs) == wasm_source
+    assert to_wat(ManyFuncs) == wasm_source
   end
 
   defmodule HTTPStatusLookup do

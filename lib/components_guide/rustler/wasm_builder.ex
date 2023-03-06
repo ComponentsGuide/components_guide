@@ -157,6 +157,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     define_func(call, :public, options, block)
   end
 
+  defmacro funcp(call, options \\ [], do: block) do
+    define_func(call, :private, options, block)
+  end
+
   defp define_func(call, visibility, options, block) do
     {name, args} = Macro.decompose_call(call)
 
@@ -340,7 +344,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     [
       [
         indent,
-        "(func #{to_wat(name)} ",
+        case name do
+          name when is_atom(name) -> ~s[(func $#{name} ]
+          {:export, name} -> ~s[(func (export "#{name}") ]
+        end,
         Enum.intersperse(
           for(param <- params, do: to_wat(param)) ++ if(result, do: [to_wat(result)], else: []),
           " "

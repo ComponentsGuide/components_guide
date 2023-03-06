@@ -28,11 +28,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     wasm_source = """
     (module $two_funcs
       (func (export "answer") (result i32)
-       i32.const 42
+        i32.const 42
       )
       (memory (export "mem") 1)
       (func (export "get_pi") (result f32)
-       f32.const 3.14
+        f32.const 3.14
+      )
+      (func $internal (result f32)
+        f32.const 99
       )
     )
     """
