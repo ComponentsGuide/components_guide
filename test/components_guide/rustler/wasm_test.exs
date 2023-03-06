@@ -259,11 +259,12 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   defmodule CalculateMean do
     use WasmBuilder
 
-    # defwasm, globals: [count: :i32, tally: :i32] do
-    defwasm do
-      wasm_import(:env, :buffer, memory(1))
-      global(:count, :i32, 0)
-      global(:tally, :i32, 0)
+    # defwasm import(env.buffer(memory(1))), globals: [count: :i32, tally: :i32] do
+    defwasm imports: [env: [buffer: memory(1)]], globals: [count: i32(0), tally: i32(0)] do
+    # defwasm do
+      # wasm_import(:env, :buffer, memory(1))
+      # global(:count, :i32, 0)
+      # global(:tally, :i32, 0)
       # count = 0
       # tally = 0
 
@@ -278,8 +279,11 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       end
 
       func calculate_mean(), result: :i32 do
-        I32.div_u(global_get(:tally), global_get(:count))
+        I32.div_u(tally, count)
       end
+      # func calculate_mean(), result: :i32 do
+      #   I32.div_u(global_get(:tally), global_get(:count))
+      # end
     end
   end
 

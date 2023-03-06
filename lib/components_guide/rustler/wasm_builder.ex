@@ -7,7 +7,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Module do
-    defstruct [:name, :body]
+    defstruct name: nil, imports: [], globals: [], body: []
   end
 
   defmodule Import do
@@ -83,25 +83,59 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   # end
 
   defmacro defwasmmodule(call, do: block) do
-    define_module(Macro.to_string(call), block)
+    define_module(Macro.to_string(call), [], block)
   end
 
-  defp define_module(name, block) do
+  defp define_module(name, options, block) do
+    if name == "CalculateMean" do
+      IO.inspect(options)
+    end
+
+    imports = Keyword.get(options, :imports, [])
+
+    imports =
+      for {first, sub_imports} <- imports do
+        for {second, definition} <- sub_imports do
+          quote do
+            %Import{module: unquote(first), name: unquote(second), type: unquote(definition)}
+          end
+        end
+      end
+
+    global_types = Keyword.get(options, :globals, [])
+
     block_items =
       case block do
         {:__block__, [], block_items} -> block_items
         single -> [single]
       end
 
+    block_items =
+      Macro.prewalk(block_items, fn
+        {:func, meta, [call, options, [do: block]]} ->
+          {:func, meta, [call, Keyword.put(options, :globals, global_types), [do: block]]}
+
+        {:func, meta, [call, [do: block]]} ->
+          {:func, meta, [call, [globals: global_types], [do: block]]}
+
+        other ->
+          other
+      end)
+
     quote do
-      %Module{name: unquote(name), body: unquote(block_items)}
+      %Module{
+        name: unquote(name),
+        imports: unquote(imports),
+        globals: unquote(global_types),
+        body: unquote(block_items)
+      }
     end
   end
 
-  defmacro defwasm(do: block) do
+  defmacro defwasm(options \\ [], do: block) do
     name = __CALLER__.module |> Elixir.Module.split() |> List.last()
 
-    definition = define_module(name, block)
+    definition = define_module(name, options, block)
 
     quote do
       Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
@@ -116,10 +150,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defp define_func(call, visibility, options, block) do
     {name, args} = Macro.decompose_call(call)
-
-    # if name == :validate do
-    #   IO.inspect(block)
-    # end
 
     name =
       case visibility do
@@ -139,18 +169,20 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     result_type = Keyword.get(options, :result, :i32)
     local_types = Keyword.get(options, :locals, [])
+    global_types = Keyword.get(options, :globals, [])
 
     locals = Map.new(arg_types ++ local_types)
+    globals = Map.new(global_types)
 
     block_items =
       case block do
         {:__block__, _meta, block_items} ->
           for block_item <- block_items do
-            magic_func_item(block_item, locals)
+            magic_func_item(block_item, locals, globals)
           end
 
         single ->
-          [single]
+          [magic_func_item(single, locals, globals)]
       end
 
     quote do
@@ -164,31 +196,41 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  defp magic_func_item({f, meta, [{atom, _, nil}]}, locals)
+  # TODO: remove
+  defp magic_func_item({f, meta, [{atom, _, nil}]}, locals, _globals)
        when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) do
     {f, meta, [atom]}
   end
 
-  defp magic_func_item({{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, args}, locals)
+  defp magic_func_item(
+         {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, args},
+         locals,
+         globals
+       )
        when op in @i32_ops_2 do
     {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3,
-     Enum.map(args, &magic_func_arg(&1, locals))}
+     Enum.map(args, &magic_func_arg(&1, locals, globals))}
   end
 
-  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals) do
-    [magic_func_item(input, locals), local_set(local)]
+  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals, globals) do
+    [magic_func_item(input, locals, globals), local_set(local)]
   end
 
-  defp magic_func_item(item, _locals) do
+  defp magic_func_item(item, _locals, _globals) do
     item
   end
 
-  defp magic_func_arg({atom, meta, nil}, locals)
+  defp magic_func_arg({atom, meta, nil}, _locals, globals)
+       when is_atom(atom) and is_map_key(globals, atom) do
+    {:global_get, meta, [atom]}
+  end
+
+  defp magic_func_arg({atom, meta, nil}, locals, _globals)
        when is_atom(atom) and is_map_key(locals, atom) do
     {:local_get, meta, [atom]}
   end
 
-  defp magic_func_arg(item, _locals) do
+  defp magic_func_arg(item, _locals, _globals) do
     item
   end
 
@@ -222,6 +264,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def i32_const(value), do: {:i32_const, value}
   def i32(op) when op in @i32_ops, do: {:i32, op}
+  def i32(op) when is_number(op), do: {:i32_const, op}
 
   def global_get(identifier), do: {:global_get, identifier}
   def global_set(identifier), do: {:global_set, identifier}
@@ -239,10 +282,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     Enum.map(list, &to_wat(&1, indent)) |> Enum.join("\n")
   end
 
-  def to_wat(%Module{name: name, body: body}, indent) do
+  def to_wat(%Module{name: name, imports: imports, globals: globals, body: body}, indent) do
     ~s"""
     #{indent}(module $#{name}
-    #{indent}#{to_wat(body, "  " <> indent)}
+    #{indent}#{for import_def <- imports, do: [to_wat(import_def), "\n"]}#{indent}#{for {name, {:i32_const, initial_value}} <- globals, do: ["(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]}#{indent}#{to_wat(body, "  " <> indent)}
     #{indent})
     """
   end
