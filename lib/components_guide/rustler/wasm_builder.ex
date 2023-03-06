@@ -279,7 +279,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat(term, indent)
 
   def to_wat(list, indent) when is_list(list) do
-    Enum.map(list, &to_wat(&1, indent)) |> Enum.join("\n")
+    Enum.map(list, &to_wat(&1, indent)) |> Enum.intersperse("\n")
   end
 
   def to_wat(%Module{name: name, imports: imports, globals: globals, body: body}, indent) do
