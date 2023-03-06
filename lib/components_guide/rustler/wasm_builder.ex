@@ -88,6 +88,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       {:i32, :eqz}
     end
 
+    def load(offset), do: {:i32, :load, offset}
+    def load8_u(offset), do: {:i32, :load8_u, offset}
+
+    def store(offset), do: {:i32, :store, offset}
+
     def if_else(condition, do: when_true, else: when_false) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
     end
@@ -162,6 +167,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
       def __wasm_module__(), do: unquote(definition)
+      def to_wat(), do: ComponentsGuide.Rustler.WasmBuilder.to_wat(__wasm_module__())
     end
   end
 
@@ -318,6 +324,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def if_(condition, do: when_true, else: when_false), do: {:if, condition, when_true, when_false}
 
+  def call(f), do: {:call, f, []}
+
   def to_wat(term) when is_atom(term),
     do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
 
@@ -395,9 +403,17 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ~s"#{indent}(param $#{name} #{type})"
   end
 
-  def to_wat(%IfElse{result: result, condition: condition, when_true: when_true, when_false: when_false}, indent) do
+  def to_wat(
+        %IfElse{
+          result: result,
+          condition: condition,
+          when_true: when_true,
+          when_false: when_false
+        },
+        indent
+      ) do
     [
-      [indent, "(if ", (if result, do: "(result #{result}) ", else: ""), to_wat(condition), ?\n],
+      [indent, "(if ", if(result, do: "(result #{result}) ", else: ""), to_wat(condition), ?\n],
       ["  " <> indent, "(then", ?\n],
       ["    " <> indent, to_wat(when_true), ?\n],
       ["  " <> indent, ")", ?\n],
@@ -423,16 +439,21 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
-  def to_wat({:i32_const, value}, indent), do: "#{indent}i32.const #{value}"
-  def to_wat({:global_get, identifier}, indent), do: "#{indent}global.get $#{identifier}"
-  def to_wat({:global_set, identifier}, indent), do: "#{indent}global.set $#{identifier}"
+  def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
+  def to_wat({:global_get, identifier}, indent), do: "#{indent}(global.get $#{identifier})"
+  def to_wat({:global_set, identifier}, indent), do: "#{indent}(global.set $#{identifier})"
   def to_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"
-  def to_wat({:local_get, identifier}, indent), do: "#{indent}local.get $#{identifier}"
-  def to_wat({:local_set, identifier}, indent), do: "#{indent}local.set $#{identifier}"
-  def to_wat(value, indent) when is_integer(value), do: "#{indent}i32.const #{value}"
-  def to_wat(value, indent) when is_float(value), do: "#{indent}f32.const #{value}"
-  def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}i32.#{op}"
+  def to_wat({:local_get, identifier}, indent), do: "#{indent}(local.get $#{identifier})"
+  def to_wat({:local_set, identifier}, indent), do: "#{indent}(local.set $#{identifier})"
+  def to_wat(value, indent) when is_integer(value), do: "#{indent}(i32.const #{value})"
+  def to_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
+  def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}(i32.#{op})"
+
+  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u store)a,
+    do: "(#{indent}i32.#{op} (i32.const #{offset}))"
 
   def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2,
-    do: "#{indent}(i32.#{op} (#{to_wat(a)}) (#{to_wat(b)}))"
+    do: "#{indent}(i32.#{op} #{to_wat(a)} #{to_wat(b)})"
+
+  def to_wat({:call, f, []}, indent), do: "#{indent}(call $#{f})"
 end

@@ -12,7 +12,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
 
     wasm_source = """
     (func (export "answer") (result i32)
-      i32.const 42
+      (i32.const 42)
     )\
     """
 
@@ -56,7 +56,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     (module $SingleFunc
       (memory (export "mem") 1)
       (func (export "answer") (result i32)
-        i32.const 42
+        (i32.const 42)
       )
     )
     """
@@ -90,10 +90,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         (i32.mul (i32.const 2) (i32.const 21))
       )
       (func (export "get_pi") (result f32)
-        f32.const 3.14
+        (f32.const 3.14)
       )
       (func $internal (result f32)
-        f32.const 99.0
+        (f32.const 99.0)
       )
     )
     """
@@ -192,11 +192,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         (local $lt i32)
         (local $gt i32)
         (i32.lt_s (local.get $num) (i32.const 1))
-        local.set $lt
+        (local.set $lt)
         (i32.gt_s (local.get $num) (i32.const 255))
-        local.set $gt
+        (local.set $gt)
         (i32.or (local.get $lt) (local.get $gt))
-        i32.eqz
+        (i32.eqz)
       )
     )
     """
@@ -244,9 +244,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
       (global $tally (mut i32) (i32.const 0))
       (func (export "insert") (param $element i32)
         (i32.add (global.get $count) (i32.const 1))
-        global.set $count
+        (global.set $count)
         (i32.add (global.get $tally) (local.get $element))
-        global.set $tally
+        (global.set $tally)
       )
       (func (export "calculate_mean") (result i32)
         (i32.div_u (global.get $tally) (global.get $count))
@@ -278,13 +278,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
       (global $count (mut i32) (i32.const 0))
       (func (export "body") (result i32)
         (i32.add (global.get $count) (i32.const 1))
-        global.set $count
+        (global.set $count)
         (if (result i32) (i32.eq (global.get $count) (i32.const 1))
           (then
-            i32.const 100
+            (i32.const 100)
           )
           (else
-            i32.const 200
+            (i32.const 200)
           )
         )
       )

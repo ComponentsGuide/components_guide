@@ -76,9 +76,9 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     wasm_source = """
     (module $single_func
       (func (export "answer") (param $a i32) (result i32)
-        i32.const 42
-        local.set $a
-        local.get $a
+        (i32.const 42)
+        (local.set $a)
+        (local.get $a)
       )
     )
     """
@@ -90,9 +90,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     wasm_source = """
     (module $add_func
       (func $add (param $a i32) (param $b i32) (result i32)
-        local.get $a
-        local.get $b
-        i32.add)
+        (local.get $a)
+        (local.get $b)
+        (i32.add)
+      )
       (export "add" (func $add))
     )
     """
@@ -120,9 +121,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     wasm_source = """
     (module $multiply_func
       (func $multiply (param $a i32) (param $b i32) (result i32)
-        local.get $a
-        local.get $b
-        i32.mul)
+        (local.get $a)
+        (local.get $b)
+        (i32.mul)
+      )
       (export "multiply" (func $multiply))
     )
     """
@@ -137,11 +139,11 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         (local $lt i32)
         (local $gt i32)
         (i32.lt_s (local.get $num) (i32.const 1))
-        local.set $lt
+        (local.set $lt)
         (i32.gt_s (local.get $num) (i32.const 255))
-        local.set $gt
+        (local.set $gt)
         (i32.or (local.get $lt) (local.get $gt))
-        i32.eqz
+        (i32.eqz)
       )
       (export "validate" (func $validate))
     )
@@ -229,9 +231,9 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       (data (i32.const #{422 * 24}) "Unprocessable Entity\\00")
       (data (i32.const #{429 * 24}) "Too Many Requests\\00")
       (func (export "lookup") (param $status i32) (result i32)
-        local.get $status
-        i32.const 24
-        i32.mul
+        (local.get $status)
+        (i32.const 24)
+        (i32.mul)
       )
     )
     """
@@ -299,17 +301,36 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               env: [buffer: memory(2)]
             ],
             globals: [
-              count: i32(0),
+              count: i32(0)
             ] do
       data_nil_terminated(4, "<!doctype html>")
+      data_nil_terminated(20, "<h1>Good</h1>")
+      data_nil_terminated(40, "<h1>Bad</h1>")
 
       func get_request_body_write_offset, result: :i32 do
         65536
       end
 
-      func body, result: :i32 do
+      funcp get_is_valid, result: :i32 do
+        I32.eq(I32.load8_u(65536), ?g)
+      end
+
+      func get_status, result: :i32, locals: [is_valid: :i32] do
+        is_valid = I32.eq(I32.load8_u(65536), ?g)
+        I32.if_else(local_get(:is_valid), do: 200, else: 400)
+      end
+
+      func body, result: :i32, locals: [is_valid: :i32] do
+        # is_valid = I32.eq(I32.load8_u(65536), ?g)
+        is_valid = call(:get_is_valid)
+        # is_valid = get_is_valid()
         count = I32.add(count, 1)
-        I32.if_else(I32.eq(count, 1), do: 4, else: 0)
+
+        I32.if_else(I32.eq(count, 1),
+          do: 4,
+          else: I32.if_else(local_get(:is_valid), do: 20, else: 40)
+        )
+
         # 4
       end
     end
@@ -317,14 +338,25 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
   describe "HTMLPage constructs an HTML response" do
     test "good request" do
-      chunks =
+      write_request = {:write_string, 65536, "good", true}
+      # assert Wasm.call(HTMLPage, "is_valid") == 1
+
+      [status] =
         Wasm.steps(HTMLPage, [
-          {:write_string, 65536, "good", true},
-          {:call_string, "body", []},
-          {:call_string, "body", []},
+          write_request,
+          {:call, "get_status", []}
         ])
 
-      assert chunks == ["<!doctype html>", ""]
+      assert status == 200
+
+      chunks =
+        Wasm.steps(HTMLPage, [
+          write_request,
+          {:call_string, "body", []},
+          {:call_string, "body", []}
+        ])
+
+      assert chunks == ["<!doctype html>", "<h1>Good</h1>"]
 
       # Wasm.steps(CalculateMean) do
       #   request_body_write_offset = Step.call("get_request_body_write_offset")
@@ -336,14 +368,26 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     end
 
     test "bad request" do
+      # assert Wasm.call(HTMLPage, "is_valid") == 0
+      write_request = {:write_string, 65536, "bad", true}
+
+      [status] =
+        Wasm.steps(HTMLPage, [
+          write_request,
+          {:call, "get_status", []}
+        ])
+
+      assert status == 400
+
       chunks =
         Wasm.steps(HTMLPage, [
-          {:write_string, 65536, "bad", true},
+          write_request,
           {:call_string, "body", []},
           {:call_string, "body", []}
         ])
 
-      assert chunks == ["<!doctype html>", ""]
+      dbg(HTMLPage.to_wat())
+      assert chunks == ["<!doctype html>", "<h1>Bad</h1>"]
 
       # assert Wasm.call_string(HTMLPage, "body") == "<!doctype html>"
     end

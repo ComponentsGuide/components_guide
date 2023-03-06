@@ -51,7 +51,18 @@ defmodule ComponentsGuide.Rustler.Wasm do
     end
   end
 
-  def steps(source, steps), do: process_source(source) |> wasm_steps(steps)
+  def steps(source, steps) do
+    results = process_source(source) |> wasm_steps(steps)
+
+    for result <- results do
+      case result do
+        result when is_binary(result) -> result
+        [] -> nil
+        [a] -> a
+        list when is_list(list) -> List.to_tuple(list)
+      end
+    end
+  end
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)
 
