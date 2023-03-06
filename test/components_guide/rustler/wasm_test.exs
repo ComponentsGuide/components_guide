@@ -292,6 +292,63 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert result == 7
   end
 
+  defmodule HTMLPage do
+    use WasmBuilder
+
+    defwasm imports: [
+              env: [buffer: memory(2)]
+            ],
+            globals: [
+              count: i32(0),
+            ] do
+      data_nil_terminated(4, "<!doctype html>")
+
+      func get_request_body_write_offset, result: :i32 do
+        65536
+      end
+
+      func body, result: :i32 do
+        count = I32.add(count, 1)
+        I32.if_else(I32.eq(count, 1), do: 4, else: 0)
+        # 4
+      end
+    end
+  end
+
+  describe "HTMLPage constructs an HTML response" do
+    test "good request" do
+      chunks =
+        Wasm.steps(HTMLPage, [
+          {:write_string, 65536, "good", true},
+          {:call_string, "body", []},
+          {:call_string, "body", []},
+        ])
+
+      assert chunks == ["<!doctype html>", ""]
+
+      # Wasm.steps(CalculateMean) do
+      #   request_body_write_offset = Step.call("get_request_body_write_offset")
+      #   Step.write_string(request_body_write_offset, "hello")
+      #   body = Step.call_string("body")
+      # end
+
+      # assert Wasm.call_string(HTMLPage, "body") == "<!doctype html>"
+    end
+
+    test "bad request" do
+      chunks =
+        Wasm.steps(HTMLPage, [
+          {:write_string, 65536, "bad", true},
+          {:call_string, "body", []},
+          {:call_string, "body", []}
+        ])
+
+      assert chunks == ["<!doctype html>", ""]
+
+      # assert Wasm.call_string(HTMLPage, "body") == "<!doctype html>"
+    end
+  end
+
   # test "global calculates mean" do
   #   instance = Wasm.start(CalculateMean)
   #   Wasm.call(instance, "insert", 1)

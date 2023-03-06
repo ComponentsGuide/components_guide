@@ -1,6 +1,10 @@
+use anyhow::anyhow;
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
-use rustler::{Atom, Binary, Env, Error, NifRecord, NifStruct, NifTaggedEnum, NifTuple, ResourceArc, Term};
+use rustler::{
+    Atom, Binary, Encoder, Env, Error, NifRecord, NifStruct, NifTaggedEnum, NifTuple, ResourceArc,
+    Term,
+};
 use std::convert::TryInto;
 use std::ffi::CStr;
 use std::slice;
@@ -157,6 +161,42 @@ fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Stri
     };
 }
 
+fn wasm_extract_string<T>(
+    store: &mut Store<T>,
+    memory: &Memory,
+    result: Vec<i32>,
+) -> Result<String, anyhow::Error> {
+    match result.as_slice() {
+        [] => anyhow::bail!("Receive empty result"),
+        [start, length] => {
+            let start = *start;
+            let length = *length;
+            let start: usize = start.try_into().unwrap();
+            let length: usize = length.try_into().unwrap();
+
+            let mut string_buffer: Vec<u8> = Vec::with_capacity(length);
+            string_buffer.resize(length, 0);
+            memory.read(&store, start, &mut string_buffer)?;
+            let string = String::from_utf8(string_buffer)?;
+            return Ok(string);
+        }
+        [start] => {
+            let start = *start;
+            let start: usize = start.try_into().unwrap();
+
+            let data = &memory.data(&store)[start..];
+            let data: &[i8] =
+                unsafe { slice::from_raw_parts(data.as_ptr() as *const i8, data.len()) };
+
+            let cstr = unsafe { CStr::from_ptr(data.as_ptr()) };
+            let string = String::from_utf8_lossy(cstr.to_bytes()).to_string();
+
+            return Ok(string);
+        }
+        _items => anyhow::bail!("Receive result with too many items"),
+    }
+}
+
 fn wasm_example_i32_string_internal(
     wat_source: String,
     f: String,
@@ -308,6 +348,111 @@ fn wasm_example_n_i32_internal(
     return Ok(result);
 }
 
+#[derive(NifTaggedEnum)]
+enum WasmStepInstruction {
+    Call(String, Vec<i32>),
+    CallString(String, Vec<i32>),
+    WriteString(i32, String, bool),
+    // Baz{ a: i32, b: i32 },
+}
+
+#[rustler::nif]
+fn wasm_steps(
+    env: Env,
+    wat_source: String,
+    steps: Vec<WasmStepInstruction>,
+) -> Result<Vec<Term>, Error> {
+    return match wasm_steps_internal(env, wat_source, steps) {
+        Ok(v) => Ok(v),
+        Err(e) => Err(error_from(e)),
+    };
+}
+
+fn wasm_steps_internal(
+    env: Env,
+    wat_source: String,
+    steps: Vec<WasmStepInstruction>,
+) -> Result<Vec<Term>, anyhow::Error> {
+    let engine = Engine::default();
+
+    // A `Store` is what will own instances, functions, globals, etc. All wasm
+    // items are stored within a `Store`, and it's what we'll always be using to
+    // interact with the wasm world. Custom data can be stored in stores but for
+    // now we just use `()`.
+    let mut store = Store::new(&engine, ());
+    let mut linker = Linker::new(&engine);
+
+    let memory_ty = MemoryType::new(2, None);
+    let memory = Memory::new(&mut store, memory_ty)?;
+    linker.define(&store, "env", "buffer", memory)?;
+
+    let module = Module::new(&engine, wat_source)?;
+    let instance = linker.instantiate(&mut store, &module)?;
+
+    let mut results: Vec<Term> = Vec::with_capacity(steps.len());
+    for step in steps {
+        match step {
+            WasmStepInstruction::Call(f, args) => {
+                let func = instance
+                    .get_func(&mut store, &f)
+                    .expect(&format!("{} was not an exported function", f));
+
+                let func_type = func.ty(&store);
+                let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+
+                let mut result: Vec<Val> = Vec::with_capacity(16);
+                let result_length = func_type.results().len();
+                result.resize(result_length, Val::I32(0));
+
+                func.call(&mut store, &args, &mut result)?;
+
+                let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
+                let term = result.encode(env);
+                results.push(term);
+            }
+            WasmStepInstruction::CallString(f, args) => {
+                let func = instance
+                    .get_func(&mut store, &f)
+                    .ok_or(anyhow!("{} was not an exported function", f))?;
+                    // .ok_or(&format!("{} was not an exported function", f))?;
+
+                let func_type = func.ty(&store);
+                let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+
+                let mut result: Vec<Val> = Vec::with_capacity(16);
+                let result_length = func_type.results().len();
+                result.resize(result_length, Val::I32(0));
+
+                func.call(&mut store, &args, &mut result)?;
+
+                let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
+
+                let s = wasm_extract_string(&mut store, &memory, result)?;
+                let term = s.encode(env);
+                results.push(term);
+            }
+            WasmStepInstruction::WriteString(offset, string, null_terminated) => {
+                // let mut slice = memory.data_mut(&mut store);
+                // let bytes = s.into_bytes();
+                // let bytes = s.as_bytes();
+                let offset: usize = offset.try_into().unwrap();
+                // let mut bytes = string.as_bytes().clone();
+                let mut bytes = string.as_bytes().to_vec();
+                // let mut s = string.clone();
+                // let vec = s.as_mut_vec();
+                if null_terminated {
+                    bytes.push(0);
+                }
+                memory.write(&mut store, offset, &bytes)?;
+                // let result = String::encode_utf8(slice);
+                // slice[result.len()] = 0;
+            }
+        };
+    }
+
+    return Ok(results);
+}
+
 #[derive(NifTuple)]
 struct WasmBulkCall {
     f: String,
@@ -385,5 +530,6 @@ rustler::init!(
         wasm_example_0,
         wasm_string_i32,
         wasm_call_bulk,
+        wasm_steps,
     ]
 );

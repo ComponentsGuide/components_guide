@@ -27,6 +27,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_example_0(_, _), do: error()
   def wasm_string_i32(_, _, _), do: error()
   def wasm_call_bulk(_, _), do: error()
+  def wasm_steps(_, _), do: error()
 
   def call(source, f) do
     process_source(source) |> wasm_example_n_i32(f, []) |> process_result()
@@ -40,15 +41,17 @@ defmodule ComponentsGuide.Rustler.Wasm do
     process_source(source) |> wasm_example_n_i32(f, [a, b]) |> process_result()
   end
 
-  def call_string(source, f), do: wasm_string_i32(source, f, [])
-  def call_string(source, f, a), do: wasm_string_i32(source, f, [a])
-  def call_string(source, f, a, b), do: wasm_string_i32(source, f, [a, b])
+  def call_string(source, f), do: process_source(source) |> wasm_string_i32(f, [])
+  def call_string(source, f, a), do: process_source(source) |> wasm_string_i32(f, [a])
+  def call_string(source, f, a, b), do: process_source(source) |> wasm_string_i32(f, [a, b])
 
   def bulk_call(source, calls) do
     for result <- process_source(source) |> wasm_call_bulk(calls) do
       process_result(result)
     end
   end
+
+  def steps(source, steps), do: process_source(source) |> wasm_steps(steps)
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)
 

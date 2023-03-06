@@ -19,7 +19,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Data do
-    defstruct [:offset, :value]
+    defstruct [:offset, :value, :nil_terminated]
   end
 
   defmodule Global do
@@ -32,6 +32,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmodule Param do
     defstruct [:name, :type]
+  end
+
+  defmodule IfElse do
+    defstruct [:result, :condition, :when_true, :when_false]
   end
 
   # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
@@ -66,18 +70,26 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
     end
 
-    def unquote(:lt_s)(first, second) do
+    def lt_s(first, second) do
       # [first, second, {:i32, :lt_s}]
       {:i32, :lt_s, {first, second}}
     end
 
-    def unquote(:gt_s)(first, second) do
+    def gt_s(first, second) do
       # [first, second, {:i32, :gt_s}]
       {:i32, :gt_s, {first, second}}
     end
 
-    def unquote(:eqz)() do
+    def eq(first, second) do
+      {:i32, :eq, {first, second}}
+    end
+
+    def eqz() do
       {:i32, :eqz}
+    end
+
+    def if_else(condition, do: when_true, else: when_false) do
+      %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
     end
   end
 
@@ -187,16 +199,24 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     locals = Map.new(arg_types ++ local_types)
     globals = Map.new(global_types)
 
+    # block_items =
+    #   case block do
+    #     {:__block__, _meta, block_items} ->
+    #       for block_item <- block_items do
+    #         magic_func_item(block_item, locals, globals)
+    #       end
+
+    #     single ->
+    #       [magic_func_item(single, locals, globals)]
+    #   end
+
     block_items =
       case block do
-        {:__block__, _meta, block_items} ->
-          for block_item <- block_items do
-            magic_func_item(block_item, locals, globals)
-          end
-
-        single ->
-          [magic_func_item(single, locals, globals)]
+        {:__block__, _meta, block_items} -> block_items
+        single -> [single]
       end
+
+    block_items = Macro.prewalk(block_items, &magic_func_item(&1, locals, globals))
 
     quote do
       %Func{
@@ -258,7 +278,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def data(offset, value) do
-    %Data{offset: offset, value: value}
+    %Data{offset: offset, value: value, nil_terminated: false}
+  end
+
+  def data_nil_terminated(offset, value) do
+    %Data{offset: offset, value: value, nil_terminated: true}
   end
 
   def wasm_import(module, name, type) do
@@ -291,6 +315,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def local(identifier, type), do: {:local, identifier, type}
   def local_get(identifier), do: {:local_get, identifier}
   def local_set(identifier), do: {:local_set, identifier}
+
+  def if_(condition, do: when_true, else: when_false), do: {:if, condition, when_true, when_false}
 
   def to_wat(term) when is_atom(term),
     do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
@@ -328,8 +354,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ~s"#{indent}(memory #{to_wat(name)} #{min})"
   end
 
-  def to_wat(%Data{offset: offset, value: value}, indent) do
-    ~s[#{indent}(data (i32.const #{offset}) "#{value}")]
+  def to_wat(%Data{offset: offset, value: value, nil_terminated: true}, indent) do
+    [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ~S"\00", ?", ")"]
+  end
+
+  def to_wat(%Data{offset: offset, value: value, nil_terminated: false}, indent) do
+    [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ?", ")"]
   end
 
   def to_wat(%Global{name: name, type: type, initial_value: initial_value}, indent) do
@@ -363,6 +393,32 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def to_wat(%Param{name: name, type: type}, indent) do
     ~s"#{indent}(param $#{name} #{type})"
+  end
+
+  def to_wat(%IfElse{result: result, condition: condition, when_true: when_true, when_false: when_false}, indent) do
+    [
+      [indent, "(if ", (if result, do: "(result #{result}) ", else: ""), to_wat(condition), ?\n],
+      ["  " <> indent, "(then", ?\n],
+      ["    " <> indent, to_wat(when_true), ?\n],
+      ["  " <> indent, ")", ?\n],
+      ["  " <> indent, "(else", ?\n],
+      ["    " <> indent, to_wat(when_false), ?\n],
+      ["  " <> indent, ")", ?\n],
+      [indent, ")"]
+    ]
+  end
+
+  def to_wat({:if, condition, when_true, when_false}, indent) do
+    [
+      [indent, "(if ", to_wat(condition), ?\n],
+      ["  " <> indent, "(then", ?\n],
+      ["    " <> indent, to_wat(when_true), ?\n],
+      ["  " <> indent, ")", ?\n],
+      ["  " <> indent, "(else", ?\n],
+      ["    " <> indent, to_wat(when_false), ?\n],
+      ["  " <> indent, ")", ?\n],
+      [indent, ")"]
+    ]
   end
 
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
