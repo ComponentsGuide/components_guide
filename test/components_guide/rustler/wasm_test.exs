@@ -316,8 +316,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       end
 
       func get_status, result: :i32, locals: [is_valid: :i32] do
-        is_valid = I32.eq(I32.load8_u(65536), ?g)
+        is_valid = call(:get_is_valid)
+        # is_valid = I32.eq(I32.load8_u(65536), ?g)
         I32.if_else(local_get(:is_valid), do: 200, else: 400)
+        # I32.if_else(is_valid, do: 200, else: 400)
       end
 
       func body, result: :i32, locals: [is_valid: :i32] do
