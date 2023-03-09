@@ -11,5 +11,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.26.0"
-wasmtime = "6.0.0"
+wasmtime = "6.0.1"
 anyhow = "1.0"
