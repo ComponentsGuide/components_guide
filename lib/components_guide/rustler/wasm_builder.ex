@@ -205,17 +205,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     locals = Map.new(arg_types ++ local_types)
     globals = Map.new(global_types)
 
-    # block_items =
-    #   case block do
-    #     {:__block__, _meta, block_items} ->
-    #       for block_item <- block_items do
-    #         magic_func_item(block_item, locals, globals)
-    #       end
-
-    #     single ->
-    #       [magic_func_item(single, locals, globals)]
-    #   end
-
     block_items =
       case block do
         {:__block__, _meta, block_items} -> block_items
@@ -248,6 +237,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
        )
        when op in @i32_ops_2 do
     {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3,
+     Enum.map(args, &magic_func_arg(&1, locals, globals))}
+  end
+
+  defp magic_func_item(
+         {{:., meta1, [{:__aliases__, meta2, module}, func]}, meta3, args},
+         locals,
+         globals
+       )
+       when is_atom(func) do
+    {{:., meta1, [{:__aliases__, meta2, module}, func]}, meta3,
      Enum.map(args, &magic_func_arg(&1, locals, globals))}
   end
 
