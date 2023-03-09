@@ -108,14 +108,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Module{name: name, body: body}
   end
 
-  # defmacro defwasmmodule(call, do: block) when is_list(block) do
-  #   define_module(call, block)
-  # end
-
-  defmacro defwasmmodule(call, do: block) do
-    define_module(Macro.to_string(call), [], block)
-  end
-
   defp define_module(name, options, block) do
     imports = Keyword.get(options, :imports, [])
 
@@ -165,6 +157,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     quote do
       Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
+
+      def lookup_data(:doctype), do: 4
+      def lookup_data(:good_heading), do: 20
+      def lookup_data(:bad_heading), do: 40
 
       def __wasm_module__(), do: unquote(definition)
       def to_wat(), do: ComponentsGuide.Rustler.WasmBuilder.to_wat(__wasm_module__())
@@ -289,6 +285,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def data_nil_terminated(offset, value) do
     %Data{offset: offset, value: value, nil_terminated: true}
   end
+
+  # defmacro data_nil_terminated(offset, key, values) do
+  #   %Data{offset: offset, key: key, values: values, nil_terminated: true}
+  # end
 
   def wasm_import(module, name, type) do
     %Import{module: module, name: name, type: type}
