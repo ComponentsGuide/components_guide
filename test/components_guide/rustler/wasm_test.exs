@@ -297,15 +297,29 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   defmodule HTMLPage do
     use WasmBuilder
 
+    def hello, do: 4
+    def hello2, do: "<!doctype html>"
+
     defwasm imports: [
               env: [buffer: memory(2)]
             ],
             globals: [
               count: i32(0)
             ] do
+      # data_nil_terminated(4, hello2())
       data_nil_terminated(4, "<!doctype html>")
       data_nil_terminated(20, "<h1>Good</h1>")
       data_nil_terminated(40, "<h1>Bad</h1>")
+
+      # defdata doctype, do: "<!doctype html>"
+      # defdata good_heading, do: "<h1>Good</h1>"
+      # defdata bad_heading, do: "<h1>Bad</h1>"
+
+      # data_nil_terminated(4, :html,
+      #   doctype: "<!doctype html>",
+      #   good_heading: "<h1>Good</h1>",
+      #   bad_heading: "<h1>Bad</h1>",
+      # )
 
       func get_request_body_write_offset, result: :i32 do
         65536
@@ -324,6 +338,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         is_valid = call(:get_is_valid)
         count = I32.add(count, 1)
 
+        # I32.if_else(I32.eq(count, 1),
+        #   do: 4,
+        #   else: I32.if_else(is_valid, do: 20, else: 40)
+        # )
+        # I32.if_else(I32.eq(count, 1),
+        #   do: lookup_data(:doctype),
+        #   else: I32.if_else(is_valid, do: lookup_data(:good_heading), else: lookup_data(:bad_heading))
+        # )
         I32.if_else(I32.eq(count, 1),
           do: 4,
           else: I32.if_else(is_valid, do: 20, else: 40)
@@ -404,12 +426,5 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   #   Wasm.func multiply(a, b) do
   #     W32.mul(a, b)
   #   end
-  # end
-
-  # defwasmmodule multiply do
-  #   Wasm.func multiply(a, b) do
-  #     W32.mul(a, b)
-  #   end
-  #   export(multiply)
   # end
 end
