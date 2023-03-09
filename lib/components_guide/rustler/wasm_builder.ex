@@ -153,6 +153,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   defmacro defwasm(options \\ [], do: block) do
     name = __CALLER__.module |> Elixir.Module.split() |> List.last()
 
+    # block = quote context: __CALLER__.module, do: unquote(block)
     definition = define_module(name, options, block)
 
     quote do
@@ -237,13 +238,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defp magic_func_item(
-         {{:., meta1, [{:__aliases__, meta2, module}, func]}, meta3, args},
+         {first = {:., _, [{:__aliases__, _, _module}, func]}, meta, args},
          locals,
          globals
        )
        when is_atom(func) do
-    {{:., meta1, [{:__aliases__, meta2, module}, func]}, meta3,
-     Enum.map(args, &magic_func_arg(&1, locals, globals))}
+    {first, meta, Enum.map(args, &magic_func_arg(&1, locals, globals))}
   end
 
   defp magic_func_item({:=, _meta1, [{global, _meta2, nil}, input]}, locals, globals)
