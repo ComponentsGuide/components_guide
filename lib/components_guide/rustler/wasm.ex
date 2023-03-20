@@ -52,11 +52,12 @@ defmodule ComponentsGuide.Rustler.Wasm do
   end
 
   def steps(source, steps) do
-    results = process_source(source) |> wasm_steps(steps)
+    wat = process_source(source)
+    results = wat |> wasm_steps(steps)
 
     case results do
       {:error, reason} ->
-        {:error, reason}
+        {:error, reason, wat}
 
       results when is_list(results) ->
         for result <- results do

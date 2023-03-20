@@ -301,41 +301,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     defwasm imports: [env: [buffer: memory(2)]] do
       func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
         i = 1024
-        # raw_wat """
-        # (loop $continue (result i32)
-        #   (block $outer
-        #     (block $inner
-        #       local.get $i
-        #       i32.load8_u
-        #       local.tee $char
-        #       i32.const 47
-        #       i32.eq
-        #       br_if $inner
-        #       local.get $char
-        #       br_if $outer
-        #       (i32.const 1)
-        #       return
-        #     )
-        #     (i32.const 0)
-        #     return
-        #   )
-        #   local.get $i
-        #   i32.const 1
-        #   i32.add
-        #   local.set $i
-        #   br $continue
-        # )
-        # """
 
         defloop :continue, result: :i32 do
           defblock :outer do
             defblock :inner do
-              # char = I32.load8_u(i)
-              I32.load8_u(i)
-              local_set(:char)
-              br_if :inner, I32.eq(local_get(:char), 47)
-              # br_if :break, I32.eq(I32.load8_u(i), ?/)
-              br_if :outer, local_get(:char)
+              char = I32.load8_u(i)
+              br_if(:inner, I32.eq(char, ?/))
+              br_if(:outer, local_get(:char))
               return 1
             end
             return 0

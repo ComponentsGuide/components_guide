@@ -43,7 +43,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Block do
-    defstruct [:identifier, :body]
+    defstruct [:identifier, :result, :body]
   end
 
   # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
@@ -353,7 +353,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  defmacro defblock(identifier, [do: block]) do
+  defmacro defblock(identifier, options \\ [], [do: block]) do
+    result_type = Keyword.get(options, :result, nil)
+
     block_items =
       case block do
         {:__block__, _meta, statements} -> statements
@@ -361,7 +363,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
 
     quote do
-      %Block{identifier: unquote(identifier), body: unquote(block_items)}
+      %Block{identifier: unquote(identifier), result: unquote(result_type), body: unquote(block_items)}
     end
   end
 
@@ -492,8 +494,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     [
       [
         indent,
-        ~s[(loop $#{identifier} ],
-        if(result, do: "(result #{result})", else: []),
+        "(loop $",
+        to_string(identifier),
+        if(result, do: " (result #{result})", else: []),
         "\n"
       ],
       to_wat(body, "  " <> indent),
@@ -503,7 +506,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def to_wat(
-        %Block{identifier: identifier, body: body},
+        %Block{identifier: identifier, result: result, body: body},
         indent
       ) do
     [
@@ -511,6 +514,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         indent,
         "(block $",
         to_string(identifier),
+        if(result, do: " (result #{result})", else: []),
         "\n"
       ],
       to_wat(body, "  " <> indent),
