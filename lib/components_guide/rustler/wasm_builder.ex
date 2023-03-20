@@ -131,6 +131,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
 
     global_types = Keyword.get(options, :globals, [])
+    # globals = Map.new(global_types)
 
     block_items =
       case block do
@@ -145,6 +146,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
         {:func, meta, [call, [do: block]]} ->
           {:func, meta, [call, [globals: global_types], [do: block]]}
+
+        # {atom, meta, nil} when is_atom(atom) and is_map_key(globals, atom) ->
+        #   {:global_get, meta, [atom]}
 
         other ->
           other
@@ -266,6 +270,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     [magic_func_item(input, locals, globals), local_set(local)]
   end
 
+  # Not sure if this is a good idea or not. Does it affect `a = …` => `local_get(:a) = …`?
+  defp magic_func_item({atom, meta, nil}, locals, _globals)
+       when is_atom(atom) and is_map_key(locals, atom) do
+    {:local_get, meta, [atom]}
+  end
+
   defp magic_func_item(item, _locals, _globals) do
     item
   end
@@ -273,11 +283,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   defp magic_func_arg({atom, meta, nil}, _locals, globals)
        when is_atom(atom) and is_map_key(globals, atom) do
     {:global_get, meta, [atom]}
-  end
-
-  defp magic_func_arg({atom, meta, nil}, locals, _globals)
-       when is_atom(atom) and is_map_key(locals, atom) do
-    {:local_get, meta, [atom]}
   end
 
   defp magic_func_arg(item, _locals, _globals) do

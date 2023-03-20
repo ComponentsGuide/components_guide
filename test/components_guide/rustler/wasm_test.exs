@@ -415,82 +415,15 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      # export fn is_valid_file_name(input: [*:0]const u8) bool {
-      #     var i: usize = 0;
-      #     while (true) {
-      #         const char = input[i];
-      #         if (char == 0) {
-      #             return true;
-      #         }
-      #         if (char == '/') {
-      #             return false;
-      #         }
-      #         i += 1;
-      #     }
-      #     return true;
-      # }
-
-      # raw_wat """
-      # (func (;0;) (type 0) (param i32) (result i32)
-      # (local i32)
-      # loop (result i32)  ;; label = @1
-      #   block  ;; label = @2
-      #     block  ;; label = @3
-      #       local.get 0
-      #       i32.load8_u
-      #       local.tee 1
-      #       i32.const 47
-      #       i32.eq
-      #       br_if 0 (;@3;)
-      #       local.get 1
-      #       br_if 1 (;@2;)
-      #       i32.const 1
-      #       return
-      #     end
-      #     i32.const 0
-      #     return
-      #   end
-      #   local.get 0
-      #   i32.const 1
-      #   i32.add
-      #   local.set 0
-      #   br 0 (;@1;)
-      # end)
-      # """
       func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
         i = 1024
-        # raw_wat """
-        #   (loop $continue (result i32)
-        #     (block $outer
-        #       (block $inner
-        #         local.get $i
-        #         i32.load8_u
-        #         local.tee $char
-        #         i32.const 47
-        #         i32.eq
-        #         br_if $inner
-        #         local.get $char
-        #         br_if $outer
-        #         (i32.const 1)
-        #         return
-        #       )
-        #       (i32.const 0)
-        #       return
-        #     )
-        #     local.get $i
-        #     i32.const 1
-        #     i32.add
-        #     local.set $i
-        #     br $continue
-        #   )
-        # """
 
         defloop :continue, result: :i32 do
           defblock :outer do
             defblock :inner do
               char = I32.load8_u(i)
               br :inner, if: I32.eq(char, ?/)
-              br :outer, if: local_get(:char)
+              br :outer, if: char
               1
               return()
             end
