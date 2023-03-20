@@ -489,8 +489,8 @@ defmodule ComponentsGuide.Rustler.WasmTest do
           defblock :outer do
             defblock :inner do
               char = I32.load8_u(i)
-              br_if(:inner, I32.eq(char, ?/))
-              br_if(:outer, local_get(:char))
+              br :inner, if: I32.eq(char, ?/)
+              br :outer, if: local_get(:char)
               1
               return()
             end

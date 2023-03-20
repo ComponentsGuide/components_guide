@@ -371,6 +371,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def br(identifier), do: {:br, identifier}
   def br_if(identifier, condition), do: {:br_if, identifier, condition}
+  def br(identifier, if: condition), do: {:br_if, identifier, condition}
 
   def return(), do: :return
   def return(value), do: {:return, value}
