@@ -459,31 +459,52 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       # """
       func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
         i = 1024
-        raw_wat """
-          (loop $continue (result i32)
-            (block $outer
-              (block $inner
-                local.get $i
-                i32.load8_u
-                local.tee $char
-                i32.const 47
-                i32.eq
-                br_if $inner
-                local.get $char
-                br_if $outer
-                (i32.const 1)
-                return
-              )
-              (i32.const 0)
-              return
-            )
-            local.get $i
-            i32.const 1
-            i32.add
-            local.set $i
-            br $continue
-          )
-        """
+        # raw_wat """
+        #   (loop $continue (result i32)
+        #     (block $outer
+        #       (block $inner
+        #         local.get $i
+        #         i32.load8_u
+        #         local.tee $char
+        #         i32.const 47
+        #         i32.eq
+        #         br_if $inner
+        #         local.get $char
+        #         br_if $outer
+        #         (i32.const 1)
+        #         return
+        #       )
+        #       (i32.const 0)
+        #       return
+        #     )
+        #     local.get $i
+        #     i32.const 1
+        #     i32.add
+        #     local.set $i
+        #     br $continue
+        #   )
+        # """
+
+        defloop :continue, result: :i32 do
+          defblock :outer do
+            defblock :inner do
+              local_get(:i)
+              {:i32, :load8_u}
+              local_tee(:char)
+              47
+              {:i32, :eq}
+              {:br_if, :inner}
+              local_get(:char)
+              {:br_if, :outer}
+              1
+              return()
+            end
+            0
+            return()
+          end
+          i = I32.add(i, 1)
+          br :continue
+        end
 
         # loop :continue, result: :i32 do
         #   block :outer do
@@ -506,6 +527,41 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   end
 
   describe "returns if a string is file name safe" do
+    wasm_source = """
+    (module $FileNameSafe
+      (import "env" "buffer" (memory 2))
+      (func (export "get_is_valid") (result i32)
+        (local $i i32)
+        (local $char i32)
+        (i32.const 1024)
+        (local.set $i)
+        (loop $continue (result i32)
+          (block $outer
+            (block $inner
+              (local.get $i)
+              (i32.load8_u)
+              (local.tee $char)
+              (i32.const 47)
+              (i32.eq)
+              br_if $inner
+              (local.get $char)
+              br_if $outer
+              (i32.const 1)
+              return
+            )
+            (i32.const 0)
+            return
+          )
+          (i32.add (local.get $i) (i32.const 1))
+          (local.set $i)
+          br $continue
+        )
+      )
+    )
+    """
+
+    assert WasmBuilder.to_wat(FileNameSafe) == wasm_source
+
     [result] =
       Wasm.steps(FileNameSafe, [
         write_request = {:write_string, 1024, "good", true},

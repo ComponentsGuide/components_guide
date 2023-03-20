@@ -51,9 +51,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
   @i_test_ops ~w(eqz)a
   @i_relative_ops ~w(eq ne lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a
+  @i_load_ops ~w(load load8_u)a
+  @i_store_ops ~w(store)a
   @i32_ops_1 @i_unary_ops ++ @i_test_ops
   @i32_ops_2 @i_binary_ops ++ @i_relative_ops
-  @i32_ops_all @i32_ops_1 ++ @i32_ops_2
+  @i32_ops_all @i32_ops_1 ++ @i32_ops_2 ++ @i_load_ops ++ @i_store_ops
 
   defmodule I32 do
     def add(first, second)
@@ -370,6 +372,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def br(identifier), do: {:br, identifier}
   def br_if(identifier, condition), do: {:br_if, identifier, condition}
 
+  def return(), do: :return
   def return(value), do: {:return, value}
 
   def raw_wat(source), do: {:raw_wat, String.trim(source)}
@@ -463,12 +466,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         indent
       ) do
     [
-      [indent, "(if ", if(result, do: "(result #{result}) ", else: ""), to_wat(condition), ?\n],
+      [indent, "(if ", if(result, do: "(result #{result}) ", else: ""), to_wat(condition, ""), ?\n],
       ["  " <> indent, "(then", ?\n],
-      ["    " <> indent, to_wat(when_true), ?\n],
+      ["    " <> indent, to_wat(when_true, ""), ?\n],
       ["  " <> indent, ")", ?\n],
       ["  " <> indent, "(else", ?\n],
-      ["    " <> indent, to_wat(when_false), ?\n],
+      ["    " <> indent, to_wat(when_false, ""), ?\n],
       ["  " <> indent, ")", ?\n],
       [indent, ")"]
     ]
@@ -476,12 +479,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def to_wat({:if, condition, when_true, when_false}, indent) do
     [
-      [indent, "(if ", to_wat(condition), ?\n],
+      [indent, "(if ", to_wat(condition, ""), ?\n],
       ["  " <> indent, "(then", ?\n],
-      ["    " <> indent, to_wat(when_true), ?\n],
+      ["    " <> indent, to_wat(when_true, ""), ?\n],
       ["  " <> indent, ")", ?\n],
       ["  " <> indent, "(else", ?\n],
-      ["    " <> indent, to_wat(when_false), ?\n],
+      ["    " <> indent, to_wat(when_false, ""), ?\n],
       ["  " <> indent, ")", ?\n],
       [indent, ")"]
     ]
@@ -523,6 +526,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ]
   end
 
+  def to_wat(:nop, indent), do: [indent, "nop"]
+  def to_wat(:return, indent), do: [indent, "return"]
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
@@ -550,6 +555,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def to_wat({:br_if, identifier, condition}, indent),
     do: [indent, to_wat(condition), "\n", indent, "br_if $", to_string(identifier)]
+  def to_wat({:br_if, identifier}, indent),
+    do: [indent, "br_if $", to_string(identifier)]
 
   def to_wat({:return, value}, indent), do: [indent, "return ", to_wat(value)]
 
