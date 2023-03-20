@@ -131,7 +131,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
 
     global_types = Keyword.get(options, :globals, [])
-    # globals = Map.new(global_types)
+    globals = Map.new(global_types)
 
     block_items =
       case block do
@@ -141,14 +141,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     block_items =
       Macro.prewalk(block_items, fn
-        {:func, meta, [call, options, [do: block]]} ->
-          {:func, meta, [call, Keyword.put(options, :globals, global_types), [do: block]]}
+        {:=, _meta1, [{global, _meta2, nil}, input]}
+        when is_atom(global) and is_map_key(globals, global) ->
+          [input, global_set(global)]
 
-        {:func, meta, [call, [do: block]]} ->
-          {:func, meta, [call, [globals: global_types], [do: block]]}
-
-        # {atom, meta, nil} when is_atom(atom) and is_map_key(globals, atom) ->
-        #   {:global_get, meta, [atom]}
+        {atom, meta, nil} when is_atom(atom) and is_map_key(globals, atom) ->
+          {:global_get, meta, [atom]}
 
         other ->
           other
@@ -211,10 +209,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     result_type = Keyword.get(options, :result, nil)
     local_types = Keyword.get(options, :locals, [])
-    global_types = Keyword.get(options, :globals, [])
 
     locals = Map.new(arg_types ++ local_types)
-    globals = Map.new(global_types)
 
     block_items =
       case block do
@@ -222,7 +218,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         single -> [single]
       end
 
-    block_items = Macro.prewalk(block_items, &magic_func_item(&1, locals, globals))
+    block_items = Macro.prewalk(block_items, &magic_func_item(&1, locals))
 
     quote do
       %Func{
@@ -236,56 +232,22 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   # TODO: remove this one for local_get
-  defp magic_func_item({f, meta, [{atom, _, nil}]}, locals, _globals)
+  defp magic_func_item({f, meta, [{atom, _, nil}]}, locals)
        when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) do
     {f, meta, [atom]}
   end
 
-  defp magic_func_item(
-         {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3, args},
-         locals,
-         globals
-       )
-       when op in @i32_ops_2 do
-    {{:., meta1, [{:__aliases__, meta2, [:I32]}, op]}, meta3,
-     Enum.map(args, &magic_func_arg(&1, locals, globals))}
-  end
-
-  defp magic_func_item(
-         {first = {:., _, [{:__aliases__, _, _module}, func]}, meta, args},
-         locals,
-         globals
-       )
-       when is_atom(func) do
-    {first, meta, Enum.map(args, &magic_func_arg(&1, locals, globals))}
-  end
-
-  defp magic_func_item({:=, _meta1, [{global, _meta2, nil}, input]}, locals, globals)
-       when is_map_key(globals, global) do
-    [magic_func_item(input, locals, globals), global_set(global)]
-  end
-
-  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals, globals)
+  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals)
        when is_map_key(locals, local) do
-    [magic_func_item(input, locals, globals), local_set(local)]
+    [magic_func_item(input, locals), local_set(local)]
   end
 
-  # Not sure if this is a good idea or not. Does it affect `a = …` => `local_get(:a) = …`?
-  defp magic_func_item({atom, meta, nil}, locals, _globals)
+  defp magic_func_item({atom, meta, nil}, locals)
        when is_atom(atom) and is_map_key(locals, atom) do
     {:local_get, meta, [atom]}
   end
 
-  defp magic_func_item(item, _locals, _globals) do
-    item
-  end
-
-  defp magic_func_arg({atom, meta, nil}, _locals, globals)
-       when is_atom(atom) and is_map_key(globals, atom) do
-    {:global_get, meta, [atom]}
-  end
-
-  defp magic_func_arg(item, _locals, _globals) do
+  defp magic_func_item(item, _locals) do
     item
   end
 
@@ -341,7 +303,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def call(f), do: {:call, f, []}
 
-  defmacro defloop(identifier, options \\ [], [do: block]) do
+  defmacro defloop(identifier, options \\ [], do: block) do
     result_type = Keyword.get(options, :result, nil)
 
     block_items =
@@ -360,7 +322,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  defmacro defblock(identifier, options \\ [], [do: block]) do
+  defmacro defblock(identifier, options \\ [], do: block) do
     result_type = Keyword.get(options, :result, nil)
 
     block_items =
@@ -370,7 +332,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
 
     quote do
-      %Block{identifier: unquote(identifier), result: unquote(result_type), body: unquote(block_items)}
+      %Block{
+        identifier: unquote(identifier),
+        result: unquote(result_type),
+        body: unquote(block_items)
+      }
     end
   end
 
@@ -472,7 +438,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         indent
       ) do
     [
-      [indent, "(if ", if(result, do: "(result #{result}) ", else: ""), to_wat(condition, ""), ?\n],
+      [
+        indent,
+        "(if ",
+        if(result, do: "(result #{result}) ", else: ""),
+        to_wat(condition, ""),
+        ?\n
+      ],
       ["  " <> indent, "(then", ?\n],
       ["    " <> indent, to_wat(when_true, ""), ?\n],
       ["  " <> indent, ")", ?\n],
@@ -561,6 +533,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def to_wat({:br_if, identifier, condition}, indent),
     do: [indent, to_wat(condition), "\n", indent, "br_if $", to_string(identifier)]
+
   def to_wat({:br_if, identifier}, indent),
     do: [indent, "br_if $", to_string(identifier)]
 
