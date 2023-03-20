@@ -462,36 +462,41 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       func do_copy, result: :i32, locals: [i: :i32, char: :i32] do
         i = 1024
 
-        defloop :continue, result: :i32 do
+        defloop :each_char, result: :i32 do
           defblock :outer do
-            defblock :inner do
-              char = I32.load8_u(i)
-              # memory(I32.add(i, 1024)) = char
-              char
-              I32.store(I32.add(i, 1024))
-              br :inner, if: I32.eq(char, ?/)
-              br :outer, if: char
-              1
-              return()
-            end
-            0
+            char = I32.load8_u(i)
+            # memory(I32.add(i, 1024)) = char
+            # put_in(memory[I32.add(i, 1024)], char)
+            # memory[I32.add(i, 1024)] = char
+            I32.store8(I32.add(i, 1024), char)
+            br :outer, if: char
+            I32.sub(i, 1024)
             return()
           end
+          # defblock outer do
+          #   char = I32.load8_u(i)
+          #   I32.store(I32.add(i, 1024), char)
+          #   br outer, if: char
+          #   I32.sub(i, 1024)
+          #   return()
+          # end
           i = I32.add(i, 1)
-          br :continue
+          br :each_char
         end
       end
     end
   end
 
   describe "copies string bytes" do
-    [a, result] =
+    [len, result] =
       Wasm.steps(CopyString, [
         {:write_string, 1024, "good", true},
         {:call, "do_copy", []},
-        {:read_memory, 1024, 4}
+        {:read_memory, 2048, 4}
       ])
 
+    dbg(CopyString.to_wat())
+    assert len == 4
     assert result == "good"
   end
 end

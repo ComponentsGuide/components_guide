@@ -52,7 +52,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   @i_test_ops ~w(eqz)a
   @i_relative_ops ~w(eq ne lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a
   @i_load_ops ~w(load load8_u)a
-  @i_store_ops ~w(store)a
+  @i_store_ops ~w(store store8)a
   @i32_ops_1 @i_unary_ops ++ @i_test_ops
   @i32_ops_2 @i_binary_ops ++ @i_relative_ops
   @i32_ops_all @i32_ops_1 ++ @i32_ops_2 ++ @i_load_ops ++ @i_store_ops
@@ -102,6 +102,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     def load8_u(offset), do: {:i32, :load8_u, offset}
 
     def store(offset), do: {:i32, :store, offset}
+    def store(offset, value), do: {:i32, :store, offset, value}
+    def store8(offset, value), do: {:i32, :store8, offset, value}
 
     def if_else(condition, do: when_true, else: when_false) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
@@ -509,8 +511,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
   def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}(i32.#{op})"
 
-  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u store)a do
+  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u store store8)a do
     [indent, "(i32.", to_string(op), " ", to_wat(offset), ?)]
+  end
+
+  def to_wat({:i32, op, offset, value}, indent) when op in ~w(store store8)a do
+    [indent, "(i32.", to_string(op), " ", to_wat(offset), " ", to_wat(value), ?)]
   end
 
   def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2 do
