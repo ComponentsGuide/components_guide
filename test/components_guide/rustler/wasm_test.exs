@@ -404,7 +404,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
           {:call_string, "body", []}
         ])
 
-      dbg(HTMLPage.to_wat())
+      # dbg(HTMLPage.to_wat())
       assert chunks == ["<!doctype html>", "<h1>Bad</h1>"]
 
       # assert Wasm.call_string(HTMLPage, "body") == "<!doctype html>"

@@ -39,7 +39,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Loop do
-    defstruct [:identifier, :body]
+    defstruct [:identifier, :result, :body]
   end
 
   defmodule Block do
@@ -132,7 +132,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     block_items =
       case block do
-        {:__block__, [], block_items} -> block_items
+        {:__block__, _meta, block_items} -> block_items
         single -> [single]
       end
 
@@ -229,7 +229,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  # TODO: remove
+  # TODO: remove this one for local_get
   defp magic_func_item({f, meta, [{atom, _, nil}]}, locals, _globals)
        when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) do
     {f, meta, [atom]}
@@ -328,13 +328,47 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def local(identifier, type), do: {:local, identifier, type}
   def local_get(identifier), do: {:local_get, identifier}
   def local_set(identifier), do: {:local_set, identifier}
+  def local_tee(identifier), do: {:local_tee, identifier}
 
   def if_(condition, do: when_true, else: when_false), do: {:if, condition, when_true, when_false}
 
   def call(f), do: {:call, f, []}
 
+  defmacro defloop(identifier, options \\ [], [do: block]) do
+    result_type = Keyword.get(options, :result, nil)
+
+    block_items =
+      case block do
+        {:__block__, _meta, block_items} -> block_items
+        single -> [single]
+      end
+
+    # quote bind_quoted: [identifier: identifier] do
+    quote do
+      %Loop{
+        identifier: unquote(identifier),
+        result: unquote(result_type),
+        body: unquote(block_items)
+      }
+    end
+  end
+
+  defmacro defblock(identifier, [do: block]) do
+    block_items =
+      case block do
+        {:__block__, _meta, statements} -> statements
+        statement -> [statement]
+      end
+
+    quote do
+      %Block{identifier: unquote(identifier), body: unquote(block_items)}
+    end
+  end
+
   def br(identifier), do: {:br, identifier}
   def br_if(identifier, condition), do: {:br_if, identifier, condition}
+
+  def return(value), do: {:return, value}
 
   def raw_wat(source), do: {:raw_wat, String.trim(source)}
 
@@ -451,6 +485,40 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ]
   end
 
+  def to_wat(
+        %Loop{identifier: identifier, result: result, body: body},
+        indent
+      ) do
+    [
+      [
+        indent,
+        ~s[(loop $#{identifier} ],
+        if(result, do: "(result #{result})", else: []),
+        "\n"
+      ],
+      to_wat(body, "  " <> indent),
+      "\n",
+      [indent, ")"]
+    ]
+  end
+
+  def to_wat(
+        %Block{identifier: identifier, body: body},
+        indent
+      ) do
+    [
+      [
+        indent,
+        "(block $",
+        to_string(identifier),
+        "\n"
+      ],
+      to_wat(body, "  " <> indent),
+      "\n",
+      [indent, ")"]
+    ]
+  end
+
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
@@ -459,23 +527,37 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"
   def to_wat({:local_get, identifier}, indent), do: "#{indent}(local.get $#{identifier})"
   def to_wat({:local_set, identifier}, indent), do: "#{indent}(local.set $#{identifier})"
+  def to_wat({:local_tee, identifier}, indent), do: "#{indent}(local.tee $#{identifier})"
   def to_wat(value, indent) when is_integer(value), do: "#{indent}(i32.const #{value})"
   def to_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
   def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}(i32.#{op})"
 
-  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u store)a,
-    do: "(#{indent}i32.#{op} (i32.const #{offset}))"
+  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u store)a do
+    [indent, "(i32.", to_string(op), " ", to_wat(offset), ?)]
+  end
 
-  def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2,
-    do: "#{indent}(i32.#{op} #{to_wat(a)} #{to_wat(b)})"
+  def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2 do
+    [indent, "(i32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
+  end
 
   def to_wat({:call, f, []}, indent), do: "#{indent}(call $#{f})"
+
+  def to_wat({:br, identifier}, indent), do: [indent, "br $", to_string(identifier)]
+
+  def to_wat({:br_if, identifier, condition}, indent),
+    do: [indent, to_wat(condition), "\n", indent, "br_if $", to_string(identifier)]
+
+  def to_wat({:return, value}, indent), do: [indent, "return ", to_wat(value)]
 
   # def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
   def to_wat({:raw_wat, source}, indent) do
     lines = String.split(source, "\n")
-    Enum.intersperse(for line <- lines do
-      [indent, line]
-    end, "\n")
+
+    Enum.intersperse(
+      for line <- lines do
+        [indent, line]
+      end,
+      "\n"
+    )
   end
 end
