@@ -106,8 +106,8 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     defwasm do
       func add(a(:i32), b(:i32)), result: :i32 do
-        local_get(a)
-        local_get(b)
+        local_get(:a)
+        local_get(:b)
         i32(:add)
       end
     end

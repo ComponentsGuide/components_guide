@@ -218,7 +218,17 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         single -> [single]
       end
 
-    block_items = Macro.prewalk(block_items, &magic_func_item(&1, locals))
+    block_items = Macro.prewalk(block_items, fn
+      {:=, _meta1, [{local, _meta2, nil}, input]}
+      when is_atom(local) and is_map_key(locals, local) ->
+        [input, local_set(local)]
+
+      {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
+        {:local_get, meta, [atom]}
+
+      other ->
+        other
+    end)
 
     quote do
       %Func{
@@ -229,26 +239,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         body: unquote(block_items)
       }
     end
-  end
-
-  # TODO: remove this one for local_get
-  defp magic_func_item({f, meta, [{atom, _, nil}]}, locals)
-       when f in [:local_get] and is_atom(atom) and is_map_key(locals, atom) do
-    {f, meta, [atom]}
-  end
-
-  defp magic_func_item({:=, _meta1, [{local, _meta2, nil}, input]}, locals)
-       when is_map_key(locals, local) do
-    [magic_func_item(input, locals), local_set(local)]
-  end
-
-  defp magic_func_item({atom, meta, nil}, locals)
-       when is_atom(atom) and is_map_key(locals, atom) do
-    {:local_get, meta, [atom]}
-  end
-
-  defp magic_func_item(item, _locals) do
-    item
   end
 
   def memory(name \\ nil, min) do
