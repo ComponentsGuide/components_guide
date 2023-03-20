@@ -336,7 +336,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def br(identifier), do: {:br, identifier}
   def br_if(identifier, condition), do: {:br_if, identifier, condition}
 
-  def raw_wat(source), do: {:raw_wat, source}
+  def raw_wat(source), do: {:raw_wat, String.trim(source)}
 
   ####
 
@@ -471,5 +471,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def to_wat({:call, f, []}, indent), do: "#{indent}(call $#{f})"
 
-  def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
+  # def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
+  def to_wat({:raw_wat, source}, indent) do
+    lines = String.split(source, "\n")
+    Enum.intersperse(for line <- lines do
+      [indent, line]
+    end, "\n")
+  end
 end

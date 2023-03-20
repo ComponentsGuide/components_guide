@@ -485,24 +485,19 @@ defmodule ComponentsGuide.Rustler.WasmTest do
           )
         """
 
-        # raw_wat """
-        #   (loop $continue (block $break
-        #     (br_if $break (i32.eq (i32.load8_u (local.get $i)) (i32.const 47)))
-        #     (local.set $i            	;; $i++
-        #       (i32.add (local.get $i) (i32.const 1))
-        #     )
-        #     br $continue
-        #   ))
-        # """
-
-        # loop :continue do
-        #   block :break do
-        #     br_if :break, I32.eq(I32.load8_u(i), ?/)
-
-        #     i = I32.add(i, 1)
-        #     br :continue
+        # loop :continue, result: :i32 do
+        #   block :outer do
+        #     block :inner do
+        #       char = I32.load8_u(i)
+        #       br_if :inner, I32.eq(char, 47)
+        #       # br_if :break, I32.eq(I32.load8_u(i), ?/)
+        #       br_if :outer, char
+        #       return 1
+        #     end
+        #     return 0
         #   end
-        #   0
+        #   i = I32.add(i, 1)
+        #   br :continue
         # end
 
         # 1

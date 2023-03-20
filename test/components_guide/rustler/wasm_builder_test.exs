@@ -294,4 +294,98 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert to_wat(HTMLPage) == wasm_source
     assert Wasm.call(HTMLPage, "body") == 100
   end
+
+  defmodule FileNameSafe do
+    use WasmBuilder
+
+    defwasm imports: [env: [buffer: memory(2)]] do
+      func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
+        i = 1024
+        raw_wat """
+        (loop $continue (result i32)
+          (block $outer
+            (block $inner
+              local.get $i
+              i32.load8_u
+              local.tee $char
+              i32.const 47
+              i32.eq
+              br_if $inner
+              local.get $char
+              br_if $outer
+              (i32.const 1)
+              return
+            )
+            (i32.const 0)
+            return
+          )
+          local.get $i
+          i32.const 1
+          i32.add
+          local.set $i
+          br $continue
+        )
+        """
+
+        # loop :continue, result: :i32 do
+        #   block :outer do
+        #     block :inner do
+        #       char = I32.load8_u(i)
+        #       br_if :inner, I32.eq(char, 47)
+        #       # br_if :break, I32.eq(I32.load8_u(i), ?/)
+        #       br_if :outer, char
+        #       return 1
+        #     end
+        #     return 0
+        #   end
+        #   i = I32.add(i, 1)
+        #   br :continue
+        # end
+
+        # 1
+      end
+    end
+  end
+
+  test "loop" do
+    alias ComponentsGuide.Rustler.Wasm
+
+    wasm_source = """
+    (module $FileNameSafe
+      (import "env" "buffer" (memory 2))
+      (func (export "get_is_valid") (result i32)
+        (local $i i32)
+        (local $char i32)
+        (i32.const 1024)
+        (local.set $i)
+        (loop $continue (result i32)
+          (block $outer
+            (block $inner
+              local.get $i
+              i32.load8_u
+              local.tee $char
+              i32.const 47
+              i32.eq
+              br_if $inner
+              local.get $char
+              br_if $outer
+              (i32.const 1)
+              return
+            )
+            (i32.const 0)
+            return
+          )
+          local.get $i
+          i32.const 1
+          i32.add
+          local.set $i
+          br $continue
+        )
+      )
+    )
+    """
+
+    assert to_wat(FileNameSafe) == wasm_source
+    # assert Wasm.call(FileNameSafe, "body") == 100
+  end
 end
