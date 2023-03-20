@@ -54,13 +54,19 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def steps(source, steps) do
     results = process_source(source) |> wasm_steps(steps)
 
-    for result <- results do
-      case result do
-        result when is_binary(result) -> result
-        [] -> nil
-        [a] -> a
-        list when is_list(list) -> List.to_tuple(list)
-      end
+    case results do
+      {:error, reason} ->
+        {:error, reason}
+
+      results when is_list(results) ->
+        for result <- results do
+          case result do
+            result when is_binary(result) -> result
+            [] -> nil
+            [a] -> a
+            list when is_list(list) -> List.to_tuple(list)
+          end
+        end
     end
   end
 
