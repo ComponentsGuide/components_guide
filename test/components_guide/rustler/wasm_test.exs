@@ -454,21 +454,4 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     assert result == 0
   end
-
-  # test "global calculates mean" do
-  #   instance = Wasm.start(CalculateMean)
-  #   Wasm.call(instance, "insert", 1)
-  #   Wasm.call(instance, "insert", 2)
-  #   Wasm.call(instance, "insert", 3)
-
-  #   assert Wasm.call(instance, "calculate_mean") == 2
-
-  #   Wasm.stop(instance)
-  # end
-
-  # defwasm multiply(a, b) do
-  #   Wasm.func multiply(a, b) do
-  #     W32.mul(a, b)
-  #   end
-  # end
 end
