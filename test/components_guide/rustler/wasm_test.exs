@@ -411,6 +411,123 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     end
   end
 
+  defmodule FileNameSafe do
+    use WasmBuilder
+
+    defwasm imports: [env: [buffer: memory(2)]] do
+      # export fn is_valid_file_name(input: [*:0]const u8) bool {
+      #     var i: usize = 0;
+      #     while (true) {
+      #         const char = input[i];
+      #         if (char == 0) {
+      #             return true;
+      #         }
+      #         if (char == '/') {
+      #             return false;
+      #         }
+      #         i += 1;
+      #     }
+      #     return true;
+      # }
+
+      # raw_wat """
+      # (func (;0;) (type 0) (param i32) (result i32)
+      # (local i32)
+      # loop (result i32)  ;; label = @1
+      #   block  ;; label = @2
+      #     block  ;; label = @3
+      #       local.get 0
+      #       i32.load8_u
+      #       local.tee 1
+      #       i32.const 47
+      #       i32.eq
+      #       br_if 0 (;@3;)
+      #       local.get 1
+      #       br_if 1 (;@2;)
+      #       i32.const 1
+      #       return
+      #     end
+      #     i32.const 0
+      #     return
+      #   end
+      #   local.get 0
+      #   i32.const 1
+      #   i32.add
+      #   local.set 0
+      #   br 0 (;@1;)
+      # end)
+      # """
+      func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
+        i = 1024
+        raw_wat """
+          (loop $continue (result i32)
+            (block $outer
+              (block $inner
+                local.get $i
+                i32.load8_u
+                local.tee $char
+                i32.const 47
+                i32.eq
+                br_if $inner
+                local.get $char
+                br_if $outer
+                (i32.const 1)
+                return
+              )
+              (i32.const 0)
+              return
+            )
+            local.get $i
+            i32.const 1
+            i32.add
+            local.set $i
+            br $continue
+          )
+        """
+
+        # raw_wat """
+        #   (loop $continue (block $break
+        #     (br_if $break (i32.eq (i32.load8_u (local.get $i)) (i32.const 47)))
+        #     (local.set $i            	;; $i++
+        #       (i32.add (local.get $i) (i32.const 1))
+        #     )
+        #     br $continue
+        #   ))
+        # """
+
+        # loop :continue do
+        #   block :break do
+        #     br_if :break, I32.eq(I32.load8_u(i), ?/)
+
+        #     i = I32.add(i, 1)
+        #     br :continue
+        #   end
+        #   0
+        # end
+
+        # 1
+      end
+    end
+  end
+
+  describe "returns if a string is file name safe" do
+    [result] =
+      Wasm.steps(FileNameSafe, [
+        write_request = {:write_string, 1024, "good", true},
+        {:call, "get_is_valid", []}
+      ])
+
+    assert result == 1
+
+    [result] =
+      Wasm.steps(FileNameSafe, [
+        write_request = {:write_string, 1024, "has/slashes", true},
+        {:call, "get_is_valid", []}
+      ])
+
+    assert result == 0
+  end
+
   # test "global calculates mean" do
   #   instance = Wasm.start(CalculateMean)
   #   Wasm.call(instance, "insert", 1)

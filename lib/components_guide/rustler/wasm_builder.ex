@@ -38,6 +38,14 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     defstruct [:result, :condition, :when_true, :when_false]
   end
 
+  defmodule Loop do
+    defstruct [:identifier, :body]
+  end
+
+  defmodule Block do
+    defstruct [:identifier, :body]
+  end
+
   # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
   @i_unary_ops ~w(clz ctz popcnt)a
   @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
@@ -325,6 +333,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def call(f), do: {:call, f, []}
 
+  def br(identifier), do: {:br, identifier}
+  def br_if(identifier, condition), do: {:br_if, identifier, condition}
+
+  def raw_wat(source), do: {:raw_wat, source}
+
+  ####
+
   def to_wat(term) when is_atom(term),
     do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
 
@@ -455,4 +470,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     do: "#{indent}(i32.#{op} #{to_wat(a)} #{to_wat(b)})"
 
   def to_wat({:call, f, []}, indent), do: "#{indent}(call $#{f})"
+
+  def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
 end
