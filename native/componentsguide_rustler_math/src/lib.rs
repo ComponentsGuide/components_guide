@@ -161,6 +161,21 @@ fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Stri
     };
 }
 
+fn wasm_read_memory<T>(
+    store: &mut Store<T>,
+    memory: &Memory,
+    start: i32,
+    length: i32,
+) -> Result<Vec<u8>, anyhow::Error> {
+    let start: usize = start.try_into().unwrap();
+    let length: usize = length.try_into().unwrap();
+
+    let mut string_buffer: Vec<u8> = Vec::with_capacity(length);
+    string_buffer.resize(length, 0);
+    memory.read(&store, start, &mut string_buffer)?;
+    return Ok(string_buffer);
+}
+
 fn wasm_extract_string<T>(
     store: &mut Store<T>,
     memory: &Memory,
@@ -353,6 +368,7 @@ enum WasmStepInstruction {
     Call(String, Vec<i32>),
     CallString(String, Vec<i32>),
     WriteString(i32, String, bool),
+    ReadMemory(i32, i32),
     // Baz{ a: i32, b: i32 },
 }
 
@@ -407,14 +423,25 @@ fn wasm_steps_internal(
                 func.call(&mut store, &args, &mut result)?;
 
                 let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
-                let term = result.encode(env);
-                results.push(term);
+                match result[..] {
+                    // [] => results.push(().encode(env)),
+                    [] => results.push(rustler::types::atom::nil().encode(env)),
+                    [a] => results.push(a.encode(env)),
+                    [a, b] => results.push((a, b).encode(env)),
+                    [a, b, c] => results.push((a, b, c).encode(env)),
+                    [a, b, c, d] => results.push((a, b, c, d).encode(env)),
+                    [..] => results.push(result.encode(env)),
+                }
+                // let result = result.collect_tuple()
+                // let term = tuple.encode(env);
+                // let term = result.encode(env);
+                // results.push(term);
             }
             WasmStepInstruction::CallString(f, args) => {
                 let func = instance
                     .get_func(&mut store, &f)
                     .ok_or(anyhow!("{} was not an exported function", f))?;
-                    // .ok_or(&format!("{} was not an exported function", f))?;
+                // .ok_or(&format!("{} was not an exported function", f))?;
 
                 let func_type = func.ty(&store);
                 let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
@@ -446,6 +473,11 @@ fn wasm_steps_internal(
                 memory.write(&mut store, offset, &bytes)?;
                 // let result = String::encode_utf8(slice);
                 // slice[result.len()] = 0;
+            }
+            WasmStepInstruction::ReadMemory(start, length) => {
+                let bytes = wasm_read_memory(&mut store, &memory, start, length)?;
+                let term = bytes.encode(env);
+                results.push(term);
             }
         };
     }

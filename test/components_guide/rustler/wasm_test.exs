@@ -454,4 +454,44 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     assert result == 0
   end
+
+  defmodule CopyString do
+    use WasmBuilder
+
+    defwasm imports: [env: [buffer: memory(2)]] do
+      func do_copy, result: :i32, locals: [i: :i32, char: :i32] do
+        i = 1024
+
+        defloop :continue, result: :i32 do
+          defblock :outer do
+            defblock :inner do
+              char = I32.load8_u(i)
+              # memory(I32.add(i, 1024)) = char
+              char
+              I32.store(I32.add(i, 1024))
+              br :inner, if: I32.eq(char, ?/)
+              br :outer, if: char
+              1
+              return()
+            end
+            0
+            return()
+          end
+          i = I32.add(i, 1)
+          br :continue
+        end
+      end
+    end
+  end
+
+  describe "copies string bytes" do
+    [a, result] =
+      Wasm.steps(CopyString, [
+        {:write_string, 1024, "good", true},
+        {:call, "do_copy", []},
+        {:read_memory, 1024, 4}
+      ])
+
+    assert result == "good"
+  end
 end

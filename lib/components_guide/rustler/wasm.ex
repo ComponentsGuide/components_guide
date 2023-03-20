@@ -62,10 +62,9 @@ defmodule ComponentsGuide.Rustler.Wasm do
       results when is_list(results) ->
         for result <- results do
           case result do
-            result when is_binary(result) -> result
             [] -> nil
-            [a] -> a
-            list when is_list(list) -> List.to_tuple(list)
+            list when is_list(list) -> IO.iodata_to_binary(list)
+            other -> other
           end
         end
     end
