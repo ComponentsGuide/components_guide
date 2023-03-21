@@ -421,7 +421,12 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         defloop :continue, result: I32 do
           defblock :outer do
             defblock :inner do
-              char = I32.load8_u(i)
+              # char = I32.load8_u(i)
+              # char = I32.Memory.load!(i)
+              # char = I32.Memory.load8!(i).unsigned
+              # char = I32.memory![i].unsigned
+              # char = I32.memory8![i].unsigned
+              char = memory32_8![i].unsigned
               br :inner, if: I32.eq(char, ?/)
               br :outer, if: char
               1
