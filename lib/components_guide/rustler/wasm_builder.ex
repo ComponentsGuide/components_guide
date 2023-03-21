@@ -296,6 +296,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def i32(op) when op in @i32_ops_all, do: {:i32, op}
   def i32(op) when is_number(op), do: {:i32_const, op}
 
+  def push(tuple) when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const], do: tuple
+
   def global_get(identifier), do: {:global_get, identifier}
   def global_set(identifier), do: {:global_set, identifier}
 

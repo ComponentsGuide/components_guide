@@ -465,28 +465,16 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
         defloop EachChar, result: :i32 do
           defblock Outer do
-            # char = memory32_8[i].unsigned
-            # char = memory32_8[i].u
-            # char = I32.Memory8[i].u
-            # char = memory32_8u[i]
             char = memory32_8[i].unsigned
             memory32_8[I32.add(i, 1024)] = char
-            # put_in(memory[I32.add(i, 1024)], char)
 
             # char = I32.load8_u(i)
             # I32.store8(I32.add(i, 1024), char)
             br Outer, if: char
             # Outer.branch(if: char)
-            I32.sub(i, 1024)
+            push I32.sub(i, 1024)
             return()
           end
-          # defblock outer do
-          #   char = I32.load8_u(i)
-          #   I32.store(I32.add(i, 1024), char)
-          #   br outer, if: char
-          #   I32.sub(i, 1024)
-          #   return()
-          # end
           i = I32.add(i, 1)
           br EachChar
         end
