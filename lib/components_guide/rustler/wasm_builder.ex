@@ -150,9 +150,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         {atom, meta, nil} when is_atom(atom) and is_map_key(globals, atom) ->
           {:global_get, meta, [atom]}
 
-        # {{:., _meta1, [Access, :get]}, _meta2, [{:memory32_8u, _meta3, nil}, offset]} ->
-        #   Macro.escape({:i32, :load8_u, offset})
-
         other ->
           other
       end)
@@ -225,13 +222,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     block_items =
       Macro.prewalk(block_items, fn
-        {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8, _, nil}, offset]}, value]} ->
+        {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
           quote do: {:i32, :store8, unquote(offset), unquote(value)}
 
-        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8, _, nil}, offset]}, :unsigned]}, _, _} ->
-          quote do: {:i32, :load8_u, unquote(offset)}
-
-        {{:., _, [Access, :get]}, _, [{:memory32_8u, _, nil}, offset]} ->
+        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _, _} ->
           quote do: {:i32, :load8_u, unquote(offset)}
 
         {:=, _, [{local, _, nil}, input]}
