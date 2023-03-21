@@ -427,16 +427,18 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               # char = I32.memory![i].unsigned
               # char = I32.memory8![i].unsigned
               char = memory32_8![i].unsigned
-              br :inner, if: I32.eq(char, ?/)
-              br :outer, if: char
-              1
+              br(:inner, if: I32.eq(char, ?/))
+              br(:outer, if: char)
+              push(1)
               return()
             end
-            0
+
+            push(0)
             return()
           end
+
           i = I32.add(i, 1)
-          br :continue
+          br(:continue)
         end
       end
     end
@@ -474,13 +476,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
             # char = I32.load8_u(i)
             # I32.store8(I32.add(i, 1024), char)
-            br Outer, if: char
+            br(Outer, if: char)
             # Outer.branch(if: char)
-            push I32.sub(i, 1024)
+            push(I32.sub(i, 1024))
             return()
           end
+
           i = I32.add(i, 1)
-          br EachChar
+          br(EachChar)
         end
       end
     end

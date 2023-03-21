@@ -218,9 +218,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     result_type = Keyword.get(options, :result, nil) |> expand_type()
     dbg(result_type)
-    local_types = for {key, type} <- Keyword.get(options, :locals, []) do
-      {key, expand_type(type)}
-    end
+
+    local_types =
+      for {key, type} <- Keyword.get(options, :locals, []) do
+        {key, expand_type(type)}
+      end
 
     locals = Map.new(arg_types ++ local_types)
 
@@ -235,7 +237,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
           quote do: {:i32, :store8, unquote(offset), unquote(value)}
 
-        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _, _} ->
+        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
+         _} ->
           quote do: {:i32, :load8_u, unquote(offset)}
 
         {:=, _, [{local, _, nil}, input]}
@@ -298,9 +301,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def i32_const(value), do: {:i32_const, value}
   def i32(op) when op in @i32_ops_all, do: {:i32, op}
-  def i32(op) when is_number(op), do: {:i32_const, op}
+  def i32(n) when is_integer(n), do: {:i32_const, n}
 
   def push(tuple) when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const], do: tuple
+  def push(n) when is_integer(n), do: {:i32_const, n}
 
   def global_get(identifier), do: {:global_get, identifier}
   def global_set(identifier), do: {:global_set, identifier}
