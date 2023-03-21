@@ -468,8 +468,8 @@ defmodule ComponentsGuide.Rustler.WasmTest do
             # char = memory32_8[i].unsigned
             # char = memory32_8[i].u
             # char = I32.Memory8[i].u
-            char = memory32_8u[i]
-            # char = memory32_8[i].unsigned
+            # char = memory32_8u[i]
+            char = memory32_8[i].unsigned
             memory32_8[I32.add(i, 1024)] = char
             # put_in(memory[I32.add(i, 1024)], char)
 

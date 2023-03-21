@@ -228,6 +228,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8, _, nil}, offset]}, value]} ->
           quote do: {:i32, :store8, unquote(offset), unquote(value)}
 
+        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8, _, nil}, offset]}, :unsigned]}, _, _} ->
+          quote do: {:i32, :load8_u, unquote(offset)}
+
         {{:., _, [Access, :get]}, _, [{:memory32_8u, _, nil}, offset]} ->
           quote do: {:i32, :load8_u, unquote(offset)}
 
