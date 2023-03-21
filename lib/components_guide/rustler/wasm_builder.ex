@@ -305,7 +305,20 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def call(f), do: {:call, f, []}
 
+  defp expand_block_identifier(identifier, env) do
+    identifier = Macro.expand_once(identifier, env) |> Kernel.to_string()
+
+    case identifier do
+      "Elixir." <> _rest = string ->
+        string |> Elixir.Module.split() |> Enum.join(".")
+
+      other ->
+        other
+    end
+  end
+
   defmacro defloop(identifier, options \\ [], do: block) do
+    identifier = expand_block_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil)
 
     block_items =
@@ -325,6 +338,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmacro defblock(identifier, options \\ [], do: block) do
+    identifier = expand_block_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil)
 
     block_items =
@@ -342,9 +356,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  def br(identifier), do: {:br, identifier}
-  def br_if(identifier, condition), do: {:br_if, identifier, condition}
-  def br(identifier, if: condition), do: {:br_if, identifier, condition}
+  def br(identifier), do: {:br, expand_block_identifier(identifier, __ENV__)}
+
+  def br_if(identifier, condition),
+    do: {:br_if, expand_block_identifier(identifier, __ENV__), condition}
+
+  def br(identifier, if: condition),
+    do: {:br_if, expand_block_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
   def return(value), do: {:return, value}

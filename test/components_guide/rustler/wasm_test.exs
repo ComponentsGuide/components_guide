@@ -459,20 +459,24 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
+      # func do_copy, I32, locals: [i: I32, char: I32] do
       func do_copy, result: :i32, locals: [i: :i32, char: :i32] do
         i = 1024
 
-        defloop :each_char, result: :i32 do
-          defblock :outer do
+        defloop EachChar, result: :i32 do
+          defblock Outer do
             # char = memory32_8[i].unsigned
             # char = memory32_8[i].u
+            # char = I32.Memory8[i].u
             char = memory32_8u[i]
+            # char = memory32_8[i].unsigned
             memory32_8[I32.add(i, 1024)] = char
             # put_in(memory[I32.add(i, 1024)], char)
 
             # char = I32.load8_u(i)
             # I32.store8(I32.add(i, 1024), char)
-            br :outer, if: char
+            br Outer, if: char
+            # Outer.branch(if: char)
             I32.sub(i, 1024)
             return()
           end
@@ -484,7 +488,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
           #   return()
           # end
           i = I32.add(i, 1)
-          br :each_char
+          br EachChar
         end
       end
     end

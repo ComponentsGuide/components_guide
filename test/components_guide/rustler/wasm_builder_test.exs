@@ -303,11 +303,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         i = 1024
 
         defloop :continue, result: :i32 do
-          defblock :outer do
+          defblock Outer do
             defblock :inner do
               char = I32.load8_u(i)
               br_if(:inner, I32.eq(char, ?/))
-              br_if(:outer, local_get(:char))
+              br_if(Outer, local_get(:char))
               return 1
             end
             return 0
@@ -331,14 +331,14 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         (i32.const 1024)
         (local.set $i)
         (loop $continue (result i32)
-          (block $outer
+          (block $Outer
             (block $inner
               (i32.load8_u (local.get $i))
               (local.set $char)
               (i32.eq (local.get $char) (i32.const 47))
               br_if $inner
               (local.get $char)
-              br_if $outer
+              br_if $Outer
               return (i32.const 1)
             )
             return (i32.const 0)
