@@ -105,7 +105,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use ComponentsGuide.Rustler.WasmBuilder
 
     defwasm do
-      func add(a(:i32), b(:i32)), result: :i32 do
+      func add(a(I32), b(I32)), result: I32 do
         local_get(:a)
         local_get(:b)
         i32(:add)
@@ -271,12 +271,12 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               count: i32(0),
               tally: i32(0)
             ] do
-      func insert(element(:i32)) do
+      func insert(element(I32)) do
         count = I32.add(count, 1)
         tally = I32.add(tally, element)
       end
 
-      func calculate_mean(), result: :i32 do
+      func calculate_mean(), result: I32 do
         I32.div_u(tally, count)
       end
     end
@@ -321,20 +321,20 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       #   bad_heading: "<h1>Bad</h1>",
       # )
 
-      func get_request_body_write_offset, result: :i32 do
+      func get_request_body_write_offset, result: I32 do
         65536
       end
 
-      funcp get_is_valid, result: :i32 do
+      funcp get_is_valid, result: I32 do
         I32.eq(I32.load8_u(65536), ?g)
       end
 
-      func get_status, result: :i32, locals: [is_valid: :i32] do
+      func get_status, result: I32, locals: [is_valid: I32] do
         is_valid = call(:get_is_valid)
         I32.if_else(is_valid, do: 200, else: 400)
       end
 
-      func body, result: :i32, locals: [is_valid: :i32] do
+      func body, result: I32, locals: [is_valid: I32] do
         is_valid = call(:get_is_valid)
         count = I32.add(count, 1)
 
@@ -415,10 +415,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
+      func get_is_valid, result: I32, locals: [i: I32, char: I32] do
         i = 1024
 
-        defloop :continue, result: :i32 do
+        defloop :continue, result: I32 do
           defblock :outer do
             defblock :inner do
               char = I32.load8_u(i)
@@ -459,11 +459,10 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      # func do_copy, I32, locals: [i: I32, char: I32] do
-      func do_copy, result: :i32, locals: [i: :i32, char: :i32] do
+      func do_copy, result: I32, locals: [i: I32, char: I32] do
         i = 1024
 
-        defloop EachChar, result: :i32 do
+        defloop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![i].unsigned
             memory32_8![I32.add(i, 1024)] = char

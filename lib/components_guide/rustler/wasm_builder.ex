@@ -182,6 +182,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
+  defp expand_type(type) do
+    case Macro.expand_once(type, __ENV__) do
+      I32 -> :i32
+      _ -> type
+    end
+  end
+
   defmacro func(call, options \\ [], do: block) do
     define_func(call, :public, options, block)
   end
@@ -201,16 +208,19 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
     params =
       for {name, _meta, [type]} <- args do
-        Macro.escape(param(name, type))
+        Macro.escape(param(name, expand_type(type)))
       end
 
     arg_types =
       for {name, _meta, [type]} <- args do
-        {name, type}
+        {name, expand_type(type)}
       end
 
-    result_type = Keyword.get(options, :result, nil)
-    local_types = Keyword.get(options, :locals, [])
+    result_type = Keyword.get(options, :result, nil) |> expand_type()
+    dbg(result_type)
+    local_types = for {key, type} <- Keyword.get(options, :locals, []) do
+      {key, expand_type(type)}
+    end
 
     locals = Map.new(arg_types ++ local_types)
 
@@ -318,7 +328,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmacro defloop(identifier, options \\ [], do: block) do
     identifier = expand_block_identifier(identifier, __CALLER__)
-    result_type = Keyword.get(options, :result, nil)
+    result_type = Keyword.get(options, :result, nil) |> expand_type()
 
     block_items =
       case block do
@@ -338,7 +348,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmacro defblock(identifier, options \\ [], do: block) do
     identifier = expand_block_identifier(identifier, __CALLER__)
-    result_type = Keyword.get(options, :result, nil)
+    result_type = Keyword.get(options, :result, nil) |> expand_type()
 
     block_items =
       case block do

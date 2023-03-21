@@ -6,7 +6,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
 
   test "func" do
     wasm =
-      func answer, result: :i32 do
+      func answer, result: I32 do
         42
       end
 
@@ -25,7 +25,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     defwasm do
       memory(export(:mem), 1)
 
-      func answer, result: :i32 do
+      func answer, result: I32 do
         42
       end
     end
@@ -68,7 +68,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     defwasm do
       memory(export(:mem), 1)
 
-      func answer, result: :i32 do
+      func answer, result: I32 do
         I32.mul(2, 21)
       end
 
@@ -131,7 +131,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
         data(status * 24, "#{message}\\00")
       end
 
-      func lookup(status(:i32)), result: :i32 do
+      func lookup(status(I32)), result: I32 do
         I32.mul(status, 24)
       end
     end
@@ -173,7 +173,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     use WasmBuilder
 
     defwasm do
-      func validate(num(:i32)), result: :i32, locals: [lt: :i32, gt: :i32] do
+      func validate(num(I32)), result: I32, locals: [lt: I32, gt: I32] do
         lt = I32.lt_s(num, 1)
         gt = I32.gt_s(num, 255)
 
@@ -219,16 +219,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
               count: i32(0),
               tally: i32(0)
             ] do
-      func insert(element(:i32)) do
+      func insert(element(I32)) do
         count = I32.add(count, 1)
         tally = I32.add(tally, element)
       end
 
-      func calculate_mean(), result: :i32 do
+      func calculate_mean(), result: I32 do
         I32.div_u(tally, count)
       end
 
-      # func calculate_mean(), result: :i32 do
+      # func calculate_mean(), result: I32 do
       #   I32.div_u(global_get(:tally), global_get(:count))
       # end
     end
@@ -262,7 +262,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     use WasmBuilder
 
     defwasm globals: [count: i32(0)] do
-      func body, result: :i32 do
+      func body, result: I32 do
         count = I32.add(count, 1)
         I32.if_else(I32.eq(count, 1), do: 100, else: 200)
         # if_(I32.eq(count, 1), do: 100, else: 200)
@@ -299,10 +299,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func get_is_valid, result: :i32, locals: [i: :i32, char: :i32] do
+      func get_is_valid, result: I32, locals: [i: I32, char: I32] do
         i = 1024
 
-        defloop :continue, result: :i32 do
+        defloop :continue, result: I32 do
           defblock Outer do
             defblock :inner do
               char = I32.load8_u(i)
