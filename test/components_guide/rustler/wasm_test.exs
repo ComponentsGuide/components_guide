@@ -418,17 +418,17 @@ defmodule ComponentsGuide.Rustler.WasmTest do
       func get_is_valid, result: I32, locals: [i: I32, char: I32] do
         i = 1024
 
-        defloop :continue, result: I32 do
-          defblock :outer do
-            defblock :inner do
+        defloop Continue, result: I32 do
+          defblock Outer do
+            defblock Inner do
               # char = I32.load8_u(i)
               # char = I32.Memory.load!(i)
               # char = I32.Memory.load8!(i).unsigned
               # char = I32.memory![i].unsigned
               # char = I32.memory8![i].unsigned
               char = memory32_8![i].unsigned
-              br(:inner, if: I32.eq(char, ?/))
-              br(:outer, if: char)
+              br(Inner, if: I32.eq(char, ?/))
+              br(Outer, if: char)
               push(1)
               return()
             end
@@ -438,7 +438,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
           end
 
           i = I32.add(i, 1)
-          br(:continue)
+          br(Continue)
         end
       end
     end
