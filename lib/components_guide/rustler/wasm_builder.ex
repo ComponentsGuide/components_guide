@@ -314,11 +314,23 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def local_set(identifier), do: {:local_set, identifier}
   def local_tee(identifier), do: {:local_tee, identifier}
 
-  def if_(condition, do: when_true, else: when_false), do: {:if, condition, when_true, when_false}
+  defmacro if_(condition, do: when_true, else: when_false) do
+    quote do
+      {:if, unquote(condition), unquote(get_block_items(when_true)),
+       unquote(get_block_items(when_false))}
+    end
+  end
+
+  defp get_block_items(block) do
+    case block do
+      {:__block__, _meta, block_items} -> block_items
+      single -> [single]
+    end
+  end
 
   def call(f), do: {:call, f, []}
 
-  defp expand_block_identifier(identifier, env) do
+  defp expand_identifier(identifier, env) do
     identifier = Macro.expand_once(identifier, env) |> Kernel.to_string()
 
     case identifier do
@@ -331,7 +343,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmacro defloop(identifier, options \\ [], do: block) do
-    identifier = expand_block_identifier(identifier, __CALLER__)
+    identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
     block_items =
@@ -351,7 +363,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmacro defblock(identifier, options \\ [], do: block) do
-    identifier = expand_block_identifier(identifier, __CALLER__)
+    identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
     block_items =
@@ -369,13 +381,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  def br(identifier), do: {:br, expand_block_identifier(identifier, __ENV__)}
+  def br(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
 
   def br_if(identifier, condition),
-    do: {:br_if, expand_block_identifier(identifier, __ENV__), condition}
+    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def br(identifier, if: condition),
-    do: {:br_if, expand_block_identifier(identifier, __ENV__), condition}
+    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
   def return(value), do: {:return, value}
@@ -478,12 +490,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         to_wat(condition, ""),
         ?\n
       ],
-      ["  " <> indent, "(then", ?\n],
-      ["    " <> indent, to_wat(when_true, ""), ?\n],
-      ["  " <> indent, ")", ?\n],
-      ["  " <> indent, "(else", ?\n],
-      ["    " <> indent, to_wat(when_false, ""), ?\n],
-      ["  " <> indent, ")", ?\n],
+      ["  ", indent, "(then", ?\n],
+      ["    ", indent, to_wat(when_true, ""), ?\n],
+      ["  ", indent, ")", ?\n],
+      ["  ", indent, "(else", ?\n],
+      ["    ", indent, to_wat(when_false, ""), ?\n],
+      ["  ", indent, ")", ?\n],
       [indent, ")"]
     ]
   end
@@ -491,12 +503,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:if, condition, when_true, when_false}, indent) do
     [
       [indent, "(if ", to_wat(condition, ""), ?\n],
-      ["  " <> indent, "(then", ?\n],
-      ["    " <> indent, to_wat(when_true, ""), ?\n],
-      ["  " <> indent, ")", ?\n],
-      ["  " <> indent, "(else", ?\n],
-      ["    " <> indent, to_wat(when_false, ""), ?\n],
-      ["  " <> indent, ")", ?\n],
+      ["  ", indent, "(then", ?\n],
+      ["    ", indent, to_wat(when_true, ""), ?\n],
+      ["  ", indent, ")", ?\n],
+      ["  ", indent, "(else", ?\n],
+      ["    ", indent, to_wat(when_false, ""), ?\n],
+      ["  ", indent, ")", ?\n],
       [indent, ")"]
     ]
   end

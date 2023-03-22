@@ -415,18 +415,18 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func get_is_valid, result: I32, locals: [i: I32, char: I32] do
-        i = 1024
+      func get_is_valid, result: I32, locals: [read_offset: I32, char: I32] do
+        read_offset = 1024
 
         defloop Continue, result: I32 do
           defblock Outer do
             defblock Inner do
-              # char = I32.load8_u(i)
-              # char = I32.Memory.load!(i)
-              # char = I32.Memory.load8!(i).unsigned
-              # char = I32.memory![i].unsigned
-              # char = I32.memory8![i].unsigned
-              char = memory32_8![i].unsigned
+              # char = I32.load8_u(read_offset)
+              # char = I32.Memory.load!(read_offset)
+              # char = I32.Memory.load8!(read_offset).unsigned
+              # char = I32.memory![read_offset].unsigned
+              # char = I32.memory8![read_offset].unsigned
+              char = memory32_8![read_offset].unsigned
               br(Inner, if: I32.eq(char, ?/))
               br(Outer, if: char)
               push(1)
@@ -437,14 +437,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
             return()
           end
 
-          i = I32.add(i, 1)
+          read_offset = I32.add(read_offset, 1)
           br(Continue)
         end
       end
     end
   end
 
-  describe "returns if a string is file name safe" do
+  test "returns if a string is file name safe" do
     [result] =
       Wasm.steps(FileNameSafe, [
         {:write_string, 1024, "good", true},
@@ -466,30 +466,30 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func do_copy, result: I32, locals: [i: I32, char: I32] do
-        i = 1024
+      func do_copy, result: I32, locals: [read_offset: I32, char: I32] do
+        read_offset = 1024
 
         defloop EachChar, result: I32 do
           defblock Outer do
-            char = memory32_8![i].unsigned
-            memory32_8![I32.add(i, 1024)] = char
+            char = memory32_8![read_offset].unsigned
+            memory32_8![I32.add(read_offset, 1024)] = char
 
-            # char = I32.load8_u(i)
-            # I32.store8(I32.add(i, 1024), char)
+            # char = I32.load8_u(read_offset)
+            # I32.store8(I32.add(read_offset, 1024), char)
             br(Outer, if: char)
             # Outer.branch(if: char)
-            push(I32.sub(i, 1024))
+            push(I32.sub(read_offset, 1024))
             return()
           end
 
-          i = I32.add(i, 1)
+          read_offset = I32.add(read_offset, 1)
           br(EachChar)
         end
       end
     end
   end
 
-  describe "copies string bytes" do
+  test "copies string bytes" do
     [len, result] =
       Wasm.steps(CopyString, [
         {:write_string, 1024, "good", true},
@@ -497,8 +497,69 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         {:read_memory, 2048, 4}
       ])
 
-    dbg(CopyString.to_wat())
     assert len == 4
     assert result == "good"
+  end
+
+  defmodule EscapeHTML do
+    use WasmBuilder
+
+    defwasm imports: [env: [buffer: memory(2)]] do
+      func escape_html, result: I32, locals: [read_offset: I32, write_offset: I32, char: I32] do
+        read_offset = 1024
+        write_offset = 1024 + 1024
+
+        defloop EachChar, result: I32 do
+          defblock Outer do
+            char = memory32_8![read_offset].unsigned
+            if_ I32.eq(char, ?&) do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?a
+              memory32_8![I32.add(write_offset, 2)] = ?m
+              memory32_8![I32.add(write_offset, 3)] = ?p
+              memory32_8![I32.add(write_offset, 4)] = ?;
+              write_offset = I32.add(write_offset, 4)
+            else
+              memory32_8![write_offset] = char
+            end
+
+            br(Outer, if: char)
+            # Outer.branch(if: char)
+            push(I32.sub(write_offset, 1024 + 1024))
+            return()
+          end
+
+          read_offset = I32.add(read_offset, 1)
+          write_offset = I32.add(write_offset, 1)
+          br(EachChar)
+        end
+      end
+    end
+  end
+
+  test "escapes html" do
+    dbg(EscapeHTML.to_wat())
+
+    [count, result] =
+      Wasm.steps(EscapeHTML, [
+        {:write_string, 1024, "hello", true},
+        {:call, "escape_html", []},
+        {:read_memory, 2048, 5}
+      ])
+
+    assert count == 5
+    assert result == "hello"
+
+    [count, result] =
+      Wasm.steps(EscapeHTML, [
+        {:write_string, 1024, "Hall & Oates", true},
+        {:call, "escape_html", []},
+        {:read_memory, 2048, 20}
+      ])
+
+    result = String.trim_trailing(result, "\0")
+
+    assert count == 16
+    assert result == "Hall &amp; Oates"
   end
 end
