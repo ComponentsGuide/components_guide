@@ -518,6 +518,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         defloop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
+
             if I32.eq(char, ?&) do
               memory32_8![write_offset] = ?&
               memory32_8![I32.add(write_offset, 1)] = ?a
@@ -525,12 +526,33 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               memory32_8![I32.add(write_offset, 3)] = ?p
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-            else
-              memory32_8![write_offset] = char
+              br(Outer)
             end
 
+            if I32.eq(char, ?<) do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?l
+              memory32_8![I32.add(write_offset, 2)] = ?t
+              memory32_8![I32.add(write_offset, 3)] = ?;
+              write_offset = I32.add(write_offset, 3)
+              br(Outer)
+            end
+
+            if I32.eq(char, ?>) do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?g
+              memory32_8![I32.add(write_offset, 2)] = ?t
+              memory32_8![I32.add(write_offset, 3)] = ?;
+              write_offset = I32.add(write_offset, 3)
+              br(Outer)
+            end
+
+            memory32_8![write_offset] = char
             br(Outer, if: char)
+
+            # br(Outer, if: char)
             # Outer.branch(if: char)
+            # Outer.if(char)
             push(I32.sub(write_offset, 1024 + 1024))
             return()
           end
@@ -544,7 +566,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   end
 
   test "escapes html" do
-    dbg(EscapeHTML.to_wat())
+    # dbg(EscapeHTML.to_wat())
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
@@ -558,14 +580,26 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
-        {:write_string, 1024, "Hall & Oates", true},
+        {:write_string, 1024, "Hall & Oates like M&Ms", true},
         {:call, "escape_html", []},
-        {:read_memory, 2048, 20}
+        {:read_memory, 2048, 40}
       ])
 
-    result = String.trim_trailing(result, "\0")
+    result = String.trim_trailing(result, <<0>>)
 
-    assert count == 16
-    assert result == "Hall &amp; Oates"
+    assert count == 30
+    assert result == "Hall &amp; Oates like M&amp;Ms"
+
+    [count, result] =
+      Wasm.steps(EscapeHTML, [
+        {:write_string, 1024, "1 < 2 & 2 > 1", true},
+        {:call, "escape_html", []},
+        {:read_memory, 2048, 40}
+      ])
+
+    result = String.trim_trailing(result, <<0>>)
+
+    assert count == 23
+    assert result == "1 &lt; 2 &amp; 2 &gt; 1"
   end
 end

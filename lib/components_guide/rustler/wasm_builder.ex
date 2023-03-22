@@ -337,6 +337,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defp get_block_items(block) do
     case block do
+      nil -> nil
       {:__block__, _meta, block_items} -> block_items
       single -> [single]
     end
@@ -520,9 +521,15 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       ["  ", indent, "(then", ?\n],
       ["    ", indent, to_wat(when_true, ""), ?\n],
       ["  ", indent, ")", ?\n],
-      ["  ", indent, "(else", ?\n],
-      ["    ", indent, to_wat(when_false, ""), ?\n],
-      ["  ", indent, ")", ?\n],
+      if when_false do
+        [
+          ["  ", indent, "(else", ?\n],
+          ["    ", indent, to_wat(when_false, ""), ?\n],
+          ["  ", indent, ")", ?\n],
+        ]
+      else
+        []
+      end,
       [indent, ")"]
     ]
   end
@@ -624,10 +631,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilderUsing do
     quote do
       if_(unquote(condition), do: unquote(when_true), else: unquote(when_false))
     end
-    # quote do
-    #   {:if, unquote(condition), unquote(get_block_items(when_true)),
-    #    unquote(get_block_items(when_false))}
-    # end
+  end
+
+  defmacro if(condition, do: when_true) do
+    quote do
+      if_(unquote(condition), do: unquote(when_true), else: nil)
+    end
   end
   # defdelegate if(condition, cases), to: ComponentsGuide.Rustler.WasmBuilder, as: :if_
 end
