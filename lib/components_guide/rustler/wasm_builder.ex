@@ -1,8 +1,10 @@
 defmodule ComponentsGuide.Rustler.WasmBuilder do
   defmacro __using__(_) do
     quote do
+      import Kernel, except: [if: 2]
       import ComponentsGuide.Rustler.WasmBuilder
       alias ComponentsGuide.Rustler.WasmBuilder.{I32}
+      import ComponentsGuide.Rustler.WasmBuilderUsing
     end
   end
 
@@ -611,4 +613,21 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       "\n"
     )
   end
+end
+
+defmodule ComponentsGuide.Rustler.WasmBuilderUsing do
+  import Kernel, except: [if: 2]
+  import ComponentsGuide.Rustler.WasmBuilder
+  # alias ComponentsGuide.Rustler.WasmBuilder.{I32}
+
+  defmacro if(condition, do: when_true, else: when_false) do
+    quote do
+      if_(unquote(condition), do: unquote(when_true), else: unquote(when_false))
+    end
+    # quote do
+    #   {:if, unquote(condition), unquote(get_block_items(when_true)),
+    #    unquote(get_block_items(when_false))}
+    # end
+  end
+  # defdelegate if(condition, cases), to: ComponentsGuide.Rustler.WasmBuilder, as: :if_
 end

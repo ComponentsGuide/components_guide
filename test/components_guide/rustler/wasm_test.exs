@@ -518,7 +518,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         defloop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
-            if_ I32.eq(char, ?&) do
+            if I32.eq(char, ?&) do
               memory32_8![write_offset] = ?&
               memory32_8![I32.add(write_offset, 1)] = ?a
               memory32_8![I32.add(write_offset, 2)] = ?m
