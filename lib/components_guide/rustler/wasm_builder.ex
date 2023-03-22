@@ -227,7 +227,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       end
 
     result_type = Keyword.get(options, :result, nil) |> expand_type()
-    dbg(result_type)
 
     local_types =
       for {key, type} <- Keyword.get(options, :locals, []) do
