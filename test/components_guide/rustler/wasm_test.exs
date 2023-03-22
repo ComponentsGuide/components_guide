@@ -425,8 +425,8 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               # char = I32.Memory.load!(read_offset)
               # char = I32.Memory.load8!(read_offset).unsigned
               # char = I32.memory![read_offset].unsigned
-              # char = I32.memory8![read_offset].unsigned
-              char = memory32_8![read_offset].unsigned
+              char = I32.memory8!(read_offset).unsigned
+              # char = memory32_8![read_offset].unsigned
               br(Inner, if: I32.eq(char, ?/))
               br(Outer, if: char)
               push(1)

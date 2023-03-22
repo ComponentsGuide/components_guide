@@ -51,7 +51,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
   @i_test_ops ~w(eqz)a
   @i_relative_ops ~w(eq ne lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a
-  @i_load_ops ~w(load load8_u)a
+  # https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Memory/Load
+  @i_load_ops ~w(load load8_u load8_s)a
   @i_store_ops ~w(store store8)a
   @i32_ops_1 @i_unary_ops ++ @i_test_ops
   @i32_ops_2 @i_binary_ops ++ @i_relative_ops
@@ -104,6 +105,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     def store(offset), do: {:i32, :store, offset}
     def store(offset, value), do: {:i32, :store, offset, value}
     def store8(offset, value), do: {:i32, :store8, offset, value}
+
+    def memory8!(offset) do
+      %{
+        unsigned: {:i32, :load8_u, offset},
+        signed: {:i32, :load8_s, offset},
+      }
+    end
 
     def if_else(condition, do: when_true, else: when_false) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
@@ -236,6 +244,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       Macro.prewalk(block_items, fn
         {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
           quote do: {:i32, :store8, unquote(offset), unquote(value)}
+
+        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
+         _} ->
+          quote do: {:i32, :load8_u, unquote(offset)}
 
         {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
          _} ->
@@ -564,7 +576,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
   def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}(i32.#{op})"
 
-  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u store store8)a do
+  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u load8_s store store8)a do
     [indent, "(i32.", to_string(op), " ", to_wat(offset), ?)]
   end
 
