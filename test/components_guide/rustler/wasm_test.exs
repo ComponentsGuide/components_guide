@@ -471,6 +471,11 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
         defloop EachChar, result: I32 do
           defblock Outer do
+            # char = I32.memory8!(read_offset).unsigned
+            # I32.memory8!(I32.add(read_offset, 1024), char)
+            # char = I32.Memory8.load!(read_offset).unsigned
+            # I32.Memory8.store!(I32.add(read_offset, 1024), char)
+
             char = memory32_8![read_offset].unsigned
             memory32_8![I32.add(read_offset, 1024)] = char
 
@@ -484,6 +489,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
           read_offset = I32.add(read_offset, 1)
           br(EachChar)
+          # EachChar.branch()
         end
       end
     end
