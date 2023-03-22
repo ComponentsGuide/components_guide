@@ -547,6 +547,27 @@ defmodule ComponentsGuide.Rustler.WasmTest do
               br(Outer)
             end
 
+            if I32.eq(char, ?") do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?q
+              memory32_8![I32.add(write_offset, 2)] = ?u
+              memory32_8![I32.add(write_offset, 3)] = ?o
+              memory32_8![I32.add(write_offset, 4)] = ?t
+              memory32_8![I32.add(write_offset, 5)] = ?;
+              write_offset = I32.add(write_offset, 5)
+              br(Outer)
+            end
+
+            if I32.eq(char, ?') do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?#
+              memory32_8![I32.add(write_offset, 2)] = ?3
+              memory32_8![I32.add(write_offset, 3)] = ?9
+              memory32_8![I32.add(write_offset, 4)] = ?;
+              write_offset = I32.add(write_offset, 4)
+              br(Outer)
+            end
+
             memory32_8![write_offset] = char
             br(Outer, if: char)
 
@@ -592,14 +613,14 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
-        {:write_string, 1024, "1 < 2 & 2 > 1", true},
+        {:write_string, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'], true},
         {:call, "escape_html", []},
-        {:read_memory, 2048, 40}
+        {:read_memory, 2048, 100}
       ])
 
     result = String.trim_trailing(result, <<0>>)
 
-    assert count == 23
-    assert result == "1 &lt; 2 &amp; 2 &gt; 1"
+    assert count == 73
+    assert result == "1 &lt; 2 &amp; 2 &gt; 1 &quot;double quotes&quot; &#39;single quotes&#39;"
   end
 end
