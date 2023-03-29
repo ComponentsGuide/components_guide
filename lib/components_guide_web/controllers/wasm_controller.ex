@@ -39,10 +39,11 @@ defmodule ComponentsGuideWeb.WasmHTML do
       <custom-interactivity data-url="/wasm/module/escape_html.wasm">
         <form id="multiply-form">
           <label for="input-a">
-            A
+            Input to be HTML escaped
             <input id="input-a" name="input" value={"Milo & Otis"} class="text-black">
           </label>
           <button>Run</button>
+          <h3>HTML Escaped:</h3>
           <output style="display: block; margin-top: 1rem;" class="font-mono"></output>
         </form>
       </custom-interactivity>
