@@ -8,6 +8,7 @@ use rustler::{
 use std::convert::TryInto;
 use std::ffi::CStr;
 use std::slice;
+use wabt::Wat2Wasm;
 
 #[rustler::nif]
 fn add(a: i64, b: i64) -> i64 {
@@ -552,6 +553,19 @@ fn wasm_call_bulk_internal(
     return Ok(results);
 }
 
+#[rustler::nif]
+fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
+    let result = Wat2Wasm::new()
+        // .canonicalize_lebs(true)
+        // .write_debug_names(true)
+        .convert(wat_source);
+
+    return match result {
+        Ok(v) => Ok(v.as_ref().to_vec()),
+        Err(e) => Err(Error::Term(Box::new(e.to_string()))),
+    };
+}
+
 rustler::init!(
     "Elixir.ComponentsGuide.Rustler.Wasm",
     [
@@ -563,5 +577,6 @@ rustler::init!(
         wasm_string_i32,
         wasm_call_bulk,
         wasm_steps,
+        wat2wasm
     ]
 );

@@ -21,7 +21,7 @@ defmodule ComponentsGuideWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: ComponentsGuideWeb, formats: [:html]
+      use Phoenix.Controller, namespace: ComponentsGuideWeb, formats: [:html, :json]
 
       import Plug.Conn
       import ComponentsGuideWeb.Gettext

@@ -68,6 +68,9 @@ defmodule ComponentsGuideWeb.Router do
 
     get("/calendar", CalendarController, :index)
 
+    get("/wasm", WasmController, :index)
+    get("/wasm/module/:module", WasmController, :module)
+
     live("/view-source", ViewSourceLive)
     live("/view-github-repo", ViewGithubRepoLive)
 

@@ -28,6 +28,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_string_i32(_, _, _), do: error()
   def wasm_call_bulk(_, _), do: error()
   def wasm_steps(_, _), do: error()
+  def wat2wasm(_), do: error()
 
   def call(source, f) do
     process_source(source) |> wasm_example_n_i32(f, []) |> process_result()
