@@ -356,6 +356,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       react_query4: %{release: {2022, 7, 18}},
       nextjs13: %{release: {2022, 10, 26}},
       nextjs13_1: %{release: {2022, 12, 23}},
+      nextjs13_2: %{release: {2022, 2, 24}},
       remix1_11: %{release: {2023, 1, 19}},
       remix1_12: %{release: {2023, 1, 31}}
     }
@@ -491,6 +492,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       nextjs13: "https://nextjs.org/blog/next-13",
       nextjs13_1: "https://nextjs.org/blog/next-13-1",
+      nextjs13_2: "https://nextjs.org/blog/next-13-2",
       remix1_11: "https://github.com/remix-run/remix/releases/tag/remix@1.11.0",
       remix1_12: "https://github.com/remix-run/remix/releases/tag/remix@1.12.0",
       firefox99: "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/99",
