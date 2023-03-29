@@ -356,7 +356,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       react_query4: %{release: {2022, 7, 18}},
       nextjs13: %{release: {2022, 10, 26}},
       nextjs13_1: %{release: {2022, 12, 23}},
-      nextjs13_2: %{release: {2022, 2, 24}},
+      nextjs13_2: %{release: {2023, 2, 24}},
       remix1_11: %{release: {2023, 1, 19}},
       remix1_12: %{release: {2023, 1, 31}}
     }
