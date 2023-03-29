@@ -348,6 +348,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       deno1_29: %{release: {2022, 12, 14}},
       deno1_30: %{release: {2023, 1, 27}},
       deno1_31: %{release: {2023, 2, 24}},
+      deno1_32: %{release: {2023, 3, 23}},
     }
 
     react = %{
@@ -485,6 +486,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       deno1_29: "https://deno.com/blog/v1.29",
       deno1_30: "https://deno.com/blog/v1.30",
       deno1_31: "https://deno.com/blog/v1.31",
+      deno1_32: "https://deno.com/blog/v1.32",
       react18: "https://reactjs.org/blog/2022/03/29/react-v18.html",
       react_query4: "https://tanstack.com/blog/announcing-tanstack-query-v4",
       nextjs13: "https://nextjs.org/blog/next-13",
