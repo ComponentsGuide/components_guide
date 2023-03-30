@@ -105,6 +105,7 @@
         <div>Status: <output name="statusOutput" class="text-red-200 data-[ok=true]:text-green-200"></output></div>
         <div>Headers: <output name="headersOutput" class="block"></output></div>
         <output name="contentOutput"><pre class="lang-html"><code></code></pre></output>
+        <output name="memoryOutput" class="max-w-full break-all whitespace-pre-wrap"></output>
       </div>
       <button hidden class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Load</button>
     </form>
@@ -176,6 +177,8 @@
 
         form.elements.contentOutput.querySelector('code').innerText = textChunks.join("");
         window.Prism.highlightAllUnder(form.elements.contentOutput);
+
+        //form.elements.memoryOutput.innerText = String(Array.from(memoryBytes));
       }
 
       form.addEventListener("input", (event) => {
