@@ -42,9 +42,9 @@ defmodule ComponentsGuideWeb.WasmHTML do
             Input to be HTML escaped
             <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis" %></textarea>
           </label>
-          <button hidden>Run</button>
           <h3 class="mt-4">Resulting HTML:</h3>
-          <output style="display: block; margin-top: 1rem;" class="font-mono"></output>
+          <output class="block mt-4 font-mono"></output>
+          <button class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Benchmark</button>
         </form>
       </custom-interactivity>
       <details class="mt-8">
@@ -95,10 +95,33 @@ defmodule ComponentsGuideWeb.WasmHTML do
             output.innerText = `${count} ${text}`;
             console.log(count);
           }
+          function benchmark() {
+            const data = new FormData(form);
+            const input = String(data.get("input"));
+
+            const n = 100000;
+            const t0 = performance.now();
+            for (let i = 0; i < n; i++) {
+              const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+              const count = escape_html();
+              memoryToWrite.fill(0, 0, written);
+              const text = utf8decoder.decode(memoryToRead.subarray(0, count));
+            }
+            const t1 = performance.now();
+            const t2 = performance.now();
+            for (let i = 0; i < n; i++) {
+              let text = input.replace("&", "&amp;")
+            }
+            const t3 = performance.now();
+            output.innerText = `${n} iterations: wasm in ${t1 - t0}ms, js in ${t3 - t2}ms`;
+          }
 
           form.addEventListener("input", (event) => {
-            //event.preventDefault();
             update();
+          });
+          form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            benchmark();
           });
           requestAnimationFrame(update);
         });
