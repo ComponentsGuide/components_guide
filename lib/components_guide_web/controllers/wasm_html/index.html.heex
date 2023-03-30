@@ -1,0 +1,187 @@
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+  <form-escape-html data-url="/wasm/module/escape_html.wasm">
+    <form id="escape-html-form" class="">
+      <h2>Escape HTML</h2>
+      <label for="input-a">
+        Input to be HTML escaped
+        <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis" %></textarea>
+      </label>
+      <h3 class="mt-4">Resulting HTML:</h3>
+      <output class="block mt-4 font-mono"></output>
+      <button class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Benchmark</button>
+    </form>
+  </form-escape-html>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$EscapeHTML</code> Wasm source</summary>
+    <pre class="lang-wasm"><code><%= @escape_html_wat %></code></pre>
+  </details>
+</article>
+
+<script type="module">
+  class FormEscapeHTML extends HTMLElement {
+    connectedCallback() {
+      const wasmURL = this.dataset.url;
+      initFormHTMLEscape(wasmURL);
+    }
+  }
+
+  function initFormHTMLEscape(wasmURL) {
+    const form = document.querySelector('form#escape-html-form');
+    const output = form.querySelector("output");
+
+    const memory = new WebAssembly.Memory({ initial: 2 });
+    const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
+      env: {
+        buffer: memory
+      }
+    });
+    wasmPromise.then(({ instance, module }) => {
+      const escape_html = instance.exports.escape_html;
+      output.innerText = "Change to see the calculation live locally.";
+
+      const memoryBytes = new Uint8Array(memory.buffer);
+      const memoryToWrite = memoryBytes.subarray(1024);
+      const memoryToRead = memoryBytes.subarray(2048);
+      //memory.set();
+      const utf8encoder = new TextEncoder();
+      const utf8decoder = new TextDecoder();
+
+      function update() {
+        const data = new FormData(form);
+        const input = String(data.get("input"));
+        const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+        const count = escape_html();
+        memoryToWrite.fill(0, 0, written);
+        //const text = utf8decoder.decode(memoryBytes.subarray(2048, 2048 + count));
+        const text = utf8decoder.decode(memoryToRead.subarray(0, count));
+        output.innerText = `${count} ${text}`;
+      }
+      function benchmark() {
+        const data = new FormData(form);
+        const input = String(data.get("input"));
+
+        const n = 100000;
+        const t0 = performance.now();
+        for (let i = 0; i < n; i++) {
+          const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+          const count = escape_html();
+          memoryToWrite.fill(0, 0, written);
+          const text = utf8decoder.decode(memoryToRead.subarray(0, count));
+        }
+        const t1 = performance.now();
+        const t2 = performance.now();
+        for (let i = 0; i < n; i++) {
+          let text = input.replace("&", "&amp;")
+        }
+        const t3 = performance.now();
+        output.innerText = `${n} iterations: wasm in ${t1 - t0}ms, js in ${t3 - t2}ms`;
+      }
+
+      form.addEventListener("input", (event) => {
+        update();
+      });
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        benchmark();
+      });
+      queueMicrotask(update);
+    });
+  }
+
+  customElements.define("form-escape-html", FormEscapeHTML);
+</script>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+  <hr />
+  <form-html-page data-url="/wasm/module/html_page.wasm">
+    <form id="html-page-form" class="">
+      <h2>HTML Page</h2>
+      <label for="input-a">
+        Request body (try typing <code>good</code> or <code>bad</code>)
+        <textarea id="input-a" name="input" rows="1" class="block w-full text-black"><%= "good" %></textarea>
+      </label>
+      <h3 class="mt-4">Response:</h3>
+      <div class="block mt-4 font-mono">
+        <div>Status: <output name="statusOutput" class="text-red-200 data-[ok=true]:text-green-200"></output></div>
+        <output name="contentOutput"><pre class="lang-html"><code></code></pre></output>
+      </div>
+      <button hidden class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Load</button>
+    </form>
+  </form-html-page>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$HTMLPage</code> Wasm source</summary>
+    <pre class="lang-wasm"><code><%= @html_page_wat %></code></pre>
+  </details>
+</article>
+
+<script type="module">
+  class FormHTMLPage extends HTMLElement {
+    connectedCallback() {
+      const wasmURL = this.dataset.url;
+      initFormHTMLPage(wasmURL);
+    }
+  }
+
+  function initFormHTMLPage(wasmURL) {
+    const form = document.forms['html-page-form'];
+
+    const memory = new WebAssembly.Memory({ initial: 2 });
+    const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
+      env: {
+        buffer: memory
+      }
+    });
+    wasmPromise.then(({ instance, module }) => {
+      console.log("Loaded wasm");
+      const start = instance.exports.start;
+      const get_status = instance.exports.get_status;
+      const read_body = instance.exports.body;
+
+      const utf8encoder = new TextEncoder();
+      const utf8decoder = new TextDecoder();
+      const memoryBytes = new Uint8Array(memory.buffer);
+      const memoryToWrite = memoryBytes.subarray(65536);
+      function getStringAt(ptr) {
+        // Search for null-terminating byte.
+        const endPtr = memoryBytes.indexOf(0, ptr);
+        // Get subsection of memory between start and end, and decode it as UTF-8.
+        return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
+      }
+
+      function update() {
+        start();
+
+        const data = new FormData(form);
+        const input = String(data.get("input"));
+        const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+        const status = get_status();
+        const textChunks = [];
+        while (true) {
+          const offset = read_body();
+          if (offset === 0) {
+            break;
+          }
+          textChunks.push(getStringAt(offset));
+        }
+
+        memoryToWrite.fill(0, 0, written);
+
+        form.elements.statusOutput.innerText = `${status}`;
+        form.elements.statusOutput.dataset.ok = status <= 299;
+        form.elements.contentOutput.querySelector('code').innerText = textChunks.join("");
+        window.Prism.highlightAllUnder(form.elements.contentOutput);
+      }
+
+      form.addEventListener("input", (event) => {
+        update();
+      });
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        //benchmark();
+      });
+      queueMicrotask(update);
+    });
+  }
+
+  customElements.define("form-html-page", FormHTMLPage);
+</script>

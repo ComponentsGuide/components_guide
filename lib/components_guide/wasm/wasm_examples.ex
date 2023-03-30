@@ -80,4 +80,65 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
     end
   end
+
+  defmodule HTMLPage do
+    use WasmBuilder
+
+    defwasm imports: [
+              env: [buffer: memory(2)]
+            ],
+            globals: [
+              count: i32(0)
+            ] do
+      # data_nil_terminated(4, hello2())
+      data_nil_terminated(4, "<!doctype html>")
+      data_nil_terminated(20, "<h1>Good</h1>")
+      data_nil_terminated(40, "<h1>Bad</h1>")
+
+      # defdata doctype, do: "<!doctype html>"
+      # defdata good_heading, do: "<h1>Good</h1>"
+      # defdata bad_heading, do: "<h1>Bad</h1>"
+
+      # data_nil_terminated(4, :html,
+      #   doctype: "<!doctype html>",
+      #   good_heading: "<h1>Good</h1>",
+      #   bad_heading: "<h1>Bad</h1>",
+      # )
+
+      func get_request_body_write_offset, result: I32 do
+        65536
+      end
+
+      func start do
+        count = 0
+      end
+
+      funcp get_is_valid, result: I32 do
+        I32.eq(I32.load8_u(65536), ?g)
+      end
+
+      func get_status, result: I32, locals: [is_valid: I32] do
+        is_valid = call(:get_is_valid)
+        I32.if_else(is_valid, do: 200, else: 400)
+      end
+
+      func body, result: I32, locals: [is_valid: I32] do
+        is_valid = call(:get_is_valid)
+        count = I32.add(count, 1)
+
+        # I32.if_else(I32.eq(count, 1),
+        #   do: 4,
+        #   else: I32.if_else(is_valid, do: 20, else: 40)
+        # )
+        # I32.if_else(I32.eq(count, 1),
+        #   do: lookup_data(:doctype),
+        #   else: I32.if_else(is_valid, do: lookup_data(:good_heading), else: lookup_data(:bad_heading))
+        # )
+        I32.if_else(I32.eq(count, 1),
+          do: 4,
+          else: I32.if_else(I32.eq(count, 2), do: I32.if_else(is_valid, do: 20, else: 40), else: 0)
+        )
+      end
+    end
+  end
 end
