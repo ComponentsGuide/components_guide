@@ -269,7 +269,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       %Func{
         name: unquote(name),
         params: unquote(params),
-        result: unquote(result_type) && result(unquote(result_type)),
+        result: result(unquote(result_type)),
         local_types: unquote(local_types),
         body: unquote(block_items)
       }
@@ -308,9 +308,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     {:export, name}
   end
 
-  def result(type) when type in @primitive_types do
-    {:result, type}
-  end
+  def result(type) when type in @primitive_types, do: {:result, type}
+  def result(nil), do: nil
 
   def i32_const(value), do: {:i32_const, value}
   def i32(op) when op in @i32_ops_all, do: {:i32, op}
