@@ -35,20 +35,22 @@ defmodule ComponentsGuideWeb.WasmHTML do
 
   def index(assigns) do
     ~H"""
-    <article class="text-white">
+    <article class="text-white max-w-4xl mx-auto px-4 py-16">
       <custom-interactivity data-url="/wasm/module/escape_html.wasm">
         <form id="multiply-form">
           <label for="input-a">
             Input to be HTML escaped
-            <input id="input-a" name="input" value={"Milo & Otis"} class="text-black">
+            <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis" %></textarea>
           </label>
-          <button>Run</button>
-          <h3>HTML Escaped:</h3>
+          <button hidden>Run</button>
+          <h3 class="mt-4">Resulting HTML:</h3>
           <output style="display: block; margin-top: 1rem;" class="font-mono"></output>
         </form>
       </custom-interactivity>
-      <div class="mt-16">Hello, Wasm</div>
-      <pre><%= @escape_html_wat %></pre>
+      <details class="mt-8">
+        <summary>View Wasm source</summary>
+        <pre><%= @escape_html_wat %></pre>
+      </details>
     </article>
 
     <script type="module">
