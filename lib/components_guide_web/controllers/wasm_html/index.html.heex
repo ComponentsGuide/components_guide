@@ -103,6 +103,7 @@
       <h3 class="mt-4">Response:</h3>
       <div class="block mt-4 font-mono">
         <div>Status: <output name="statusOutput" class="text-red-200 data-[ok=true]:text-green-200"></output></div>
+        <div>Headers: <output name="headersOutput" class="block"></output></div>
         <output name="contentOutput"><pre class="lang-html"><code></code></pre></output>
       </div>
       <button hidden class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Load</button>
@@ -135,7 +136,8 @@
       console.log("Loaded wasm");
       const start = instance.exports.start;
       const get_status = instance.exports.get_status;
-      const read_body = instance.exports.body;
+      const get_headers = instance.exports.get_headers;
+      const read_next_body_chunk = instance.exports.body;
 
       const utf8encoder = new TextEncoder();
       const utf8decoder = new TextDecoder();
@@ -155,9 +157,10 @@
         const input = String(data.get("input"));
         const { written } = utf8encoder.encodeInto(input, memoryToWrite);
         const status = get_status();
+        const headersOffset = get_headers();
         const textChunks = [];
         while (true) {
-          const offset = read_body();
+          const offset = read_next_body_chunk();
           if (offset === 0) {
             break;
           }
@@ -168,6 +171,9 @@
 
         form.elements.statusOutput.innerText = `${status}`;
         form.elements.statusOutput.dataset.ok = status <= 299;
+
+        form.elements.headersOutput.innerText = getStringAt(headersOffset);
+
         form.elements.contentOutput.querySelector('code').innerText = textChunks.join("");
         window.Prism.highlightAllUnder(form.elements.contentOutput);
       }

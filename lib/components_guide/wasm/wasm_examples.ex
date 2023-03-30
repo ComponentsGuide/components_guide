@@ -94,6 +94,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       data_nil_terminated(4, "<!doctype html>")
       data_nil_terminated(20, "<h1>Good</h1>")
       data_nil_terminated(40, "<h1>Bad</h1>")
+      data_nil_terminated(60, "content-type: text/html;charset=utf-8")
 
       # defdata doctype, do: "<!doctype html>"
       # defdata good_heading, do: "<h1>Good</h1>"
@@ -120,6 +121,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       func get_status, result: I32, locals: [is_valid: I32] do
         is_valid = call(:get_is_valid)
         I32.if_else(is_valid, do: 200, else: 400)
+      end
+
+      func get_headers, result: I32 do
+        60
       end
 
       func body, result: I32, locals: [is_valid: I32] do
