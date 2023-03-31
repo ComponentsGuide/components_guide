@@ -84,14 +84,12 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   defmodule HTMLPage do
     use WasmBuilder
 
-    @strings [
-      doctype: "<!doctype html>",
-      good: "<h1>Good</h1>",
-      bad: "<h1>Bad</h1>",
-      content_type: "content-type: text/html;charset=utf-8\\r\\n"
-    ] |> Enum.map_reduce(4, fn {key, string}, offset ->
-      {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
-    end) |> elem(0) |> Map.new()
+    @strings pack_strings_nul_terminated(
+               doctype: "<!doctype html>",
+               good: "<h1>Good</h1>",
+               bad: "<h1>Bad</h1>",
+               content_type: "content-type: text/html;charset=utf-8\\r\\n"
+             )
 
     # Doesn’t work because we are evaluating the block at compile time.
     def doctype do
@@ -105,18 +103,12 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               count: i32(0),
               request_body_write_offset: i32(65536)
             ] do
-      # data_nil_terminated(4, "<!doctype html>")
-      # data_nil_terminated(20, "<h1>Good</h1>")
-      # data_nil_terminated(40, "<h1>Bad</h1>")
-      # data_nil_terminated(60, "content-type: text/html;charset=utf-8\\r\\n")
+      # data_nul_terminated(4, "<!doctype html>")
+      # data_nul_terminated(20, "<h1>Good</h1>")
+      # data_nul_terminated(40, "<h1>Bad</h1>")
+      # data_nul_terminated(60, "content-type: text/html;charset=utf-8\\r\\n")
+      data_nul_terminated(@strings)
 
-      # data_nil_terminated(@strings.doctype.offset, @strings.doctype.string)
-      # data_nil_terminated(@strings.good.offset, @strings.good.string)
-      # data_nil_terminated(@strings.bad.offset, @strings.bad.string)
-      # data_nil_terminated(@strings.content_type.offset, @strings.content_type.string)
-      for {_key, %{offset: offset, string: string}} <- @strings do
-        data_nil_terminated(offset, string)
-      end
       # quote do
       #   var!(doctype) = 4
       # end
@@ -126,7 +118,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       # defdata good_heading, do: "<h1>Good</h1>"
       # defdata bad_heading, do: "<h1>Bad</h1>"
 
-      # data_nil_terminated(4, :html,
+      # data_nul_terminated(4, :html,
       #   doctype: "<!doctype html>",
       #   good_heading: "<h1>Good</h1>",
       #   bad_heading: "<h1>Bad</h1>",
@@ -167,7 +159,11 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         # )
         I32.if_else(I32.eq(count, 1),
           do: 4,
-          else: I32.if_else(I32.eq(count, 2), do: I32.if_else(is_valid, do: @strings.good.offset, else: @strings.bad.offset), else: 0)
+          else:
+            I32.if_else(I32.eq(count, 2),
+              do: I32.if_else(is_valid, do: @strings.good.offset, else: @strings.bad.offset),
+              else: 0
+            )
         )
       end
     end

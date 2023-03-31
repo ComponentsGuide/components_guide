@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Data do
-    defstruct [:offset, :value, :nil_terminated]
+    defstruct [:offset, :value, :nul_terminated]
   end
 
   defmodule Global do
@@ -289,16 +289,29 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Memory{name: name, min: min}
   end
 
+  def pack_strings_nul_terminated(strings_record) do
+    {lookup_table, _} = Enum.map_reduce(strings_record, 4, fn {key, string}, offset ->
+      {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
+    end)
+    Map.new(lookup_table)
+  end
+
   def data(offset, value) do
-    %Data{offset: offset, value: value, nil_terminated: false}
+    %Data{offset: offset, value: value, nul_terminated: false}
   end
 
-  def data_nil_terminated(offset, value) do
-    %Data{offset: offset, value: value, nil_terminated: true}
+  def data_nul_terminated(offset, value) do
+    %Data{offset: offset, value: value, nul_terminated: true}
   end
 
-  # defmacro data_nil_terminated(offset, key, values) do
-  #   %Data{offset: offset, key: key, values: values, nil_terminated: true}
+  def data_nul_terminated(packed_map) when is_map(packed_map) do
+    for {_key, %{offset: offset, string: string}} <- packed_map do
+      data_nul_terminated(offset, string)
+    end
+  end
+
+  # defmacro data_nul_terminated(offset, key, values) do
+  #   %Data{offset: offset, key: key, values: values, nul_terminated: true}
   # end
 
   def wasm_import(module, name, type) do
@@ -454,11 +467,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     ~s"#{indent}(memory #{to_wat(name)} #{min})"
   end
 
-  def to_wat(%Data{offset: offset, value: value, nil_terminated: true}, indent) do
+  def to_wat(%Data{offset: offset, value: value, nul_terminated: true}, indent) do
     [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ~S"\00", ?", ")"]
   end
 
-  def to_wat(%Data{offset: offset, value: value, nil_terminated: false}, indent) do
+  def to_wat(%Data{offset: offset, value: value, nul_terminated: false}, indent) do
     [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ?", ")"]
   end
 
