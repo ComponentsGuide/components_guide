@@ -105,21 +105,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             ] do
       data_nul_terminated(@strings)
 
-      # quote do
-      #   var!(doctype) = 4
-      # end
-      # doctype
-
-      # defdata doctype, do: "<!doctype html>"
-      # defdata good_heading, do: "<h1>Good</h1>"
-      # defdata bad_heading, do: "<h1>Bad</h1>"
-
-      # data_nul_terminated(4, :html,
-      #   doctype: "<!doctype html>",
-      #   good_heading: "<h1>Good</h1>",
-      #   bad_heading: "<h1>Bad</h1>",
-      # )
-
       func get_request_body_write_offset, result: I32 do
         request_body_write_offset
       end
