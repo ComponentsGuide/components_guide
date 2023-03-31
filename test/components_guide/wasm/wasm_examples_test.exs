@@ -21,6 +21,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
         Wasm.steps(HTMLPage, [
           write_request,
           {:call_string, "get_headers", []},
+          # {:call_string_repeatedly_until_nil, "body", []},
           {:call_string, "body", []},
           {:call_string, "body", []}
         ])
