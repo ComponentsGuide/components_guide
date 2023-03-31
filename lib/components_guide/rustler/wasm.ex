@@ -76,7 +76,8 @@ defmodule ComponentsGuide.Rustler.Wasm do
   defp process_source(string) when is_binary(string), do: string
 
   defp process_source(atom) when is_atom(atom),
-    do: ComponentsGuide.Rustler.WasmBuilder.to_wat(atom)
+    do: atom.to_wat()
+    # do: ComponentsGuide.Rustler.WasmBuilder.to_wat(atom)
 
   defp process_result([]), do: nil
   defp process_result([a]), do: a
