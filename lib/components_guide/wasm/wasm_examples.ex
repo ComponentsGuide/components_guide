@@ -95,7 +95,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       data_nil_terminated(4, "<!doctype html>")
       data_nil_terminated(20, "<h1>Good</h1>")
       data_nil_terminated(40, "<h1>Bad</h1>")
-      data_nil_terminated(60, "content-type: text/html;charset=utf-8")
+      data_nil_terminated(60, "content-type: text/html;charset=utf-8\\r\\n")
 
       # defdata doctype, do: "<!doctype html>"
       # defdata good_heading, do: "<h1>Good</h1>"

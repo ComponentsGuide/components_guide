@@ -25,7 +25,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
           {:call_string, "body", []}
         ])
 
-      assert chunks == ["content-type: text/html;charset=utf-8", "<!doctype html>", "<h1>Good</h1>"]
+      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
 
       # Wasm.steps(CalculateMean) do
       #   request_body_write_offset = Step.call("get_request_body_write_offset")
@@ -57,7 +57,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
         ])
 
       # dbg(HTMLPage.to_wat())
-      assert chunks == ["content-type: text/html;charset=utf-8", "<!doctype html>", "<h1>Bad</h1>"]
+      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Bad</h1>"]
 
       # assert Wasm.call_string(HTMLPage, "body") == "<!doctype html>"
     end
