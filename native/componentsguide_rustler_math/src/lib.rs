@@ -10,6 +10,7 @@ use rustler::{
 use std::convert::TryInto;
 use std::ffi::CStr;
 use std::slice;
+use std::sync::RwLock;
 use wabt::Wat2Wasm;
 
 #[rustler::nif]
@@ -79,25 +80,6 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
 
     return Ok(exports);
 }
-
-/*
-struct StartedInstance {
-    instance: Instance,
-}
-
-#[rustler::nif]
-fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc<StartedInstance>, Error> {
-    let engine = Engine::default();
-    let module = Module::new(&engine, &source).map_err(error_from)?;
-    let mut store = Store::new(&engine, ());
-    let instance = Instance::new(&mut store, &module, &[]).map_err(error_from)?;
-
-    let _ = rustler::resource!(StartedInstance, env);
-    let resource = ResourceArc::new(StartedInstance { instance: instance });
-
-    return Ok(resource);
-}
-*/
 
 #[rustler::nif]
 fn wasm_example_n_i32(source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
@@ -555,6 +537,34 @@ fn wasm_call_bulk_internal(
     return Ok(results);
 }
 
+struct StartedInstance {
+    instance: RwLock<Instance>,
+}
+
+#[rustler::nif]
+fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc<StartedInstance>, Error> {
+    let engine = Engine::default();
+    let module = Module::new(&engine, &source).map_err(error_from)?;
+    let mut store = Store::new(&engine, ());
+    let instance = Instance::new(&mut store, &module, &[]).map_err(error_from)?;
+
+    // let _ = rustler::resource!(StartedInstance, env);
+    let resource = ResourceArc::new(StartedInstance { instance: RwLock::new(instance) });
+
+    return Ok(resource);
+}
+
+// The `'a` in this function definition is something called a lifetime.
+// This will inform the Rust compiler of how long different things are
+// allowed to live. Don't worry too much about this, as this will be the
+// exact same for most function definitions.
+fn load<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
+	// This macro will take care of defining and initializing a new resource
+	// object type.
+	rustler::resource!(StartedInstance, env);
+	true
+}
+
 #[rustler::nif]
 fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
     let result = Wat2Wasm::new()
@@ -580,5 +590,6 @@ rustler::init!(
         wasm_call_bulk,
         wasm_steps,
         wat2wasm
-    ]
+    ],
+    load = load
 );
