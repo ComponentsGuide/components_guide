@@ -88,7 +88,8 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               env: [buffer: memory(2)]
             ],
             globals: [
-              count: i32(0)
+              count: i32(0),
+              request_body_write_offset: i32(65536)
             ] do
       # data_nil_terminated(4, hello2())
       data_nil_terminated(4, "<!doctype html>")
@@ -107,7 +108,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       # )
 
       func get_request_body_write_offset, result: I32 do
-        65536
+        request_body_write_offset
       end
 
       func start do
@@ -115,7 +116,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
 
       funcp get_is_valid, result: I32 do
-        I32.eq(I32.load8_u(65536), ?g)
+        I32.eq(I32.load8_u(request_body_write_offset), ?g)
       end
 
       func get_status, result: I32, locals: [is_valid: I32] do

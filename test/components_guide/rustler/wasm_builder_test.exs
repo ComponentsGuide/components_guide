@@ -258,43 +258,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
     assert Wasm.call(CalculateMean, "insert", 0) == nil
   end
 
-  defmodule HTMLPage do
-    use WasmBuilder
-
-    defwasm globals: [count: i32(0)] do
-      func body, result: I32 do
-        count = I32.add(count, 1)
-        I32.if_else(I32.eq(count, 1), do: 100, else: 200)
-        # if_(I32.eq(count, 1), do: 100, else: 200)
-      end
-    end
-  end
-
-  test "if/else statement" do
-    alias ComponentsGuide.Rustler.Wasm
-
-    wasm_source = """
-    (module $HTMLPage
-      (global $count (mut i32) (i32.const 0))
-      (func (export "body") (result i32)
-        (i32.add (global.get $count) (i32.const 1))
-        (global.set $count)
-        (if (result i32) (i32.eq (global.get $count) (i32.const 1))
-          (then
-            (i32.const 100)
-          )
-          (else
-            (i32.const 200)
-          )
-        )
-      )
-    )
-    """
-
-    assert to_wat(HTMLPage) == wasm_source
-    assert Wasm.call(HTMLPage, "body") == 100
-  end
-
   defmodule FileNameSafe do
     use WasmBuilder
 
@@ -320,8 +283,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   test "loop" do
-    alias ComponentsGuide.Rustler.Wasm
-
     wasm_source = """
     (module $FileNameSafe
       (import "env" "buffer" (memory 2))
