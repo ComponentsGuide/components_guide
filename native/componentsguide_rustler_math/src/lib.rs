@@ -1,3 +1,5 @@
+// See: https://hansihe.com/posts/rustler-safe-erlang-elixir-nifs-in-rust/
+
 use anyhow::anyhow;
 use wasmtime::*;
 //use anyhow::Error as anyhowError;

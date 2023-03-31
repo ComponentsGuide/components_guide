@@ -10,7 +10,7 @@ path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-rustler = "0.25.0"
+rustler = "0.27.0"
 deno_core = "0.144.0"
 swc_common = "0.25.0"
 swc_ecma_parser = "0.115.0"
