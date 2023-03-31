@@ -84,7 +84,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   defmodule HTMLPage do
     use WasmBuilder
 
-    @strings pack_strings_nul_terminated(
+    @strings pack_strings_nul_terminated(4,
                doctype: "<!doctype html>",
                good: "<h1>Good</h1>",
                bad: "<h1>Bad</h1>",
@@ -103,10 +103,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               count: i32(0),
               request_body_write_offset: i32(65536)
             ] do
-      # data_nul_terminated(4, "<!doctype html>")
-      # data_nul_terminated(20, "<h1>Good</h1>")
-      # data_nul_terminated(40, "<h1>Bad</h1>")
-      # data_nul_terminated(60, "content-type: text/html;charset=utf-8\\r\\n")
       data_nul_terminated(@strings)
 
       # quote do

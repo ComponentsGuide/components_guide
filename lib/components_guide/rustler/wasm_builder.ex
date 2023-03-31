@@ -289,8 +289,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Memory{name: name, min: min}
   end
 
-  def pack_strings_nul_terminated(strings_record) do
-    {lookup_table, _} = Enum.map_reduce(strings_record, 4, fn {key, string}, offset ->
+  def pack_strings_nul_terminated(start_offset, strings_record) do
+    {lookup_table, _} = Enum.map_reduce(strings_record, start_offset, fn {key, string}, offset ->
       {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
     end)
     Map.new(lookup_table)
