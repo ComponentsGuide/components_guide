@@ -130,7 +130,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Module{name: name, body: body}
   end
 
-  defp define_module(name, options, block) do
+  defp define_module(name, options, block, env) do
     imports = Keyword.get(options, :imports, [])
 
     imports =
@@ -145,11 +145,15 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     global_types = Keyword.get(options, :globals, [])
     globals = Map.new(global_types)
 
+    # block = Macro.expand(block, env)
     block_items =
       case block do
         {:__block__, _meta, block_items} -> block_items
         single -> [single]
       end
+
+    # block_items = Macro.expand(block_items, env)
+    # block_items = block_items
 
     block_items =
       Macro.prewalk(block_items, fn
@@ -178,7 +182,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     name = __CALLER__.module |> Elixir.Module.split() |> List.last()
 
     # block = quote context: __CALLER__.module, do: unquote(block)
-    definition = define_module(name, options, block)
+    definition = define_module(name, options, block, __CALLER__)
 
     quote do
       Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
@@ -208,7 +212,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defp define_func(call, visibility, options, block) do
-    {name, args} = Macro.decompose_call(call)
+    call = Macro.expand_once(call, __ENV__)
+    {name, args} = case Macro.decompose_call(call) do
+      :error -> {expand_identifier(call, __ENV__), []}
+      other -> other
+    end
+    # {name, args} = Macro.decompose_call(call)
 
     name =
       case visibility do

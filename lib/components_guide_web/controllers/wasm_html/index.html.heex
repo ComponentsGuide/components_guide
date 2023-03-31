@@ -135,7 +135,7 @@
     });
     wasmPromise.then(({ instance, module }) => {
       console.log("Loaded wasm");
-      const start = instance.exports.start;
+      const start = instance.exports.GET;
       const get_status = instance.exports.get_status;
       const get_headers = instance.exports.get_headers;
       const read_next_body_chunk = instance.exports.body;

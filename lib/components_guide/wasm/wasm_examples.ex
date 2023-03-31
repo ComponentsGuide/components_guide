@@ -84,6 +84,20 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   defmodule HTMLPage do
     use WasmBuilder
 
+    @strings [
+      doctype: "<!doctype html>",
+      good: "<h1>Good</h1>",
+      bad: "<h1>Bad</h1>",
+      content_type: "content-type: text/html;charset=utf-8\\r\\n"
+    ] |> Enum.map_reduce(4, fn {key, string}, offset ->
+      {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
+    end) |> elem(0) |> Map.new()
+
+    # Doesn’t work because we are evaluating the block at compile time.
+    def doctype do
+      4
+    end
+
     defwasm imports: [
               env: [buffer: memory(2)]
             ],
@@ -91,11 +105,22 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               count: i32(0),
               request_body_write_offset: i32(65536)
             ] do
-      # data_nil_terminated(4, hello2())
-      data_nil_terminated(4, "<!doctype html>")
-      data_nil_terminated(20, "<h1>Good</h1>")
-      data_nil_terminated(40, "<h1>Bad</h1>")
-      data_nil_terminated(60, "content-type: text/html;charset=utf-8\\r\\n")
+      # data_nil_terminated(4, "<!doctype html>")
+      # data_nil_terminated(20, "<h1>Good</h1>")
+      # data_nil_terminated(40, "<h1>Bad</h1>")
+      # data_nil_terminated(60, "content-type: text/html;charset=utf-8\\r\\n")
+
+      # data_nil_terminated(@strings.doctype.offset, @strings.doctype.string)
+      # data_nil_terminated(@strings.good.offset, @strings.good.string)
+      # data_nil_terminated(@strings.bad.offset, @strings.bad.string)
+      # data_nil_terminated(@strings.content_type.offset, @strings.content_type.string)
+      for {_key, %{offset: offset, string: string}} <- @strings do
+        data_nil_terminated(offset, string)
+      end
+      # quote do
+      #   var!(doctype) = 4
+      # end
+      # doctype
 
       # defdata doctype, do: "<!doctype html>"
       # defdata good_heading, do: "<h1>Good</h1>"
@@ -111,7 +136,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         request_body_write_offset
       end
 
-      func start do
+      func GET do
         count = 0
       end
 
@@ -125,7 +150,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
 
       func get_headers, result: I32 do
-        60
+        @strings.content_type.offset
       end
 
       func body, result: I32, locals: [is_valid: I32] do
@@ -142,7 +167,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         # )
         I32.if_else(I32.eq(count, 1),
           do: 4,
-          else: I32.if_else(I32.eq(count, 2), do: I32.if_else(is_valid, do: 20, else: 40), else: 0)
+          else: I32.if_else(I32.eq(count, 2), do: I32.if_else(is_valid, do: @strings.good.offset, else: @strings.bad.offset), else: 0)
         )
       end
     end
