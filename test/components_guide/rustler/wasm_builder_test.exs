@@ -270,7 +270,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
             defblock :inner do
               char = I32.load8_u(i)
               br_if(:inner, I32.eq(char, ?/))
-              br_if(Outer, local_get(:char))
+              br_if(Outer, char)
               return 1
             end
             return 0
