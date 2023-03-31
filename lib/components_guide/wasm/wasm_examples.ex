@@ -153,7 +153,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         @strings.content_type.offset
       end
 
-      func body, result: I32, locals: [is_valid: I32] do
+      func next_body_chunk, result: I32, locals: [is_valid: I32] do
         is_valid = call(:get_is_valid)
         count = I32.add(count, 1)
 
