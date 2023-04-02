@@ -96,12 +96,14 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       4
     end
 
+    @request_body_write_offset 65536
+
     defwasm imports: [
               env: [buffer: memory(2)]
             ],
             globals: [
               count: i32(0),
-              request_body_write_offset: i32(65536)
+              request_body_write_offset: i32(@request_body_write_offset)
             ] do
       data_nul_terminated(@strings)
 
