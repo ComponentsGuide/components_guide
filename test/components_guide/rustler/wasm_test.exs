@@ -59,6 +59,19 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.call(wasm_source, "answer") == 42
   end
 
+  test "instance_call_func/2" do
+    wasm_source = """
+    (module $single_func
+      (func (export "answer") (result i32)
+       i32.const 42
+      )
+    )
+    """
+
+    instance = Wasm.run_instance(wasm_source)
+    assert Wasm.instance_call_func(instance, "answer") == 42
+  end
+
   test "call/2 uninitialized local" do
     wasm_source = """
     (module $single_func

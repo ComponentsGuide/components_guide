@@ -26,8 +26,14 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_example_n_i32(_, _, _), do: error()
   def wasm_example_0(_, _), do: error()
   def wasm_string_i32(_, _, _), do: error()
+
   def wasm_call_bulk(_, _), do: error()
   def wasm_steps(_, _), do: error()
+
+  def wasm_run_instance(_), do: error()
+  def wasm_instance_call_func(_, _), do: error()
+  def wasm_instance_read_memory(_, _, _), do: error()
+
   def wat2wasm(_), do: error()
 
   def call(source, f) do
@@ -69,6 +75,19 @@ defmodule ComponentsGuide.Rustler.Wasm do
           end
         end
     end
+  end
+
+  def run_instance(source) do
+    source = {:wat, process_source(source)}
+    wasm_run_instance(source)
+  end
+
+  def instance_call_func(instance, f) do
+    wasm_instance_call_func(instance, f)
+  end
+
+  def instance_read_memory(instance, start, length) do
+    wasm_instance_read_memory(instance, start, length)
   end
 
   defp error, do: :erlang.nif_error(:nif_not_loaded)

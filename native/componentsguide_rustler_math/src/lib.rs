@@ -1,6 +1,7 @@
 // See: https://hansihe.com/posts/rustler-safe-erlang-elixir-nifs-in-rust/
 
 use anyhow::anyhow;
+// use log::{info, warn};
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
 use rustler::{
@@ -90,7 +91,7 @@ fn wasm_example_n_i32(source: String, f: String, args: Vec<i32>) -> Result<Vec<i
     //return Err(Error::Term(Box::new("hello")));
     return match wasm_example_n_i32_internal(source, true, f, args) {
         Ok(v) => Ok(v),
-        Err(e) => Err(error_from(e)),
+        Err(e) => Err(string_error(e)),
     };
 }
 
@@ -100,7 +101,7 @@ fn wasm_example_0(source: String, f: String) -> Result<i32, Error> {
     //return Err(Error::Term(Box::new("hello")));
     return match wasm_example_0_internal(source, f) {
         Ok(v) => Ok(v),
-        Err(e) => Err(error_from(e)),
+        Err(e) => Err(string_error(e)),
     };
 }
 
@@ -145,7 +146,7 @@ fn wasm_example_0_internal(source: String, f: String) -> Result<i32, anyhow::Err
 fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
     return match wasm_example_i32_string_internal(wat_source, f, args) {
         Ok(v) => Ok(v),
-        Err(e) => Err(error_from(e)),
+        Err(e) => Err(string_error(e)),
     };
 }
 
@@ -368,7 +369,7 @@ fn wasm_steps(
 ) -> Result<Vec<Term>, Error> {
     return match wasm_steps_internal(env, wat_source, steps) {
         Ok(v) => Ok(v),
-        Err(e) => Err(error_from(e)),
+        Err(e) => Err(string_error(e)),
     };
 }
 
@@ -483,7 +484,7 @@ struct WasmBulkCall {
 fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<i32>>, Error> {
     return match wasm_call_bulk_internal(wat_source, true, calls) {
         Ok(v) => Ok(v),
-        Err(e) => Err(error_from(e)),
+        Err(e) => Err(string_error(e)),
     };
 }
 
@@ -576,13 +577,14 @@ impl RunningInstance {
     }
 
     fn call_0(&mut self, f: String) -> Result<i32, anyhow::Error> {
-        let answer = self.instance
+        let answer = self
+            .instance
             .get_func(&mut self.store, &f)
             .expect(&format!("{} was not an exported function", f));
 
         let answer = answer.typed::<(), i32>(&mut self.store)?;
         let result = answer.call(&mut self.store, ())?;
-    
+
         return Ok(result);
     }
 
@@ -592,16 +594,28 @@ impl RunningInstance {
 }
 
 #[rustler::nif]
-fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc<RunningInstanceResource>, Error> {
-    let running_instance = RunningInstance::new(source).map_err(error_from)?;
+fn wasm_run_instance(
+    env: Env,
+    source: WasmModuleDefinition,
+) -> Result<ResourceArc<RunningInstanceResource>, Error> {
+    env.send(&env.pid(), env.error_tuple("running_instance"));
+    let running_instance = RunningInstance::new(source).map_err(string_error)?;
 
-    let resource = ResourceArc::new(RunningInstanceResource { lock: RwLock::new(running_instance) });
+    // info!("running_instance: {}", running_instance);
+
+    let resource = ResourceArc::new(RunningInstanceResource {
+        lock: RwLock::new(running_instance),
+    });
 
     return Ok(resource);
 }
 
 #[rustler::nif]
-fn instance_call_func(env: Env, resource: ResourceArc<RunningInstanceResource>, f: String) -> Result<i32, Error> {
+fn wasm_instance_call_func(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    f: String,
+) -> Result<i32, Error> {
     // let mut instance = resource.lock.write().map_err(string_error)?;
 
     let mut instance = match resource.lock.write() {
@@ -609,19 +623,20 @@ fn instance_call_func(env: Env, resource: ResourceArc<RunningInstanceResource>, 
         Err(e) => Err(Error::Term(Box::new(e.to_string()))),
     }?;
 
-    let result = instance.call_0(f).map_err(error_from)?;
+    let result = instance.call_0(f).map_err(string_error)?;
 
     return Ok(result);
 }
 
 #[rustler::nif]
-fn instance_read_memory(env: Env, resource: ResourceArc<RunningInstanceResource>, start: i32, length: i32) -> Result<Vec<u8>, Error> {
-    let instance = match resource.lock.read() {
-        Ok(v) => Ok(v),
-        Err(e) => Err(Error::Term(Box::new(e.to_string()))),
-    }?;
-
-    let result = instance.read_memory(start, length).map_err(error_from)?;
+fn wasm_instance_read_memory(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    start: i32,
+    length: i32,
+) -> Result<Vec<u8>, Error> {
+    let instance = resource.lock.read().map_err(string_error)?;
+    let result = instance.read_memory(start, length).map_err(string_error)?;
 
     return Ok(result);
 }
@@ -631,10 +646,10 @@ fn instance_read_memory(env: Env, resource: ResourceArc<RunningInstanceResource>
 // allowed to live. Don't worry too much about this, as this will be the
 // exact same for most function definitions.
 fn load<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
-	// This macro will take care of defining and initializing a new resource
-	// object type.
-	rustler::resource!(RunningInstanceResource, env);
-	true
+    // This macro will take care of defining and initializing a new resource
+    // object type.
+    rustler::resource!(RunningInstanceResource, env);
+    true
 }
 
 #[rustler::nif]
@@ -661,6 +676,9 @@ rustler::init!(
         wasm_string_i32,
         wasm_call_bulk,
         wasm_steps,
+        wasm_run_instance,
+        wasm_instance_call_func,
+        wasm_instance_read_memory,
         wat2wasm
     ],
     load = load
