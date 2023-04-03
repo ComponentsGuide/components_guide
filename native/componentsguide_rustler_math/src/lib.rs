@@ -197,7 +197,7 @@ fn wasm_extract_string<T>(
 
             return Ok(string);
         }
-        _items => anyhow::bail!("Receive result with too many items"),
+        _other_number_of_items => anyhow::bail!("Received result with too many items"),
     }
 }
 
@@ -605,16 +605,41 @@ impl RunningInstance {
 
         let result: Vec<i32> = result.iter().map(|v| v.unwrap_i32()).collect();
         return Ok(result);
+    }
 
-        // let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
-        // return match result[..] {
-        //     [] => Ok(rustler::types::atom::nil().encode(env)),
-        //     [a] => Ok(a.encode(env)),
-        //     [a, b] => Ok((a, b).encode(env)),
-        //     [a, b, c] => Ok((a, b, c).encode(env)),
-        //     [a, b, c, d] => Ok((a, b, c, d).encode(env)),
-        //     [..] => Ok(result.encode(env)),
-        // }
+    fn call_i32_string(&mut self, f: String, args: Vec<i32>) -> Result<String, anyhow::Error> {
+        let func = self
+            .instance
+            .get_func(&mut self.store, &f)
+            .expect(&format!("{} was not an exported function", f));
+
+        let func_type = func.ty(&self.store);
+        let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+
+        let mut result: Vec<Val> = Vec::with_capacity(16);
+        let result_length = func_type.results().len();
+        result.resize(result_length, Val::I32(0));
+
+        func.call(&mut self.store, &args, &mut result)?;
+
+        let result: Vec<i32> = result.iter().map(|v| v.unwrap_i32()).collect();
+        let s = wasm_extract_string(&mut self.store, &self.memory, result)?;
+        return Ok(s);
+    }
+
+    fn write_string_nul_terminated(
+        &mut self,
+        memory_offset: i32,
+        string: String,
+    ) -> Result<i32, anyhow::Error> {
+        let offset: usize = memory_offset.try_into().unwrap();
+        // let mut bytes = string.as_bytes().clone();
+        let mut bytes = string.as_bytes().to_vec();
+        // let mut s = string.clone();
+        // let vec = s.as_mut_vec();
+        bytes.push(0);
+        self.memory.write(&mut self.store, offset, &bytes)?;
+        return Ok(bytes.len().try_into().unwrap());
     }
 
     fn read_memory(&self, start: i32, length: i32) -> Result<Vec<u8>, anyhow::Error> {
@@ -649,7 +674,7 @@ fn wasm_instance_call_func(
 
     let mut instance = match resource.lock.write() {
         Ok(v) => Ok(v),
-        Err(e) => Err(Error::Term(Box::new(e.to_string()))),
+        Err(e) => Err(string_error(e)),
     }?;
 
     let result = instance.call_0(f).map_err(string_error)?;
@@ -683,6 +708,38 @@ fn wasm_instance_call_func_i32(
     };
 
     // return Ok(result);
+}
+
+#[rustler::nif]
+fn wasm_instance_call_func_i32_string(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    f: String,
+    args: Vec<i32>,
+) -> Result<String, Error> {
+    // let mut instance = resource.lock.write().map_err(string_error)?;
+
+    let mut instance = match resource.lock.write() {
+        Ok(v) => Ok(v),
+        Err(e) => Err(string_error(e)),
+    }?;
+
+    return instance.call_i32_string(f, args).map_err(string_error);
+}
+
+#[rustler::nif]
+fn wasm_instance_write_string_nul_terminated(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    memory_offset: i32,
+    string: String,
+) -> Result<i32, Error> {
+    let mut instance = resource.lock.write().map_err(string_error)?;
+    let result = instance
+        .write_string_nul_terminated(memory_offset, string)
+        .map_err(string_error)?;
+
+    return Ok(result);
 }
 
 #[rustler::nif]
@@ -736,6 +793,8 @@ rustler::init!(
         wasm_run_instance,
         wasm_instance_call_func,
         wasm_instance_call_func_i32,
+        wasm_instance_call_func_i32_string,
+        wasm_instance_write_string_nul_terminated,
         wasm_instance_read_memory,
         wat2wasm
     ],

@@ -43,6 +43,23 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       # assert Wasm.call_string(HTMLPage, "next_body_chunk") == "<!doctype html>"
     end
 
+    test "good request (instance)" do
+      instance = Wasm.run_instance(HTMLPage)
+      offset = Wasm.instance_call(instance, "get_request_body_write_offset")
+      Wasm.instance_write_string_nul_terminated(instance, offset, "good")
+
+      status = Wasm.instance_call(instance, "get_status")
+      assert status == 200
+
+      chunks = [
+        Wasm.instance_call_returning_string(instance, "get_headers"),
+        Wasm.instance_call_returning_string(instance, "next_body_chunk"),
+        Wasm.instance_call_returning_string(instance, "next_body_chunk"),
+      ]
+
+      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
+    end
+
     test "bad request" do
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")
       write_request = {:write_string, offset, "bad", true}
