@@ -6,6 +6,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
   describe "HTMLPage constructs an HTML response" do
     test "good request" do
+      # IO.puts(HTMLPage.to_wat())
+
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")
       write_request = {:write_string, offset, "good", true}
       # write_request = {:write_string, offset, nil_terminated("good")}

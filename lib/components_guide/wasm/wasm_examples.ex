@@ -119,9 +119,19 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         I32.eq(I32.load8_u(request_body_write_offset), ?g)
       end
 
-      func get_status, result: I32, locals: [is_valid: I32] do
-        is_valid = call(:get_is_valid)
-        I32.if_else(is_valid, do: 200, else: 400)
+      func get_status, result: I32 do
+        # I32.if_else(call(:get_is_valid), do: 200, else: 400)
+        I32.if_else call(:get_is_valid) do
+          200
+        else
+          400
+        end
+
+        # if call(:get_is_valid) do
+        #   return(200)
+        # else
+        #   return(400)
+        # end
       end
 
       func get_headers, result: I32 do

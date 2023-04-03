@@ -554,12 +554,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         ?\n
       ],
       ["  ", indent, "(then", ?\n],
-      ["    ", indent, to_wat(when_true, ""), ?\n],
+      [to_wat(when_true, "    " <> indent), ?\n],
       ["  ", indent, ")", ?\n],
       if when_false do
         [
           ["  ", indent, "(else", ?\n],
-          ["    ", indent, to_wat(when_false, ""), ?\n],
+          [to_wat(when_false, "    " <> indent), ?\n],
           ["  ", indent, ")", ?\n]
         ]
       else
