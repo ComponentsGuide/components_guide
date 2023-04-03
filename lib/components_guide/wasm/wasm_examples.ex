@@ -156,6 +156,11 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         # I32.if_else I32.eq(count, 2), do: return(@strings.good.offset)
         # 0
 
+        # if I32.eq(count, 1) do
+        #   return(@strings.doctype.offset)
+        #   # :return
+        # end
+
         # if I32.eq(count, 2) do
         #   @strings.good.offset
         #   # if is_valid do
@@ -168,7 +173,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         # end
 
         I32.if_else(I32.eq(count, 1),
-          do: 4,
+          do: @strings.doctype.offset,
           else:
             I32.if_else(I32.eq(count, 2),
               do: I32.if_else(is_valid, do: @strings.good.offset, else: @strings.bad.offset),

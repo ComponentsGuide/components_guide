@@ -43,7 +43,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       result =
         case when_true do
           # TODO: detect actual type instead of assuming i32
-          {:return, _value} -> :i32
+          [{:return, _value}] -> :i32
           _ -> nil
         end
 
@@ -381,11 +381,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         unquote(get_block_items(when_false))
       )
     end
-
-    # quote do
-    #   {:if, unquote(condition), unquote(get_block_items(when_true)),
-    #    unquote(get_block_items(when_false))}
-    # end
   end
 
   defp get_block_items(block) do
