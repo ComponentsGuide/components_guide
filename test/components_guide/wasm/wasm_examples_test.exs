@@ -69,16 +69,16 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       offset = HTMLPage.get_request_body_write_offset(instance)
       HTMLPage.write_string_nul_terminated(instance, offset, "good")
 
-      status = HTMLPage.get_status(instance)
-      assert status == 200
+      assert HTMLPage.get_status(instance) == 200
 
       chunks = [
         HTMLPage.get_headers(instance),
         HTMLPage.next_body_chunk(instance),
         HTMLPage.next_body_chunk(instance),
+        HTMLPage.next_body_chunk(instance),
       ]
 
-      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
+      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>", ""]
     end
 
     test "bad request" do
