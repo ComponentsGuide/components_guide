@@ -141,6 +141,17 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         #   else: I32.if_else(is_valid, do: lookup_data(:good_heading), else: lookup_data(:bad_heading))
         # )
 
+        # br_table do
+        #   1 -> 4
+        #   2 ->
+        #     if is_valid do
+        #       @strings.good.offset
+        #     else
+        #       @strings.bad.offset
+        #     end
+        #   _ -> 0
+        # end
+
         # I32.if_else I32.eq(count, 1), do: return(4)
         # I32.if_else I32.eq(count, 2), do: return(@strings.good.offset)
         # 0

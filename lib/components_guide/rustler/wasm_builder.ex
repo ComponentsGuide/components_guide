@@ -38,6 +38,22 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmodule IfElse do
     defstruct [:result, :condition, :when_true, :when_false]
+
+    def detecting_result_type(condition, when_true, when_false) do
+      result =
+        case when_true do
+          # TODO: detect actual type instead of assuming i32
+          {:return, _value} -> :i32
+          _ -> nil
+        end
+
+      %__MODULE__{
+        result: result,
+        condition: condition,
+        when_true: when_true,
+        when_false: when_false
+      }
+    end
   end
 
   defmodule Loop do
@@ -359,13 +375,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmacro if_(condition, do: when_true, else: when_false) do
     quote do
-      %IfElse{
-        # result: :i32,
-        result: nil,
-        condition: unquote(condition),
-        when_true: unquote(get_block_items(when_true)),
-        when_false: unquote(get_block_items(when_false))
-      }
+      IfElse.detecting_result_type(
+        unquote(condition),
+        unquote(get_block_items(when_true)),
+        unquote(get_block_items(when_false))
+      )
     end
 
     # quote do
