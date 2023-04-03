@@ -27,6 +27,9 @@ fn reverse_string(a: String) -> String {
 fn error_from(error: anyhow::Error) -> Error {
     return Error::Term(Box::new(error.to_string()));
 }
+fn string_error<T: ToString>(error: T) -> Error {
+    return Error::Term(Box::new(error.to_string()));
+}
 
 // #[derive(NifTuple)]
 // struct WasmExport {
@@ -62,7 +65,7 @@ impl AsRef<[u8]> for WasmModuleDefinition<'_> {
 fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Error> {
     // fn wasm_list_exports(source: String) -> Result<Vec<WasmExport>, Error> {
     let engine = Engine::default();
-    let module = Module::new(&engine, &source).map_err(error_from)?;
+    let module = Module::new(&engine, &source).map_err(string_error)?;
     let exports = module.exports();
 
     let exports: Vec<WasmExport> = exports
@@ -147,7 +150,7 @@ fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Stri
 }
 
 fn wasm_read_memory<T>(
-    store: &mut Store<T>,
+    store: &Store<T>,
     memory: &Memory,
     start: i32,
     length: i32,
@@ -460,7 +463,7 @@ fn wasm_steps_internal(
                 // slice[result.len()] = 0;
             }
             WasmStepInstruction::ReadMemory(start, length) => {
-                let bytes = wasm_read_memory(&mut store, &memory, start, length)?;
+                let bytes = wasm_read_memory(&store, &memory, start, length)?;
                 let term = bytes.encode(env);
                 results.push(term);
             }
@@ -537,21 +540,90 @@ fn wasm_call_bulk_internal(
     return Ok(results);
 }
 
-struct StartedInstance {
-    instance: RwLock<Instance>,
+struct RunningInstanceResource {
+    lock: RwLock<RunningInstance>,
+}
+
+struct RunningInstance {
+    store: Store<()>,
+    memory: Memory,
+    instance: Instance,
+}
+
+impl RunningInstance {
+    fn new(wat_source: WasmModuleDefinition) -> Result<Self, anyhow::Error> {
+        let engine = Engine::default();
+
+        // A `Store` is what will own instances, functions, globals, etc. All wasm
+        // items are stored within a `Store`, and it's what we'll always be using to
+        // interact with the wasm world. Custom data can be stored in stores but for
+        // now we just use `()`.
+        let mut store = Store::new(&engine, ());
+        let mut linker = Linker::new(&engine);
+
+        let memory_ty = MemoryType::new(2, None);
+        let memory = Memory::new(&mut store, memory_ty)?;
+        linker.define(&store, "env", "buffer", memory)?;
+
+        let module = Module::new(&engine, &wat_source)?;
+        let instance = linker.instantiate(&mut store, &module)?;
+
+        return Ok(Self {
+            store: store,
+            memory: memory,
+            instance: instance,
+        });
+    }
+
+    fn call_0(&mut self, f: String) -> Result<i32, anyhow::Error> {
+        let answer = self.instance
+            .get_func(&mut self.store, &f)
+            .expect(&format!("{} was not an exported function", f));
+
+        let answer = answer.typed::<(), i32>(&mut self.store)?;
+        let result = answer.call(&mut self.store, ())?;
+    
+        return Ok(result);
+    }
+
+    fn read_memory(&self, start: i32, length: i32) -> Result<Vec<u8>, anyhow::Error> {
+        return wasm_read_memory(&self.store, &self.memory, start, length);
+    }
 }
 
 #[rustler::nif]
-fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc<StartedInstance>, Error> {
-    let engine = Engine::default();
-    let module = Module::new(&engine, &source).map_err(error_from)?;
-    let mut store = Store::new(&engine, ());
-    let instance = Instance::new(&mut store, &module, &[]).map_err(error_from)?;
+fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc<RunningInstanceResource>, Error> {
+    let running_instance = RunningInstance::new(source).map_err(error_from)?;
 
-    // let _ = rustler::resource!(StartedInstance, env);
-    let resource = ResourceArc::new(StartedInstance { instance: RwLock::new(instance) });
+    let resource = ResourceArc::new(RunningInstanceResource { lock: RwLock::new(running_instance) });
 
     return Ok(resource);
+}
+
+#[rustler::nif]
+fn instance_call_func(env: Env, resource: ResourceArc<RunningInstanceResource>, f: String) -> Result<i32, Error> {
+    // let mut instance = resource.lock.write().map_err(string_error)?;
+
+    let mut instance = match resource.lock.write() {
+        Ok(v) => Ok(v),
+        Err(e) => Err(Error::Term(Box::new(e.to_string()))),
+    }?;
+
+    let result = instance.call_0(f).map_err(error_from)?;
+
+    return Ok(result);
+}
+
+#[rustler::nif]
+fn instance_read_memory(env: Env, resource: ResourceArc<RunningInstanceResource>, start: i32, length: i32) -> Result<Vec<u8>, Error> {
+    let instance = match resource.lock.read() {
+        Ok(v) => Ok(v),
+        Err(e) => Err(Error::Term(Box::new(e.to_string()))),
+    }?;
+
+    let result = instance.read_memory(start, length).map_err(error_from)?;
+
+    return Ok(result);
 }
 
 // The `'a` in this function definition is something called a lifetime.
@@ -561,7 +633,7 @@ fn create_instance(env: Env, source: WasmModuleDefinition) -> Result<ResourceArc
 fn load<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
 	// This macro will take care of defining and initializing a new resource
 	// object type.
-	rustler::resource!(StartedInstance, env);
+	rustler::resource!(RunningInstanceResource, env);
 	true
 }
 
