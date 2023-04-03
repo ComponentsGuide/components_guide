@@ -111,12 +111,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     def memory8!(offset) do
       %{
         unsigned: {:i32, :load8_u, offset},
-        signed: {:i32, :load8_s, offset},
+        signed: {:i32, :load8_s, offset}
       }
     end
 
     def if_else(condition, do: when_true, else: when_false) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
+    end
+
+    def if_else(condition, do: when_true) do
+      %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: nil}
     end
   end
 
@@ -213,10 +217,13 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defp define_func(call, visibility, options, block) do
     call = Macro.expand_once(call, __ENV__)
-    {name, args} = case Macro.decompose_call(call) do
-      :error -> {expand_identifier(call, __ENV__), []}
-      other -> other
-    end
+
+    {name, args} =
+      case Macro.decompose_call(call) do
+        :error -> {expand_identifier(call, __ENV__), []}
+        other -> other
+      end
+
     # {name, args} = Macro.decompose_call(call)
 
     name =
@@ -290,9 +297,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def pack_strings_nul_terminated(start_offset, strings_record) do
-    {lookup_table, _} = Enum.map_reduce(strings_record, start_offset, fn {key, string}, offset ->
-      {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
-    end)
+    {lookup_table, _} =
+      Enum.map_reduce(strings_record, start_offset, fn {key, string}, offset ->
+        {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
+      end)
+
     Map.new(lookup_table)
   end
 
@@ -350,9 +359,19 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   defmacro if_(condition, do: when_true, else: when_false) do
     quote do
-      {:if, unquote(condition), unquote(get_block_items(when_true)),
-       unquote(get_block_items(when_false))}
+      %IfElse{
+        # result: :i32,
+        result: nil,
+        condition: unquote(condition),
+        when_true: unquote(get_block_items(when_true)),
+        when_false: unquote(get_block_items(when_false))
+      }
     end
+
+    # quote do
+    #   {:if, unquote(condition), unquote(get_block_items(when_true)),
+    #    unquote(get_block_items(when_false))}
+    # end
   end
 
   defp get_block_items(block) do
@@ -528,9 +547,15 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       ["  ", indent, "(then", ?\n],
       ["    ", indent, to_wat(when_true, ""), ?\n],
       ["  ", indent, ")", ?\n],
-      ["  ", indent, "(else", ?\n],
-      ["    ", indent, to_wat(when_false, ""), ?\n],
-      ["  ", indent, ")", ?\n],
+      if when_false do
+        [
+          ["  ", indent, "(else", ?\n],
+          ["    ", indent, to_wat(when_false, ""), ?\n],
+          ["  ", indent, ")", ?\n]
+        ]
+      else
+        []
+      end,
       [indent, ")"]
     ]
   end
@@ -545,7 +570,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         [
           ["  ", indent, "(else", ?\n],
           ["    ", indent, to_wat(when_false, ""), ?\n],
-          ["  ", indent, ")", ?\n],
+          ["  ", indent, ")", ?\n]
         ]
       else
         []
@@ -658,5 +683,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilderUsing do
       if_(unquote(condition), do: unquote(when_true), else: nil)
     end
   end
+
   # defdelegate if(condition, cases), to: ComponentsGuide.Rustler.WasmBuilder, as: :if_
 end

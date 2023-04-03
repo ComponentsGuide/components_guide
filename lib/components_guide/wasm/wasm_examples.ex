@@ -140,6 +140,22 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         #   do: lookup_data(:doctype),
         #   else: I32.if_else(is_valid, do: lookup_data(:good_heading), else: lookup_data(:bad_heading))
         # )
+
+        # I32.if_else I32.eq(count, 1), do: return(4)
+        # I32.if_else I32.eq(count, 2), do: return(@strings.good.offset)
+        # 0
+
+        # if I32.eq(count, 2) do
+        #   @strings.good.offset
+        #   # if is_valid do
+        #   #   push(@strings.good.offset)
+        #   # else
+        #   #   push(@strings.bad.offset)
+        #   # end
+        # else
+        #   push(0)
+        # end
+
         I32.if_else(I32.eq(count, 1),
           do: 4,
           else:
