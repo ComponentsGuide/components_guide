@@ -150,5 +150,31 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         )
       end
     end
+
+    alias ComponentsGuide.Rustler.Wasm
+
+    def start() do
+      Wasm.run_instance(__MODULE__)
+    end
+
+    def get_request_body_write_offset(instance) do
+      Wasm.instance_call(instance, "get_request_body_write_offset")
+    end
+
+    def write_string_nul_terminated(instance, offset, string) do
+      Wasm.instance_write_string_nul_terminated(instance, offset, string)
+    end
+
+    def get_status(instance) do
+      Wasm.instance_call(instance, "get_status")
+    end
+
+    def get_headers(instance) do
+      Wasm.instance_call_returning_string(instance, "get_headers")
+    end
+
+    def next_body_chunk(instance) do
+      Wasm.instance_call_returning_string(instance, "next_body_chunk")
+    end
   end
 end

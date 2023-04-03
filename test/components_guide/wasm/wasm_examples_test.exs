@@ -47,6 +47,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       instance = Wasm.run_instance(HTMLPage)
       offset = Wasm.instance_call(instance, "get_request_body_write_offset")
       Wasm.instance_write_string_nul_terminated(instance, offset, "good")
+      # instance.memory8[offset] = "good"
 
       status = Wasm.instance_call(instance, "get_status")
       assert status == 200
@@ -55,6 +56,24 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
         Wasm.instance_call_returning_string(instance, "get_headers"),
         Wasm.instance_call_returning_string(instance, "next_body_chunk"),
         Wasm.instance_call_returning_string(instance, "next_body_chunk"),
+      ]
+
+      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
+    end
+
+    test "good request (instance generated module functions)" do
+      instance = HTMLPage.start() # Like Agent.start(fun)
+
+      offset = HTMLPage.get_request_body_write_offset(instance)
+      HTMLPage.write_string_nul_terminated(instance, offset, "good")
+
+      status = HTMLPage.get_status(instance)
+      assert status == 200
+
+      chunks = [
+        HTMLPage.get_headers(instance),
+        HTMLPage.next_body_chunk(instance),
+        HTMLPage.next_body_chunk(instance),
       ]
 
       assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
