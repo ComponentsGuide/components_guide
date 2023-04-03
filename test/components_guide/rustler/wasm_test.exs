@@ -172,6 +172,12 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     assert Wasm.call(wasm_source, "validate", 256) == 0
     assert Wasm.call(wasm_source, "validate", 257) == 0
     assert Wasm.call(wasm_source, "validate", 2000) == 0
+
+    instance = Wasm.run_instance(wasm_source)
+    assert Wasm.instance_call_func(instance, "validate", 0) == 0
+    assert Wasm.instance_call_func(instance, "validate", 1) == 1
+    assert Wasm.instance_call_func(instance, "validate", 255) == 1
+    assert Wasm.instance_call_func(instance, "validate", 256) == 0
   end
 
   test "wasm_string/2 spits out string" do

@@ -588,6 +588,35 @@ impl RunningInstance {
         return Ok(result);
     }
 
+    fn call_i32(&mut self, f: String, args: Vec<i32>) -> Result<Vec<i32>, anyhow::Error> {
+        let func = self
+            .instance
+            .get_func(&mut self.store, &f)
+            .expect(&format!("{} was not an exported function", f));
+
+        let func_type = func.ty(&self.store);
+        let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+
+        let mut result: Vec<Val> = Vec::with_capacity(16);
+        let result_length = func_type.results().len();
+        result.resize(result_length, Val::I32(0));
+
+        func.call(&mut self.store, &args, &mut result)?;
+
+        let result: Vec<i32> = result.iter().map(|v| v.unwrap_i32()).collect();
+        return Ok(result);
+
+        // let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
+        // return match result[..] {
+        //     [] => Ok(rustler::types::atom::nil().encode(env)),
+        //     [a] => Ok(a.encode(env)),
+        //     [a, b] => Ok((a, b).encode(env)),
+        //     [a, b, c] => Ok((a, b, c).encode(env)),
+        //     [a, b, c, d] => Ok((a, b, c, d).encode(env)),
+        //     [..] => Ok(result.encode(env)),
+        // }
+    }
+
     fn read_memory(&self, start: i32, length: i32) -> Result<Vec<u8>, anyhow::Error> {
         return wasm_read_memory(&self.store, &self.memory, start, length);
     }
@@ -626,6 +655,34 @@ fn wasm_instance_call_func(
     let result = instance.call_0(f).map_err(string_error)?;
 
     return Ok(result);
+}
+
+#[rustler::nif]
+fn wasm_instance_call_func_i32(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    f: String,
+    args: Vec<i32>,
+) -> Result<Term, Error> {
+    // let mut instance = resource.lock.write().map_err(string_error)?;
+
+    let mut instance = match resource.lock.write() {
+        Ok(v) => Ok(v),
+        Err(e) => Err(string_error(e)),
+    }?;
+
+    let result = instance.call_i32(f, args).map_err(string_error)?;
+
+    return match result[..] {
+        [] => Ok(rustler::types::atom::nil().encode(env)),
+        [a] => Ok(a.encode(env)),
+        [a, b] => Ok((a, b).encode(env)),
+        [a, b, c] => Ok((a, b, c).encode(env)),
+        [a, b, c, d] => Ok((a, b, c, d).encode(env)),
+        [..] => Ok(result.encode(env)),
+    };
+
+    // return Ok(result);
 }
 
 #[rustler::nif]
@@ -678,6 +735,7 @@ rustler::init!(
         wasm_steps,
         wasm_run_instance,
         wasm_instance_call_func,
+        wasm_instance_call_func_i32,
         wasm_instance_read_memory,
         wat2wasm
     ],

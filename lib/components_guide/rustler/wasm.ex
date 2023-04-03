@@ -32,6 +32,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
 
   def wasm_run_instance(_), do: error()
   def wasm_instance_call_func(_, _), do: error()
+  def wasm_instance_call_func_i32(_, _, _), do: error()
   def wasm_instance_read_memory(_, _, _), do: error()
 
   def wat2wasm(_), do: error()
@@ -82,9 +83,10 @@ defmodule ComponentsGuide.Rustler.Wasm do
     wasm_run_instance(source)
   end
 
-  def instance_call_func(instance, f) do
-    wasm_instance_call_func(instance, f)
-  end
+  def instance_call_func(instance, f), do: wasm_instance_call_func(instance, f)
+  def instance_call_func(instance, f, a), do: wasm_instance_call_func_i32(instance, f, [a])
+  def instance_call_func(instance, f, a, b), do: wasm_instance_call_func_i32(instance, f, [a, b])
+  def instance_call_func(instance, f, a, b, c), do: wasm_instance_call_func_i32(instance, f, [a, b, c])
 
   def instance_read_memory(instance, start, length) do
     wasm_instance_read_memory(instance, start, length)
