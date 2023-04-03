@@ -219,4 +219,39 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       Wasm.instance_call_returning_string(instance, "next_body_chunk")
     end
   end
+
+  defmodule Counter do
+    use WasmBuilder
+
+    defwasm imports: [
+              env: [buffer: memory(1)]
+            ],
+            globals: [
+              count: i32(0)
+            ] do
+
+      func get_current, result: I32 do
+        count
+      end
+
+      func increment, result: I32 do
+        count = I32.add(count, 1)
+        count
+      end
+    end
+
+    alias ComponentsGuide.Rustler.Wasm
+
+    def start() do
+      Wasm.run_instance(__MODULE__)
+    end
+
+    def get_current(instance) do
+      Wasm.instance_call(instance, "get_current")
+    end
+
+    def increment(instance) do
+      Wasm.instance_call(instance, "increment")
+    end
+  end
 end

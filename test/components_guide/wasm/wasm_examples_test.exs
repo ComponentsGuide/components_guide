@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage}
+  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter}
 
   describe "HTMLPage constructs an HTML response" do
     test "good request" do
@@ -105,6 +105,19 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Bad</h1>"]
 
       # assert Wasm.call_string(HTMLPage, "next_body_chunk") == "<!doctype html>"
+    end
+  end
+
+  describe "Counter" do
+    test "works" do
+      instance = Counter.start() # Like Agent.start(fun)
+      assert Counter.get_current(instance) == 0
+
+      Counter.increment(instance)
+      assert Counter.get_current(instance) == 1
+
+      Counter.increment(instance)
+      assert Counter.get_current(instance) == 2
     end
   end
 end
