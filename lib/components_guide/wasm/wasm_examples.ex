@@ -272,7 +272,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     # end
 
     defwasm imports: [
-              #env: [buffer: memory(1)]
+              # env: [buffer: memory(1)]
             ],
             globals: [
               state: i32(0),
@@ -286,6 +286,23 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         state
       end
 
+      # defstates :state do
+      #   state Idle do
+      #     :begin -> Loading
+      #   end
+
+      #   state Loading do
+      #     :success -> Loaded
+      #     :failure -> Failed
+      #   end
+
+      #   state Loaded do
+      #   end
+
+      #   state Failed do
+      #   end
+      # end
+
       func begin do
         if I32.eq(state, idle) do
           state = loading
@@ -293,7 +310,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
           # TODO: Call entry callback “load”
         end
-
       end
 
       func success do
