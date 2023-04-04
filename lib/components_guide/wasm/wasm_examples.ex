@@ -229,7 +229,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             globals: [
               count: i32(0)
             ] do
-
       func get_current, result: I32 do
         count
       end
@@ -253,5 +252,73 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     def increment(instance) do
       Wasm.instance_call(instance, "increment")
     end
+  end
+
+  defmodule Loader do
+    use WasmBuilder
+
+    # defmodule LoadableMachine do
+    #   use Machine,
+    #     states: [:idle, :loading, :loaded, :failed]
+
+    # defstate Idle do
+    #   on(:start), do: Loading
+    # end
+
+    #   def on(:idle, :start), do: :loading
+    #   def entry(:loading), do: :load
+    #   def on(:loading, :success), do: :loaded
+    #   def on(:loading, :failure), do: :failed
+    # end
+
+    defwasm imports: [
+              #env: [buffer: memory(1)]
+            ],
+            globals: [
+              state: i32(0),
+              idle: i32(0),
+              loading: i32(1),
+              loaded: i32(2),
+              failed: i32(3)
+            ] do
+      # func get_current, do: state
+      func get_current, result: I32 do
+        state
+      end
+
+      func begin do
+        if I32.eq(state, idle) do
+          state = loading
+          # {:raw_wat, ~s[(global.set $state (i32.const 1))]}
+
+          # TODO: Call entry callback “load”
+        end
+
+      end
+
+      func success do
+        if I32.eq(state, loading) do
+          state = loaded
+        end
+      end
+
+      func failure do
+        if I32.eq(state, loading) do
+          state = failed
+        end
+      end
+    end
+
+    alias ComponentsGuide.Rustler.Wasm
+
+    def start(), do: Wasm.run_instance(__MODULE__)
+
+    def get_current(instance) do
+      Wasm.instance_call(instance, "get_current")
+    end
+
+    def begin(instance), do: Wasm.instance_call(instance, "begin")
+    def success(instance), do: Wasm.instance_call(instance, "success")
+    def failure(instance), do: Wasm.instance_call(instance, "failure")
   end
 end

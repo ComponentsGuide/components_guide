@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter}
+  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, Loader}
 
   describe "HTMLPage constructs an HTML response" do
     test "good request" do
@@ -118,6 +118,32 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
       Counter.increment(instance)
       assert Counter.get_current(instance) == 2
+    end
+  end
+
+  describe "Loader" do
+    test "works" do
+      IO.puts(Loader.to_wat())
+      a = Loader.start() # Like Agent.start(fun)
+      # assert Loader.get_current(a) == Loader.get_global(a, "idle")
+      assert Loader.get_current(a) == 0
+      Loader.begin(a)
+      assert Loader.get_current(a) == 1
+      Loader.success(a)
+      assert Loader.get_current(a) == 2
+
+      b = Loader.start()
+      assert Loader.get_current(b) == 0
+
+      Loader.success(b)
+      assert Loader.get_current(b) == 0
+      Loader.failure(b)
+      assert Loader.get_current(b) == 0
+
+      Loader.begin(b)
+      assert Loader.get_current(b) == 1
+      Loader.failure(b)
+      assert Loader.get_current(b) == 3
     end
   end
 end

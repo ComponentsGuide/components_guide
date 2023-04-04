@@ -476,6 +476,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       [for(import_def <- imports, do: [to_wat(import_def, "  " <> indent), "\n"])],
       for(
         {name, {:i32_const, initial_value}} <- globals,
+        # TODO: handle more than just (mut i32), e.g. non-mut or f64
         do: ["  " <> indent, "(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]
       ),
       [indent, to_wat(body, "  " <> indent), "\n"],
