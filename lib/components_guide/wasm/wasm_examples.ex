@@ -329,10 +329,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
     def start(), do: Wasm.run_instance(__MODULE__)
 
-    def get_current(instance) do
-      Wasm.instance_call(instance, "get_current")
-    end
-
+    def get_current(instance), do: Wasm.instance_call(instance, "get_current")
     def begin(instance), do: Wasm.instance_call(instance, "begin")
     def success(instance), do: Wasm.instance_call(instance, "success")
     def failure(instance), do: Wasm.instance_call(instance, "failure")
