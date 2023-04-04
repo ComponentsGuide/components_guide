@@ -85,7 +85,8 @@ defmodule ComponentsGuide.Rustler.Wasm do
     wasm_run_instance(source)
   end
 
-  def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
+  # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
+  def instance_call(instance, f), do: wasm_instance_call_func_i32(instance, f, [])
   def instance_call(instance, f, a), do: wasm_instance_call_func_i32(instance, f, [a])
   def instance_call(instance, f, a, b), do: wasm_instance_call_func_i32(instance, f, [a, b])
   def instance_call(instance, f, a, b, c), do: wasm_instance_call_func_i32(instance, f, [a, b, c])

@@ -582,6 +582,7 @@ impl RunningInstance {
             .get_func(&mut self.store, &f)
             .expect(&format!("{} was not an exported function", f));
 
+        // FIXME: this errs if the return type is not i32
         let answer = answer.typed::<(), i32>(&mut self.store)?;
         let result = answer.call(&mut self.store, ())?;
 
