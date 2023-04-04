@@ -68,6 +68,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
       offset = HTMLPage.get_request_body_write_offset(instance)
       HTMLPage.write_string_nul_terminated(instance, offset, "good")
+      # HTMLPage.write_string_nul_terminated(instance, :request_body_write_offset, "good")
 
       assert HTMLPage.get_status(instance) == 200
 
@@ -79,6 +80,12 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       ]
 
       assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>", ""]
+
+      HTMLPage.get(instance)
+      # chunks = HTMLPage.all_body_chunks(instance) |> Enum.to_list()
+      body = HTMLPage.read_body(instance)
+      # chunks = HTMLPage.all_body_chunks(instance) |> Enum.to_list() |> IO.iodata_to_binary()
+      assert body == "<!doctype html><h1>Good</h1>"
     end
 
     test "bad request" do

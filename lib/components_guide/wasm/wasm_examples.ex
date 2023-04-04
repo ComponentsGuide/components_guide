@@ -207,6 +207,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       Wasm.instance_write_string_nul_terminated(instance, offset, string)
     end
 
+    def get(instance) do
+      Wasm.instance_call(instance, "GET")
+    end
+
     def get_status(instance) do
       Wasm.instance_call(instance, "get_status")
     end
@@ -217,6 +221,20 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
     def next_body_chunk(instance) do
       Wasm.instance_call_returning_string(instance, "next_body_chunk")
+    end
+
+    def all_body_chunks(instance) do
+      Stream.unfold(0, fn n ->
+        case Wasm.instance_call_returning_string(instance, "next_body_chunk") do
+          "" -> nil
+
+          s -> {s, n + 1}
+        end
+      end)
+    end
+
+    def read_body(instance) do
+      all_body_chunks(instance) |> Enum.join()
     end
   end
 
