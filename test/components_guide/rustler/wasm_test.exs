@@ -313,6 +313,26 @@ defmodule ComponentsGuide.Rustler.WasmTest do
         {"calculate_mean", []}
       ])
 
+    # [nil, nil, nil, result] =
+    #   Wasm.bulk_call(CalculateMean, [
+    #     CalculateMean.insert(5),
+    #     CalculateMean.insert(7),
+    #     CalculateMean.insert(9),
+    #     CalculateMean.calculate_mean(),
+    #   ])
+
+    assert result == 7
+  end
+
+  test "steps/2 global calculates mean" do
+    [nil, nil, nil, result] =
+      Wasm.steps(CalculateMean, [
+        {:call, "insert", [5]},
+        {:call, "insert", [7]},
+        {:call, "insert", [9]},
+        {:call, "calculate_mean", []}
+      ])
+
     assert result == 7
   end
 
