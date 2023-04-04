@@ -102,7 +102,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               env: [buffer: memory(2)]
             ],
             globals: [
-              count: i32(0),
+              body_chunk_index: i32(0),
               request_body_write_offset: i32(@request_body_write_offset)
             ] do
       data_nul_terminated(@strings)
@@ -112,7 +112,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
 
       func GET do
-        count = 0
+        body_chunk_index = 0
       end
 
       funcp get_is_valid, result: I32 do
@@ -140,13 +140,13 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
       func next_body_chunk, result: I32, locals: [is_valid: I32] do
         is_valid = call(:get_is_valid)
-        count = I32.add(count, 1)
+        body_chunk_index = I32.add(body_chunk_index, 1)
 
-        # I32.if_else(I32.eq(count, 1),
+        # I32.if_else(I32.eq(body_chunk_index, 1),
         #   do: 4,
         #   else: I32.if_else(is_valid, do: 20, else: 40)
         # )
-        # I32.if_else(I32.eq(count, 1),
+        # I32.if_else(I32.eq(body_chunk_index, 1),
         #   do: lookup_data(:doctype),
         #   else: I32.if_else(is_valid, do: lookup_data(:good_heading), else: lookup_data(:bad_heading))
         # )
@@ -162,16 +162,16 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         #   _ -> 0
         # end
 
-        # I32.if_else I32.eq(count, 1), do: return(4)
-        # I32.if_else I32.eq(count, 2), do: return(@strings.good.offset)
+        # I32.if_else I32.eq(body_chunk_index, 1), do: return(4)
+        # I32.if_else I32.eq(body_chunk_index, 2), do: return(@strings.good.offset)
         # 0
 
-        # if I32.eq(count, 1) do
+        # if I32.eq(body_chunk_index, 1) do
         #   return(@strings.doctype.offset)
         #   # :return
         # end
 
-        # if I32.eq(count, 2) do
+        # if I32.eq(body_chunk_index, 2) do
         #   @strings.good.offset
         #   # if is_valid do
         #   #   push(@strings.good.offset)
@@ -182,10 +182,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         #   push(0)
         # end
 
-        I32.if_else(I32.eq(count, 1),
+        I32.if_else(I32.eq(body_chunk_index, 1),
           do: @strings.doctype.offset,
           else:
-            I32.if_else(I32.eq(count, 2),
+            I32.if_else(I32.eq(body_chunk_index, 2),
               do: I32.if_else(is_valid, do: @strings.good.offset, else: @strings.bad.offset),
               else: 0
             )
