@@ -236,7 +236,7 @@ fn wasm_steps_internal(
                 results.push(term);
             }
             WasmStepInstruction::WriteStringNulTerminated(offset, string, null_terminated) => {
-                running_instance.write_string_nul_terminated(offset, string);
+                running_instance.write_string_nul_terminated(offset, string)?;
             }
             WasmStepInstruction::ReadMemory(start, length) => {
                 let bytes = running_instance.read_memory(start, length)?;
