@@ -372,7 +372,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   test "returns if a string is file name safe" do
     [result] =
       Wasm.steps(FileNameSafe, [
-        {:write_string, 1024, "good", true},
+        {:write_string_nul_terminated, 1024, "good", true},
         {:call, "get_is_valid", []}
       ])
 
@@ -380,7 +380,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     [result] =
       Wasm.steps(FileNameSafe, [
-        {:write_string, 1024, "has/slashes", true},
+        {:write_string_nul_terminated, 1024, "has/slashes", true},
         {:call, "get_is_valid", []}
       ])
 
@@ -423,7 +423,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   test "copies string bytes" do
     [len, result] =
       Wasm.steps(CopyString, [
-        {:write_string, 1024, "good", true},
+        {:write_string_nul_terminated, 1024, "good", true},
         {:call, "do_copy", []},
         {:read_memory, 2048, 4}
       ])
@@ -516,7 +516,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
-        {:write_string, 1024, "hello", true},
+        {:write_string_nul_terminated, 1024, "hello", true},
         {:call, "escape_html", []},
         {:read_memory, 2048, 5}
       ])
@@ -526,7 +526,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
-        {:write_string, 1024, "Hall & Oates like M&Ms", true},
+        {:write_string_nul_terminated, 1024, "Hall & Oates like M&Ms", true},
         {:call, "escape_html", []},
         {:read_memory, 2048, 40}
       ])
@@ -538,7 +538,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
-        {:write_string, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'], true},
+        {:write_string_nul_terminated, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'], true},
         {:call, "escape_html", []},
         {:read_memory, 2048, 100}
       ])

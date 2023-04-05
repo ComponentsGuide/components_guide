@@ -9,8 +9,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       IO.puts(HTMLPage.to_wat())
 
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")
-      write_request = {:write_string, offset, "good", true}
-      # write_request = {:write_string, offset, nil_terminated("good")}
+      write_request = {:write_string_nul_terminated, offset, "good", true}
+      # write_request = {:write_string_nul_terminated, offset, nil_terminated("good")}
 
       [status] =
         Wasm.steps(HTMLPage, [
@@ -86,7 +86,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
     test "bad request" do
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")
-      write_request = {:write_string, offset, "bad", true}
+      write_request = {:write_string_nul_terminated, offset, "bad", true}
 
       [status] =
         Wasm.steps(HTMLPage, [

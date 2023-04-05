@@ -328,7 +328,7 @@ fn wasm_example_n_i32_internal(
 enum WasmStepInstruction {
     Call(String, Vec<i32>),
     CallString(String, Vec<i32>),
-    WriteString(i32, String, bool),
+    WriteStringNulTerminated(i32, String, bool),
     ReadMemory(i32, i32),
     // Baz{ a: i32, b: i32 },
 }
@@ -369,7 +369,7 @@ fn wasm_steps_internal(
                 let term = s.encode(env);
                 results.push(term);
             }
-            WasmStepInstruction::WriteString(offset, string, null_terminated) => {
+            WasmStepInstruction::WriteStringNulTerminated(offset, string, null_terminated) => {
                 running_instance.write_string_nul_terminated(offset, string);
             }
             WasmStepInstruction::ReadMemory(start, length) => {
