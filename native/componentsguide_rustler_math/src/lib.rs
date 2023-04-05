@@ -550,7 +550,7 @@ fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
 
     return match result {
         Ok(v) => Ok(v.as_ref().to_vec()),
-        Err(e) => Err(Error::Term(Box::new(e.to_string()))),
+        Err(e) => Err(string_error(e)),
     };
 }
 
