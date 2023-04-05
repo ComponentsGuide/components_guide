@@ -258,35 +258,7 @@ fn wasm_example_i32_string_internal(
 
     let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
 
-    match result.as_slice() {
-        [] => anyhow::bail!("Receive empty result"),
-        [start, length] => {
-            let start = *start;
-            let length = *length;
-            let start: usize = start.try_into().unwrap();
-            let length: usize = length.try_into().unwrap();
-
-            let mut string_buffer: Vec<u8> = Vec::with_capacity(length);
-            string_buffer.resize(length, 0);
-            memory.read(&store, start, &mut string_buffer)?;
-            let string = String::from_utf8(string_buffer)?;
-            return Ok(string);
-        }
-        [start] => {
-            let start = *start;
-            let start: usize = start.try_into().unwrap();
-
-            let data = &memory.data(&store)[start..];
-            let data: &[i8] =
-                unsafe { slice::from_raw_parts(data.as_ptr() as *const i8, data.len()) };
-
-            let cstr = unsafe { CStr::from_ptr(data.as_ptr()) };
-            let string = String::from_utf8_lossy(cstr.to_bytes()).to_string();
-
-            return Ok(string);
-        }
-        _items => anyhow::bail!("Receive result with too many items"),
-    }
+    return wasm_extract_string(&mut store, &memory, result);
 }
 
 fn wasm_example_n_i32_internal(
