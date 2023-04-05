@@ -198,6 +198,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
     alias ComponentsGuide.Rustler.Wasm
 
+    def exports() do
+      Wasm.list_exports(__MODULE__)
+    end
+
     def start() do
       Wasm.run_instance(__MODULE__)
     end

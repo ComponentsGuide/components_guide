@@ -5,6 +5,17 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, Loader}
 
   describe "HTMLPage constructs an HTML response" do
+    test "list exports" do
+      assert HTMLPage.exports() == [
+               {:global, "request_body_write_offset"},
+               {:func, "get_request_body_write_offset"},
+               {:func, "GET"},
+               {:func, "get_status"},
+               {:func, "get_headers"},
+               {:func, "next_body_chunk"}
+             ]
+    end
+
     test "good request (steps)" do
       IO.puts(HTMLPage.to_wat())
 
@@ -34,7 +45,11 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
           {:call_string, "next_body_chunk", []}
         ])
 
-      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
+      assert chunks == [
+               "content-type: text/html;charset=utf-8\r\n",
+               "<!doctype html>",
+               "<h1>Good</h1>"
+             ]
 
       # Wasm.steps(CalculateMean) do
       #   request_body_write_offset = Step.call("get_request_body_write_offset")
@@ -57,14 +72,19 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       chunks = [
         Wasm.instance_call_returning_string(instance, "get_headers"),
         Wasm.instance_call_returning_string(instance, "next_body_chunk"),
-        Wasm.instance_call_returning_string(instance, "next_body_chunk"),
+        Wasm.instance_call_returning_string(instance, "next_body_chunk")
       ]
 
-      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>"]
+      assert chunks == [
+               "content-type: text/html;charset=utf-8\r\n",
+               "<!doctype html>",
+               "<h1>Good</h1>"
+             ]
     end
 
     test "good request (instance generated module functions)" do
-      instance = HTMLPage.start() # Like Agent.start(fun)
+      # Like Agent.start(fun)
+      instance = HTMLPage.start()
 
       HTMLPage.set_request_body(instance, "good")
 
@@ -76,7 +96,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
     end
 
     test "can change global request body offset" do
-      instance = HTMLPage.start() # Like Agent.start(fun)
+      # Like Agent.start(fun)
+      instance = HTMLPage.start()
 
       HTMLPage.set_request_body_write_offset(instance, 2048)
       HTMLPage.write_string_nul_terminated(instance, 2048, "good")
@@ -104,7 +125,11 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
           {:call_string, "next_body_chunk", []}
         ])
 
-      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Bad</h1>"]
+      assert chunks == [
+               "content-type: text/html;charset=utf-8\r\n",
+               "<!doctype html>",
+               "<h1>Bad</h1>"
+             ]
 
       # assert Wasm.call_string(HTMLPage, "next_body_chunk") == "<!doctype html>"
     end
@@ -112,7 +137,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
   describe "Counter" do
     test "works" do
-      instance = Counter.start() # Like Agent.start(fun)
+      # Like Agent.start(fun)
+      instance = Counter.start()
       assert Counter.get_current(instance) == 0
 
       Counter.increment(instance)
@@ -126,7 +152,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   describe "Loader" do
     test "works" do
       IO.puts(Loader.to_wat())
-      a = Loader.start() # Like Agent.start(fun)
+      # Like Agent.start(fun)
+      a = Loader.start()
       # assert Loader.get_current(a) == Loader.get_global(a, "idle")
       assert Loader.get_current(a) == 0
       Loader.begin(a)

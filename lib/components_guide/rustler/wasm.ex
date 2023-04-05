@@ -2,6 +2,10 @@ defmodule ComponentsGuide.Rustler.Wasm do
   import ComponentsGuide.Wasm.WasmNative
 
   def list_exports(source) do
+    source = case process_source(source) do
+      {:wat, _} = value -> value
+      other -> {:wat, other}
+    end
     wasm_list_exports(source)
   end
 
@@ -93,6 +97,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
   defp error, do: :erlang.nif_error(:nif_not_loaded)
 
   defp process_source(string) when is_binary(string), do: string
+  defp process_source({:wat, string} = value) when is_binary(string), do: value
 
   defp process_source(atom) when is_atom(atom),
     do: atom.to_wat()
