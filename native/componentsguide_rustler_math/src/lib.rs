@@ -29,6 +29,17 @@ fn string_error<T: ToString>(error: T) -> Error {
     return Error::Term(Box::new(error.to_string()));
 }
 
+fn map_return_values_i32(env: Env, values: Vec<i32>) -> Term {
+    match values[..] {
+        [] => rustler::types::atom::nil().encode(env),
+        [a] => a.encode(env),
+        [a, b] => (a, b).encode(env),
+        [a, b, c] => (a, b, c).encode(env),
+        [a, b, c, d] => (a, b, c, d).encode(env),
+        [..] => values.encode(env),
+    }
+}
+
 // #[derive(NifTuple)]
 // struct WasmExport {
 //     type: i32,
@@ -90,45 +101,11 @@ fn wasm_example_n_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<V
 }
 
 #[rustler::nif]
-fn wasm_example_0(source: String, f: String) -> Result<i32, Error> {
-    wasm_example_0_internal(source, f).map_err(string_error)
-}
-
-fn wasm_example_0_internal(source: String, f: String) -> Result<i32, anyhow::Error> {
-    let engine = Engine::default();
-
-    // We start off by creating a `Module` which represents a compiled form
-    // of our input wasm module. In this case it'll be JIT-compiled after
-    // we parse the text format.
-    let module = Module::new(&engine, source)?;
-
-    // A `Store` is what will own instances, functions, globals, etc. All wasm
-    // items are stored within a `Store`, and it's what we'll always be using to
-    // interact with the wasm world. Custom data can be stored in stores but for
-    // now we just use `()`.
-    let mut store = Store::new(&engine, ());
-
-    // With a compiled `Module` we can then instantiate it, creating
-    // an `Instance` which we can actually poke at functions on.
-    let instance = Instance::new(&mut store, &module, &[])?;
-
-    // The `Instance` gives us access to various exported functions and items,
-    // which we access here to pull out our `answer` exported function and
-    // run it.
-    let answer = instance
-        .get_func(&mut store, &f)
-        .expect(&format!("{} was not an exported function", f));
-
-    // There's a few ways we can call the `answer` `Func` value. The easiest
-    // is to statically assert its signature with `typed` (in this case
-    // asserting it takes no arguments and returns one i32) and then call it.
-    let answer = answer.typed::<(), i32>(&store)?;
-
-    // And finally we can call our function! Note that the error propagation
-    // with `?` is done to handle the case where the wasm function traps.
-    let result = answer.call(&mut store, ())?;
-
-    return Ok(result);
+fn wasm_example_0(wat_source: String, f: String) -> Result<i32, Error> {
+    let source = WasmModuleDefinition::Wat(wat_source);
+    RunningInstance::new(source)
+        .and_then(|mut i| i.call_0(f))
+        .map_err(string_error)
 }
 
 #[rustler::nif]
@@ -220,28 +197,18 @@ fn wasm_steps_internal(
         match step {
             WasmStepInstruction::Call(f, args) => {
                 let result = running_instance.call_i32(f, args)?;
-                match result[..] {
-                    // [] => results.push(().encode(env)),
-                    [] => results.push(rustler::types::atom::nil().encode(env)),
-                    [a] => results.push(a.encode(env)),
-                    [a, b] => results.push((a, b).encode(env)),
-                    [a, b, c] => results.push((a, b, c).encode(env)),
-                    [a, b, c, d] => results.push((a, b, c, d).encode(env)),
-                    [..] => results.push(result.encode(env)),
-                }
+                results.push(map_return_values_i32(env, result));
             }
             WasmStepInstruction::CallString(f, args) => {
-                let s = running_instance.call_i32_string(f, args)?;
-                let term = s.encode(env);
-                results.push(term);
+                let string = running_instance.call_i32_string(f, args)?;
+                results.push(string.encode(env));
             }
             WasmStepInstruction::WriteStringNulTerminated(offset, string, null_terminated) => {
                 running_instance.write_string_nul_terminated(offset, string)?;
             }
             WasmStepInstruction::ReadMemory(start, length) => {
                 let bytes = running_instance.read_memory(start, length)?;
-                let term = bytes.encode(env);
-                results.push(term);
+                results.push(bytes.encode(env));
             }
         };
     }
@@ -478,17 +445,7 @@ fn wasm_instance_call_func_i32(
 ) -> Result<Term, Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance.call_i32(f, args).map_err(string_error)?;
-
-    return match result[..] {
-        [] => Ok(rustler::types::atom::nil().encode(env)),
-        [a] => Ok(a.encode(env)),
-        [a, b] => Ok((a, b).encode(env)),
-        [a, b, c] => Ok((a, b, c).encode(env)),
-        [a, b, c, d] => Ok((a, b, c, d).encode(env)),
-        [..] => Ok(result.encode(env)),
-    };
-
-    // return Ok(result);
+    return Ok(map_return_values_i32(env, result));
 }
 
 #[rustler::nif]
