@@ -168,19 +168,19 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       IO.puts(CounterHTML.to_wat())
 
       instance = CounterHTML.start()
-      assert CounterHTML.read_body(instance) == "<output>0</output>"
+      assert CounterHTML.read_body(instance) == "<output>0</output>\n<button>Increment</button>"
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>1</output>"
+      assert CounterHTML.read_body(instance) == "<output>1</output>\n<button>Increment</button>"
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>2</output>"
+      assert CounterHTML.read_body(instance) == "<output>2</output>\n<button>Increment</button>"
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>3</output>"
+      assert CounterHTML.read_body(instance) == "<output>3</output>\n<button>Increment</button>"
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>4</output>"
+      assert CounterHTML.read_body(instance) == "<output>4</output>\n<button>Increment</button>"
     end
   end
 

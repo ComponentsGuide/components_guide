@@ -286,7 +286,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
                digit0: "0",
                digit1: "1",
                digit2: "2",
-               button_increment: "<button>Increment</button>"
+               button_increment: ~S[\n<button>Increment</button>]
              )
 
     @bump_start 1024
@@ -312,6 +312,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
       func invalidate do
         body_chunk_index = 0
+        bump_offset = @bump_start
         memory32_8![@bump_start] = 0x0
         memory32_8![@bump_start + 1] = 0x0
         memory32_8![@bump_start + 2] = 0x0
@@ -319,25 +320,30 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         memory32_8![@bump_start + 4] = 0x0
       end
 
-      funcp i32toa(value(I32), write_offset(I32)), result: I32, locals: [len: I32, digit: I32] do
+      funcp i32toa(value(I32)), result: I32, locals: [start_offset: I32, digit: I32] do
+        start_offset = bump_offset
+
         if I32.eqz(value) do
-          memory32_8![write_offset] = ?0
-          return(1)
+          memory32_8![bump_offset] = ?0
+          memory32_8![I32.add(bump_offset, 1)] = 0x0
+          bump_offset = I32.add(bump_offset, 1)
+          return(start_offset)
         end
 
         defloop Digits do
           digit = I32.rem_u(value, 10)
           value = I32.div_u(value, 10)
-          memory32_8![write_offset] = I32.add(?0, digit)
+          memory32_8![bump_offset] = I32.add(?0, digit)
 
-          write_offset = I32.add(write_offset, 1)
-          len = I32.add(len, 1)
+          bump_offset = I32.add(bump_offset, 1)
 
           # if I32.gt_u(value, 0), do: Digits
           br(Digits, if: I32.gt_u(value, 0))
         end
 
-        len
+        # bump_offset = I32.add(bump_offset, I32.add(len, 1))
+
+        start_offset
       end
 
       func next_body_chunk, result: I32 do
@@ -350,9 +356,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
         if I32.eq(body_chunk_index, 2) do
           push(count)
-          push(bump_offset)
           call(:i32toa)
-          push(bump_offset)
           return()
         end
 
@@ -361,10 +365,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           return()
         end
 
-        # if I32.eq(body_chunk_index, 3) do
-        #   push(@strings.output_end.offset)
-        #   return()
-        # end
+        if I32.eq(body_chunk_index, 4) do
+          push(@strings.button_increment.offset)
+          return()
+        end
 
         0x0
       end
