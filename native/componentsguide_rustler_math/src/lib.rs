@@ -25,9 +25,6 @@ fn reverse_string(a: String) -> String {
     return a.chars().rev().collect();
 }
 
-fn error_from(error: anyhow::Error) -> Error {
-    return Error::Term(Box::new(error.to_string()));
-}
 fn string_error<T: ToString>(error: T) -> Error {
     return Error::Term(Box::new(error.to_string()));
 }
