@@ -101,7 +101,7 @@ fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i3
 }
 
 #[rustler::nif]
-fn wasm_example_0(wat_source: String, f: String) -> Result<i32, Error> {
+fn wasm_call_void(wat_source: String, f: String) -> Result<(), Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call_0(f))
@@ -109,7 +109,7 @@ fn wasm_example_0(wat_source: String, f: String) -> Result<i32, Error> {
 }
 
 #[rustler::nif]
-fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
+fn wasm_call_i32_string(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call_i32_string(f, args))
@@ -306,14 +306,14 @@ impl RunningInstance {
         return global.set(&mut self.store, Val::I32(new_value));
     }
 
-    fn call_0(&mut self, f: String) -> Result<i32, anyhow::Error> {
+    fn call_0(&mut self, f: String) -> Result<(), anyhow::Error> {
         let answer = self
             .instance
             .get_func(&mut self.store, &f)
             .expect(&format!("{} was not an exported function", f));
 
         // FIXME: this errs if the return type is not i32
-        let answer = answer.typed::<(), i32>(&mut self.store)?;
+        let answer = answer.typed::<(), ()>(&mut self.store)?;
         let result = answer.call(&mut self.store, ())?;
 
         return Ok(result);
@@ -429,7 +429,7 @@ fn wasm_instance_call_func(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
     f: String,
-) -> Result<i32, Error> {
+) -> Result<(), Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance.call_0(f).map_err(string_error)?;
 
@@ -518,8 +518,8 @@ rustler::init!(
         reverse_string,
         wasm_list_exports,
         wasm_call_i32,
-        wasm_example_0,
-        wasm_string_i32,
+        wasm_call_void,
+        wasm_call_i32_string,
         wasm_call_bulk,
         wasm_steps,
         wasm_run_instance,

@@ -26,8 +26,8 @@ defmodule ComponentsGuide.Wasm.WasmNative do
     def wasm_list_exports(_), do: error()
 
     def wasm_call_i32(_, _, _), do: error()
-    def wasm_example_0(_, _), do: error()
-    def wasm_string_i32(_, _, _), do: error()
+    def wasm_call_void(_, _), do: error()
+    def wasm_call_i32_string(_, _, _), do: error()
 
     def wasm_call_bulk(_, _), do: error()
     def wasm_steps(_, _), do: error()

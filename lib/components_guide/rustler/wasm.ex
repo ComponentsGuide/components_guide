@@ -17,9 +17,9 @@ defmodule ComponentsGuide.Rustler.Wasm do
     process_source(source) |> wasm_call_i32(f, [a, b]) |> process_result()
   end
 
-  def call_string(source, f), do: process_source(source) |> wasm_string_i32(f, [])
-  def call_string(source, f, a), do: process_source(source) |> wasm_string_i32(f, [a])
-  def call_string(source, f, a, b), do: process_source(source) |> wasm_string_i32(f, [a, b])
+  def call_string(source, f), do: process_source(source) |> wasm_call_i32_string(f, [])
+  def call_string(source, f, a), do: process_source(source) |> wasm_call_i32_string(f, [a])
+  def call_string(source, f, a, b), do: process_source(source) |> wasm_call_i32_string(f, [a, b])
 
   def bulk_call(source, calls) do
     for result <- process_source(source) |> wasm_call_bulk(calls) do
