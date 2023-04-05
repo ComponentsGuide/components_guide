@@ -267,14 +267,12 @@ fn wasm_call_bulk_internal(
 ) -> Result<Vec<Vec<i32>>, anyhow::Error> {
     let mut running_instance = RunningInstance::new(WasmModuleDefinition::Wat(wat_source))?;
 
-    let mut results: Vec<Vec<i32>> = Vec::with_capacity(calls.len());
-    for call in calls {
-        let result = running_instance.call_i32(call.f, call.args)?;
+    let results: Result<Vec<_>, _> = calls
+        .into_iter()
+        .map(|call| running_instance.call_i32(call.f, call.args))
+        .collect();
 
-        results.push(result);
-    }
-
-    return Ok(results);
+    return Ok(results?);
 }
 
 struct RunningInstanceResource {
@@ -465,13 +463,7 @@ fn wasm_instance_call_func(
     resource: ResourceArc<RunningInstanceResource>,
     f: String,
 ) -> Result<i32, Error> {
-    // let mut instance = resource.lock.write().map_err(string_error)?;
-
-    let mut instance = match resource.lock.write() {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    }?;
-
+    let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance.call_0(f).map_err(string_error)?;
 
     return Ok(result);
@@ -484,13 +476,7 @@ fn wasm_instance_call_func_i32(
     f: String,
     args: Vec<i32>,
 ) -> Result<Term, Error> {
-    // let mut instance = resource.lock.write().map_err(string_error)?;
-
-    let mut instance = match resource.lock.write() {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    }?;
-
+    let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance.call_i32(f, args).map_err(string_error)?;
 
     return match result[..] {
