@@ -64,7 +64,6 @@ impl AsRef<[u8]> for WasmModuleDefinition<'_> {
 
 #[rustler::nif]
 fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Error> {
-    // fn wasm_list_exports(source: String) -> Result<Vec<WasmExport>, Error> {
     let engine = Engine::default();
     let module = Module::new(&engine, &source).map_err(string_error)?;
     let exports = module.exports();
@@ -87,22 +86,12 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
 
 #[rustler::nif]
 fn wasm_example_n_i32(source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
-    // return Ok(5);
-    //return Err(Error::Term(Box::new("hello")));
-    return match wasm_example_n_i32_internal(source, true, f, args) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    };
+    wasm_example_n_i32_internal(source, true, f, args).map_err(string_error)
 }
 
 #[rustler::nif]
 fn wasm_example_0(source: String, f: String) -> Result<i32, Error> {
-    // return Ok(5);
-    //return Err(Error::Term(Box::new("hello")));
-    return match wasm_example_0_internal(source, f) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    };
+    wasm_example_0_internal(source, f).map_err(string_error)
 }
 
 fn wasm_example_0_internal(source: String, f: String) -> Result<i32, anyhow::Error> {
@@ -144,10 +133,7 @@ fn wasm_example_0_internal(source: String, f: String) -> Result<i32, anyhow::Err
 
 #[rustler::nif]
 fn wasm_string_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
-    return match wasm_example_i32_string_internal(wat_source, f, args) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    };
+    wasm_example_i32_string_internal(wat_source, f, args).map_err(string_error)
 }
 
 fn wasm_read_memory<T>(
@@ -391,10 +377,7 @@ struct WasmBulkCall {
 
 #[rustler::nif]
 fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<i32>>, Error> {
-    return match wasm_call_bulk_internal(wat_source, true, calls) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    };
+    wasm_call_bulk_internal(wat_source, true, calls).map_err(string_error)
 }
 
 fn wasm_call_bulk_internal(
@@ -677,13 +660,7 @@ fn wasm_instance_call_func_i32_string(
     f: String,
     args: Vec<i32>,
 ) -> Result<String, Error> {
-    // let mut instance = resource.lock.write().map_err(string_error)?;
-
-    let mut instance = match resource.lock.write() {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    }?;
-
+    let mut instance = resource.lock.write().map_err(string_error)?;
     return instance.call_i32_string(f, args).map_err(string_error);
 }
 
