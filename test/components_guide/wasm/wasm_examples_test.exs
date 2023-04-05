@@ -5,7 +5,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, Loader}
 
   describe "HTMLPage constructs an HTML response" do
-    test "good request" do
+    test "good request (steps)" do
       IO.puts(HTMLPage.to_wat())
 
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")

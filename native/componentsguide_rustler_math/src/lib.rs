@@ -378,40 +378,13 @@ fn wasm_steps_internal(
     wat_source: String,
     steps: Vec<WasmStepInstruction>,
 ) -> Result<Vec<Term>, anyhow::Error> {
-    let engine = Engine::default();
-
-    // A `Store` is what will own instances, functions, globals, etc. All wasm
-    // items are stored within a `Store`, and it's what we'll always be using to
-    // interact with the wasm world. Custom data can be stored in stores but for
-    // now we just use `()`.
-    let mut store = Store::new(&engine, ());
-    let mut linker = Linker::new(&engine);
-
-    let memory_ty = MemoryType::new(2, None);
-    let memory = Memory::new(&mut store, memory_ty)?;
-    linker.define(&store, "env", "buffer", memory)?;
-
-    let module = Module::new(&engine, wat_source)?;
-    let instance = linker.instantiate(&mut store, &module)?;
+    let mut running_instance = RunningInstance::new(WasmModuleDefinition::Wat(wat_source))?;
 
     let mut results: Vec<Term> = Vec::with_capacity(steps.len());
     for step in steps {
         match step {
             WasmStepInstruction::Call(f, args) => {
-                let func = instance
-                    .get_func(&mut store, &f)
-                    .expect(&format!("{} was not an exported function", f));
-
-                let func_type = func.ty(&store);
-                let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
-
-                let mut result: Vec<Val> = Vec::with_capacity(16);
-                let result_length = func_type.results().len();
-                result.resize(result_length, Val::I32(0));
-
-                func.call(&mut store, &args, &mut result)?;
-
-                let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
+                let result = running_instance.call_i32(f, args)?;
                 match result[..] {
                     // [] => results.push(().encode(env)),
                     [] => results.push(rustler::types::atom::nil().encode(env)),
@@ -421,50 +394,17 @@ fn wasm_steps_internal(
                     [a, b, c, d] => results.push((a, b, c, d).encode(env)),
                     [..] => results.push(result.encode(env)),
                 }
-                // let result = result.collect_tuple()
-                // let term = tuple.encode(env);
-                // let term = result.encode(env);
-                // results.push(term);
             }
             WasmStepInstruction::CallString(f, args) => {
-                let func = instance
-                    .get_func(&mut store, &f)
-                    .ok_or(anyhow!("{} was not an exported function", f))?;
-                // .ok_or(&format!("{} was not an exported function", f))?;
-
-                let func_type = func.ty(&store);
-                let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
-
-                let mut result: Vec<Val> = Vec::with_capacity(16);
-                let result_length = func_type.results().len();
-                result.resize(result_length, Val::I32(0));
-
-                func.call(&mut store, &args, &mut result)?;
-
-                let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
-
-                let s = wasm_extract_string(&mut store, &memory, result)?;
+                let s = running_instance.call_i32_string(f, args)?;
                 let term = s.encode(env);
                 results.push(term);
             }
             WasmStepInstruction::WriteString(offset, string, null_terminated) => {
-                // let mut slice = memory.data_mut(&mut store);
-                // let bytes = s.into_bytes();
-                // let bytes = s.as_bytes();
-                let offset: usize = offset.try_into().unwrap();
-                // let mut bytes = string.as_bytes().clone();
-                let mut bytes = string.as_bytes().to_vec();
-                // let mut s = string.clone();
-                // let vec = s.as_mut_vec();
-                if null_terminated {
-                    bytes.push(0);
-                }
-                memory.write(&mut store, offset, &bytes)?;
-                // let result = String::encode_utf8(slice);
-                // slice[result.len()] = 0;
+                running_instance.write_string_nul_terminated(offset, string);
             }
             WasmStepInstruction::ReadMemory(start, length) => {
-                let bytes = wasm_read_memory(&store, &memory, start, length)?;
+                let bytes = running_instance.read_memory(start, length)?;
                 let term = bytes.encode(env);
                 results.push(term);
             }
