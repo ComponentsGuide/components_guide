@@ -93,7 +93,7 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
 }
 
 #[rustler::nif]
-fn wasm_example_n_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
+fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call_i32(f, args))
@@ -517,7 +517,7 @@ rustler::init!(
         add,
         reverse_string,
         wasm_list_exports,
-        wasm_example_n_i32,
+        wasm_call_i32,
         wasm_example_0,
         wasm_string_i32,
         wasm_call_bulk,

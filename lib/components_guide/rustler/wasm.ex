@@ -6,15 +6,15 @@ defmodule ComponentsGuide.Rustler.Wasm do
   end
 
   def call(source, f) do
-    process_source(source) |> wasm_example_n_i32(f, []) |> process_result()
+    process_source(source) |> wasm_call_i32(f, []) |> process_result()
   end
 
   def call(source, f, a) do
-    process_source(source) |> wasm_example_n_i32(f, [a]) |> process_result()
+    process_source(source) |> wasm_call_i32(f, [a]) |> process_result()
   end
 
   def call(source, f, a, b) do
-    process_source(source) |> wasm_example_n_i32(f, [a, b]) |> process_result()
+    process_source(source) |> wasm_call_i32(f, [a, b]) |> process_result()
   end
 
   def call_string(source, f), do: process_source(source) |> wasm_string_i32(f, [])
