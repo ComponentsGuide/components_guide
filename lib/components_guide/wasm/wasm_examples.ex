@@ -4,7 +4,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   alias ComponentsGuide.Rustler.WasmBuilder
 
   defmodule EscapeHTML do
-    use WasmBuilder
+    use Wasm
 
     defwasm imports: [env: [buffer: memory(2)]] do
       func escape_html, result: I32, locals: [read_offset: I32, write_offset: I32, char: I32] do
@@ -199,10 +199,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
     alias ComponentsGuide.Rustler.Wasm
 
-    def start() do
-      Wasm.run_instance(__MODULE__)
-    end
-
     def get_request_body_write_offset(instance) do
       Wasm.instance_get_global(instance, "request_body_write_offset")
       # Wasm.instance_call(instance, "get_request_body_write_offset")
@@ -271,10 +267,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
     alias ComponentsGuide.Rustler.Wasm
 
-    def start() do
-      Wasm.run_instance(__MODULE__)
-    end
-
     def get_current(instance) do
       Wasm.instance_call(instance, "get_current")
     end
@@ -285,7 +277,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   end
 
   defmodule Loader do
-    use WasmBuilder
+    use Wasm
 
     # defmodule LoadableMachine do
     #   use Machine,
@@ -358,8 +350,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     end
 
     alias ComponentsGuide.Rustler.Wasm
-
-    def start(), do: Wasm.run_instance(__MODULE__)
 
     def get_current(instance), do: Wasm.instance_call(instance, "get_current")
     def begin(instance), do: Wasm.instance_call(instance, "begin")

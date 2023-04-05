@@ -8,6 +8,10 @@ defmodule ComponentsGuide.Rustler.Wasm do
       def exports do
         ComponentsGuide.Rustler.Wasm.list_exports(__MODULE__)
       end
+
+      def start() do
+        ComponentsGuide.Rustler.Wasm.run_instance(__MODULE__)
+      end
     end
   end
 
