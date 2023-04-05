@@ -339,10 +339,7 @@ fn wasm_steps(
     wat_source: String,
     steps: Vec<WasmStepInstruction>,
 ) -> Result<Vec<Term>, Error> {
-    return match wasm_steps_internal(env, wat_source, steps) {
-        Ok(v) => Ok(v),
-        Err(e) => Err(string_error(e)),
-    };
+    wasm_steps_internal(env, wat_source, steps).map_err(string_error)
 }
 
 fn wasm_steps_internal(
