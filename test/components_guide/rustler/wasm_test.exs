@@ -5,11 +5,11 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   alias ComponentsGuide.Rustler.WasmBuilder
 
   test "add/2" do
-    assert Wasm.add(3, 4) == 7
+    assert ComponentsGuide.Wasm.WasmNative.add(3, 4) == 7
   end
 
   test "reverse_string/1" do
-    assert Wasm.reverse_string("abcd") == "dcba"
+    assert ComponentsGuide.Wasm.WasmNative.reverse_string("abcd") == "dcba"
   end
 
   test "wasm_list_exports/1 single func" do
@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_list_exports({:wat, wasm_source}) == [{:func, "answer"}]
+    assert Wasm.list_exports({:wat, wasm_source}) == [{:func, "answer"}]
   end
 
   test "wasm_list_exports/1 two funcs" do
@@ -40,7 +40,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
     )
     """
 
-    assert Wasm.wasm_list_exports({:wat, wasm_source}) == [
+    assert Wasm.list_exports({:wat, wasm_source}) == [
              {:func, "answer"},
              {:memory, "mem"},
              {:func, "get_pi"}

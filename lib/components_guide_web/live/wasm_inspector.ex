@@ -22,7 +22,7 @@ defmodule ComponentsGuideWeb.WasmInspectorLive do
     end
 
     def set_wasm_bytes(%__MODULE__{} = state, wasm_bytes) do
-      exports = Wasm.wasm_list_exports({:wasm, wasm_bytes})
+      exports = Wasm.list_exports({:wasm, wasm_bytes})
 
       %__MODULE__{
         state

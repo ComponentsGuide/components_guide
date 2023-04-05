@@ -512,7 +512,7 @@ fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
 }
 
 rustler::init!(
-    "Elixir.ComponentsGuide.Rustler.Wasm",
+    "Elixir.ComponentsGuide.Wasm.WasmNative",
     [
         add,
         reverse_string,
