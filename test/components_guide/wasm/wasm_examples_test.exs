@@ -136,6 +136,13 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   end
 
   describe "Counter" do
+    test "list exports" do
+      assert Counter.exports() == [
+               {:func, "get_current"},
+               {:func, "increment"}
+             ]
+    end
+
     test "works" do
       # Like Agent.start(fun)
       instance = Counter.start()

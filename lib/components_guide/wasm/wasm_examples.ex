@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.WasmExamples do
   # alias ComponentsGuide.Rustler.Wasm
+  alias ComponentsGuide.Rustler.Wasm
   alias ComponentsGuide.Rustler.WasmBuilder
 
   defmodule EscapeHTML do
@@ -82,7 +83,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   end
 
   defmodule HTMLPage do
-    use WasmBuilder
+    use Wasm
 
     @strings pack_strings_nul_terminated(4,
                doctype: "<!doctype html>",
@@ -198,10 +199,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
     alias ComponentsGuide.Rustler.Wasm
 
-    def exports() do
-      Wasm.list_exports(__MODULE__)
-    end
-
     def start() do
       Wasm.run_instance(__MODULE__)
     end
@@ -254,7 +251,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   end
 
   defmodule Counter do
-    use WasmBuilder
+    use Wasm
 
     defwasm imports: [
               env: [buffer: memory(1)]

@@ -1,6 +1,16 @@
 defmodule ComponentsGuide.Rustler.Wasm do
   import ComponentsGuide.Wasm.WasmNative
 
+  defmacro __using__(_) do
+    quote do
+      use ComponentsGuide.Rustler.WasmBuilder
+
+      def exports do
+        ComponentsGuide.Rustler.Wasm.list_exports(__MODULE__)
+      end
+    end
+  end
+
   def list_exports(source) do
     source = case process_source(source) do
       {:wat, _} = value -> value
