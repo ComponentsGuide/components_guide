@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, Loader}
+  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, CounterHTML, Loader}
 
   describe "HTMLPage constructs an HTML response" do
     test "list exports" do
@@ -17,8 +17,6 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
     end
 
     test "good request (steps)" do
-      IO.puts(HTMLPage.to_wat())
-
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")
       write_request = {:write_string_nul_terminated, offset, "good", true}
       # write_request = {:write_string_nul_terminated, offset, nil_terminated("good")}
@@ -156,6 +154,36 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
     end
   end
 
+  describe "CounterHTML" do
+    test "list exports" do
+      assert CounterHTML.exports() == [
+               {:func, "get_current"},
+               {:func, "increment"},
+               {:func, "invalidate"},
+               {:func, "next_body_chunk"},
+             ]
+    end
+
+    test "works" do
+      IO.puts(CounterHTML.to_wat())
+
+      instance = CounterHTML.start()
+      assert CounterHTML.read_body(instance) == "<output>0</output>"
+
+      CounterHTML.increment(instance)
+      assert CounterHTML.read_body(instance) == "<output>1</output>"
+
+      CounterHTML.increment(instance)
+      assert CounterHTML.read_body(instance) == "<output>2</output>"
+
+      CounterHTML.increment(instance)
+      assert CounterHTML.read_body(instance) == "<output>3</output>"
+
+      CounterHTML.increment(instance)
+      assert CounterHTML.read_body(instance) == "<output>4</output>"
+    end
+  end
+
   describe "Loader" do
     test "exports" do
       assert Loader.exports() == [
@@ -173,7 +201,6 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
     end
 
     test "works" do
-      IO.puts(Loader.to_wat())
       # Like Agent.start(fun)
       a = Loader.start()
       # assert Loader.get_current(a) == Loader.get_global(a, "idle")

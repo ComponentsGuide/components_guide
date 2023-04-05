@@ -300,9 +300,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
               br_if $inner
               (local.get $char)
               br_if $Outer
-              return (i32.const 1)
+              (return (i32.const 1))
             )
-            return (i32.const 0)
+            (return (i32.const 0))
           )
           (i32.add (local.get $i) (i32.const 1))
           (local.set $i)

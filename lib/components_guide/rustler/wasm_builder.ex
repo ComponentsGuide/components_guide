@@ -103,24 +103,18 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     def rotl(first, second)
     def rotr(first, second)
 
-    for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a do
+    for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_s lt_u gt_s gt_u)a do
       def unquote(op)(first, second) do
         {:i32, unquote(op), {first, second}}
       end
     end
 
-    def lt_s(first, second) do
-      # [first, second, {:i32, :lt_s}]
-      {:i32, :lt_s, {first, second}}
+    def eq(a, b) do
+      {:i32, :eq, {a, b}}
     end
 
-    def gt_s(first, second) do
-      # [first, second, {:i32, :gt_s}]
-      {:i32, :gt_s, {first, second}}
-    end
-
-    def eq(first, second) do
-      {:i32, :eq, {first, second}}
+    def eqz(value) do
+      {:i32, :eqz, value}
     end
 
     def eqz() do
@@ -191,10 +185,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     #     #   {unquote(name), Global.new(unquote(name), :exported, unquote(value))}
     #     # end
     #   end
-
-    if exported_global_types != [] do
-      dbg(exported_global_types)
-    end
 
     globals =
       (internal_global_types ++ exported_global_types)
@@ -399,7 +389,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def i32(op) when op in @i32_ops_all, do: {:i32, op}
   def i32(n) when is_integer(n), do: {:i32_const, n}
 
-  def push(tuple) when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const], do: tuple
+  def push(tuple)
+      when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const, :local_get, :global_get],
+      do: tuple
+
   def push(n) when is_integer(n), do: {:i32_const, n}
 
   def global_get(identifier), do: {:global_get, identifier}
@@ -530,7 +523,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
           ~s[(global $#{name} (mut i32) (i32.const #{initial_value}))],
           "\n",
           ~s[(export "#{name}" (global $#{name}))],
-          "\n",
+          "\n"
         ]
       ),
       for(
@@ -700,7 +693,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def to_wat(:nop, indent), do: [indent, "nop"]
-  def to_wat(:return, indent), do: [indent, "return"]
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
@@ -726,6 +718,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     [indent, "(i32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
   end
 
+  def to_wat({:i32, op, a}, indent) when op in @i32_ops_1 do
+    [indent, "(i32.", to_string(op), " ", to_wat(a), ?)]
+  end
+
   def to_wat({:call, f, []}, indent), do: "#{indent}(call $#{f})"
 
   def to_wat({:br, identifier}, indent), do: [indent, "br $", to_string(identifier)]
@@ -736,7 +732,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   def to_wat({:br_if, identifier}, indent),
     do: [indent, "br_if $", to_string(identifier)]
 
-  def to_wat({:return, value}, indent), do: [indent, "return ", to_wat(value)]
+  def to_wat(:return, indent), do: [indent, "return"]
+  def to_wat({:return, value}, indent), do: [indent, "(return ", to_wat(value), ?)]
 
   # def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
   def to_wat({:raw_wat, source}, indent) do

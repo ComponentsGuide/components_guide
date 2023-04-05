@@ -276,6 +276,116 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     end
   end
 
+  defmodule CounterHTML do
+    use Wasm
+
+    @strings pack_strings_nul_terminated(0x4,
+               output_start: "<output>",
+               output_end: "</output>",
+               #  digits: ~w[0 1 2 3 4 5 6 7 8 9] |> Enum.intersperse("\\0") |> List.to_string(),
+               digit0: "0",
+               digit1: "1",
+               digit2: "2",
+               button_increment: "<button>Increment</button>"
+             )
+
+    @bump_start 1024
+
+    defwasm imports: [
+              env: [buffer: memory(1)]
+            ],
+            globals: [
+              count: i32(0),
+              body_chunk_index: i32(0),
+              bump_offset: i32(@bump_start)
+            ] do
+      func get_current, result: I32 do
+        count
+      end
+
+      func increment, result: I32 do
+        count = I32.add(count, 1)
+        count
+      end
+
+      data_nul_terminated(@strings)
+
+      func invalidate do
+        body_chunk_index = 0
+        memory32_8![@bump_start] = 0x0
+        memory32_8![@bump_start + 1] = 0x0
+        memory32_8![@bump_start + 2] = 0x0
+        memory32_8![@bump_start + 3] = 0x0
+        memory32_8![@bump_start + 4] = 0x0
+      end
+
+      funcp i32toa(value(I32), write_offset(I32)), result: I32, locals: [len: I32, digit: I32] do
+        if I32.eqz(value) do
+          memory32_8![write_offset] = ?0
+          return(1)
+        end
+
+        defloop Digits do
+          digit = I32.rem_u(value, 10)
+          value = I32.div_u(value, 10)
+          memory32_8![write_offset] = I32.add(?0, digit)
+
+          write_offset = I32.add(write_offset, 1)
+          len = I32.add(len, 1)
+
+          # if I32.gt_u(value, 0), do: Digits
+          br(Digits, if: I32.gt_u(value, 0))
+        end
+
+        len
+      end
+
+      func next_body_chunk, result: I32 do
+        body_chunk_index = I32.add(body_chunk_index, 1)
+
+        if I32.eq(body_chunk_index, 1) do
+          push(@strings.output_start.offset)
+          return()
+        end
+
+        if I32.eq(body_chunk_index, 2) do
+          push(count)
+          push(bump_offset)
+          call(:i32toa)
+          push(bump_offset)
+          return()
+        end
+
+        if I32.eq(body_chunk_index, 3) do
+          push(@strings.output_end.offset)
+          return()
+        end
+
+        # if I32.eq(body_chunk_index, 3) do
+        #   push(@strings.output_end.offset)
+        #   return()
+        # end
+
+        0x0
+      end
+    end
+
+    alias ComponentsGuide.Rustler.Wasm
+
+    def get_current(instance) do
+      Wasm.instance_call(instance, "get_current")
+    end
+
+    def increment(instance) do
+      Wasm.instance_call(instance, "increment")
+    end
+
+    def read_body(instance) do
+      Wasm.instance_call(instance, "invalidate")
+      Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
+    end
+  end
+
   defmodule Loader do
     use Wasm
 

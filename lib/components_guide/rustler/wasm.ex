@@ -93,6 +93,15 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def instance_call_returning_string(instance, f, a, b, c),
     do: wasm_instance_call_func_i32_string(instance, f, [a, b, c])
 
+  def instance_call_stream_string_chunks(instance, f) do
+    Stream.unfold(0, fn n ->
+      case instance_call_returning_string(instance, f) do
+        "" -> nil
+        s -> {s, n + 1}
+      end
+    end)
+  end
+
   def instance_write_string_nul_terminated(instance, memory_offset, string)
       when is_integer(memory_offset) do
     wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
