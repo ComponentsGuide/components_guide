@@ -207,8 +207,16 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       # Wasm.instance_call(instance, "get_request_body_write_offset")
     end
 
+    def set_request_body_write_offset(instance, offset) do
+      Wasm.instance_set_global(instance, "request_body_write_offset", offset)
+    end
+
     def write_string_nul_terminated(instance, offset, string) do
       Wasm.instance_write_string_nul_terminated(instance, offset, string)
+    end
+
+    def set_request_body(instance, body) do
+      Wasm.instance_write_string_nul_terminated(instance, :request_body_write_offset, body)
     end
 
     def get(instance) do

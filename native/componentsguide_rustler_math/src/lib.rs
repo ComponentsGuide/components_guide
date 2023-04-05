@@ -592,6 +592,15 @@ impl RunningInstance {
         }
     }
 
+    fn set_global_value_i32(&mut self, global_name: String, new_value: i32) -> Result<(), anyhow::Error> {
+        let global = self
+            .instance
+            .get_global(&mut self.store, &global_name)
+            .ok_or(anyhow!("{} was not an exported global", global_name))?;
+
+        return global.set(&mut self.store, Val::I32(new_value));
+    }
+
     fn call_0(&mut self, f: String) -> Result<i32, anyhow::Error> {
         let answer = self
             .instance
@@ -689,6 +698,19 @@ fn wasm_instance_get_global_i32(
 ) -> Result<i32, Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance.get_global_value_i32(global_name).map_err(string_error)?;
+
+    return Ok(result);
+}
+
+#[rustler::nif]
+fn wasm_instance_set_global_i32(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    global_name: String,
+    new_value: i32
+) -> Result<(), Error> {
+    let mut instance = resource.lock.write().map_err(string_error)?;
+    let result = instance.set_global_value_i32(global_name, new_value).map_err(string_error)?;
 
     return Ok(result);
 }
@@ -821,6 +843,7 @@ rustler::init!(
         wasm_steps,
         wasm_run_instance,
         wasm_instance_get_global_i32,
+        wasm_instance_set_global_i32,
         wasm_instance_call_func,
         wasm_instance_call_func_i32,
         wasm_instance_call_func_i32_string,

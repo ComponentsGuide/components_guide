@@ -31,7 +31,8 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_steps(_, _), do: error()
 
   def wasm_run_instance(_), do: error()
-  def wasm_instance_get_global_i32(_, _x), do: error()
+  def wasm_instance_get_global_i32(_, _), do: error()
+  def wasm_instance_set_global_i32(_, _, _), do: error()
   def wasm_instance_call_func(_, _), do: error()
   def wasm_instance_call_func_i32(_, _, _), do: error()
   def wasm_instance_call_func_i32_string(_, _, _), do: error()
@@ -87,6 +88,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
   end
 
   def instance_get_global(instance, global_name), do: wasm_instance_get_global_i32(instance, to_string(global_name))
+  def instance_set_global(instance, global_name, new_value), do: wasm_instance_set_global_i32(instance, to_string(global_name), new_value)
 
   # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
   def instance_call(instance, f), do: wasm_instance_call_func_i32(instance, f, [])
@@ -99,7 +101,12 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def instance_call_returning_string(instance, f, a, b), do: wasm_instance_call_func_i32_string(instance, f, [a, b])
   def instance_call_returning_string(instance, f, a, b, c), do: wasm_instance_call_func_i32_string(instance, f, [a, b, c])
 
-  def instance_write_string_nul_terminated(instance, memory_offset, string) do
+  def instance_write_string_nul_terminated(instance, memory_offset, string) when is_integer(memory_offset) do
+    wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
+  end
+
+  def instance_write_string_nul_terminated(instance, global_name, string) when is_atom(global_name) do
+    memory_offset = wasm_instance_get_global_i32(instance, to_string(global_name))
     wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
   end
 

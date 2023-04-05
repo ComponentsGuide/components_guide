@@ -66,24 +66,22 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
     test "good request (instance generated module functions)" do
       instance = HTMLPage.start() # Like Agent.start(fun)
 
-      offset = HTMLPage.get_request_body_write_offset(instance)
-      HTMLPage.write_string_nul_terminated(instance, offset, "good")
-      # HTMLPage.write_string_nul_terminated(instance, :request_body_write_offset, "good")
+      HTMLPage.set_request_body(instance, "good")
 
       assert HTMLPage.get_status(instance) == 200
+      assert HTMLPage.get_headers(instance) == "content-type: text/html;charset=utf-8\r\n"
 
-      chunks = [
-        HTMLPage.get_headers(instance),
-        HTMLPage.next_body_chunk(instance),
-        HTMLPage.next_body_chunk(instance),
-        HTMLPage.next_body_chunk(instance),
-      ]
-
-      assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>", ""]
-
-      HTMLPage.get(instance)
       body = HTMLPage.read_body(instance)
       assert body == "<!doctype html><h1>Good</h1>"
+    end
+
+    test "can change global request body offset" do
+      instance = HTMLPage.start() # Like Agent.start(fun)
+
+      HTMLPage.set_request_body_write_offset(instance, 2048)
+      HTMLPage.write_string_nul_terminated(instance, 2048, "good")
+
+      assert HTMLPage.get_status(instance) == 200
     end
 
     test "bad request" do
