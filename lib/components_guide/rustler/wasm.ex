@@ -31,6 +31,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
   def wasm_steps(_, _), do: error()
 
   def wasm_run_instance(_), do: error()
+  def wasm_instance_get_global_i32(_, _x), do: error()
   def wasm_instance_call_func(_, _), do: error()
   def wasm_instance_call_func_i32(_, _, _), do: error()
   def wasm_instance_call_func_i32_string(_, _, _), do: error()
@@ -84,6 +85,8 @@ defmodule ComponentsGuide.Rustler.Wasm do
     source = {:wat, process_source(source)}
     wasm_run_instance(source)
   end
+
+  def instance_get_global(instance, global_name), do: wasm_instance_get_global_i32(instance, to_string(global_name))
 
   # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
   def instance_call(instance, f), do: wasm_instance_call_func_i32(instance, f, [])

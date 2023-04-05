@@ -9,7 +9,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Module do
-    defstruct name: nil, imports: [], globals: [], body: []
+    defstruct name: nil, imports: [], exported_globals: [], globals: [], body: []
   end
 
   defmodule Import do
@@ -25,7 +25,17 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defmodule Global do
-    defstruct [:name, :type, :initial_value]
+    defstruct [:name, :type, :initial_value, :exported]
+
+    def new(name, exported, {:i32_const, value})
+        when is_atom(name) and exported in ~w[internal exported]a do
+      %__MODULE__{
+        name: name,
+        type: :i32,
+        initial_value: value,
+        exported: exported == :exported
+      }
+    end
   end
 
   defmodule Func do
@@ -151,6 +161,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   defp define_module(name, options, block, env) do
+    options = Macro.expand(options, env)
+
     imports = Keyword.get(options, :imports, [])
 
     imports =
@@ -162,8 +174,32 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         end
       end
 
-    global_types = Keyword.get(options, :globals, [])
-    globals = Map.new(global_types)
+    internal_global_types = Keyword.get(options, :globals, [])
+    exported_global_types = Keyword.get(options, :exported_globals, [])
+
+    # internal_global_types =
+    #   for {name, value} <- internal_global_types do
+    #     quote do
+    #       {unquote(name), Global.new(unquote(name), :internal, unquote(value))}
+    #     end
+    #   end
+
+    # exported_global_types =
+    #   for {name, value} <- exported_global_types do
+    #     {name, Global.new(name, :exported, value)}
+    #     # quote do
+    #     #   {unquote(name), Global.new(unquote(name), :exported, unquote(value))}
+    #     # end
+    #   end
+
+    if exported_global_types != [] do
+      dbg(exported_global_types)
+    end
+
+    globals =
+      (internal_global_types ++ exported_global_types)
+      |> Keyword.new(fn {key, _} -> {key, nil} end)
+      |> Map.new()
 
     # block = Macro.expand(block, env)
     block_items =
@@ -192,7 +228,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       %Module{
         name: unquote(name),
         imports: unquote(imports),
-        globals: unquote(global_types),
+        globals: unquote(internal_global_types),
+        exported_globals: unquote(exported_global_types),
         body: unquote(block_items)
       }
     end
@@ -343,9 +380,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     %Import{module: module, name: name, type: type}
   end
 
-  def global(name, type, initial_value) do
-    %Global{name: name, type: type, initial_value: initial_value}
-  end
+  # def global(name, type, initial_value) do
+  #   %Global{name: name, type: type, initial_value: initial_value, exported: false}
+  # end
 
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
@@ -470,10 +507,32 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     Enum.map(list, &to_wat(&1, indent)) |> Enum.intersperse("\n")
   end
 
-  def to_wat(%Module{name: name, imports: imports, globals: globals, body: body}, indent) do
+  def to_wat(
+        %Module{
+          name: name,
+          imports: imports,
+          exported_globals: exported_globals,
+          globals: globals,
+          body: body
+        },
+        indent
+      ) do
     [
       [indent, "(module $#{name}", "\n"],
       [for(import_def <- imports, do: [to_wat(import_def, "  " <> indent), "\n"])],
+      for(
+        {name, {:i32_const, initial_value}} <- exported_globals,
+        # TODO: handle more than just (mut i32), e.g. non-mut or f64
+        do: [
+          "  " <> indent,
+          # ~s[(export "#{name}" (global $#{name} i32 (i32.const #{initial_value})))],
+          # ~s[(global $#{name} i32 (i32.const #{initial_value}))],
+          ~s[(global $#{name} (mut i32) (i32.const #{initial_value}))],
+          "\n",
+          ~s[(export "#{name}" (global $#{name}))],
+          "\n",
+        ]
+      ),
       for(
         {name, {:i32_const, initial_value}} <- globals,
         # TODO: handle more than just (mut i32), e.g. non-mut or f64
@@ -504,9 +563,24 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ?", ")"]
   end
 
-  def to_wat(%Global{name: name, type: type, initial_value: initial_value}, indent) do
+  def to_wat(
+        %Global{name: name, type: type, initial_value: initial_value, exported: exported},
+        indent
+      ) do
     # (global $count (mut i32) (i32.const 0))
-    ~s[#{indent}(global $#{name} (mut #{type}) (i32.const #{initial_value}))]
+    [
+      indent,
+      "(global ",
+      case exported do
+        false -> [?$, to_string(name)]
+        true -> ["(export ", to_string(name), ?)]
+      end,
+      " (mut ",
+      type,
+      ") (i32.const ",
+      to_string(initial_value),
+      "))"
+    ]
   end
 
   def to_wat(

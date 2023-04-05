@@ -101,9 +101,12 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     defwasm imports: [
               env: [buffer: memory(2)]
             ],
+            exported_globals: [
+              request_body_write_offset: i32(@request_body_write_offset)
+            ],
             globals: [
               body_chunk_index: i32(0),
-              request_body_write_offset: i32(@request_body_write_offset)
+              # request_body_write_offset: i32(@request_body_write_offset)
             ] do
       data_nul_terminated(@strings)
 
@@ -200,7 +203,8 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     end
 
     def get_request_body_write_offset(instance) do
-      Wasm.instance_call(instance, "get_request_body_write_offset")
+      Wasm.instance_get_global(instance, "request_body_write_offset")
+      # Wasm.instance_call(instance, "get_request_body_write_offset")
     end
 
     def write_string_nul_terminated(instance, offset, string) do
@@ -227,7 +231,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       Stream.unfold(0, fn n ->
         case Wasm.instance_call_returning_string(instance, "next_body_chunk") do
           "" -> nil
-
           s -> {s, n + 1}
         end
       end)
@@ -292,9 +295,11 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     defwasm imports: [
               # env: [buffer: memory(1)]
             ],
+            exported_globals: [
+              idle: i32(0),
+            ],
             globals: [
               state: i32(0),
-              idle: i32(0),
               loading: i32(1),
               loaded: i32(2),
               failed: i32(3)

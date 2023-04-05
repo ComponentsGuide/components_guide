@@ -6,7 +6,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
   describe "HTMLPage constructs an HTML response" do
     test "good request" do
-      # IO.puts(HTMLPage.to_wat())
+      IO.puts(HTMLPage.to_wat())
 
       offset = Wasm.call(HTMLPage, "get_request_body_write_offset")
       write_request = {:write_string, offset, "good", true}
@@ -82,9 +82,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Good</h1>", ""]
 
       HTMLPage.get(instance)
-      # chunks = HTMLPage.all_body_chunks(instance) |> Enum.to_list()
       body = HTMLPage.read_body(instance)
-      # chunks = HTMLPage.all_body_chunks(instance) |> Enum.to_list() |> IO.iodata_to_binary()
       assert body == "<!doctype html><h1>Good</h1>"
     end
 
@@ -108,7 +106,6 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
           {:call_string, "next_body_chunk", []}
         ])
 
-      # dbg(HTMLPage.to_wat())
       assert chunks == ["content-type: text/html;charset=utf-8\r\n", "<!doctype html>", "<h1>Bad</h1>"]
 
       # assert Wasm.call_string(HTMLPage, "next_body_chunk") == "<!doctype html>"

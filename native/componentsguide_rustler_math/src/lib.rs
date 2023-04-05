@@ -576,6 +576,22 @@ impl RunningInstance {
         });
     }
 
+    fn get_global_value_i32(&mut self, global_name: String) -> Result<i32, anyhow::Error> {
+        let global_val = self
+            .instance
+            .get_global(&mut self.store, &global_name)
+            .map(|g| g.get(&mut self.store));
+
+        match global_val {
+            Some(Val::I32(i)) => Ok(i),
+            Some(other_val) => Err(anyhow!(
+                "Only I32 globals are supported, got {} instead",
+                other_val.ty()
+            )),
+            None => Err(anyhow!("{} was not an exported global", global_name)),
+        }
+    }
+
     fn call_0(&mut self, f: String) -> Result<i32, anyhow::Error> {
         let answer = self
             .instance
@@ -663,6 +679,18 @@ fn wasm_run_instance(
     });
 
     return Ok(resource);
+}
+
+#[rustler::nif]
+fn wasm_instance_get_global_i32(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    global_name: String,
+) -> Result<i32, Error> {
+    let mut instance = resource.lock.write().map_err(string_error)?;
+    let result = instance.get_global_value_i32(global_name).map_err(string_error)?;
+
+    return Ok(result);
 }
 
 #[rustler::nif]
@@ -792,6 +820,7 @@ rustler::init!(
         wasm_call_bulk,
         wasm_steps,
         wasm_run_instance,
+        wasm_instance_get_global_i32,
         wasm_instance_call_func,
         wasm_instance_call_func_i32,
         wasm_instance_call_func_i32_string,
