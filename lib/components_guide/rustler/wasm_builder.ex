@@ -103,7 +103,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     def rotl(first, second)
     def rotr(first, second)
 
-    for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_s lt_u gt_s gt_u)a do
+    for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a do
       def unquote(op)(first, second) do
         {:i32, unquote(op), {first, second}}
       end
