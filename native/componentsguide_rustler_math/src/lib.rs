@@ -265,47 +265,11 @@ fn wasm_call_bulk_internal(
     buffer: bool,
     calls: Vec<WasmBulkCall>,
 ) -> Result<Vec<Vec<i32>>, anyhow::Error> {
-    let engine = Engine::default();
-
-    // A `Store` is what will own instances, functions, globals, etc. All wasm
-    // items are stored within a `Store`, and it's what we'll always be using to
-    // interact with the wasm world. Custom data can be stored in stores but for
-    // now we just use `()`.
-    let mut store = Store::new(&engine, ());
-    let mut linker = Linker::new(&engine);
-
-    if buffer {
-        let memory_ty = MemoryType::new(2, None);
-        let memory = Memory::new(&mut store, memory_ty)?;
-        linker.define(&store, "env", "buffer", memory)?;
-    }
-
-    // We start off by creating a `Module` which represents a compiled form
-    // of our input wasm module. In this case it'll be JIT-compiled after
-    // we parse the text format.
-    let module = Module::new(&engine, wat_source)?;
-
-    // With a compiled `Module` we can then instantiate it, creating
-    // an `Instance` which we can actually poke at functions on.
-    // let instance = Instance::new(&mut store, &module, &[])?;
-    let instance = linker.instantiate(&mut store, &module)?;
+    let mut running_instance = RunningInstance::new(WasmModuleDefinition::Wat(wat_source))?;
 
     let mut results: Vec<Vec<i32>> = Vec::with_capacity(calls.len());
     for call in calls {
-        let func = instance
-            .get_func(&mut store, &call.f)
-            .expect(&format!("{} was not an exported function", call.f));
-
-        let func_type = func.ty(&store);
-        let args: Vec<Val> = call.args.into_iter().map(|i| Val::I32(i)).collect();
-
-        let mut result: Vec<Val> = Vec::with_capacity(16);
-        let result_length = func_type.results().len();
-        result.resize(result_length, Val::I32(0));
-
-        func.call(&mut store, &args, &mut result)?;
-
-        let result: Vec<_> = result.iter().map(|v| v.unwrap_i32()).collect();
+        let result = running_instance.call_i32(call.f, call.args)?;
 
         results.push(result);
     }
