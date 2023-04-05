@@ -7,7 +7,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   describe "HTMLPage constructs an HTML response" do
     test "list exports" do
       assert HTMLPage.exports() == [
-               {:global, "request_body_write_offset"},
+               {:global, "request_body_write_offset", :i32},
                {:func, "get_request_body_write_offset"},
                {:func, "GET"},
                {:func, "get_status"},
@@ -157,6 +157,21 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   end
 
   describe "Loader" do
+    test "exports" do
+      assert Loader.exports() == [
+              #  {{:global, "idle"}, %{type: :i32, mut: true}},
+              #  {:global, %{name: "idle", type: :i32, mut: true}},
+               {:global, "idle", :i32},
+               {:global, "loading", :i32},
+               {:global, "loaded", :i32},
+               {:global, "failed", :i32},
+               {:func, "get_current"},
+               {:func, "begin"},
+               {:func, "success"},
+               {:func, "failure"}
+             ]
+    end
+
     test "works" do
       IO.puts(Loader.to_wat())
       # Like Agent.start(fun)

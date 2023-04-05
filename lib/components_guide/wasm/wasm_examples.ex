@@ -106,7 +106,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               request_body_write_offset: i32(@request_body_write_offset)
             ],
             globals: [
-              body_chunk_index: i32(0),
+              body_chunk_index: i32(0)
               # request_body_write_offset: i32(@request_body_write_offset)
             ] do
       data_nul_terminated(@strings)
@@ -298,12 +298,12 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             ],
             exported_globals: [
               idle: i32(0),
-            ],
-            globals: [
-              state: i32(0),
               loading: i32(1),
               loaded: i32(2),
               failed: i32(3)
+            ],
+            globals: [
+              state: i32(0)
             ] do
       # func get_current, do: state
       func get_current, result: I32 do

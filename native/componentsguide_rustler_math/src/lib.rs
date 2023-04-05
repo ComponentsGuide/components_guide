@@ -5,10 +5,10 @@ use anyhow::anyhow;
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
 use rustler::{
-    Atom, Binary, Encoder, Env, Error, NifRecord, NifStruct, NifTaggedEnum, NifTuple, ResourceArc,
+    Atom, Binary, Encoder, Env, Error, NifRecord, NifStruct, NifUnitEnum, NifTaggedEnum, NifTuple, ResourceArc,
     Term,
 };
-use std::convert::TryInto;
+use std::convert::{TryInto, TryFrom};
 use std::ffi::CStr;
 use std::slice;
 use std::sync::RwLock;
@@ -46,10 +46,31 @@ fn map_return_values_i32(env: Env, values: Vec<i32>) -> Term {
 //     name: String,
 // }
 
+#[derive(NifUnitEnum)]
+enum GlobalType {
+    I32,
+    I64,
+    F32,
+    F64,
+}
+impl TryFrom<&wasmtime::ValType> for GlobalType {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &wasmtime::ValType) -> Result<Self, anyhow::Error> {
+        Ok(match val {
+            ValType::I32 => GlobalType::I32,
+            ValType::I64 => GlobalType::I64,
+            ValType::F32 => GlobalType::F32,
+            ValType::F64 => GlobalType::F64,
+            _ => anyhow::bail!("Unsupported global type {}", val)
+        })
+    }
+}
+
 #[derive(NifTaggedEnum)]
 enum WasmExport {
     Func(String),
-    Global(String),
+    Global(String, GlobalType),
     Memory(String),
     Table(String),
     // Baz{ a: i32, b: i32 },
@@ -76,20 +97,20 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
     let module = Module::new(&engine, &source).map_err(string_error)?;
     let exports = module.exports();
 
-    let exports: Vec<WasmExport> = exports
+    let exports: Result<Vec<WasmExport>, anyhow::Error> = exports
         .into_iter()
         .map(|export| {
             let name = export.name().to_string();
-            return match export.ty() {
+            Ok(match export.ty() {
                 ExternType::Func(_f) => WasmExport::Func(name),
-                ExternType::Global(_g) => WasmExport::Global(name),
+                ExternType::Global(g) => WasmExport::Global(name, g.content().try_into()?),
                 ExternType::Memory(_m) => WasmExport::Memory(name),
                 ExternType::Table(_t) => WasmExport::Table(name),
-            };
+            })
         })
         .collect();
 
-    return Ok(exports);
+    exports.map_err(string_error)
 }
 
 #[rustler::nif]
