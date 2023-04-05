@@ -347,6 +347,24 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
 
       func next_body_chunk, result: I32 do
+        # defblock body_chunk_index, result: I32 do
+        #   0 ->
+        #     push(@strings.output_start.offset)
+
+        #   1 ->
+        #     push(count)
+        #     call(:i32toa)
+
+        #   2 ->
+        #     push(@strings.output_end.offset)
+
+        #   3 ->
+        #     push(@strings.button_increment.offset)
+
+        #   _ ->
+        #     0x0
+        # end
+
         defblock Main, result: I32 do
           if I32.eq(body_chunk_index, 0) do
             push(@strings.output_start.offset)
