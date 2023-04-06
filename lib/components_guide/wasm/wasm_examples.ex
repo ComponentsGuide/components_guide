@@ -344,7 +344,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
       funcp i32toa(value(I32)), result: I32, locals: [working_offset: I32, digit: I32] do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
-        # We “allocate” 11 bytes, which is technically too much, but the algorithm is easier.
+        # We “allocate” all 11 bytes upfront to make the algorithm easier.
         bump_offset = I32.add(bump_offset, 11)
         # We then start from the back, as we have to print the digits in reverse.
         working_offset = bump_offset
