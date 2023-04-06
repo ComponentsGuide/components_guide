@@ -340,13 +340,13 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
 
       funcp i32toa(value(I32)), result: I32, locals: [working_offset: I32, digit: I32] do
-        if I32.eqz(value) do
-          working_offset = bump_offset
-          memory32_8![bump_offset] = ?0
-          bump_offset = I32.add(bump_offset, 1)
-          memory32_8![bump_offset] = 0x0
-          return(working_offset)
-        end
+        # if I32.eqz(value) do
+        #   working_offset = bump_offset
+        #   memory32_8![bump_offset] = ?0
+        #   bump_offset = I32.add(bump_offset, 1)
+        #   memory32_8![bump_offset] = 0x0
+        #   return(working_offset)
+        # end
 
         # We “allocate” 11 bytes, which is technically too much, but the algorithm is easier.
         bump_offset = I32.add(bump_offset, 11)
