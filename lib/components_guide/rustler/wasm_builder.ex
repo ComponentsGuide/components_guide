@@ -549,11 +549,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def to_wat(%Data{offset: offset, value: value, nul_terminated: true}, indent) do
-    [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ~S"\00", ?", ")"]
+    [indent, "(data (i32.const ", to_string(offset), ") ", ?", String.replace(value, ~S["], ~S[\"]), ~S"\00", ?", ")"]
   end
 
   def to_wat(%Data{offset: offset, value: value, nul_terminated: false}, indent) do
-    [indent, "(data (i32.const ", to_string(offset), ") ", ?", value, ?", ")"]
+    [indent, "(data (i32.const ", to_string(offset), ") ", ?", String.replace(value, ~S["], ~S[\"]), ?", ")"]
   end
 
   def to_wat(

@@ -168,19 +168,19 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       IO.puts(CounterHTML.to_wat())
 
       instance = CounterHTML.start()
-      assert CounterHTML.read_body(instance) == "<output>0</output>\n<button>Increment</button>"
+      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">0</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>1</output>\n<button>Increment</button>"
+      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">1</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>2</output>\n<button>Increment</button>"
+      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">2</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>3</output>\n<button>Increment</button>"
+      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">3</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == "<output>4</output>\n<button>Increment</button>"
+      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">4</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
     end
   end
 

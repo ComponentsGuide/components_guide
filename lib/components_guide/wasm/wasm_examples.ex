@@ -298,13 +298,13 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     use Wasm
 
     @strings pack_strings_nul_terminated(0x4,
-               output_start: "<output>",
+               output_start: ~S[<output class="flex p-4 bg-gray-800">],
                output_end: "</output>",
                #  digits: ~w[0 1 2 3 4 5 6 7 8 9] |> Enum.intersperse("\\0") |> List.to_string(),
               #  digit0: "0",
               #  digit1: "1",
               #  digit2: "2",
-               button_increment: ~S[\n<button data-action=\"increment\">Increment</button>]
+               button_increment: ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
              )
 
     @bump_start 1024

@@ -131,7 +131,7 @@
         memoryToWrite.fill(0, 0, written);
         //const text = utf8decoder.decode(memoryBytes.subarray(2048, 2048 + count));
         const text = utf8decoder.decode(memoryToRead.subarray(0, count));
-        output.innerText = `${count} ${text}`;
+        output.innerText = `(${count} bytes) ${text}`;
       }
       function benchmark() {
         const data = new FormData(form);
