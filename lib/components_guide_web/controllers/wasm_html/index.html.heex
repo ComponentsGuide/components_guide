@@ -5,11 +5,12 @@
 </header>
 
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <h2>Server with initial HTML + Client side rendering:</h2>
+  <h2>Stateful Counter that renders to HTML</h2>
+  <h3>Server with initial HTML + Client side rendering:</h3>
   <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
     <%= raw(CounterHTML.initial_html()) %>
   </wasm-html>
-  <h2>Client side rendering only:</h2>
+  <h3>Client side rendering only:</h3>
   <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
     Loading…
   </wasm-html>
