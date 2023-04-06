@@ -87,21 +87,21 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   @i32_ops_all @i32_ops_1 ++ @i32_ops_2 ++ @i_load_ops ++ @i_store_ops
 
   defmodule I32 do
-    def add(first, second)
-    def sub(first, second)
-    def mul(first, second)
-    def div_u(first, second)
-    def div_s(first, second)
-    def rem_u(first, second)
-    def rem_s(first, second)
-    def unquote(:and)(first, second)
-    def unquote(:or)(first, second)
-    def xor(first, second)
-    def shl(first, second)
-    def shr_u(first, second)
-    def shr_s(first, second)
-    def rotl(first, second)
-    def rotr(first, second)
+    def add(a, b)
+    def sub(a, b)
+    def mul(a, b)
+    def div_u(a, divisor)
+    def div_s(a, divisor)
+    def rem_u(a, divisor)
+    def rem_s(a, divisor)
+    def unquote(:and)(a, b)
+    def unquote(:or)(a, b)
+    def xor(a, b)
+    def shl(a, b)
+    def shr_u(a, b)
+    def shr_s(a, b)
+    def rotl(a, b)
+    def rotr(a, b)
 
     for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a do
       def unquote(op)(first, second) do
