@@ -330,15 +330,16 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
       data_nul_terminated(@strings)
 
-      func invalidate do
+      func invalidate, locals: [i: I32] do
         body_chunk_index = 0
         bump_offset = @bump_start
-        # FIXME: add loop and wipe out 10+ bytes
-        memory32_8![@bump_start] = 0x0
-        memory32_8![@bump_start + 1] = 0x0
-        memory32_8![@bump_start + 2] = 0x0
-        memory32_8![@bump_start + 3] = 0x0
-        memory32_8![@bump_start + 4] = 0x0
+
+        i = 64
+        defloop Clear do
+          memory32_8![I32.add(i, @bump_start)] = 0x0
+          i = I32.add(i, 1)
+          br(Clear, if: I32.gt_u(i, 0))
+        end
       end
 
       funcp i32toa(value(I32)), result: I32, locals: [working_offset: I32, digit: I32] do
