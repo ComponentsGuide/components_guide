@@ -334,27 +334,15 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         body_chunk_index = 0
         bump_offset = @bump_start
 
-        # defloop i <- 64 do
-        #   memory32_8![I32.add(i, @bump_start)] = 0x0
-        # end
-
         i = 64
         defloop Clear do
           memory32_8![I32.add(i, @bump_start)] = 0x0
-          i = I32.add(i, 1)
+          i = I32.sub(i, 1)
           br(Clear, if: I32.gt_u(i, 0))
         end
       end
 
       funcp i32toa(value(I32)), result: I32, locals: [working_offset: I32, digit: I32] do
-        # if I32.eqz(value) do
-        #   working_offset = bump_offset
-        #   memory32_8![bump_offset] = ?0
-        #   bump_offset = I32.add(bump_offset, 1)
-        #   memory32_8![bump_offset] = 0x0
-        #   return(working_offset)
-        # end
-
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” 11 bytes, which is technically too much, but the algorithm is easier.
         bump_offset = I32.add(bump_offset, 11)
@@ -369,46 +357,12 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           memory32_8![working_offset] = I32.add(?0, digit)
 
           br(Digits, if: I32.gt_u(value, 0))
-          # if I32.gt_u(value, 0), do: Digits
-          # Digits.branch(if: I32.gt_u(value, 0))
         end
-
-        # bump_offset = I32.add(bump_offset, I32.add(len, 1))
 
         working_offset
       end
 
       func next_body_chunk, result: I32 do
-        # defblock body_chunk_index, result: I32 do
-        #   0 ->
-        #     push(@strings.output_start.offset)
-
-        #   1 ->
-        #     push(count)
-        #     call(:i32toa)
-
-        #   2 ->
-        #     push(@strings.output_end.offset)
-
-        #   3 ->
-        #     push(@strings.button_increment.offset)
-
-        #   _ ->
-        #     0x0
-        # end
-
-        # defchunks body_chunk_index, [
-        #   ~S[<output class="flex p-4 bg-gray-800">],
-        #   call(:i32toa, count),
-        #   ~S[</output>],
-        #   ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
-        # ]
-
-        # defchunks body_chunk_index, ~S[
-        #   <output class="flex p-4 bg-gray-800"><%= call(:i32toa, count) %></output>
-        #   <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
-        # ]
-
         defblock Main, result: I32 do
           if I32.eq(body_chunk_index, 0) do
             push(@strings.output_start.offset)
@@ -430,8 +384,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             push(@strings.button_increment.offset)
             br(Main)
           end
-
-          # br(Main, if: 0)
 
           0x0
         end
