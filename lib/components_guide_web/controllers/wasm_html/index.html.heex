@@ -2,6 +2,8 @@
   <h1>WebAssembly</h1>
 
   <p>These examples are written in a WAT (WebAssembly text format) DSL using Elixir macros. I plan to make it an open source library soon. You can <a href="https://github.com/ComponentsGuide/components_guide/blob/master/lib/components_guide/wasm/wasm_examples.ex">view their source on GitHub</a>.</p>
+
+  <hr>
 </header>
 
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
@@ -95,7 +97,7 @@
       <h2>Escape HTML</h2>
       <label for="input-a">
         Input to be HTML escaped
-        <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis said \"2 > 1\"" %></textarea>
+        <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis both agreed that \"2 > 1\"" %></textarea>
       </label>
       <h3 class="mt-4">Resulting HTML:</h3>
       <output class="block mt-4 font-mono"></output>
@@ -186,7 +188,7 @@
   <hr />
   <form-html-page data-url="/wasm/module/html_page.wasm">
     <form id="html-page-form" class="">
-      <h2>HTML Page</h2>
+      <h2>HTML Page via Request/Response</h2>
       <label for="input-a">
         Request body (try typing <code>good</code> or <code>bad</code>)
         <textarea id="input-a" name="input" rows="1" class="block w-full text-black"><%= "good" %></textarea>
