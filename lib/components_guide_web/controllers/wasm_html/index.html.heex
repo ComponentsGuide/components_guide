@@ -53,18 +53,18 @@
           //chunks.set(memoryBytes.subarray(ptr, endPtr), chunks.length);
         }
 
+        // There surely must be a better way to do this.
+        // See: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
         const bytes = new Uint8Array(chunks.map(chunk => [...chunk]).flat());
         const html = utf8decoder.decode(bytes);
         el.innerHTML = html;
       }
 
       el.addEventListener("click", (event) => {
-        console.log(event.target.dataset);
         const action = event.target.dataset.action;
         if (typeof action === "string") {
           instance.exports[action]?.apply();
         }
-        //console.log(event.currentTarget.dataset);
         update();
       });
 
@@ -81,7 +81,7 @@
       <h2>Escape HTML</h2>
       <label for="input-a">
         Input to be HTML escaped
-        <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis decided that 2 > 1" %></textarea>
+        <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis said \"2 > 1\"" %></textarea>
       </label>
       <h3 class="mt-4">Resulting HTML:</h3>
       <output class="block mt-4 font-mono"></output>
