@@ -1,5 +1,10 @@
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <wasm-html data-url="/wasm/module/counter_html.wasm">
+  <h2>Server + Client side rendering</h2>
+  <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
+    <%= raw(CounterHTML.initial_html()) %>
+  </wasm-html>
+  <h2>Client side only:</h2>
+  <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
     Loading…
   </wasm-html>
   <details class="mt-8">
@@ -12,7 +17,9 @@
   class WasmHTML extends HTMLElement {
     connectedCallback() {
       const wasmURL = this.dataset.url;
-      initWasmHTML(this, wasmURL);
+      if (wasmURL) {
+        initWasmHTML(this, wasmURL);
+      }
     }
   }
 

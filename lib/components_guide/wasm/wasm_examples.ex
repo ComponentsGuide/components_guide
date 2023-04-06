@@ -429,6 +429,11 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       Wasm.instance_call(instance, "invalidate")
       Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
     end
+
+    def initial_html() do
+      instance = start()
+      read_body(instance)
+    end
   end
 
   defmodule Loader do

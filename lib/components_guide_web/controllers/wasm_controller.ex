@@ -39,6 +39,8 @@ end
 defmodule ComponentsGuideWeb.WasmHTML do
   use ComponentsGuideWeb, :html
 
+  alias ComponentsGuide.Wasm.WasmExamples.{CounterHTML}
+
   embed_templates("wasm_html/*")
 end
 
