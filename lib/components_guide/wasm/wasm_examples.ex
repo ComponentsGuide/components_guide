@@ -22,7 +22,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 3)] = ?p
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-              br(Outer)
+              branch(Outer)
             end
 
             if I32.eq(char, ?<) do
@@ -31,7 +31,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
               write_offset = I32.add(write_offset, 3)
-              br(Outer)
+              branch(Outer)
             end
 
             if I32.eq(char, ?>) do
@@ -40,7 +40,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
               write_offset = I32.add(write_offset, 3)
-              br(Outer)
+              branch(Outer)
             end
 
             if I32.eq(char, ?") do
@@ -51,7 +51,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 4)] = ?t
               memory32_8![I32.add(write_offset, 5)] = ?;
               write_offset = I32.add(write_offset, 5)
-              br(Outer)
+              branch(Outer)
             end
 
             if I32.eq(char, ?') do
@@ -61,13 +61,13 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 3)] = ?9
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-              br(Outer)
+              branch(Outer)
             end
 
             memory32_8![write_offset] = char
-            br(Outer, if: char)
+            branch(Outer, if: char)
 
-            # br(Outer, if: char)
+            # branch(Outer, if: char)
             # Outer.branch(if: char)
             # Outer.if(char)
             push(I32.sub(write_offset, 1024 + 1024))
@@ -76,7 +76,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
           read_offset = I32.add(read_offset, 1)
           write_offset = I32.add(write_offset, 1)
-          br(EachChar)
+          branch(EachChar)
         end
       end
     end
@@ -338,7 +338,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         defloop Clear do
           memory32_8![I32.add(i, @bump_start)] = 0x0
           i = I32.sub(i, 1)
-          br(Clear, if: I32.gt_u(i, 0))
+          branch(Clear, if: I32.gt_u(i, 0))
         end
       end
 
@@ -356,7 +356,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           value = I32.div_u(value, 10)
           memory32_8![working_offset] = I32.add(?0, digit)
 
-          br(Digits, if: I32.gt_u(value, 0))
+          branch(Digits, if: I32.gt_u(value, 0))
         end
 
         working_offset
@@ -366,23 +366,23 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         defblock Main, result: I32 do
           if I32.eq(body_chunk_index, 0) do
             push(@strings.output_start.offset)
-            br(Main)
+            branch(Main)
           end
 
           if I32.eq(body_chunk_index, 1) do
             push(count)
             call(:i32toa)
-            br(Main)
+            branch(Main)
           end
 
           if I32.eq(body_chunk_index, 2) do
             push(@strings.output_end.offset)
-            br(Main)
+            branch(Main)
           end
 
           if I32.eq(body_chunk_index, 3) do
             push(@strings.button_increment.offset)
-            br(Main)
+            branch(Main)
           end
 
           0x0

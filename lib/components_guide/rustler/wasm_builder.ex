@@ -474,13 +474,16 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
-  def br(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
-
   def br_if(identifier, condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
+  def br(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
+
   def br(identifier, if: condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
+
+  def branch(identifier), do: br(identifier)
+  def branch(identifier, options), do: br(identifier, options)
 
   def return(), do: :return
   def return(value), do: {:return, value}
