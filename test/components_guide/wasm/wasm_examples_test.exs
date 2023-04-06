@@ -181,6 +181,9 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
       CounterHTML.increment(instance)
       assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">4</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      for _ <- 1..10, do: CounterHTML.increment(instance)
+      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">14</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
     end
   end
 
