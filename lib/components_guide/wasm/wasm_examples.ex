@@ -370,8 +370,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           end
 
           if I32.eq(body_chunk_index, 1) do
-            push(count)
-            call(:i32toa)
+            call(:i32toa, count)
             branch(Main)
           end
 

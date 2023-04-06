@@ -103,7 +103,8 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     def rotl(a, b)
     def rotr(a, b)
 
-    for op <- ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a do
+    for op <-
+          ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a do
       def unquote(op)(first, second) do
         {:i32, unquote(op), {first, second}}
       end
@@ -422,6 +423,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def call(f), do: {:call, f, []}
+  def call(f, a), do: {:call, f, [a]}
+  def call(f, a, b), do: {:call, f, [a, b]}
+  def call(f, a, b, c), do: {:call, f, [a, b, c]}
 
   defp expand_identifier(identifier, env) do
     identifier = Macro.expand_once(identifier, env) |> Kernel.to_string()
@@ -552,11 +556,30 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 
   def to_wat(%Data{offset: offset, value: value, nul_terminated: true}, indent) do
-    [indent, "(data (i32.const ", to_string(offset), ") ", ?", String.replace(value, ~S["], ~S[\"]), ~S"\00", ?", ")"]
+    [
+      indent,
+      "(data (i32.const ",
+      to_string(offset),
+      ") ",
+      ?",
+      String.replace(value, ~S["], ~S[\"]),
+      ~S"\00",
+      ?",
+      ")"
+    ]
   end
 
   def to_wat(%Data{offset: offset, value: value, nul_terminated: false}, indent) do
-    [indent, "(data (i32.const ", to_string(offset), ") ", ?", String.replace(value, ~S["], ~S[\"]), ?", ")"]
+    [
+      indent,
+      "(data (i32.const ",
+      to_string(offset),
+      ") ",
+      ?",
+      String.replace(value, ~S["], ~S[\"]),
+      ?",
+      ")"
+    ]
   end
 
   def to_wat(
@@ -725,7 +748,15 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     [indent, "(i32.", to_string(op), " ", to_wat(a), ?)]
   end
 
-  def to_wat({:call, f, []}, indent), do: "#{indent}(call $#{f})"
+  def to_wat({:call, f, args}, indent) do
+    [
+      indent,
+      "(call $",
+      to_string(f),
+      for(arg <- args, do: [" ", to_wat(arg)]),
+      ")"
+    ]
+  end
 
   def to_wat({:br, identifier}, indent), do: [indent, "br $", to_string(identifier)]
 
