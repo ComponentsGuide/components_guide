@@ -334,6 +334,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         body_chunk_index = 0
         bump_offset = @bump_start
 
+        # defloop i <- 64 do
+        #   memory32_8![I32.add(i, @bump_start)] = 0x0
+        # end
+
         i = 64
         defloop Clear do
           memory32_8![I32.add(i, @bump_start)] = 0x0
