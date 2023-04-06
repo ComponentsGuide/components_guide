@@ -1,4 +1,81 @@
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+  <wasm-html data-url="/wasm/module/counter_html.wasm">
+    Loading…
+  </wasm-html>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$CounterHTML</code> Wasm source</summary>
+    <pre class="lang-wasm"><code><%= @counter_html_wat %></code></pre>
+  </details>
+</article>
+
+<script type="module">
+  class WasmHTML extends HTMLElement {
+    connectedCallback() {
+      const wasmURL = this.dataset.url;
+      initWasmHTML(this, wasmURL);
+    }
+  }
+
+  function initWasmHTML(el, wasmURL) {
+    const memory = new WebAssembly.Memory({ initial: 2 });
+    const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
+      env: {
+        buffer: memory
+      }
+    });
+    wasmPromise.then(({ instance, module }) => {
+      const invalidate = instance.exports.invalidate;
+      const next_body_chunk = instance.exports.next_body_chunk;
+
+      const memoryBytes = new Uint8Array(memory.buffer);
+      //const memoryToWrite = memoryBytes.subarray(1024);
+      //const memoryToRead = memoryBytes.subarray(2048);
+      const utf8encoder = new TextEncoder();
+      const utf8decoder = new TextDecoder();
+
+      function update() {
+        invalidate();
+
+        const chunks = [];
+        //const chunks = new Uint8Array(1000);
+        while (true) {
+          const ptr = next_body_chunk();
+          if (ptr === 0) {
+            break;
+          }
+
+          // Search for null-terminating byte.
+          const endPtr = memoryBytes.indexOf(0, ptr);
+          // Get subsection of memory between start and end, and decode it as UTF-8.
+          //return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
+          //chunks.concat(memoryToRead.subarray(0, count));
+          chunks.push(memoryBytes.subarray(ptr, endPtr));
+          //chunks.set(memoryBytes.subarray(ptr, endPtr), chunks.length);
+        }
+
+        const bytes = new Uint8Array(chunks.map(chunk => [...chunk]).flat());
+        const html = utf8decoder.decode(bytes);
+        el.innerHTML = html;
+      }
+
+      el.addEventListener("click", (event) => {
+        console.log(event.target.dataset);
+        const action = event.target.dataset.action;
+        if (typeof action === "string") {
+          instance.exports[action]?.apply();
+        }
+        //console.log(event.currentTarget.dataset);
+        update();
+      });
+
+      queueMicrotask(update);
+    });
+  }
+
+  customElements.define("wasm-html", WasmHTML);
+</script>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
   <form-escape-html data-url="/wasm/module/escape_html.wasm">
     <form id="escape-html-form" class="">
       <h2>Escape HTML</h2>
@@ -138,7 +215,7 @@
       const start = instance.exports.GET;
       const get_status = instance.exports.get_status;
       const get_headers = instance.exports.get_headers;
-      const read_next_body_chunk = instance.exports.body;
+      const read_next_body_chunk = instance.exports.next_body_chunk;
 
       const utf8encoder = new TextEncoder();
       const utf8decoder = new TextDecoder();

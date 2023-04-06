@@ -276,6 +276,24 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     end
   end
 
+  # defmodule CounterHTMLFuture do
+  #   defcomponent state: [
+  #     count: 0
+  #   ] do
+  #     render do
+  #       ~E"""
+  #       <output><%= @count %></output>
+  #       <button data-action="increment">Increment</button>
+  #       """
+  #     end
+
+  #     action increment do
+  #       %{count: count + 1}
+  #       # count = count + 1
+  #     end
+  #   end
+  # end
+
   defmodule CounterHTML do
     use Wasm
 
@@ -283,10 +301,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
                output_start: "<output>",
                output_end: "</output>",
                #  digits: ~w[0 1 2 3 4 5 6 7 8 9] |> Enum.intersperse("\\0") |> List.to_string(),
-               digit0: "0",
-               digit1: "1",
-               digit2: "2",
-               button_increment: ~S[\n<button>Increment</button>]
+              #  digit0: "0",
+              #  digit1: "1",
+              #  digit2: "2",
+               button_increment: ~S[\n<button data-action=\"increment\">Increment</button>]
              )
 
     @bump_start 1024
@@ -338,6 +356,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           bump_offset = I32.add(bump_offset, 1)
 
           # if I32.gt_u(value, 0), do: Digits
+          # Digits.branch(if: I32.gt_u(value, 0))
           br(Digits, if: I32.gt_u(value, 0))
         end
 

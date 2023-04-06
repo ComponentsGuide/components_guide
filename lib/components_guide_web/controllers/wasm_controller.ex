@@ -7,10 +7,12 @@ defmodule ComponentsGuideWeb.WasmController do
   def index(conn, _params) do
     escape_html_wat = WasmExamples.EscapeHTML.to_wat()
     html_page_wat = WasmExamples.HTMLPage.to_wat()
+    counter_html_wat = WasmExamples.CounterHTML.to_wat()
 
     render(conn, :index,
       escape_html_wat: escape_html_wat,
       html_page_wat: html_page_wat,
+      counter_html_wat: counter_html_wat,
       today: Date.utc_today()
     )
   end
@@ -20,9 +22,10 @@ defmodule ComponentsGuideWeb.WasmController do
       case module do
         "escape_html.wasm" -> WasmExamples.EscapeHTML.to_wat()
         "html_page.wasm" -> WasmExamples.HTMLPage.to_wat()
+        "counter_html.wasm" -> WasmExamples.CounterHTML.to_wat()
       end
 
-    wasm = Wasm.wat2wasm(wat)
+    wasm = ComponentsGuide.Wasm.WasmNative.wat2wasm(wat)
     # json(
     #   conn,
     #   WasmJSON.module(%{wat: wat})
