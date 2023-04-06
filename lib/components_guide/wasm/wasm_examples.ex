@@ -300,8 +300,14 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     @strings pack_strings_nul_terminated(0x4,
                output_start: ~S[<output class="flex p-4 bg-gray-800">],
                output_end: ~S[</output>],
-               button_increment: ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+               button_increment:
+                 ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
              )
+
+    # @body deftemplate(~E"""
+    #       <output class="flex p-4 bg-gray-800"><%= call(:i32toa, count) %></output>
+    #       <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
+    #       """)
 
     @bump_start 1024
 
@@ -385,6 +391,18 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         #   _ ->
         #     0x0
         # end
+
+        # defchunks body_chunk_index, [
+        #   ~S[<output class="flex p-4 bg-gray-800">],
+        #   call(:i32toa, count),
+        #   ~S[</output>],
+        #   ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+        # ]
+
+        # defchunks body_chunk_index, ~S[
+        #   <output class="flex p-4 bg-gray-800"><%= call(:i32toa, count) %></output>
+        #   <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
+        # ]
 
         defblock Main, result: I32 do
           if I32.eq(body_chunk_index, 0) do
