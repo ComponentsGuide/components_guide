@@ -48,6 +48,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           # continue(EachChar)
           # halt(EachChar)
           # :continue
+          # EachChar
           branch(EachChar)
         end
       end

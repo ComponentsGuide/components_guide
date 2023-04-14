@@ -449,11 +449,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
     block_items = get_block_items(block)
-    # block_items =
-    #   case block do
-    #     {:__block__, _meta, block_items} -> block_items
-    #     single -> [single]
-    #   end
 
     # quote bind_quoted: [identifier: identifier] do
     quote do
@@ -470,11 +465,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
     block_items = get_block_items(block)
-    # block_items =
-    #   case block do
-    #     {:__block__, _meta, statements} -> statements
-    #     statement -> [statement]
-    #   end
 
     quote do
       %Block{

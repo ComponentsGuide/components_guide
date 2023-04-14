@@ -288,18 +288,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       instance = SitemapBuilder.start()
 
       SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2&c=3")
-      # SitemapBuilder.write_input(instance, "https://example.org/a=1&")
-      # SitemapBuilder.write_input(instance, "abc")
-
-      bytes = Wasm.instance_read_memory(instance, :input_offset, 30)
-      IO.inspect(bytes)
-      # IO.inspect(Wasm.instance_call(instance, "next_body_chunk"))
-      # assert SitemapBuilder.read_body(instance) == ~S[<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>]
 
       body = SitemapBuilder.read_body(instance)
-
-      bytes = Wasm.instance_read_memory(instance, :input_offset, 30)
-      IO.inspect(bytes)
 
       assert body == """
              <?xml version="1.0" encoding="UTF-8"?>
