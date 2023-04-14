@@ -534,61 +534,61 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       funcp escape_html(read_offset(I32), write_offset(I32)),
         result: I32,
         locals: [char: I32, bytes_written: I32] do
+        bytes_written = 0
+
         defloop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
 
             if I32.eq(char, ?&) do
-              memory32_8![write_offset] = ?&
-              memory32_8![I32.add(write_offset, 1)] = ?a
-              memory32_8![I32.add(write_offset, 2)] = ?m
-              memory32_8![I32.add(write_offset, 3)] = ?p
-              memory32_8![I32.add(write_offset, 4)] = ?;
-              write_offset = I32.add(write_offset, 5)
+              inline for char_out <- ~C"&amp;" do
+                memory32_8![I32.add(write_offset, bytes_written)] = char_out
+                bytes_written = I32.add(bytes_written, 1)
+              end
+
               break(Outer)
             end
 
             if I32.eq(char, ?<) do
-              memory32_8![write_offset] = ?&
-              memory32_8![I32.add(write_offset, 1)] = ?l
-              memory32_8![I32.add(write_offset, 2)] = ?t
-              memory32_8![I32.add(write_offset, 3)] = ?;
-              write_offset = I32.add(write_offset, 4)
+              inline for char_out <- ~C"&lt;" do
+                memory32_8![I32.add(write_offset, bytes_written)] = char_out
+                bytes_written = I32.add(bytes_written, 1)
+              end
+
               break(Outer)
             end
 
             if I32.eq(char, ?>) do
-              memory32_8![write_offset] = ?&
-              memory32_8![I32.add(write_offset, 1)] = ?g
-              memory32_8![I32.add(write_offset, 2)] = ?t
-              memory32_8![I32.add(write_offset, 3)] = ?;
-              write_offset = I32.add(write_offset, 4)
+              inline for char_out <- ~C"&gt;" do
+                memory32_8![I32.add(write_offset, bytes_written)] = char_out
+                bytes_written = I32.add(bytes_written, 1)
+              end
+
               break(Outer)
             end
 
             if I32.eq(char, ?") do
-              memory32_8![write_offset] = ?&
-              memory32_8![I32.add(write_offset, 1)] = ?q
-              memory32_8![I32.add(write_offset, 2)] = ?u
-              memory32_8![I32.add(write_offset, 3)] = ?o
-              memory32_8![I32.add(write_offset, 4)] = ?t
-              memory32_8![I32.add(write_offset, 5)] = ?;
-              write_offset = I32.add(write_offset, 6)
+              inline for char_out <- ~C"&quot;" do
+                memory32_8![I32.add(write_offset, bytes_written)] = char_out
+                bytes_written = I32.add(bytes_written, 1)
+              end
+
               break(Outer)
             end
 
             if I32.eq(char, ?') do
-              memory32_8![write_offset] = ?&
-              memory32_8![I32.add(write_offset, 1)] = ?#
-              memory32_8![I32.add(write_offset, 2)] = ?3
-              memory32_8![I32.add(write_offset, 3)] = ?9
-              memory32_8![I32.add(write_offset, 4)] = ?;
-              write_offset = I32.add(write_offset, 5)
+              inline for char_out <- ~C"&#39;" do
+                memory32_8![I32.add(write_offset, bytes_written)] = char_out
+                bytes_written = I32.add(bytes_written, 1)
+              end
+
               break(Outer)
             end
 
-            memory32_8![write_offset] = char
-            write_offset = I32.add(write_offset, 1)
+            memory32_8![I32.add(write_offset, bytes_written)] = char
+            bytes_written = I32.add(bytes_written, 1)
+            # memory32_8![write_offset] = char
+            # write_offset = I32.add(write_offset, 1)
 
             branch(Outer, if: char)
 
@@ -596,7 +596,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             # Outer.branch(if: char)
             # Outer.if(char)
             # push(I32.sub(write_offset, 1024 + 1024))
-            push(write_offset)
+            push(bytes_written)
             return()
           end
 

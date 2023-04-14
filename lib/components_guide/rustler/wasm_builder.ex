@@ -448,11 +448,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
-    block_items =
-      case block do
-        {:__block__, _meta, block_items} -> block_items
-        single -> [single]
-      end
+    block_items = get_block_items(block)
+    # block_items =
+    #   case block do
+    #     {:__block__, _meta, block_items} -> block_items
+    #     single -> [single]
+    #   end
 
     # quote bind_quoted: [identifier: identifier] do
     quote do
@@ -468,11 +469,12 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
-    block_items =
-      case block do
-        {:__block__, _meta, statements} -> statements
-        statement -> [statement]
-      end
+    block_items = get_block_items(block)
+    # block_items =
+    #   case block do
+    #     {:__block__, _meta, statements} -> statements
+    #     statement -> [statement]
+    #   end
 
     quote do
       %Block{
@@ -481,6 +483,15 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         body: unquote(block_items)
       }
     end
+  end
+
+  defmacro inline(do: block) do
+    get_block_items(block)
+  end
+
+  defmacro inline({:for, meta, [for_arg]}, do: block) do
+    {:for, meta, [for_arg, [do: get_block_items(block)]]}
+    # {:for, meta, [for_arg, [do: quote do: inline(do: unquote(block))]]}
   end
 
   def br_if(identifier, condition),

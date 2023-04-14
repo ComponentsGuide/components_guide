@@ -263,7 +263,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       # IO.puts(SitemapBuilder.to_wat())
       instance = SitemapBuilder.start()
 
-      SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2")
+      SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2&c=3")
       # SitemapBuilder.write_input(instance, "https://example.org/a=1&")
       # SitemapBuilder.write_input(instance, "abc")
 
@@ -281,7 +281,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
              <?xml version="1.0" encoding="UTF-8"?>
              <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
              <url>
-             <loc>https://example.org/a=1&amp;b=2</loc>
+             <loc>https://example.org/a=1&amp;b=2&amp;c=3</loc>
              </url>
              </urlset>
              """
