@@ -4,6 +4,14 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   defmodule EscapeHTML do
     use Wasm
 
+    @html_entity_table [
+      {?&, ~C"&amp;"},
+      {?<, ~C"&lt;"},
+      {?>, ~C"&gt;"},
+      {?", ~C"&quot;"},
+      {?', ~C"&#39;"}
+    ]
+
     defwasm imports: [env: [buffer: memory(2)]] do
       funcp escape(read_offset(I32), write_offset(I32)),
         result: I32,
@@ -14,49 +22,15 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
 
-            if I32.eq(char, ?&) do
-              inline for char_out <- ~C"&amp;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
+            inline for {char_to_match!, chars_out!} <- @escaped_html_table do
+              if I32.eq(char, char_to_match!) do
+                inline for char_out! <- chars_out! do
+                  memory32_8![I32.add(write_offset, bytes_written)] = char_out!
+                  bytes_written = I32.add(bytes_written, 1)
+                end
+
+                break(Outer)
               end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?<) do
-              inline for char_out <- ~C"&lt;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?>) do
-              inline for char_out <- ~C"&gt;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?") do
-              inline for char_out <- ~C"&quot;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?') do
-              inline for char_out <- ~C"&#39;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
             end
 
             memory32_8![I32.add(write_offset, bytes_written)] = char
