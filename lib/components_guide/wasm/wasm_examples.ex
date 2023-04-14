@@ -661,26 +661,9 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   defmodule SimpleWeekdayParser do
     use Wasm
 
-    @weekday_enum [
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-      sunday: 7
-    ]
-
-    @mon_i32 "Mon\0" |> then(fn <<a::little-size(32)>> -> a end)
-    @wed_i32 "Wed\0" |> then(fn <<a::little-size(32)>> -> a end)
-
-    # @escaped_html_table [
-    #   {?M, <<1, 0>>},
-    #   {?<, ~C"&lt;"},
-    #   {?>, ~C"&gt;"},
-    #   {?", ~C"&quot;"},
-    #   {?', ~C"&#39;"}
-    # ]
+    @weekdays_i32 (for s <- ~w(Mon Tue Wed Thu Fri Sat Sun) do
+                     "#{s}\0" |> then(fn <<a::little-size(32)>> -> a end)
+                   end)
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
       func parse(), result: I32, locals: [i: I32, c0: I32, c1: I32, c2: I32] do
@@ -691,29 +674,18 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         memory32_8![I32.add(input_offset, 3)] = 0
         i = memory32![input_offset]
 
-        c0 = memory32_8![input_offset].unsigned
-        c1 = memory32_8![I32.add(input_offset, 1)].unsigned
-        c2 = memory32_8![I32.add(input_offset, 2)].unsigned
-
-        if I32.eq(c0, ?M) do
-          return(I32.and(I32.eq(c1, ?o), I32.eq(c2, ?n)))
-        end
-
-        if I32.eq(c0, ?T) do
-          return(I32.and(I32.eq(c1, ?u), I32.eq(c2, ?e)))
-        end
-
-        # if I32.eq(c0, ?W) do
-        #   return(I32.and(I32.eq(c1, ?e), I32.eq(c2, ?d)))
-        # end
-
-        if I32.eq(i, @wed_i32) do
-          return(1)
+        inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
+          if I32.eq(i, day_i32!), do: return(index!)
         end
 
         0
       end
     end
+
+    def set_input(instance, string),
+      do: Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
+
+    def parse(instance), do: Wasm.instance_call(instance, "parse")
   end
 
   defmodule HTTPProxy do

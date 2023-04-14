@@ -218,7 +218,6 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
     test "works" do
       # IO.puts(CounterHTML.to_wat())
-
       instance = CounterHTML.start()
 
       assert CounterHTML.read_body(instance) ==
@@ -331,24 +330,40 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
     test "works" do
       # IO.puts(SimpleWeekdayParser.to_wat())
+      # IO.inspect(byte_size(SimpleWeekdayParser.to_wasm()))
       a = SimpleWeekdayParser.start()
 
-      assert Wasm.instance_call(a, "parse") == 0
+      assert SimpleWeekdayParser.parse(a) == 0
 
-      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Mon")
-      assert Wasm.instance_call(a, "parse") == 1
+      SimpleWeekdayParser.set_input(a, "Mon")
+      assert SimpleWeekdayParser.parse(a) == 1
 
-      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Mob")
-      assert Wasm.instance_call(a, "parse") == 0
+      SimpleWeekdayParser.set_input(a, "Mob")
+      assert SimpleWeekdayParser.parse(a) == 0
 
-      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Tua")
-      assert Wasm.instance_call(a, "parse") == 0
+      SimpleWeekdayParser.set_input(a, "Tua")
+      assert SimpleWeekdayParser.parse(a) == 0
 
-      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Tue")
-      assert Wasm.instance_call(a, "parse") == 1
+      SimpleWeekdayParser.set_input(a, "Tue")
+      assert SimpleWeekdayParser.parse(a) == 2
 
-      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Wed")
-      assert Wasm.instance_call(a, "parse") == 1
+      SimpleWeekdayParser.set_input(a, "Wed")
+      assert SimpleWeekdayParser.parse(a) == 3
+
+      SimpleWeekdayParser.set_input(a, "Thu")
+      assert SimpleWeekdayParser.parse(a) == 4
+
+      SimpleWeekdayParser.set_input(a, "Fri")
+      assert SimpleWeekdayParser.parse(a) == 5
+
+      SimpleWeekdayParser.set_input(a, "Sat")
+      assert SimpleWeekdayParser.parse(a) == 6
+
+      SimpleWeekdayParser.set_input(a, "Sun")
+      assert SimpleWeekdayParser.parse(a) == 7
+
+      SimpleWeekdayParser.set_input(a, "Monday")
+      assert SimpleWeekdayParser.parse(a) == 0
     end
   end
 end

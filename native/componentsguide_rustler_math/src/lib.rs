@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
 use rustler::{
-    Atom, Binary, Encoder, Env, Error, NifRecord, NifStruct, NifUnitEnum, NifTaggedEnum, NifTuple, ResourceArc,
+    Atom, Binary, NewBinary, Encoder, Env, Error, NifRecord, NifStruct, NifUnitEnum, NifTaggedEnum, NifTuple, ResourceArc,
     Term,
 };
 use std::convert::{TryInto, TryFrom};
@@ -497,7 +497,6 @@ fn wasm_instance_write_string_nul_terminated(
 
 #[rustler::nif]
 fn wasm_instance_read_memory(
-    env: Env,
     resource: ResourceArc<RunningInstanceResource>,
     start: i32,
     length: i32,
@@ -520,14 +519,21 @@ fn load<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
 }
 
 #[rustler::nif]
-fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
+// fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
+fn wat2wasm(env: Env, wat_source: String) -> Result<Binary, Error> {
     let result = Wat2Wasm::new()
         // .canonicalize_lebs(true)
         // .write_debug_names(true)
         .convert(wat_source);
 
     return match result {
-        Ok(v) => Ok(v.as_ref().to_vec()),
+        Ok(v) => {
+            let v = v.as_ref();
+            let mut b = NewBinary::new(env, v.len());
+            b.as_mut_slice().copy_from_slice(v);
+            let b2: Binary = b.into();
+            Ok(b2)
+        },
         Err(e) => Err(string_error(e)),
     };
 }
