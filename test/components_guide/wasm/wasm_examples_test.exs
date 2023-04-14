@@ -19,6 +19,30 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
       assert count == 31
       assert result == "https://example.org/a=1&amp;b=2"
+
+      [count, result] =
+        Wasm.steps(EscapeHTML, [
+          {:write_string_nul_terminated, 1024, "Hall & Oates like M&Ms", true},
+          {:call, "escape_html", []},
+          {:read_memory, 2048, 40}
+        ])
+
+      result = String.trim_trailing(result, <<0>>)
+
+      assert count == 30
+      assert result == "Hall &amp; Oates like M&amp;Ms"
+
+      [count, result] =
+        Wasm.steps(EscapeHTML, [
+          {:write_string_nul_terminated, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'], true},
+          {:call, "escape_html", []},
+          {:read_memory, 2048, 100}
+        ])
+
+      result = String.trim_trailing(result, <<0>>)
+
+      assert count == 73
+      assert result == "1 &lt; 2 &amp; 2 &gt; 1 &quot;double quotes&quot; &#39;single quotes&#39;"
     end
   end
 
