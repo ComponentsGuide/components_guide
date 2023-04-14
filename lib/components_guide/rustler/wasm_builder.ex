@@ -16,20 +16,14 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     defstruct name: nil, imports: [], exported_globals: [], globals: [], body: []
 
     def fetch_funcp!(%__MODULE__{body: body}, name) do
-      # Enum.filter(list, &match?({:a, _}, &1))
+      # func = Enum.find(body, &match?(%Func{name: ^name}, &1))
       func =
         Enum.find(body, fn
-          %Func{name: ^name} ->
-            true
-
-          _ ->
-            false
+          %Func{name: ^name} -> true
+          _ -> false
         end)
 
-      case func do
-        nil -> raise KeyError, key: name, term: body
-        func -> func
-      end
+      func || raise KeyError, key: name, term: body
     end
   end
 
