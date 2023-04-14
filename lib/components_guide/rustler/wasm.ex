@@ -5,6 +5,10 @@ defmodule ComponentsGuide.Rustler.Wasm do
     quote do
       use ComponentsGuide.Rustler.WasmBuilder
 
+      def to_wasm() do
+        ComponentsGuide.Rustler.Wasm.wat2wasm(__MODULE__)
+      end
+
       def exports do
         ComponentsGuide.Rustler.Wasm.list_exports(__MODULE__)
       end
@@ -16,12 +20,16 @@ defmodule ComponentsGuide.Rustler.Wasm do
   end
 
   def list_exports(source) do
-    source = case process_source(source) do
-      {:wat, _} = value -> value
-      other -> {:wat, other}
-    end
+    source =
+      case process_source(source) do
+        {:wat, _} = value -> value
+        other -> {:wat, other}
+      end
+
     wasm_list_exports(source)
   end
+
+  def wat2wasm(source), do: process_source(source) |> ComponentsGuide.Wasm.WasmNative.wat2wasm()
 
   def call(source, f) do
     process_source(source) |> wasm_call_i32(f, []) |> process_result()
@@ -113,11 +121,13 @@ defmodule ComponentsGuide.Rustler.Wasm do
     wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
   end
 
-  def instance_read_memory(instance, start, length) when is_integer(start) and is_integer(length) do
+  def instance_read_memory(instance, start, length)
+      when is_integer(start) and is_integer(length) do
     wasm_instance_read_memory(instance, start, length)
   end
 
-  def instance_read_memory(instance, start_global_name, length) when is_atom(start_global_name) and is_integer(length) do
+  def instance_read_memory(instance, start_global_name, length)
+      when is_atom(start_global_name) and is_integer(length) do
     start = wasm_instance_get_global_i32(instance, to_string(start_global_name))
     wasm_instance_read_memory(instance, start, length)
   end
@@ -125,8 +135,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
   defp process_source(string) when is_binary(string), do: string
   defp process_source({:wat, string} = value) when is_binary(string), do: value
 
-  defp process_source(atom) when is_atom(atom),
-    do: atom.to_wat()
+  defp process_source(atom) when is_atom(atom), do: atom.to_wat()
 
   # do: ComponentsGuide.Rustler.WasmBuilder.to_wat(atom)
 
