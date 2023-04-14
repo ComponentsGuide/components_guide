@@ -77,6 +77,10 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         end
       end
     end
+
+    def write_input(instance, string) do
+      Wasm.instance_write_string_nul_terminated(instance, 1024, string)
+    end
   end
 
   defmodule HTMLPage do
@@ -337,6 +341,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           # TODO: write 4 bytes instead of 1 byte at a time.
           memory32_8![I32.add(i, @bump_start)] = 0x0
           i = I32.sub(i, 1)
+          # TODO?: branch(Clear, if: I32.ge_u(i, 0))
           branch(Clear, if: I32.gt_u(i, 0))
         end
       end
@@ -496,10 +501,11 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     use Wasm
 
     @page_size 64 * 1024
-    @readonly_start 0xff
+    @readonly_start 0xFF
     @bump_start 1 * @page_size
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
+    # @output_offset 2 * 64 * 1024
 
     @strings pack_strings_nul_terminated(@readonly_start,
                xml_declaration: ~S[<?xml version="1.0" encoding="UTF-8"?>\n],
@@ -508,21 +514,26 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
                url_start: ~S[<url>\n],
                url_end: ~S[</url>\n],
                loc_start: ~S[<loc>],
-               loc_end: ~S[</loc>],
-               newline: ~S[\n],
+               loc_end: ~S[</loc>\n]
              )
 
     defwasm imports: [
               env: [buffer: memory(3)]
             ],
+            exported_globals: [
+              input_offset: i32(@input_offset)
+            ],
             globals: [
               body_chunk_index: i32(0),
-              bump_offset: i32(@bump_start)
+              bump_offset: i32(@bump_start),
+              output_offset: i32(@output_offset)
             ] do
-      # func escape_html, result: I32, globals: [body_chunk_index: I32], from: StringHelpers
-      # funcp escape_html, result: I32, source: EscapeHTML
+      # func escape_html, result: I32, from: StringHelpers
+      # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
-      func escape_html(read_offset(I32), write_offset(I32)), result: I32, locals: [char: I32] do
+      funcp escape_html(read_offset(I32), write_offset(I32)),
+        result: I32,
+        locals: [char: I32, bytes_written: I32] do
         defloop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
@@ -534,7 +545,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 3)] = ?p
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-              branch(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?<) do
@@ -543,7 +554,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
               write_offset = I32.add(write_offset, 3)
-              branch(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?>) do
@@ -552,7 +563,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
               write_offset = I32.add(write_offset, 3)
-              branch(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?") do
@@ -563,7 +574,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 4)] = ?t
               memory32_8![I32.add(write_offset, 5)] = ?;
               write_offset = I32.add(write_offset, 5)
-              branch(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?') do
@@ -573,7 +584,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 3)] = ?9
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-              branch(Outer)
+              break(Outer)
             end
 
             memory32_8![write_offset] = char
@@ -582,27 +593,39 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             # branch(Outer, if: char)
             # Outer.branch(if: char)
             # Outer.if(char)
-            push(I32.sub(write_offset, 1024 + 1024))
+            # push(I32.sub(write_offset, 1024 + 1024))
+            push(write_offset)
             return()
           end
 
           read_offset = I32.add(read_offset, 1)
           write_offset = I32.add(write_offset, 1)
+          # continue(EachChar)
           branch(EachChar)
         end
       end
 
-      func invalidate, locals: [i: I32] do
+      func rewind do
         body_chunk_index = 0
+      end
+
+      func free, locals: [i: I32] do
         bump_offset = @bump_start
 
+        # for (i = 64, i >= 0; i--)
         i = 64
 
+        # defloop Clear, 64..0//-1 do
+        # defloop Clear, 0..64 do
         defloop Clear do
           # TODO: write 4 bytes instead of 1 byte at a time.
           memory32_8![I32.add(i, @bump_start)] = 0x0
-          i = I32.sub(i, 1)
-          branch(Clear, if: I32.gt_u(i, 0))
+          # memory32_8![I32.add(i, input_offset)] = 0x0
+
+          if I32.gt_u(i, 0) do
+            i = I32.sub(i, 1)
+            branch(Clear)
+          end
         end
       end
 
@@ -625,10 +648,32 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
             branch(Main)
           end
 
-          # if I32.eq(body_chunk_index, 3) do
-          #   call(:escape_html, @input_offset, @output_offset)
-          #   branch(Main)
-          # end
+          if I32.eq(body_chunk_index, 3) do
+            push(@strings.loc_start.offset)
+            branch(Main)
+          end
+
+          if I32.eq(body_chunk_index, 4) do
+            call(:escape_html, input_offset, output_offset)
+            push(output_offset)
+
+            branch(Main)
+          end
+
+          if I32.eq(body_chunk_index, 5) do
+            push(@strings.loc_end.offset)
+            branch(Main)
+          end
+
+          if I32.eq(body_chunk_index, 6) do
+            push(@strings.url_end.offset)
+            branch(Main)
+          end
+
+          if I32.eq(body_chunk_index, 7) do
+            push(@strings.urlset_end.offset)
+            branch(Main)
+          end
 
           0x0
         end
@@ -637,10 +682,29 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
     end
 
+    def write_input(instance, string) do
+      Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
+    end
+
     def read_body(instance) do
-      Wasm.instance_call(instance, "invalidate")
+      Wasm.instance_call(instance, "rewind")
       Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
       # Wasm.instance_call_returning_string(instance, "next_body_chunk")
     end
+  end
+
+  defmodule HTTPProxy do
+    # Expects an input callback `fetch`
+    # Will work like Cloudflare/Vercel does with its patching of fetch()
+  end
+
+  defmodule Base64Encode do
+  end
+
+  defmodule GzipCompress do
+  end
+
+  defmodule URLParser do
+    # Lets you extract out host, path, query params.
   end
 end

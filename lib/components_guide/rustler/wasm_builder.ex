@@ -255,6 +255,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     define_func(call, :public, options, block)
   end
 
+  # TODO: require `globals` option be passed to explicitly list global used.
+  # Would be useful for sharing funcp between wasm modules too.
+  # Also incentivises making funcp pure by having all inputs be parameters.
   defmacro funcp(call, options \\ [], do: block) do
     define_func(call, :private, options, block)
   end
@@ -488,6 +491,9 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
   def branch(identifier), do: br(identifier)
   def branch(identifier, options), do: br(identifier, options)
+
+  def break(identifier), do: br(identifier)
+  def break(identifier, options), do: br(identifier, options)
 
   def return(), do: :return
   def return(value), do: {:return, value}

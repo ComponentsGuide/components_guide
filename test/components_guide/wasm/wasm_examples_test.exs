@@ -2,7 +2,25 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, CounterHTML, Loader, SitemapBuilder}
+  alias ComponentsGuide.Wasm.WasmExamples.{EscapeHTML, HTMLPage, Counter, CounterHTML, Loader, SitemapBuilder}
+
+  describe "EscapeHTML" do
+    test "escape valid html" do
+      # offset = Wasm.call(EscapeHTML, "get_request_body_write_offset")
+
+      [count, result] =
+        Wasm.steps(EscapeHTML, [
+          {:write_string_nul_terminated, 1024, "https://example.org/a=1&b=2", true},
+          {:call, "escape_html", []},
+          {:read_memory, 2048, 40}
+        ])
+
+      result = String.trim_trailing(result, <<0>>)
+
+      assert count == 31
+      assert result == "https://example.org/a=1&amp;b=2"
+    end
+  end
 
   describe "HTMLPage constructs an HTML response" do
     test "list exports" do
@@ -242,13 +260,30 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
   describe "SitemapBuilder" do
     test "works" do
+      # IO.puts(SitemapBuilder.to_wat())
       instance = SitemapBuilder.start()
+
+      SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2")
+      # SitemapBuilder.write_input(instance, "https://example.org/a=1&")
+      # SitemapBuilder.write_input(instance, "abc")
+
+      bytes = Wasm.instance_read_memory(instance, :input_offset, 30)
+      IO.inspect(bytes)
       # IO.inspect(Wasm.instance_call(instance, "next_body_chunk"))
       # assert SitemapBuilder.read_body(instance) == ~S[<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>]
-      assert SitemapBuilder.read_body(instance) == """
+
+      body = SitemapBuilder.read_body(instance)
+
+      bytes = Wasm.instance_read_memory(instance, :input_offset, 30)
+      IO.inspect(bytes)
+
+      assert body == """
              <?xml version="1.0" encoding="UTF-8"?>
              <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
              <url>
+             <loc>https://example.org/a=1&amp;b=2</loc>
+             </url>
+             </urlset>
              """
     end
   end

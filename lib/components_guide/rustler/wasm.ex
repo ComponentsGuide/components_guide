@@ -113,11 +113,14 @@ defmodule ComponentsGuide.Rustler.Wasm do
     wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
   end
 
-  def instance_read_memory(instance, start, length) do
+  def instance_read_memory(instance, start, length) when is_integer(start) and is_integer(length) do
     wasm_instance_read_memory(instance, start, length)
   end
 
-  defp error, do: :erlang.nif_error(:nif_not_loaded)
+  def instance_read_memory(instance, start_global_name, length) when is_atom(start_global_name) and is_integer(length) do
+    start = wasm_instance_get_global_i32(instance, to_string(start_global_name))
+    wasm_instance_read_memory(instance, start, length)
+  end
 
   defp process_source(string) when is_binary(string), do: string
   defp process_source({:wat, string} = value) when is_binary(string), do: value
