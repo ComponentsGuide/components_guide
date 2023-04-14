@@ -666,7 +666,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
                    end)
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
-      func parse(), result: I32, locals: [i: I32, c0: I32, c1: I32, c2: I32] do
+      func parse(), result: I32, locals: [i: I32] do
         if memory32_8![I32.add(input_offset, 3)].unsigned do
           return(0)
         end
