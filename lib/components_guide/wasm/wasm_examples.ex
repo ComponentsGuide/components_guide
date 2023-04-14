@@ -545,6 +545,18 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         end
       end
 
+      # func next_body_chunk, ~E"""
+      # <?xml version="1.0" encoding="UTF-8"?>
+      # <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      # <url>
+      # <loc>
+      #   <% call(:escape, input_offset, output_offset) %>
+      #   <%= output_offset %>
+      # </loc>
+      # </url>
+      # </urlset>
+      # """
+
       data_nul_terminated(@strings)
 
       func next_body_chunk, result: I32 do
