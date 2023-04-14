@@ -516,80 +516,8 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       # func escape_html, result: I32, from: StringHelpers
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
-      funcp escape_html(read_offset(I32), write_offset(I32)),
-        result: I32,
-        locals: [char: I32, bytes_written: I32] do
-        bytes_written = 0
-
-        defloop EachChar, result: I32 do
-          defblock Outer do
-            char = memory32_8![read_offset].unsigned
-
-            if I32.eq(char, ?&) do
-              inline for char_out <- ~C"&amp;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?<) do
-              inline for char_out <- ~C"&lt;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?>) do
-              inline for char_out <- ~C"&gt;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?") do
-              inline for char_out <- ~C"&quot;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            if I32.eq(char, ?') do
-              inline for char_out <- ~C"&#39;" do
-                memory32_8![I32.add(write_offset, bytes_written)] = char_out
-                bytes_written = I32.add(bytes_written, 1)
-              end
-
-              break(Outer)
-            end
-
-            memory32_8![I32.add(write_offset, bytes_written)] = char
-            bytes_written = I32.add(bytes_written, 1)
-            # memory32_8![write_offset] = char
-            # write_offset = I32.add(write_offset, 1)
-
-            branch(Outer, if: char)
-
-            # branch(Outer, if: char)
-            # Outer.branch(if: char)
-            # Outer.if(char)
-            # push(I32.sub(write_offset, 1024 + 1024))
-            push(bytes_written)
-            return()
-          end
-
-          read_offset = I32.add(read_offset, 1)
-          # continue(EachChar)
-          branch(EachChar)
-        end
-      end
+      # cpfuncp EscapeHTML, escape
+      cpfuncp escape, from: EscapeHTML, result: I32
 
       func rewind do
         body_chunk_index = 0
@@ -642,7 +570,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           end
 
           if I32.eq(body_chunk_index, 4) do
-            call(:escape_html, input_offset, output_offset)
+            call(:escape, input_offset, output_offset)
             push(output_offset)
 
             branch(Main)

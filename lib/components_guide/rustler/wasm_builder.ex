@@ -8,8 +8,29 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     end
   end
 
+  defmodule Func do
+    defstruct [:name, :params, :result, :local_types, :body]
+  end
+
   defmodule Module do
     defstruct name: nil, imports: [], exported_globals: [], globals: [], body: []
+
+    def fetch_funcp!(%__MODULE__{body: body}, name) do
+      # Enum.filter(list, &match?({:a, _}, &1))
+      func =
+        Enum.find(body, fn
+          %Func{name: ^name} ->
+            true
+
+          _ ->
+            false
+        end)
+
+      case func do
+        nil -> raise KeyError, key: name, term: body
+        func -> func
+      end
+    end
   end
 
   defmodule Import do
@@ -36,10 +57,6 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         exported: exported == :exported
       }
     end
-  end
-
-  defmodule Func do
-    defstruct [:name, :params, :result, :local_types, :body]
   end
 
   defmodule Param do
@@ -233,13 +250,14 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
     definition = define_module(name, options, block, __CALLER__)
 
     quote do
-      Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
-
-      def lookup_data(:doctype), do: 4
-      def lookup_data(:good_heading), do: 20
-      def lookup_data(:bad_heading), do: 40
+      # Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
       def __wasm_module__(), do: unquote(definition)
+      # TODO: what is the best way to pass this value along?
+      # def __wasm_module__(), do: @wasm_module
+
+      def __wasm_funcp__(name), do: Module.fetch_funcp!(__wasm_module__(), name)
+
       def to_wat(), do: ComponentsGuide.Rustler.WasmBuilder.to_wat(__wasm_module__())
     end
   end
@@ -260,6 +278,34 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   # Also incentivises making funcp pure by having all inputs be parameters.
   defmacro funcp(call, options \\ [], do: block) do
     define_func(call, :private, options, block)
+  end
+
+  defmacro cpfuncp(call, options) do
+    {name, _args} = Macro.decompose_call(call)
+
+    source = Keyword.fetch!(options, :from)
+    source = Macro.expand(source, __CALLER__)
+    func = source.__wasm_funcp__(name)
+
+    # local_def = Macro.expand_literals(define_func(call, :private, options, nil), __CALLER__)
+
+    # local_def = Macro.expand(define_func(call, :private, options, nil), __CALLER__)
+    # local_def = define_func(call, :private, options, nil)
+    # IO.inspect(local_def)
+    # IO.inspect(name)
+    # quote bind_quoted: [name: name] do
+    #   case unquote(local_def) do
+    #     %{name: ^name} -> unquote(func)
+    #     _ -> raise "Function options must match source"
+    #   end
+    # end
+
+    # case local_def do
+    #   %{name: ^name} -> Macro.escape(func)
+    #   _ -> raise "Function options must match source"
+    # end
+
+    Macro.escape(func)
   end
 
   defp define_func(call, visibility, options, block) do
