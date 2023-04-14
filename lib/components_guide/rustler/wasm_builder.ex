@@ -64,7 +64,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
       result =
         case when_true do
           # TODO: detect actual type instead of assuming i32
-          [{:return, _value}] -> :i32
+          # [{:return, _value}] -> :i32
           _ -> nil
         end
 
@@ -356,7 +356,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
         {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
           quote do: {:i32, :store, unquote(offset), unquote(value)}
 
-        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, :unsigned]}, _, _} ->
+        {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
           quote do: {:i32, :load, unquote(offset)}
 
         {:=, _, [{local, _, nil}, input]}

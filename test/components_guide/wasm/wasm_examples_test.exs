@@ -325,4 +325,30 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       assert LamportClock.read(b) == 10
     end
   end
+
+  describe "SimpleWeekdayParser" do
+    alias ComponentsGuide.Wasm.WasmExamples.SimpleWeekdayParser
+
+    test "works" do
+      # IO.puts(SimpleWeekdayParser.to_wat())
+      a = SimpleWeekdayParser.start()
+
+      assert Wasm.instance_call(a, "parse") == 0
+
+      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Mon")
+      assert Wasm.instance_call(a, "parse") == 1
+
+      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Mob")
+      assert Wasm.instance_call(a, "parse") == 0
+
+      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Tua")
+      assert Wasm.instance_call(a, "parse") == 0
+
+      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Tue")
+      assert Wasm.instance_call(a, "parse") == 1
+
+      Wasm.instance_write_string_nul_terminated(a, :input_offset, "Wed")
+      assert Wasm.instance_call(a, "parse") == 1
+    end
+  end
 end
