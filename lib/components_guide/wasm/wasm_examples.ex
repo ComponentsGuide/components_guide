@@ -544,7 +544,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 2)] = ?m
               memory32_8![I32.add(write_offset, 3)] = ?p
               memory32_8![I32.add(write_offset, 4)] = ?;
-              write_offset = I32.add(write_offset, 4)
+              write_offset = I32.add(write_offset, 5)
               break(Outer)
             end
 
@@ -553,7 +553,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 1)] = ?l
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
-              write_offset = I32.add(write_offset, 3)
+              write_offset = I32.add(write_offset, 4)
               break(Outer)
             end
 
@@ -562,7 +562,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 1)] = ?g
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
-              write_offset = I32.add(write_offset, 3)
+              write_offset = I32.add(write_offset, 4)
               break(Outer)
             end
 
@@ -573,7 +573,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 3)] = ?o
               memory32_8![I32.add(write_offset, 4)] = ?t
               memory32_8![I32.add(write_offset, 5)] = ?;
-              write_offset = I32.add(write_offset, 5)
+              write_offset = I32.add(write_offset, 6)
               break(Outer)
             end
 
@@ -583,11 +583,13 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
               memory32_8![I32.add(write_offset, 2)] = ?3
               memory32_8![I32.add(write_offset, 3)] = ?9
               memory32_8![I32.add(write_offset, 4)] = ?;
-              write_offset = I32.add(write_offset, 4)
+              write_offset = I32.add(write_offset, 5)
               break(Outer)
             end
 
             memory32_8![write_offset] = char
+            write_offset = I32.add(write_offset, 1)
+
             branch(Outer, if: char)
 
             # branch(Outer, if: char)
@@ -599,7 +601,6 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
           end
 
           read_offset = I32.add(read_offset, 1)
-          write_offset = I32.add(write_offset, 1)
           # continue(EachChar)
           branch(EachChar)
         end
