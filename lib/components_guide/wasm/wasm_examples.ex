@@ -517,7 +517,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
       # cpfuncp EscapeHTML, escape
-      cpfuncp escape, from: EscapeHTML, result: I32
+      cpfuncp(escape, from: EscapeHTML, result: I32)
 
       func rewind do
         body_chunk_index = 0
@@ -618,6 +618,43 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       Wasm.instance_call(instance, "rewind")
       Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
       # Wasm.instance_call_returning_string(instance, "next_body_chunk")
+    end
+  end
+
+  defmodule LamportClock do
+    use Wasm
+
+    defwasm exported_globals: [time: i32(0)] do
+      func will_send(), result: I32 do
+        time = I32.add(time, 1)
+        time
+      end
+
+      func received(incoming_time(I32)), result: I32 do
+        if I32.gt_u(incoming_time, time) do
+          time = incoming_time
+        end
+
+        time = I32.add(time, 1)
+        time
+      end
+    end
+
+    def read(instance) do
+      Wasm.instance_get_global(instance, :time)
+    end
+
+    def will_send(instance) do
+      Wasm.instance_call(instance, "will_send")
+    end
+
+    def send(a, b) do
+      t = will_send(a)
+      received(b, t)
+    end
+
+    def received(instance, incoming_time) do
+      Wasm.instance_call(instance, "received", incoming_time)
     end
   end
 

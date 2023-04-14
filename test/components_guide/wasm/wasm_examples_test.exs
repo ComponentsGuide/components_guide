@@ -2,7 +2,16 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Wasm.WasmExamples.{EscapeHTML, HTMLPage, Counter, CounterHTML, Loader, SitemapBuilder}
+
+  alias ComponentsGuide.Wasm.WasmExamples.{
+    EscapeHTML,
+    HTMLPage,
+    Counter,
+    CounterHTML,
+    Loader,
+    SitemapBuilder,
+    LamportClock
+  }
 
   describe "EscapeHTML" do
     test "escape valid html" do
@@ -34,7 +43,8 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
 
       [count, result] =
         Wasm.steps(EscapeHTML, [
-          {:write_string_nul_terminated, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'], true},
+          {:write_string_nul_terminated, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'],
+           true},
           {:call, "escape_html", []},
           {:read_memory, 2048, 100}
         ])
@@ -299,6 +309,20 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
              </url>
              </urlset>
              """
+    end
+  end
+
+  describe "LamportClock" do
+    test "works" do
+      a = LamportClock.start()
+      b = LamportClock.start()
+
+      assert LamportClock.received(a, 7) == 8
+
+      LamportClock.send(a, b)
+
+      assert LamportClock.read(a) == 9
+      assert LamportClock.read(b) == 10
     end
   end
 end
