@@ -4,7 +4,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
   defmodule EscapeHTML do
     use Wasm
 
-    @html_entity_table [
+    @escaped_html_table [
       {?&, ~C"&amp;"},
       {?<, ~C"&lt;"},
       {?>, ~C"&gt;"},
