@@ -284,7 +284,7 @@ impl RunningInstance {
         let mut store = Store::new(&engine, ());
         let mut linker = Linker::new(&engine);
 
-        let memory_ty = MemoryType::new(2, None);
+        let memory_ty = MemoryType::new(3, None);
         let memory = Memory::new(&mut store, memory_ty)?;
         linker.define(&store, "env", "buffer", memory)?;
 

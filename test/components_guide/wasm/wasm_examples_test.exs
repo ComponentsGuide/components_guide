@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, CounterHTML, Loader}
+  alias ComponentsGuide.Wasm.WasmExamples.{HTMLPage, Counter, CounterHTML, Loader, SitemapBuilder}
 
   describe "HTMLPage constructs an HTML response" do
     test "list exports" do
@@ -160,38 +160,50 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
                {:func, "get_current"},
                {:func, "increment"},
                {:func, "invalidate"},
-               {:func, "next_body_chunk"},
+               {:func, "next_body_chunk"}
              ]
     end
 
     test "works" do
-      IO.puts(CounterHTML.to_wat())
+      # IO.puts(CounterHTML.to_wat())
 
       instance = CounterHTML.start()
-      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">0</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      assert CounterHTML.read_body(instance) ==
+               ~s[<output class="flex p-4 bg-gray-800">0</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">1</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      assert CounterHTML.read_body(instance) ==
+               ~s[<output class="flex p-4 bg-gray-800">1</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">2</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      assert CounterHTML.read_body(instance) ==
+               ~s[<output class="flex p-4 bg-gray-800">2</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">3</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      assert CounterHTML.read_body(instance) ==
+               ~s[<output class="flex p-4 bg-gray-800">3</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">4</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      assert CounterHTML.read_body(instance) ==
+               ~s[<output class="flex p-4 bg-gray-800">4</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
       for _ <- 1..10, do: CounterHTML.increment(instance)
-      assert CounterHTML.read_body(instance) == ~s[<output class="flex p-4 bg-gray-800">14</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+
+      assert CounterHTML.read_body(instance) ==
+               ~s[<output class="flex p-4 bg-gray-800">14</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
     end
   end
 
   describe "Loader" do
     test "exports" do
       assert Loader.exports() == [
-              #  {{:global, "idle"}, %{type: :i32, mut: true}},
-              #  {:global, %{name: "idle", type: :i32, mut: true}},
+               #  {{:global, "idle"}, %{type: :i32, mut: true}},
+               #  {:global, %{name: "idle", type: :i32, mut: true}},
                {:global, "idle", :i32},
                {:global, "loading", :i32},
                {:global, "loaded", :i32},
@@ -225,6 +237,19 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       assert Loader.get_current(b) == 1
       Loader.failure(b)
       assert Loader.get_current(b) == 3
+    end
+  end
+
+  describe "SitemapBuilder" do
+    test "works" do
+      instance = SitemapBuilder.start()
+      # IO.inspect(Wasm.instance_call(instance, "next_body_chunk"))
+      # assert SitemapBuilder.read_body(instance) == ~S[<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>]
+      assert SitemapBuilder.read_body(instance) == """
+             <?xml version="1.0" encoding="UTF-8"?>
+             <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+             <url>
+             """
     end
   end
 end

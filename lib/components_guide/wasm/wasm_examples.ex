@@ -1,7 +1,5 @@
 defmodule ComponentsGuide.Wasm.WasmExamples do
-  # alias ComponentsGuide.Rustler.Wasm
   alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Rustler.WasmBuilder
 
   defmodule EscapeHTML do
     use Wasm
@@ -66,10 +64,9 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
             memory32_8![write_offset] = char
             branch(Outer, if: char)
-
-            # branch(Outer, if: char)
             # Outer.branch(if: char)
             # Outer.if(char)
+
             push(I32.sub(write_offset, 1024 + 1024))
             return()
           end
@@ -335,7 +332,9 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
         bump_offset = @bump_start
 
         i = 64
+
         defloop Clear do
+          # TODO: write 4 bytes instead of 1 byte at a time.
           memory32_8![I32.add(i, @bump_start)] = 0x0
           i = I32.sub(i, 1)
           branch(Clear, if: I32.gt_u(i, 0))
@@ -491,5 +490,157 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     def begin(instance), do: Wasm.instance_call(instance, "begin")
     def success(instance), do: Wasm.instance_call(instance, "success")
     def failure(instance), do: Wasm.instance_call(instance, "failure")
+  end
+
+  defmodule SitemapBuilder do
+    use Wasm
+
+    @page_size 64 * 1024
+    @readonly_start 0xff
+    @bump_start 1 * @page_size
+    @input_offset 1 * @page_size
+    @output_offset 2 * @page_size
+
+    @strings pack_strings_nul_terminated(@readonly_start,
+               xml_declaration: ~S[<?xml version="1.0" encoding="UTF-8"?>\n],
+               urlset_start: ~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n],
+               urlset_end: ~S[</urlset>\n],
+               url_start: ~S[<url>\n],
+               url_end: ~S[</url>\n],
+               loc_start: ~S[<loc>],
+               loc_end: ~S[</loc>],
+               newline: ~S[\n],
+             )
+
+    defwasm imports: [
+              env: [buffer: memory(3)]
+            ],
+            globals: [
+              body_chunk_index: i32(0),
+              bump_offset: i32(@bump_start)
+            ] do
+      # func escape_html, result: I32, globals: [body_chunk_index: I32], from: StringHelpers
+      # funcp escape_html, result: I32, source: EscapeHTML
+
+      func escape_html(read_offset(I32), write_offset(I32)), result: I32, locals: [char: I32] do
+        defloop EachChar, result: I32 do
+          defblock Outer do
+            char = memory32_8![read_offset].unsigned
+
+            if I32.eq(char, ?&) do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?a
+              memory32_8![I32.add(write_offset, 2)] = ?m
+              memory32_8![I32.add(write_offset, 3)] = ?p
+              memory32_8![I32.add(write_offset, 4)] = ?;
+              write_offset = I32.add(write_offset, 4)
+              branch(Outer)
+            end
+
+            if I32.eq(char, ?<) do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?l
+              memory32_8![I32.add(write_offset, 2)] = ?t
+              memory32_8![I32.add(write_offset, 3)] = ?;
+              write_offset = I32.add(write_offset, 3)
+              branch(Outer)
+            end
+
+            if I32.eq(char, ?>) do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?g
+              memory32_8![I32.add(write_offset, 2)] = ?t
+              memory32_8![I32.add(write_offset, 3)] = ?;
+              write_offset = I32.add(write_offset, 3)
+              branch(Outer)
+            end
+
+            if I32.eq(char, ?") do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?q
+              memory32_8![I32.add(write_offset, 2)] = ?u
+              memory32_8![I32.add(write_offset, 3)] = ?o
+              memory32_8![I32.add(write_offset, 4)] = ?t
+              memory32_8![I32.add(write_offset, 5)] = ?;
+              write_offset = I32.add(write_offset, 5)
+              branch(Outer)
+            end
+
+            if I32.eq(char, ?') do
+              memory32_8![write_offset] = ?&
+              memory32_8![I32.add(write_offset, 1)] = ?#
+              memory32_8![I32.add(write_offset, 2)] = ?3
+              memory32_8![I32.add(write_offset, 3)] = ?9
+              memory32_8![I32.add(write_offset, 4)] = ?;
+              write_offset = I32.add(write_offset, 4)
+              branch(Outer)
+            end
+
+            memory32_8![write_offset] = char
+            branch(Outer, if: char)
+
+            # branch(Outer, if: char)
+            # Outer.branch(if: char)
+            # Outer.if(char)
+            push(I32.sub(write_offset, 1024 + 1024))
+            return()
+          end
+
+          read_offset = I32.add(read_offset, 1)
+          write_offset = I32.add(write_offset, 1)
+          branch(EachChar)
+        end
+      end
+
+      func invalidate, locals: [i: I32] do
+        body_chunk_index = 0
+        bump_offset = @bump_start
+
+        i = 64
+
+        defloop Clear do
+          # TODO: write 4 bytes instead of 1 byte at a time.
+          memory32_8![I32.add(i, @bump_start)] = 0x0
+          i = I32.sub(i, 1)
+          branch(Clear, if: I32.gt_u(i, 0))
+        end
+      end
+
+      data_nul_terminated(@strings)
+
+      func next_body_chunk, result: I32 do
+        defblock Main, result: I32 do
+          if I32.eq(body_chunk_index, 0) do
+            push(@strings.xml_declaration.offset)
+            branch(Main)
+          end
+
+          if I32.eq(body_chunk_index, 1) do
+            push(@strings.urlset_start.offset)
+            branch(Main)
+          end
+
+          if I32.eq(body_chunk_index, 2) do
+            push(@strings.url_start.offset)
+            branch(Main)
+          end
+
+          # if I32.eq(body_chunk_index, 3) do
+          #   call(:escape_html, @input_offset, @output_offset)
+          #   branch(Main)
+          # end
+
+          0x0
+        end
+
+        body_chunk_index = I32.add(body_chunk_index, 1)
+      end
+    end
+
+    def read_body(instance) do
+      Wasm.instance_call(instance, "invalidate")
+      Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
+      # Wasm.instance_call_returning_string(instance, "next_body_chunk")
+    end
   end
 end
