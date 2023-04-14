@@ -617,10 +617,12 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
         # defloop Clear, 64..0//-1 do
         # defloop Clear, 0..64 do
+        # defloop 0, 64, -1, i do
+        # i.loop 0, 64, -1 do
+        # while I32.ge_u(i, 0) do
+        # loop Clear, while: I32.ge_u(i, 0) do
         defloop Clear do
-          # TODO: write 4 bytes instead of 1 byte at a time.
-          memory32_8![I32.add(i, @bump_start)] = 0x0
-          # memory32_8![I32.add(i, input_offset)] = 0x0
+          memory32![I32.add(i, @bump_start)] = 0x0
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)

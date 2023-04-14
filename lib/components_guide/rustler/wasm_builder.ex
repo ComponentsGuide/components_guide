@@ -313,9 +313,11 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
          _} ->
           quote do: {:i32, :load8_u, unquote(offset)}
 
-        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
-         _} ->
-          quote do: {:i32, :load8_u, unquote(offset)}
+        {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
+          quote do: {:i32, :store, unquote(offset), unquote(value)}
+
+        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, :unsigned]}, _, _} ->
+          quote do: {:i32, :load, unquote(offset)}
 
         {:=, _, [{local, _, nil}, input]}
         when is_atom(local) and is_map_key(locals, local) ->
