@@ -40,6 +40,12 @@ fn map_return_values_i32(env: Env, values: Vec<i32>) -> Term {
     }
 }
 
+#[derive(NifTaggedEnum)]
+enum WasmModuleDefinition<'a> {
+    Wat(String),
+    Wasm(Binary<'a>),
+}
+
 // #[derive(NifTuple)]
 // struct WasmExport {
 //     type: i32,
@@ -74,12 +80,6 @@ enum WasmExport {
     Memory(String),
     Table(String),
     // Baz{ a: i32, b: i32 },
-}
-
-#[derive(NifTaggedEnum)]
-enum WasmModuleDefinition<'a> {
-    Wat(String),
-    Wasm(Binary<'a>),
 }
 
 impl AsRef<[u8]> for WasmModuleDefinition<'_> {
