@@ -688,6 +688,58 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     def parse(instance), do: Wasm.instance_call(instance, "parse")
   end
 
+  defmodule ContentTypeLookup do
+    use Wasm
+
+    @page_size 64 * 1024
+    @readonly_start 0xFF
+    @bump_start 1 * @page_size
+    @input_offset 1 * @page_size
+    @output_offset 2 * @page_size
+    @strings pack_strings_nul_terminated(@readonly_start,
+               charset_utf8: ~S[; charset=utf-8],
+               text_plain: ~S[text/plain],
+               text_html: ~S[text/html],
+               application_json: ~S[application/json],
+               application_wasm: ~S[application/wasm],
+               image_png: ~S[image/png]
+             )
+
+    defwasm imports: [env: [buffer: memory(2)]],
+            # exported_globals: [input_offset: i32(1024)],
+            globals: [chunk1: i32(0), chunk2: i32(0)] do
+      func txt do
+        chunk1 = @strings.text_plain.offset
+        chunk2 = @strings.charset_utf8.offset
+      end
+
+      func html do
+        chunk1 = @strings.text_html.offset
+        chunk2 = @strings.charset_utf8.offset
+      end
+
+      func json do
+        chunk1 = @strings.application_json.offset
+        chunk2 = @strings.charset_utf8.offset
+      end
+
+      func wasm do
+        chunk1 = @strings.application_wasm.offset
+        chunk2 = 0x0
+      end
+
+      func png do
+        chunk1 = @strings.image_png.offset
+        chunk2 = 0x0
+      end
+    end
+
+    # def set_input(instance, string),
+    #   do: Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
+
+    # def parse(instance), do: Wasm.instance_call(instance, "parse")
+  end
+
   defmodule HTTPProxy do
     # Expects an input callback `fetch`
     # Will work like Cloudflare/Vercel does with its patching of fetch()
