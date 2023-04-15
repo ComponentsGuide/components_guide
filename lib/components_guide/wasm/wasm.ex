@@ -43,6 +43,10 @@ defmodule ComponentsGuide.Wasm do
     process_source(source) |> wasm_call_i32(f, [a, b]) |> process_result()
   end
 
+  def call(source, f, a, b, c) do
+    process_source(source) |> wasm_call_i32(f, [a, b, c]) |> process_result()
+  end
+
   def call_string(source, f), do: process_source(source) |> wasm_call_i32_string(f, [])
   def call_string(source, f, a), do: process_source(source) |> wasm_call_i32_string(f, [a])
   def call_string(source, f, a, b), do: process_source(source) |> wasm_call_i32_string(f, [a, b])

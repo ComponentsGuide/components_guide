@@ -1,4 +1,4 @@
-defmodule ComponentsGuide.Wasm.WasmExamples do
+defmodule ComponentsGuide.Wasm.Examples do
   alias ComponentsGuide.Wasm
 
   defmodule EscapeHTML do

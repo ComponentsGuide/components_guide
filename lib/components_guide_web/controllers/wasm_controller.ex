@@ -13,7 +13,7 @@ end
 defmodule ComponentsGuideWeb.WasmController do
   use ComponentsGuideWeb, :controller
   plug :put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON
-  alias ComponentsGuide.Wasm.WasmExamples
+  alias ComponentsGuide.Wasm.Examples
 
   @modules %{
     "escape_html.wasm" => WasmExamples.EscapeHTML,
@@ -77,7 +77,7 @@ end
 defmodule ComponentsGuideWeb.WasmHTML do
   use ComponentsGuideWeb, :html
 
-  alias ComponentsGuide.Wasm.WasmExamples.{CounterHTML}
+  alias ComponentsGuide.Wasm.Examples.{CounterHTML}
 
   embed_templates("wasm_html/*")
 end

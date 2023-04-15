@@ -93,9 +93,12 @@ defmodule ComponentsGuide.WasmBuilder do
   # https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Memory/Load
   @i_load_ops ~w(load load8_u load8_s)a
   @i_store_ops ~w(store store8)a
-  @i32_ops_1 @i_unary_ops ++ @i_test_ops
+  @f32_trunc_ops ~w(trunc_f32_s trunc_f32_u trunc_f64_s trunc_f64_u)a
+  @i32_ops_1 @i_unary_ops ++ @i_test_ops ++ @f32_trunc_ops
   @i32_ops_2 @i_binary_ops ++ @i_relative_ops
   @i32_ops_all @i32_ops_1 ++ @i32_ops_2 ++ @i_load_ops ++ @i_store_ops
+
+  @f32_ops_1 ~w(convert_i32_s convert_i32_u)a
 
   defmodule I32 do
     def add(a, b)
@@ -257,8 +260,10 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defp expand_type(type) do
+    # Macro.expand_literals()
     case Macro.expand_once(type, __ENV__) do
       I32 -> :i32
+      F32 -> :f32
       _ -> type
     end
   end
@@ -431,6 +436,7 @@ defmodule ComponentsGuide.WasmBuilder do
   def result(type) when type in @primitive_types, do: {:result, type}
   def result(nil), do: nil
 
+  # TODO: unused
   def i32_const(value), do: {:i32_const, value}
   def i32(op) when op in @i32_ops_all, do: {:i32, op}
   def i32(n) when is_integer(n), do: {:i32_const, n}
@@ -795,6 +801,10 @@ defmodule ComponentsGuide.WasmBuilder do
 
   def to_wat({:i32, op, a}, indent) when op in @i32_ops_1 do
     [indent, "(i32.", to_string(op), " ", to_wat(a), ?)]
+  end
+
+  def to_wat({:f32, op, a}, indent) when op in @f32_ops_1 do
+    [indent, "(f32.", to_string(op), " ", to_wat(a), ?)]
   end
 
   def to_wat({:call, f, args}, indent) do
