@@ -23,6 +23,7 @@ defmodule ComponentsGuideWeb.WasmController do
         "escape_html.wasm" -> WasmExamples.EscapeHTML.to_wat()
         "html_page.wasm" -> WasmExamples.HTMLPage.to_wat()
         "counter_html.wasm" -> WasmExamples.CounterHTML.to_wat()
+        "simple_weekday_parser.wasm" -> WasmExamples.SimpleWeekdayParser.to_wat()
       end
 
     wasm = ComponentsGuide.Wasm.WasmNative.wat2wasm(wat)
@@ -33,6 +34,29 @@ defmodule ComponentsGuideWeb.WasmController do
     conn
     |> put_resp_content_type("application/wasm", nil)
     |> send_resp(200, wasm)
+  end
+
+  def script(conn, %{"script" => name}) do
+    wasm_url =
+      case name do
+        # "escape_html.js" -> WasmExamples.EscapeHTML.to_wat()
+        # "html_page.js" -> WasmExamples.HTMLPage.to_wat()
+        # "counter_html.js" -> WasmExamples.CounterHTML.to_wat()
+        "counter_html.js" -> "/wasm/module/counter_html.wasm"
+        "simple_weekday_parser.js" -> "/wasm/module/simple_weekday_parser.wasm"
+      end
+
+    javascript = ~s"""
+    export const wasmModulePromise = WebAssembly.compileStreaming(
+      fetch("#{wasm_url}", {
+        credentials: "omit"
+      })
+    );
+    """
+
+    conn
+    |> put_resp_content_type("application/javascript")
+    |> send_resp(200, javascript)
   end
 end
 

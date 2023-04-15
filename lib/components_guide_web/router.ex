@@ -14,6 +14,14 @@ defmodule ComponentsGuideWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :dynamic_scripts do
+    plug(:put_secure_browser_headers)
+  end
+
+  scope "/wasm/script", ComponentsGuideWeb do
+    get("/:script", WasmController, :script)
+  end
+
   scope "/", ComponentsGuideWeb do
     pipe_through(:browser)
 

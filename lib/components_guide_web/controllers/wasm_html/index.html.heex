@@ -1,3 +1,6 @@
+<link rel="preload" href="/wasm/module/simple_weekday_parser.wasm" as="fetch" crossorigin="anonymous">
+<link rel="preload" href="/wasm/module/counter_html.wasm" as="fetch" crossorigin="anonymous">
+
 <header class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
   <h1>WebAssembly</h1>
 
@@ -9,11 +12,15 @@
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
   <h2>Stateful Counter that renders to HTML</h2>
   <h3>Server with initial HTML + Client side rendering:</h3>
-  <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
+  <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
     <%= raw(CounterHTML.initial_html()) %>
   </wasm-html>
   <h3>Client side rendering only:</h3>
-  <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
+  <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
+    Loading…
+  </wasm-html>
+  <h3>Lazy client-side rendering only:</h3>
+  <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
     Loading…
   </wasm-html>
   <details class="mt-8">
@@ -27,19 +34,41 @@
     connectedCallback() {
       const wasmURL = this.dataset.url;
       if (wasmURL) {
-        initWasmHTML(this, wasmURL);
+        const memory = new WebAssembly.Memory({ initial: 2 });
+        const wasmInstancePromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
+          env: {
+            buffer: memory
+          }
+        });
+        initWasmHTML(this, wasmInstancePromise, memory);
+      }
+
+      if (this.dataset.scriptUrl) {
+        const memory = new WebAssembly.Memory({ initial: 2 });
+        const wasmModulePromise = import(this.dataset.scriptUrl);
+        console.log("import(this.dataset.scriptUrl)", wasmModulePromise);
+        const wasmInstancePromise = wasmModulePromise
+          .then(exports => {
+            console.log("ES MODULE", exports);
+            return exports.wasmModulePromise;
+          })
+          .then(module => {
+            console.log("MODULE", module);
+            const instancePromise = WebAssembly.instantiate(module, {
+              env: {
+                buffer: memory
+              }
+            });
+            return instancePromise;
+          })
+          .then(instance => ({ instance }));
+        initWasmHTML(this, wasmInstancePromise, memory);
       }
     }
   }
 
-  function initWasmHTML(el, wasmURL) {
-    const memory = new WebAssembly.Memory({ initial: 2 });
-    const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
-      env: {
-        buffer: memory
-      }
-    });
-    wasmPromise.then(({ instance, module }) => {
+  function initWasmHTML(el, wasmInstancePromise, memory) {
+    wasmInstancePromise.then(({ instance }) => {
       const invalidate = instance.exports.invalidate;
       const next_body_chunk = instance.exports.next_body_chunk;
 
