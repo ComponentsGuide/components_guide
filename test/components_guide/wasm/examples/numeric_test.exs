@@ -4,6 +4,24 @@ defmodule ComponentsGuide.Wasm.Examples.NumericTest do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Numeric
 
+  describe "BasicMath" do
+    alias Numeric.BasicMath
+
+    test "wat", do: BasicMath.to_wat() |> dbg()
+    test "validate definition", do: BasicMath.validate_definition!()
+
+    @tag :skip
+    test "i32_double" do
+      assert Wasm.call(BasicMath, :i32_double, 7) == 14
+      # assert Wasm.call_apply_raw(BasicMath, :i32_double, {:i32, 7}) == 14
+    end
+
+    # test "f32_double" do
+    #   # assert Wasm.call(BasicMath, :double, 7.0) == 14.0
+    #   assert Wasm.call_apply_raw(BasicMath, :f32_double, {:f32, 7.0}) == 14.0
+    # end
+  end
+
   describe "UnitInterval" do
     alias Numeric.UnitInterval
 

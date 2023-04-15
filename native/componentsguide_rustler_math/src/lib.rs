@@ -82,6 +82,39 @@ enum WasmExport {
     // Baz{ a: i32, b: i32 },
 }
 
+#[derive(NifTaggedEnum)]
+enum WasmSupportedValue {
+    I32(i32),
+    I64(i64),
+    F32(f32),
+    F64(f64),
+}
+
+impl TryFrom<&wasmtime::Val> for WasmSupportedValue {
+    type Error = anyhow::Error;
+
+    fn try_from(val: &wasmtime::Val) -> Result<Self, anyhow::Error> {
+        Ok(match val {
+            Val::I32(i) => WasmSupportedValue::I32(*i),
+            Val::I64(i) => WasmSupportedValue::I64(*i),
+            Val::F32(f) => WasmSupportedValue::F32(val.unwrap_f32()),
+            Val::F64(f) => WasmSupportedValue::F64(val.unwrap_f64()),
+            val => anyhow::bail!("Unsupported val type {}", val.ty()),
+        })
+    }
+}
+
+impl Into<wasmtime::Val> for WasmSupportedValue {
+    fn into(self) -> wasmtime::Val {
+        match self {
+            WasmSupportedValue::I32(i) => Val::I32(i),
+            WasmSupportedValue::I64(i) => Val::I64(i),
+            WasmSupportedValue::F32(f) => f.into(),
+            WasmSupportedValue::F64(f) => f.into(),
+        }
+    }
+}
+
 impl AsRef<[u8]> for WasmModuleDefinition<'_> {
     fn as_ref(&self) -> &[u8] {
         match self {
@@ -118,6 +151,14 @@ fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i3
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call_i32(f, args))
+        .map_err(string_error)
+}
+
+#[nif]
+fn wasm_call(wat_source: String, f: String, args: Vec<WasmSupportedValue>) -> Result<Vec<WasmSupportedValue>, Error> {
+    let source = WasmModuleDefinition::Wat(wat_source);
+    RunningInstance::new(source)
+        .and_then(|mut i| i.call(f, args))
         .map_err(string_error)
 }
 
@@ -359,6 +400,25 @@ impl RunningInstance {
         return Ok(result);
     }
 
+    fn call(&mut self, f: String, args: Vec<WasmSupportedValue>) -> Result<Vec<WasmSupportedValue>, anyhow::Error> {
+        let func = self
+            .instance
+            .get_func(&mut self.store, &f)
+            .expect(&format!("{} was not an exported function", f));
+
+        let func_type = func.ty(&self.store);
+        let args: Vec<Val> = args.into_iter().map(|v| v.into()).collect();
+
+        let mut result: Vec<Val> = Vec::with_capacity(16);
+        let result_length = func_type.results().len();
+        result.resize(result_length, Val::I32(0));
+
+        func.call(&mut self.store, &args, &mut result)?;
+
+        let result: Result<Vec<WasmSupportedValue>> = result.iter().map(|v| v.try_into()).collect();
+        result
+    }
+
     fn call_i32_string(&mut self, f: String, args: Vec<i32>) -> Result<String, anyhow::Error> {
         let func = self
             .instance
@@ -562,6 +622,7 @@ rustler::init!(
         reverse_string,
         wasm_list_exports,
         wasm_call_i32,
+        wasm_call,
         wasm_call_void,
         wasm_call_i32_string,
         wasm_call_bulk,

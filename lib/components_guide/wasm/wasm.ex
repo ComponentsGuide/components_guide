@@ -51,6 +51,25 @@ defmodule ComponentsGuide.Wasm do
     end
   end
 
+  # def call(source, f) do
+  #   process_source(source) |> wasm_call(f, []) |> process_result2()
+  # end
+
+  # def call(source, f, a) do
+  #   args = [a] |> Enum.map(&transform_primitive/1)
+  #   process_source(source) |> wasm_call(f, args) |> process_result2()
+  # end
+
+  # def call(source, f, a, b) do
+  #   args = [a, b] |> Enum.map(&transform_primitive/1)
+  #   process_source(source) |> wasm_call(f, args) |> process_result2()
+  # end
+
+  # def call(source, f, a, b, c) do
+  #   args = [a, b, c] |> Enum.map(&transform_primitive/1)
+  #   process_source(source) |> wasm_call(f, args) |> process_result2()
+  # end
+
   def call(source, f) do
     process_source(source) |> wasm_call_i32(f, []) |> process_result()
   end
@@ -66,6 +85,19 @@ defmodule ComponentsGuide.Wasm do
   def call(source, f, a, b, c) do
     process_source(source) |> wasm_call_i32(f, [a, b, c]) |> process_result()
   end
+
+  def call_apply(source, f, args) do
+    args = Enum.map(args, &transform_primitive/1)
+    call_apply_raw(source, f, args)
+  end
+
+  def call_apply_raw(source, f, args) do
+    process_source(source) |> wasm_call(f, args) |> process_result2()
+  end
+
+  # defp transform_primitive(a)
+  defp transform_primitive(a) when is_integer(a), do: {:i32, a}
+  defp transform_primitive(a) when is_float(a), do: {:f32, a}
 
   def call_string(source, f), do: process_source(source) |> wasm_call_i32_string(f, [])
   def call_string(source, f, a), do: process_source(source) |> wasm_call_i32_string(f, [a])
@@ -171,4 +203,16 @@ defmodule ComponentsGuide.Wasm do
 
   defp process_result({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
   defp process_result({:error, s}), do: {:error, s}
+
+  defp process_value({:i32, a}), do: a
+  defp process_value({:f32, a}), do: a
+
+  defp process_result2([]), do: nil
+  defp process_result2([a]), do: process_value(a)
+
+  defp process_result2(multiple_items) when is_list(multiple_items),
+    do: List.to_tuple(multiple_items |> Enum.map(&process_value/1))
+
+  defp process_result2({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
+  defp process_result2({:error, s}), do: {:error, s}
 end
