@@ -1,8 +1,8 @@
-defmodule ComponentsGuide.Rustler.WasmBuilderTest do
+defmodule ComponentsGuide.WasmBuilderTest do
   use ExUnit.Case, async: true
 
-  use ComponentsGuide.Rustler.WasmBuilder
-  alias ComponentsGuide.Rustler.WasmBuilder
+  use ComponentsGuide.WasmBuilder
+  alias ComponentsGuide.WasmBuilder
 
   test "func" do
     wasm =
@@ -20,7 +20,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   defmodule SingleFunc do
-    use ComponentsGuide.Rustler.WasmBuilder
+    use ComponentsGuide.WasmBuilder
 
     defwasm do
       memory(export(:mem), 1)
@@ -32,7 +32,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   test "defwasm/1 defines __wasm_module__/0" do
-    alias ComponentsGuide.Rustler.WasmBuilder
+    alias ComponentsGuide.WasmBuilder
 
     wasm = SingleFunc.__wasm_module__()
 
@@ -184,7 +184,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   test "checking a number is within a range" do
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
 
     wasm_source = """
     (module $WithinRange
@@ -235,7 +235,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilderTest do
   end
 
   test "stateful module calculating mean" do
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
 
     wasm_source = """
     (module $CalculateMean

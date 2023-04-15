@@ -1,10 +1,10 @@
-defmodule ComponentsGuide.Rustler.WasmBuilder do
+defmodule ComponentsGuide.WasmBuilder do
   defmacro __using__(_) do
     quote do
       import Kernel, except: [if: 2]
-      import ComponentsGuide.Rustler.WasmBuilder
-      alias ComponentsGuide.Rustler.WasmBuilder.{I32}
-      import ComponentsGuide.Rustler.WasmBuilderUsing
+      import ComponentsGuide.WasmBuilder
+      alias ComponentsGuide.WasmBuilder.{I32}
+      import ComponentsGuide.WasmBuilderUsing
     end
   end
 
@@ -252,7 +252,7 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
 
       def __wasm_funcp__(name), do: Module.fetch_funcp!(__wasm_module__(), name)
 
-      def to_wat(), do: ComponentsGuide.Rustler.WasmBuilder.to_wat(__wasm_module__())
+      def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
     end
   end
 
@@ -831,10 +831,10 @@ defmodule ComponentsGuide.Rustler.WasmBuilder do
   end
 end
 
-defmodule ComponentsGuide.Rustler.WasmBuilderUsing do
+defmodule ComponentsGuide.WasmBuilderUsing do
   import Kernel, except: [if: 2]
-  import ComponentsGuide.Rustler.WasmBuilder
-  # alias ComponentsGuide.Rustler.WasmBuilder.{I32}
+  import ComponentsGuide.WasmBuilder
+  # alias ComponentsGuide.WasmBuilder.{I32}
 
   defmacro if(condition, do: when_true, else: when_false) do
     quote do
@@ -848,5 +848,5 @@ defmodule ComponentsGuide.Rustler.WasmBuilderUsing do
     end
   end
 
-  # defdelegate if(condition, cases), to: ComponentsGuide.Rustler.WasmBuilder, as: :if_
+  # defdelegate if(condition, cases), to: ComponentsGuide.WasmBuilder, as: :if_
 end

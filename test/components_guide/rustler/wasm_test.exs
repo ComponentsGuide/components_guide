@@ -1,8 +1,8 @@
-defmodule ComponentsGuide.Rustler.WasmTest do
+defmodule ComponentsGuide.WasmTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Rustler.Wasm
-  alias ComponentsGuide.Rustler.WasmBuilder
+  alias ComponentsGuide.Wasm
+  alias ComponentsGuide.WasmBuilder
 
   test "add/2" do
     assert ComponentsGuide.Wasm.WasmNative.add(3, 4) == 7
@@ -115,7 +115,7 @@ defmodule ComponentsGuide.Rustler.WasmTest do
   end
 
   defmodule Add2Ints do
-    use ComponentsGuide.Rustler.WasmBuilder
+    use ComponentsGuide.WasmBuilder
 
     defwasm do
       func add(a(I32), b(I32)), result: I32 do

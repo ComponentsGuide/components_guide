@@ -1,7 +1,7 @@
 defmodule ComponentsGuide.Wasm.WasmExamplesTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Rustler.Wasm
+  alias ComponentsGuide.Wasm
 
   alias ComponentsGuide.Wasm.WasmExamples.{
     EscapeHTML,

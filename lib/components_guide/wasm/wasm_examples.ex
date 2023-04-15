@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Wasm.WasmExamples do
-  alias ComponentsGuide.Rustler.Wasm
+  alias ComponentsGuide.Wasm
 
   defmodule EscapeHTML do
     use Wasm
@@ -178,7 +178,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
     end
 
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
 
     def get_request_body_write_offset(instance) do
       Wasm.instance_get_global(instance, "request_body_write_offset")
@@ -246,7 +246,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
     end
 
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
 
     def get_current(instance) do
       Wasm.instance_call(instance, "get_current")
@@ -375,7 +375,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
     end
 
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
 
     def get_current(instance) do
       Wasm.instance_call(instance, "get_current")
@@ -469,7 +469,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
       end
     end
 
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
 
     def get_current(instance), do: Wasm.instance_call(instance, "get_current")
     def begin(instance), do: Wasm.instance_call(instance, "begin")

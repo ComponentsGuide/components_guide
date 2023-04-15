@@ -1,4 +1,4 @@
-# NIF for Elixir.ComponentsGuide.Rustler.Wasm
+# NIF for Elixir.ComponentsGuide.Wasm
 
 ## To build the NIF module:
 
@@ -7,7 +7,7 @@
 ## To load the NIF:
 
 ```elixir
-defmodule ComponentsGuide.Rustler.Wasm do
+defmodule ComponentsGuide.Wasm do
     use Rustler, otp_app: :components_guide, crate: "componentsguide_rustler_math"
 
     # When your NIF is loaded, it will override this function.

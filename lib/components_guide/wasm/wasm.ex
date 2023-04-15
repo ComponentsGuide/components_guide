@@ -1,20 +1,20 @@
-defmodule ComponentsGuide.Rustler.Wasm do
+defmodule ComponentsGuide.Wasm do
   import ComponentsGuide.Wasm.WasmNative
 
   defmacro __using__(_) do
     quote do
-      use ComponentsGuide.Rustler.WasmBuilder
+      use ComponentsGuide.WasmBuilder
 
       def to_wasm() do
-        ComponentsGuide.Rustler.Wasm.wat2wasm(__MODULE__)
+        ComponentsGuide.Wasm.wat2wasm(__MODULE__)
       end
 
       def exports do
-        ComponentsGuide.Rustler.Wasm.list_exports(__MODULE__)
+        ComponentsGuide.Wasm.list_exports(__MODULE__)
       end
 
       def start() do
-        ComponentsGuide.Rustler.Wasm.run_instance(__MODULE__)
+        ComponentsGuide.Wasm.run_instance(__MODULE__)
       end
     end
   end
@@ -137,7 +137,7 @@ defmodule ComponentsGuide.Rustler.Wasm do
 
   defp process_source(atom) when is_atom(atom), do: atom.to_wat()
 
-  # do: ComponentsGuide.Rustler.WasmBuilder.to_wat(atom)
+  # do: ComponentsGuide.WasmBuilder.to_wat(atom)
 
   defp process_result([]), do: nil
   defp process_result([a]), do: a

@@ -14,7 +14,7 @@ defmodule ComponentsGuideWeb.WasmInspectorLive do
   ]
 
   defmodule State do
-    alias ComponentsGuide.Rustler.Wasm
+    alias ComponentsGuide.Wasm
     defstruct wasm_bytes: nil, exports: nil
 
     def default() do
