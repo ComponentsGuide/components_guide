@@ -9,7 +9,6 @@ defmodule ComponentsGuide.Wasm.Examples.NumericTest do
 
     # test "validate definition", do: BasicMath.validate_definition!()
 
-    # @tag :skip
     test "i32_double" do
       assert Wasm.call(BasicMath, :i32_double, 7) == 14
     end
@@ -30,9 +29,14 @@ defmodule ComponentsGuide.Wasm.Examples.NumericTest do
 
     # test "validate definition", do: UnitInterval.validate_definition!()
 
-    @tag :skip
     test "to_int_in_range" do
       assert Wasm.call(UnitInterval, :to_int_in_range, 0.0, 1, 10) == 1
+      assert Wasm.call(UnitInterval, :to_int_in_range, 0.05, 1, 10) == 1
+      assert Wasm.call(UnitInterval, :to_int_in_range, 0.099, 1, 10) == 1
+      assert Wasm.call(UnitInterval, :to_int_in_range, 0.11, 1, 10) == 2
+      assert Wasm.call(UnitInterval, :to_int_in_range, 0.499, 1, 10) == 5
+      assert Wasm.call(UnitInterval, :to_int_in_range, 0.51, 1, 10) == 6
+      assert Wasm.call(UnitInterval, :to_int_in_range, 0.999, 1, 10) == 10
     end
   end
 end
