@@ -16,16 +16,16 @@ defmodule ComponentsGuideWeb.WasmController do
     )
   end
 
-  def module(conn, %{"module" => module}) do
-    wat =
-      case module do
-        "escape_html.wasm" -> WasmExamples.EscapeHTML.to_wat()
-        "html_page.wasm" -> WasmExamples.HTMLPage.to_wat()
-        "counter_html.wasm" -> WasmExamples.CounterHTML.to_wat()
-        "simple_weekday_parser.wasm" -> WasmExamples.SimpleWeekdayParser.to_wat()
+  def module(conn, %{"module" => name}) do
+    elixir_module =
+      case name do
+        "escape_html.wasm" -> WasmExamples.EscapeHTML
+        "html_page.wasm" -> WasmExamples.HTMLPage
+        "counter_html.wasm" -> WasmExamples.CounterHTML
+        "simple_weekday_parser.wasm" -> WasmExamples.SimpleWeekdayParser
       end
 
-    wasm = ComponentsGuide.Wasm.WasmNative.wat2wasm(wat)
+    wasm = elixir_module.to_wasm()
     # json(
     #   conn,
     #   WasmJSON.module(%{wat: wat})
