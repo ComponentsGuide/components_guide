@@ -1,9 +1,12 @@
 defmodule ComponentsGuide.WasmBuilder do
+  alias ComponentsGuide.Wasm.Ops
+  require Ops
+
   defmacro __using__(_) do
     quote do
       import Kernel, except: [if: 2]
       import ComponentsGuide.WasmBuilder
-      alias ComponentsGuide.WasmBuilder.{I32}
+      alias ComponentsGuide.WasmBuilder.{I32, F32}
       import ComponentsGuide.WasmBuilderUsing
     end
   end
@@ -119,22 +122,21 @@ defmodule ComponentsGuide.WasmBuilder do
 
     for op <-
           ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a do
-      def unquote(op)(first, second) do
-        {:i32, unquote(op), {first, second}}
+      def unquote(op)(a, b) do
+        {:i32, unquote(op), {a, b}}
       end
     end
 
-    def eq(a, b) do
-      {:i32, :eq, {a, b}}
+    for op <-
+          ~w(trunc_f32_s trunc_f32_u trunc_f64_s trunc_f64_u)a do
+      def unquote(op)(a) do
+        {:i32, unquote(op), a}
+      end
     end
 
-    def eqz(value) do
-      {:i32, :eqz, value}
-    end
-
-    def eqz() do
-      {:i32, :eqz}
-    end
+    def eq(a, b), do: {:i32, :eq, {a, b}}
+    def eqz(value), do: {:i32, :eqz, value}
+    def eqz(), do: {:i32, :eqz}
 
     def load(offset), do: {:i32, :load, offset}
     def load8_u(offset), do: {:i32, :load8_u, offset}
@@ -156,6 +158,22 @@ defmodule ComponentsGuide.WasmBuilder do
 
     def if_else(condition, do: when_true) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: nil}
+    end
+  end
+
+  defmodule F32 do
+    require Ops
+
+    for op <- Ops.f32(1) do
+      def unquote(op)(a) do
+        {:f32, unquote(op), a}
+      end
+    end
+
+    for op <- Ops.f32(2) do
+      def unquote(op)(a, b) do
+        {:f32, unquote(op), {a, b}}
+      end
     end
   end
 
@@ -795,16 +813,20 @@ defmodule ComponentsGuide.WasmBuilder do
     [indent, "(i32.", to_string(op), " ", to_wat(offset), " ", to_wat(value), ?)]
   end
 
-  def to_wat({:i32, op, {a, b}}, indent) when op in @i32_ops_2 do
-    [indent, "(i32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
-  end
-
-  def to_wat({:i32, op, a}, indent) when op in @i32_ops_1 do
+  def to_wat({:i32, op, a}, indent) when op in Ops.i32(1) do
     [indent, "(i32.", to_string(op), " ", to_wat(a), ?)]
   end
 
-  def to_wat({:f32, op, a}, indent) when op in @f32_ops_1 do
+  def to_wat({:i32, op, {a, b}}, indent) when op in Ops.i32(2) do
+    [indent, "(i32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
+  end
+
+  def to_wat({:f32, op, a}, indent) when op in Ops.f32(1) do
     [indent, "(f32.", to_string(op), " ", to_wat(a), ?)]
+  end
+
+  def to_wat({:f32, op, {a, b}}, indent) when op in Ops.f32(2) do
+    [indent, "(f32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
   end
 
   def to_wat({:call, f, args}, indent) do

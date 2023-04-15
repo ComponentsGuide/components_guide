@@ -8,6 +8,7 @@ defmodule ComponentsGuide.Wasm.Examples.NumericTest do
 
     test "to_wat" do
       assert UnitInterval.to_wat =~ "(f32.convert_i32_s"
+      assert UnitInterval.to_wat =~ "(result f32)"
     end
 
     @tag :skip
