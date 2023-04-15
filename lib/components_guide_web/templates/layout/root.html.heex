@@ -8,6 +8,10 @@
     <.live_title suffix=" · Components.Guide">
       <%= assigns[:page_title] || "Guides to React, Accessibility, Modern CSS, TypeScript" %>
     </.live_title>
+    <script>
+    window.startTime = Date.now();
+    window.importModule = (url) => import(url);
+    </script>
     <script defer type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
 
