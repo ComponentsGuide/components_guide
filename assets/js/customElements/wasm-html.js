@@ -42,7 +42,7 @@ class WasmHTML extends HTMLElement {
 
 function initWasmHTML(el, wasmInstancePromise, memory) {
   wasmInstancePromise.then(({ instance }) => {
-    const invalidate = instance.exports.invalidate;
+    const rewind = instance.exports.rewind;
     const next_body_chunk = instance.exports.next_body_chunk;
 
     const memoryBytes = new Uint8Array(memory.buffer);
@@ -52,7 +52,7 @@ function initWasmHTML(el, wasmInstancePromise, memory) {
     const utf8decoder = new TextDecoder();
 
     function update() {
-      invalidate();
+      rewind();
 
       const chunks = [];
       //const chunks = new Uint8Array(1000);
