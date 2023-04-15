@@ -5,21 +5,21 @@ use anyhow::anyhow;
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
 use rustler::{
-    Atom, Binary, NewBinary, Encoder, Env, Error, NifRecord, NifStruct, NifUnitEnum, NifTaggedEnum, NifTuple, ResourceArc,
-    Term,
+    nif, Atom, Binary, Encoder, Env, Error, NewBinary, NifRecord, NifStruct, NifTaggedEnum,
+    NifTuple, NifUnitEnum, ResourceArc, Term,
 };
-use std::convert::{TryInto, TryFrom};
+use std::convert::{TryFrom, TryInto};
 use std::ffi::CStr;
 use std::slice;
 use std::sync::RwLock;
 use wabt::Wat2Wasm;
 
-#[rustler::nif]
+#[nif]
 fn add(a: i64, b: i64) -> i64 {
     a + b
 }
 
-#[rustler::nif]
+#[nif]
 fn reverse_string(a: String) -> String {
     // return a;
     return a.chars().rev().collect();
@@ -62,7 +62,7 @@ impl TryFrom<&wasmtime::ValType> for GlobalType {
             ValType::I64 => GlobalType::I64,
             ValType::F32 => GlobalType::F32,
             ValType::F64 => GlobalType::F64,
-            _ => anyhow::bail!("Unsupported global type {}", val)
+            _ => anyhow::bail!("Unsupported global type {}", val),
         })
     }
 }
@@ -91,7 +91,7 @@ impl AsRef<[u8]> for WasmModuleDefinition<'_> {
     }
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Error> {
     let engine = Engine::default();
     let module = Module::new(&engine, &source).map_err(string_error)?;
@@ -113,7 +113,7 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
     exports.map_err(string_error)
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
@@ -121,7 +121,7 @@ fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i3
         .map_err(string_error)
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_call_void(wat_source: String, f: String) -> Result<(), Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
@@ -129,7 +129,7 @@ fn wasm_call_void(wat_source: String, f: String) -> Result<(), Error> {
         .map_err(string_error)
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_call_i32_string(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
@@ -197,7 +197,7 @@ enum WasmStepInstruction {
     // Baz{ a: i32, b: i32 },
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_steps(
     env: Env,
     wat_source: String,
@@ -243,7 +243,7 @@ struct WasmBulkCall {
     args: Vec<i32>,
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<i32>>, Error> {
     wasm_call_bulk_internal(wat_source, true, calls).map_err(string_error)
 }
@@ -399,7 +399,7 @@ impl RunningInstance {
     }
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_run_instance(
     env: Env,
     source: WasmModuleDefinition,
@@ -416,7 +416,7 @@ fn wasm_run_instance(
     return Ok(resource);
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_get_global_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -430,7 +430,7 @@ fn wasm_instance_get_global_i32(
     return Ok(result);
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_set_global_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -445,7 +445,7 @@ fn wasm_instance_set_global_i32(
     return Ok(result);
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_call_func(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -457,7 +457,7 @@ fn wasm_instance_call_func(
     return Ok(result);
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_call_func_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -469,7 +469,7 @@ fn wasm_instance_call_func_i32(
     return Ok(map_return_values_i32(env, result));
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_call_func_i32_string(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -480,7 +480,7 @@ fn wasm_instance_call_func_i32_string(
     return instance.call_i32_string(f, args).map_err(string_error);
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_write_string_nul_terminated(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -495,7 +495,7 @@ fn wasm_instance_write_string_nul_terminated(
     return Ok(result);
 }
 
-#[rustler::nif]
+#[nif]
 fn wasm_instance_read_memory(
     resource: ResourceArc<RunningInstanceResource>,
     start: i32,
@@ -518,7 +518,7 @@ fn load<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
     true
 }
 
-#[rustler::nif]
+#[nif(schedule = "DirtyCpu")]
 // fn wat2wasm(wat_source: String) -> Result<Vec<u8>, Error> {
 fn wat2wasm(env: Env, wat_source: String) -> Result<Binary, Error> {
     let result = Wat2Wasm::new()
@@ -533,9 +533,26 @@ fn wat2wasm(env: Env, wat_source: String) -> Result<Binary, Error> {
             b.as_mut_slice().copy_from_slice(v);
             let b2: Binary = b.into();
             Ok(b2)
-        },
+        }
         Err(e) => Err(string_error(e)),
     };
+}
+
+#[nif(schedule = "DirtyCpu")]
+fn validate_module_definition(env: Env, source: WasmModuleDefinition) -> Result<(), Error> {
+    let module = match source {
+        WasmModuleDefinition::Wat(s) => {
+            let source: &[u8] = s.as_ref();
+            wabt::Module::parse_wat("hello.wat", source, wabt::Features::new())
+        }
+        WasmModuleDefinition::Wasm(b) => {
+            wabt::Module::read_binary(b.as_ref(), &wabt::ReadBinaryOptions::default())
+        }
+    }
+    .map_err(string_error)?;
+
+    let result = module.validate().map_err(string_error);
+    result
 }
 
 rustler::init!(
@@ -557,7 +574,8 @@ rustler::init!(
         wasm_instance_call_func_i32_string,
         wasm_instance_write_string_nul_terminated,
         wasm_instance_read_memory,
-        wat2wasm
+        wat2wasm,
+        validate_module_definition
     ],
     load = load
 );

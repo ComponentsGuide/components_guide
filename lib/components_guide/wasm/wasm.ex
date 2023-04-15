@@ -5,6 +5,17 @@ defmodule ComponentsGuide.Wasm do
     quote do
       use ComponentsGuide.WasmBuilder
 
+      # @on_load :validate_definition!
+      # @after_compile __MODULE__
+
+      # def __after_compile__(_env, _bytecode) do
+      #   validate_definition!()
+      # end
+
+      def validate_definition! do
+        ComponentsGuide.Wasm.validate_definition!(__MODULE__.to_wat())
+      end
+
       def to_wasm() do
         ComponentsGuide.Wasm.wat2wasm(__MODULE__)
       end
@@ -30,6 +41,15 @@ defmodule ComponentsGuide.Wasm do
   end
 
   def wat2wasm(source), do: process_source(source) |> ComponentsGuide.Wasm.WasmNative.wat2wasm()
+
+  def validate_definition!(source) do
+    source = {:wat, process_source(source)}
+
+    case ComponentsGuide.Wasm.WasmNative.validate_module_definition(source) do
+      {:error, reason} -> raise reason
+      _ -> nil
+    end
+  end
 
   def call(source, f) do
     process_source(source) |> wasm_call_i32(f, []) |> process_result()

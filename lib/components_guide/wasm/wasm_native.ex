@@ -42,4 +42,5 @@ defmodule ComponentsGuide.Wasm.WasmNative do
     def wasm_instance_read_memory(_, _, _), do: error()
 
     def wat2wasm(_), do: error()
+    def validate_module_definition(_), do: error()
   end

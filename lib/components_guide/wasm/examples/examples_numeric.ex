@@ -5,7 +5,7 @@ defmodule ComponentsGuide.Wasm.Examples.Numeric do
     use Wasm
 
     defwasm do
-      func to_int_in_range(value(F32), min(I32), max(I32)), result: F32 do
+      func to_int_in_range(value(F32), min(I32), max(I32)), result: I32 do
         # Math.floor(Math.random() * (max - min + 1)) + min
         I32.add(
           I32.trunc_f32_s(
