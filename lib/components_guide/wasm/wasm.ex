@@ -12,9 +12,10 @@ defmodule ComponentsGuide.Wasm do
       #   validate_definition!()
       # end
 
-      def validate_definition! do
-        ComponentsGuide.Wasm.validate_definition!(__MODULE__.to_wat())
-      end
+      # FIXME: this blows up
+      # def validate_definition! do
+      #   ComponentsGuide.Wasm.validate_definition!(__MODULE__.to_wat())
+      # end
 
       def to_wasm() do
         ComponentsGuide.Wasm.wat2wasm(__MODULE__)
