@@ -271,8 +271,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defp expand_type(type) do
-    # Macro.expand_literals()
-    case Macro.expand_once(type, __ENV__) do
+    case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
       F32 -> :f32
       _ -> type
