@@ -43,7 +43,7 @@ defmodule ComponentsGuide.Wasm do
   def wat2wasm(source), do: process_source(source) |> ComponentsGuide.Wasm.WasmNative.wat2wasm()
 
   def validate_definition!(source) do
-    source = {:wat, process_source(source)}
+    source = {:wat, source}
 
     case ComponentsGuide.Wasm.WasmNative.validate_module_definition(source) do
       {:error, reason} -> raise reason
@@ -51,53 +51,35 @@ defmodule ComponentsGuide.Wasm do
     end
   end
 
-  # def call(source, f) do
-  #   process_source(source) |> wasm_call(f, []) |> process_result2()
-  # end
-
-  # def call(source, f, a) do
-  #   args = [a] |> Enum.map(&transform_primitive/1)
-  #   process_source(source) |> wasm_call(f, args) |> process_result2()
-  # end
-
-  # def call(source, f, a, b) do
-  #   args = [a, b] |> Enum.map(&transform_primitive/1)
-  #   process_source(source) |> wasm_call(f, args) |> process_result2()
-  # end
-
-  # def call(source, f, a, b, c) do
-  #   args = [a, b, c] |> Enum.map(&transform_primitive/1)
-  #   process_source(source) |> wasm_call(f, args) |> process_result2()
-  # end
-
   def call(source, f) do
-    process_source(source) |> wasm_call_i32(f, []) |> process_result()
+    call_apply(source, f, [])
   end
 
   def call(source, f, a) do
-    process_source(source) |> wasm_call_i32(f, [a]) |> process_result()
+    call_apply(source, f, [a])
   end
 
   def call(source, f, a, b) do
-    process_source(source) |> wasm_call_i32(f, [a, b]) |> process_result()
+    call_apply(source, f, [a, b])
   end
 
   def call(source, f, a, b, c) do
-    process_source(source) |> wasm_call_i32(f, [a, b, c]) |> process_result()
+    call_apply(source, f, [a, b, c])
   end
 
   def call_apply(source, f, args) do
-    args = Enum.map(args, &transform_primitive/1)
+    args = Enum.map(args, &transform32/1)
     call_apply_raw(source, f, args)
   end
 
   def call_apply_raw(source, f, args) do
+    f = to_string(f)
     process_source(source) |> wasm_call(f, args) |> process_result2()
   end
 
-  # defp transform_primitive(a)
-  defp transform_primitive(a) when is_integer(a), do: {:i32, a}
-  defp transform_primitive(a) when is_float(a), do: {:f32, a}
+  # defp transform32(a)
+  defp transform32(a) when is_integer(a), do: {:i32, a}
+  defp transform32(a) when is_float(a), do: {:f32, a}
 
   def call_string(source, f), do: process_source(source) |> wasm_call_i32_string(f, [])
   def call_string(source, f, a), do: process_source(source) |> wasm_call_i32_string(f, [a])

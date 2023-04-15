@@ -599,9 +599,11 @@ fn wat2wasm(env: Env, wat_source: String) -> Result<Binary, Error> {
 }
 
 #[nif(schedule = "DirtyCpu")]
+// #[nif]
 fn validate_module_definition(env: Env, source: WasmModuleDefinition) -> Result<(), Error> {
     let module = match source {
         WasmModuleDefinition::Wat(s) => {
+            let s = s.clone();
             let source: &[u8] = s.as_ref();
             wabt::Module::parse_wat("hello.wat", source, wabt::Features::new())
         }
@@ -613,6 +615,7 @@ fn validate_module_definition(env: Env, source: WasmModuleDefinition) -> Result<
 
     let result = module.validate().map_err(string_error);
     result
+    // Ok(())
 }
 
 rustler::init!(

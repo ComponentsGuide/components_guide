@@ -4,14 +4,14 @@ defmodule ComponentsGuide.Wasm.Examples.Numeric do
   defmodule BasicMath do
     use Wasm
 
-    defwasm exported_globals: [time: i32(0)] do
+    defwasm do
       func i32_double(value(I32)), result: I32 do
         I32.mul(value, 2)
       end
 
-      # func f32_double(value(F32)), result: F32 do
-      #   F32.mul(value, 2.0)
-      # end
+      func f32_double(value(F32)), result: F32 do
+        F32.mul(value, 2.0)
+      end
     end
   end
 

@@ -312,6 +312,8 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
   end
 
   describe "LamportClock" do
+    # test "validate definition", do: LamportClock.validate_definition!()
+
     test "works" do
       a = LamportClock.start()
       b = LamportClock.start()
