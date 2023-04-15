@@ -211,7 +211,7 @@ defmodule ComponentsGuide.Wasm.WasmExamplesTest do
       assert CounterHTML.exports() == [
                {:func, "get_current"},
                {:func, "increment"},
-               {:func, "invalidate"},
+               {:func, "rewind"},
                {:func, "next_body_chunk"}
              ]
     end

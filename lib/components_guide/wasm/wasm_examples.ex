@@ -311,7 +311,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
 
       data_nul_terminated(@strings)
 
-      func invalidate, locals: [i: I32] do
+      func rewind, locals: [i: I32] do
         body_chunk_index = 0
         bump_offset = @bump_start
 
@@ -386,7 +386,7 @@ defmodule ComponentsGuide.Wasm.WasmExamples do
     end
 
     def read_body(instance) do
-      Wasm.instance_call(instance, "invalidate")
+      Wasm.instance_call(instance, "rewind")
       Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
     end
 
