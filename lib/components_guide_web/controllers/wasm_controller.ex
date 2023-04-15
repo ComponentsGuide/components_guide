@@ -1,31 +1,46 @@
+defmodule ComponentsGuideWeb.WasmShared do
+  defmacro all_modules do
+    Macro.escape(%{
+      "escape_html.wasm" => WasmExamples.EscapeHTML,
+      "html_page.wasm" => WasmExamples.HTMLPage,
+      "counter_html.wasm" => WasmExamples.CounterHTML,
+      "simple_weekday_parser.wasm" => WasmExamples.SimpleWeekdayParser,
+      "sitemap_builder.wasm" => WasmExamples.SitemapBuilder
+    })
+  end
+end
+
 defmodule ComponentsGuideWeb.WasmController do
   use ComponentsGuideWeb, :controller
   plug :put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON
   alias ComponentsGuide.Wasm.WasmExamples
 
+  @modules %{
+    "escape_html.wasm" => WasmExamples.EscapeHTML,
+    "html_page.wasm" => WasmExamples.HTMLPage,
+    "counter_html.wasm" => WasmExamples.CounterHTML,
+    "simple_weekday_parser.wasm" => WasmExamples.SimpleWeekdayParser
+  }
+
   def index(conn, _params) do
-    escape_html_wat = WasmExamples.EscapeHTML.to_wat()
-    html_page_wat = WasmExamples.HTMLPage.to_wat()
-    counter_html_wat = WasmExamples.CounterHTML.to_wat()
+    assigns =
+      case get_format(conn) do
+        "html" ->
+          [
+            escape_html_wat: WasmExamples.EscapeHTML.to_wat(),
+            html_page_wat: WasmExamples.HTMLPage.to_wat(),
+            counter_html_wat: WasmExamples.CounterHTML.to_wat()
+          ]
 
-    render(conn, :index,
-      escape_html_wat: escape_html_wat,
-      html_page_wat: html_page_wat,
-      counter_html_wat: counter_html_wat,
-      today: Date.utc_today()
-    )
-  end
-
-  def module(conn, %{"module" => name}) do
-    elixir_module =
-      case name do
-        "escape_html.wasm" -> WasmExamples.EscapeHTML
-        "html_page.wasm" -> WasmExamples.HTMLPage
-        "counter_html.wasm" -> WasmExamples.CounterHTML
-        "simple_weekday_parser.wasm" -> WasmExamples.SimpleWeekdayParser
+        _ ->
+          []
       end
 
-    wasm = elixir_module.to_wasm()
+    render(conn, :index, assigns)
+  end
+
+  def module(conn, %{"module" => name}) when is_map_key(@modules, name) do
+    wasm = @modules[name].to_wasm()
     # json(
     #   conn,
     #   WasmJSON.module(%{wat: wat})
@@ -68,9 +83,16 @@ defmodule ComponentsGuideWeb.WasmHTML do
 end
 
 defmodule ComponentsGuideWeb.WasmJSON do
+  require ComponentsGuideWeb.WasmShared
+  @modules ComponentsGuideWeb.WasmShared.all_modules()
+
   def index(_assigns) do
-    paths = ["escape_html", "html_page", "counter_html", "simple_weekday_parser"]
-      |> Enum.map(fn name -> "/wasm/module/#{name}.wasm" end)
+    # paths =
+    #   ["escape_html", "html_page", "counter_html", "simple_weekday_parser", "sitemap_builder"]
+    #   |> Enum.map(fn name -> "/wasm/module/#{name}.wasm" end)
+
+    paths = @modules |> Enum.map(fn {name, _} -> "/wasm/module/#{name}" end)
+
     %{paths: paths}
   end
 
