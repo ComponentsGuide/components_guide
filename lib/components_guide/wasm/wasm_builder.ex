@@ -88,22 +88,9 @@ defmodule ComponentsGuide.WasmBuilder do
     defstruct [:identifier, :result, :body]
   end
 
-  # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
-  @i_unary_ops ~w(clz ctz popcnt)a
-  @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
-  @i_test_ops ~w(eqz)a
-  @i_relative_ops ~w(eq ne lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a
-  # https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Memory/Load
-  @i_load_ops ~w(load load8_u load8_s)a
-  @i_store_ops ~w(store store8)a
-  @f32_trunc_ops ~w(trunc_f32_s trunc_f32_u trunc_f64_s trunc_f64_u)a
-  @i32_ops_1 @i_unary_ops ++ @i_test_ops ++ @f32_trunc_ops
-  @i32_ops_2 @i_binary_ops ++ @i_relative_ops
-  @i32_ops_all @i32_ops_1 ++ @i32_ops_2 ++ @i_load_ops ++ @i_store_ops
-
-  @f32_ops_1 ~w(convert_i32_s convert_i32_u)a
-
   defmodule I32 do
+    require Ops
+
     def add(a, b)
     def sub(a, b)
     def mul(a, b)
@@ -120,30 +107,33 @@ defmodule ComponentsGuide.WasmBuilder do
     def rotl(a, b)
     def rotr(a, b)
 
-    for op <-
-          ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr lt_u lt_s gt_u gt_s le_u le_s ge_u ge_s)a do
-      def unquote(op)(a, b) do
-        {:i32, unquote(op), {a, b}}
-      end
-    end
-
-    for op <-
-          ~w(trunc_f32_s trunc_f32_u trunc_f64_s trunc_f64_u)a do
+    for op <- Ops.i32(1) do
       def unquote(op)(a) do
         {:i32, unquote(op), a}
       end
     end
 
-    def eq(a, b), do: {:i32, :eq, {a, b}}
-    def eqz(value), do: {:i32, :eqz, value}
+    for op <- Ops.i32(2) do
+      def unquote(op)(a, b) do
+        {:i32, unquote(op), {a, b}}
+      end
+    end
+
+    # TODO: not sure if I want to keep this pop-from-stack style.
+    # It’s only used by one test.
     def eqz(), do: {:i32, :eqz}
 
-    def load(offset), do: {:i32, :load, offset}
-    def load8_u(offset), do: {:i32, :load8_u, offset}
+    for op <- Ops.i32(:load) do
+      def unquote(op)(offset) do
+        {:i32, unquote(op), offset}
+      end
+    end
 
-    def store(offset), do: {:i32, :store, offset}
-    def store(offset, value), do: {:i32, :store, offset, value}
-    def store8(offset, value), do: {:i32, :store8, offset, value}
+    for op <- Ops.i32(:store) do
+      def unquote(op)(offset, value) do
+        {:i32, unquote(op), offset, value}
+      end
+    end
 
     def memory8!(offset) do
       %{
@@ -456,7 +446,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
   # TODO: unused
   def i32_const(value), do: {:i32_const, value}
-  def i32(op) when op in @i32_ops_all, do: {:i32, op}
+  def i32(op) when op in Ops.i32(:all), do: {:i32, op}
   def i32(n) when is_integer(n), do: {:i32_const, n}
 
   def push(tuple)
@@ -736,6 +726,7 @@ defmodule ComponentsGuide.WasmBuilder do
     ]
   end
 
+  # TODO: remove
   def to_wat({:if, condition, when_true, when_false}, indent) do
     [
       [indent, "(if ", to_wat(condition, ""), ?\n],
@@ -803,13 +794,13 @@ defmodule ComponentsGuide.WasmBuilder do
   def to_wat({:local_tee, identifier}, indent), do: "#{indent}(local.tee $#{identifier})"
   def to_wat(value, indent) when is_integer(value), do: "#{indent}(i32.const #{value})"
   def to_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
-  def to_wat({:i32, op}, indent) when op in @i32_ops_all, do: "#{indent}(i32.#{op})"
+  def to_wat({:i32, op}, indent) when op in Ops.i32(:all), do: "#{indent}(i32.#{op})"
 
-  def to_wat({:i32, op, offset}, indent) when op in ~w(load load8_u load8_s store store8)a do
+  def to_wat({:i32, op, offset}, indent) when op in Ops.i32(:load) or op in Ops.i32(:store) do
     [indent, "(i32.", to_string(op), " ", to_wat(offset), ?)]
   end
 
-  def to_wat({:i32, op, offset, value}, indent) when op in ~w(store store8)a do
+  def to_wat({:i32, op, offset, value}, indent) when op in Ops.i32(:store) do
     [indent, "(i32.", to_string(op), " ", to_wat(offset), " ", to_wat(value), ?)]
   end
 

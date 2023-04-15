@@ -1,4 +1,5 @@
 defmodule ComponentsGuide.Wasm.Ops do
+  # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
   @i_unary_ops ~w(clz ctz popcnt)a
   @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
   @i_test_ops ~w(eqz)a
@@ -19,6 +20,7 @@ defmodule ComponentsGuide.Wasm.Ops do
   defmacro i32(2), do: @i32_ops_2 |> Macro.escape()
   defmacro i32(:load), do: @i_load_ops |> Macro.escape()
   defmacro i32(:store), do: @i_store_ops |> Macro.escape()
+  defmacro i32(:all), do: @i32_ops_all |> Macro.escape()
 
   defmacro f32(which)
   defmacro f32(1), do: @f32_ops_1 |> Macro.escape()

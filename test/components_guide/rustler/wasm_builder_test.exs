@@ -177,7 +177,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
         lt = I32.lt_s(num, 1)
         gt = I32.gt_s(num, 255)
 
-        I32.or(lt, gt)
+        push(I32.or(lt, gt))
         I32.eqz()
       end
     end
