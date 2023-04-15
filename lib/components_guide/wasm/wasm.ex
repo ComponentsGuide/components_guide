@@ -68,6 +68,16 @@ defmodule ComponentsGuide.Wasm do
     call_apply(source, f, [a, b, c])
   end
 
+  def capture(source, f, arity) do
+    # call = Function.capture(__MODULE__, :call, arity + 2)
+    case arity do
+      0 -> fn -> call(source, f) end
+      1 -> fn a -> call(source, f, a) end
+      2 -> fn a, b -> call(source, f, a, b) end
+      3 -> fn a, b, c -> call(source, f, a, b, c) end
+    end
+  end
+
   def call_apply(source, f, args) do
     args = Enum.map(args, &transform32/1)
     call_apply_raw(source, f, args)
