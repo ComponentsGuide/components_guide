@@ -91,6 +91,9 @@ defmodule ComponentsGuide.WasmBuilder do
   defmodule I32 do
     require Ops
 
+    # TODO: add math macro?
+    # e.g. I32.math(do: max - min + 1) gets transformed into I32.add(I32.sub(max, min), 1)
+
     def add(a, b)
     def sub(a, b)
     def mul(a, b)
