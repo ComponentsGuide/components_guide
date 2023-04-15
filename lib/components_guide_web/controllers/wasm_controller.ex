@@ -1,7 +1,6 @@
 defmodule ComponentsGuideWeb.WasmController do
   use ComponentsGuideWeb, :controller
-  # plug :put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON
-  alias ComponentsGuide.Rustler.Wasm
+  plug :put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON
   alias ComponentsGuide.Wasm.WasmExamples
 
   def index(conn, _params) do
@@ -69,6 +68,12 @@ defmodule ComponentsGuideWeb.WasmHTML do
 end
 
 defmodule ComponentsGuideWeb.WasmJSON do
+  def index(_assigns) do
+    paths = ["escape_html", "html_page", "counter_html", "simple_weekday_parser"]
+      |> Enum.map(fn name -> "/wasm/module/#{name}.wasm" end)
+    %{paths: paths}
+  end
+
   def module(assigns) do
     %{assigns: assigns}
   end
