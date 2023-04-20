@@ -125,6 +125,7 @@ name = "componentsguide_rustler_math"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "crossbeam-channel",
  "rustler",
  "wabt",
  "wasmtime",

@@ -1,18 +1,22 @@
 // See: https://hansihe.com/posts/rustler-safe-erlang-elixir-nifs-in-rust/
 
+pub mod atom;
+
 use anyhow::anyhow;
+use crossbeam_channel::bounded;
 // use log::{info, warn};
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
 use rustler::{
     nif, Atom, Binary, Encoder, Env, Error, LocalPid, NewBinary, NifRecord, NifStruct,
-    NifTaggedEnum, NifTuple, NifUnitEnum, OwnedEnv, ResourceArc, Term,
+    NifTaggedEnum, NifTuple, NifUnitEnum, OwnedBinary, OwnedEnv, ResourceArc, Term,
 };
 use std::convert::{TryFrom, TryInto};
 use std::ffi::CStr;
 // use std::rc::Rc;
 use std::slice;
 use std::sync::{Arc, RwLock};
+use std::thread;
 use wabt::Wat2Wasm;
 
 #[nif]
@@ -358,6 +362,7 @@ struct ImportsTable
 
 trait CallbackReceiver: Send + Sync + Clone + Copy {
     fn pid(self) -> Option<LocalPid>;
+    // fn env(self) -> Option<Env>;
     fn receive(self, func_id: i64, params: &[Val], results: &mut [Val]) -> Result<()>;
 }
 
@@ -367,6 +372,9 @@ impl CallbackReceiver for NoopCallbackReceiver {
     fn pid(self) -> Option<LocalPid> {
         None
     }
+    // fn env(self) -> Option<Env> {
+    //     None
+    // }
     fn receive(self, _func_id: i64, _params: &[Val], _results: &mut [Val]) -> Result<()> {
         // TODO: this should return an error "To use imported functions run an instance."
         // Do nothing
@@ -377,11 +385,16 @@ impl CallbackReceiver for NoopCallbackReceiver {
 #[derive(Clone, Copy)]
 struct EnvCallbackReceiver<'a> {
     env: Env<'a>,
+    gen_pid: LocalPid,
 }
-impl CallbackReceiver for EnvCallbackReceiver<'_> {
+impl<'a> CallbackReceiver for EnvCallbackReceiver<'a> {
     fn pid(self) -> Option<LocalPid> {
-        None
+        // Some(self.env.pid())
+        Some(self.gen_pid)
     }
+    // fn env(self) -> Option<Env<'_>> {
+    //     Some(self.env)
+    // }
     fn receive(self, func_id: i64, params: &[Val], results: &mut [Val]) -> Result<()> {
         // TODO
         Ok(())
@@ -392,10 +405,29 @@ unsafe impl<'a> Send for EnvCallbackReceiver<'a> {}
 unsafe impl<'a> Sync for EnvCallbackReceiver<'a> {}
 // impl Send for EnvCallbackReceiver {}
 
+struct CallOutToFuncReply {
+    // recv: std::sync::mpsc::Receiver<i32>,
+    // lock: RwLock<Term>,
+    func_id: i64,
+    lock: RwLock<Option<OwnedBinary>>,
+    sender: crossbeam_channel::Sender<OwnedBinary>
+}
+
+impl CallOutToFuncReply {
+    fn new(func_id: i64, sender: crossbeam_channel::Sender<OwnedBinary>) -> Self {
+        // Self { func_id: func_id, lock: RwLock::new(OwnedBinary::new(0)) }
+        Self {
+            func_id: func_id,
+            lock: RwLock::new(None),
+            sender: sender
+        }
+    }
+}
+
 impl ImportsTable {
-    fn define<T: CallbackReceiver>(self, linker: &mut Linker<()>, receiver: T) -> Result<()> {
+    fn define<T: CallbackReceiver>(self, linker: &mut Linker<()>, callback_receiver: T) -> Result<()> {
         // let mut env = OwnedEnv::new();
-        let rc = Arc::new(receiver);
+        let rc = Arc::new(callback_receiver);
 
         for fi in self.funcs {
             let ft: FuncType = fi.clone().try_into()?;
@@ -404,26 +436,66 @@ impl ImportsTable {
 
             // let r = rc.clone();
             let r = Arc::downgrade(&rc);
-            let pid = receiver.pid();
+            let pid = callback_receiver.pid().unwrap();
 
             linker.func_new(
                 &fi.module_name,
                 &fi.name,
                 ft,
                 move |_caller, params, results| {
-                    results[0] = Val::I32(42);
-                    Ok(())
+                    // results[0] = Val::I32(42);
+                    // eprintln!("Error: Could not complete task");
 
-                    // match pid {
-                    //     None => Ok(()),
-                    //     Some(pid) => {
-                    //         let mut env = OwnedEnv::new();
-                    //         env.send_and_clear(&pid, |env| {
-                    //             (func_id).encode(env)
-                    //         });
-                    //         Ok(())
-                    //     }
-                    // }
+                    results[0] = Val::I32(42);
+                    let mut owned_env = OwnedEnv::new();
+
+                    let (sender, recv) = bounded::<OwnedBinary>(1);
+
+                    // let mut owned_env2 = owned_env.clone();
+                    let reply_value = thread::spawn(move || {
+                        let mut owned_env = OwnedEnv::new();
+                        let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
+                        let r2 = reply.clone();
+                        owned_env.run(|env| {
+                            env.send(&pid, (atom::reply_to_func_call_out(), reply).encode(env));
+                        });
+                        let reply_binary = recv.recv().expect("Did not write back reply value 1");
+
+                        // let reply_binary2 = reply_binary
+                        //     .as_ref()
+                        //     .expect("Did not write back reply value 2");
+                        eprintln!("Got reply");
+                        // reply_binary2.to_vec()
+
+                        let number = owned_env.run(|env| {
+                            let (term, _size) = env
+                                .binary_to_term(reply_binary.as_ref())
+                                .expect("Could not decode term");
+                            let number: i32 = term.decode().expect("Not a i32");
+                            number
+                        });
+                        number
+                    });
+
+                    let number = reply_value.join().expect("Thread failed.");
+
+
+                    // let number = owned_env.run(|env| {
+                    //     let reply_binary2 = reply_binary2.join().expect("Thread failed.");
+                    //     let (term, _size) = env
+                    //         .binary_to_term(reply_binary2.as_ref())
+                    //         .expect("Could not decode term");
+                    //     let number: i32 = term.decode().expect("Not a i32");
+                    //     number
+                    // });
+
+                    // let mut owned_env = OwnedEnv::new();
+                    // let env = owned_env.run(|env| env.clone());
+                    // let reply_saved_term = reply_saved_term.join()?;
+                    // let number: i32 = reply_term.decode()?;
+
+                    results[0] = Val::I32(number);
+                    Ok(())
 
                     // receiver.receive(func_id, params, result)
                     // r.upgrade()
@@ -627,12 +699,16 @@ fn wasm_run_instance(
     env: Env,
     source: WasmModuleDefinition,
     func_imports: Vec<FuncImport>,
+    gen_pid: LocalPid,
 ) -> Result<ResourceArc<RunningInstanceResource>, Error> {
-    env.send(&env.pid(), env.error_tuple("running_instance"));
+    env.send(&env.pid(), atom::run_instance_start().encode(env));
     let imports_table = ImportsTable {
         funcs: func_imports,
     };
-    let receiver = EnvCallbackReceiver { env: env };
+    let receiver = EnvCallbackReceiver {
+        env: env,
+        gen_pid: gen_pid,
+    };
     let running_instance =
         RunningInstance::new_with_imports(source, imports_table, receiver).map_err(string_error)?;
 
@@ -736,6 +812,20 @@ fn wasm_instance_read_memory(
     return Ok(result);
 }
 
+#[nif]
+fn wasm_call_out_reply(
+    env: Env,
+    resource: ResourceArc<CallOutToFuncReply>,
+    reply: Term,
+) -> Result<(), Error> {
+    // let mut binary = resource.lock.write().map_err(string_error)?;
+    // *binary = Some(reply.to_binary());
+
+    resource.sender.send(reply.to_binary()).map_err(string_error)?;
+
+    return Ok(());
+}
+
 // The `'a` in this function definition is something called a lifetime.
 // This will inform the Rust compiler of how long different things are
 // allowed to live. Don't worry too much about this, as this will be the
@@ -744,6 +834,7 @@ fn load<'a>(env: Env<'a>, _load_info: Term<'a>) -> bool {
     // This macro will take care of defining and initializing a new resource
     // object type.
     rustler::resource!(RunningInstanceResource, env);
+    rustler::resource!(CallOutToFuncReply, env);
     true
 }
 
@@ -807,6 +898,7 @@ rustler::init!(
         wasm_instance_call_func_i32_string,
         wasm_instance_write_string_nul_terminated,
         wasm_instance_read_memory,
+        wasm_call_out_reply,
         wat2wasm,
         validate_module_definition
     ],

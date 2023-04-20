@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm do
   import ComponentsGuide.Wasm.WasmNative
 
   defmacro __using__(_) do
-    quote do
+    quote location: :keep do
       use ComponentsGuide.WasmBuilder
 
       # @on_load :validate_definition!
@@ -28,6 +28,8 @@ defmodule ComponentsGuide.Wasm do
       def start() do
         ComponentsGuide.Wasm.run_instance(__MODULE__)
       end
+
+      defoverridable start: 0
     end
   end
 
@@ -121,9 +123,40 @@ defmodule ComponentsGuide.Wasm do
     end
   end
 
+  defmodule ReplyServer do
+    use GenServer
+
+    def start_link(imports) when is_list(imports) do
+      GenServer.start_link(__MODULE__, imports)
+    end
+
+    @impl true
+    def init(imports) do
+      {:ok, imports}
+    end
+
+    @impl true
+    def handle_info({:reply_to_func_call_out, reply}, imports) do
+      ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(reply, 99)
+
+      {:noreply, imports}
+    end
+  end
+
   def run_instance(source, imports \\ []) do
+    {:ok, pid} = ReplyServer.start_link(imports)
     source = {:wat, process_source(source)}
-    wasm_run_instance(source, imports)
+    instance = wasm_run_instance(source, imports, pid)
+
+    receive do
+      :run_instance_start ->
+        nil
+    after
+      5000 ->
+        IO.puts(:stderr, "No message in 5 seconds")
+    end
+
+    instance
   end
 
   def instance_get_global(instance, global_name),
@@ -131,6 +164,11 @@ defmodule ComponentsGuide.Wasm do
 
   def instance_set_global(instance, global_name, new_value),
     do: wasm_instance_set_global_i32(instance, to_string(global_name), new_value)
+
+  def do_instance_call(instance, f, args) do
+    # wasm_instance_call_func(instance, f, args)
+    wasm_instance_call_func_i32(instance, f, args)
+  end
 
   # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
   def instance_call(instance, f), do: wasm_instance_call_func_i32(instance, f, [])

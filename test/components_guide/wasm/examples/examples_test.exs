@@ -388,7 +388,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
       instance = HTTPProxy.start(nil)
 
       status = Wasm.instance_call(instance, "get_status")
-      assert status == 0
+      assert status == 200
     end
   end
 end
