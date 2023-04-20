@@ -771,16 +771,29 @@ defmodule ComponentsGuide.Wasm.Examples do
     def start(init) do
       # imports = []
       imports = [
-        %ComponentsGuide.WasmBuilder.FuncImport{
+        %Wasm.FuncImport{
           unique_id: 0,
           module_name: "http",
           name: "get",
-          param_types: [:i32],
-          result_types: [:i32]
-        }
+          param_types: [:i32], # TODO: how to read string from memory?
+          result_types: [:i32],
+          do: fn _x -> 200 end
+        },
+        # http: [
+        #   func get(address(I32)), result: I32 do
+        #     200
+        #   end
+        # ]
+
+        # http: [
+        #   get: fn _address ->
+        #     200
+        #   end
+        # ]
       ]
 
       IO.inspect(imports)
+      # TODO: use Function.info(x, :arity)
 
       ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
 

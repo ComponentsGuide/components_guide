@@ -123,6 +123,16 @@ defmodule ComponentsGuide.Wasm do
     end
   end
 
+  defmodule FuncImport do
+    defstruct unique_id: 0,
+              module_name: "",
+              name: "",
+              param_types: [],
+              result_types: [],
+              # do: fn -> nil end
+              do: &Function.identity/1
+  end
+
   defmodule ReplyServer do
     use GenServer
 
@@ -136,8 +146,18 @@ defmodule ComponentsGuide.Wasm do
     end
 
     @impl true
-    def handle_info({:reply_to_func_call_out, reply}, imports) do
-      ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(reply, 99)
+    def handle_info({:reply_to_func_call_out, func_id, resource}, imports) do
+      handler =
+        imports
+        |> Enum.find_value(fn
+          %FuncImport{unique_id: ^func_id, do: handler} -> handler
+          _ -> nil
+        end)
+
+      # TODO: wrap in try/catch
+      # and call wasm_call_out_reply_failure when it fails.
+      value = handler.(0)
+      ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, value)
 
       {:noreply, imports}
     end
@@ -148,13 +168,13 @@ defmodule ComponentsGuide.Wasm do
     source = {:wat, process_source(source)}
     instance = wasm_run_instance(source, imports, pid)
 
-    receive do
-      :run_instance_start ->
-        nil
-    after
-      5000 ->
-        IO.puts(:stderr, "No message in 5 seconds")
-    end
+    # receive do
+    #   :run_instance_start ->
+    #     nil
+    # after
+    #   5000 ->
+    #     IO.puts(:stderr, "No message in 5 seconds")
+    # end
 
     instance
   end

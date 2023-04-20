@@ -41,14 +41,6 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defmodule FuncImport do
-    defstruct unique_id: 0,
-              module_name: "",
-              name: "",
-              param_types: [],
-              result_types: []
-  end
-
   defmodule Module do
     defstruct name: nil, imports: [], exported_globals: [], globals: [], body: []
 

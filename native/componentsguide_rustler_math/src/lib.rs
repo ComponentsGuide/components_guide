@@ -334,7 +334,7 @@ struct RunningInstance {
 }
 
 #[derive(Clone, NifStruct)]
-#[module = "ComponentsGuide.WasmBuilder.FuncImport"]
+#[module = "ComponentsGuide.Wasm.FuncImport"]
 struct FuncImport {
     unique_id: i64,
     module_name: String,
@@ -457,7 +457,7 @@ impl ImportsTable {
                         let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
                         let r2 = reply.clone();
                         owned_env.run(|env| {
-                            env.send(&pid, (atom::reply_to_func_call_out(), reply).encode(env));
+                            env.send(&pid, (atom::reply_to_func_call_out(), func_id, reply).encode(env));
                         });
                         let reply_binary = recv.recv().expect("Did not write back reply value 1");
 
