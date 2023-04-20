@@ -750,25 +750,48 @@ defmodule ComponentsGuide.Wasm.Examples do
     @output_offset 2 * @page_size
 
     defwasm imports: [
-      env: [buffer: memory(3)],
-      # http_get: func http_get(I32),
-      http: [
-        get: func(name: :http_get, params: I32, result: I32),
-      ]
-    ],
-    exported_globals: [
-      input_offset: i32(@input_offset)
-    ] do
+              env: [buffer: memory(3)],
+              # http_get: func http_get(I32),
+              http: [
+                get: func(name: :http_get, params: I32, result: I32)
+              ]
+            ],
+            exported_globals: [
+              input_offset: i32(@input_offset)
+            ] do
       func get_status(), result: I32 do
         # 500
         call(:http_get, 0)
       end
     end
+
     # Expects an input callback `fetch` or `http_get`
     # Will work like Cloudflare/Vercel does with its patching of fetch()
 
     def start(init) do
-      ComponentsGuide.Wasm.run_instance(__MODULE__)
+      # imports = []
+      imports = [
+        %ComponentsGuide.WasmBuilder.FuncImport{
+          unique_id: 0,
+          module_name: "http",
+          name: "get",
+          param_types: [:i32],
+          result_types: [:i32]
+        }
+      ]
+
+      IO.inspect(imports)
+
+      ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
+
+
+      # ComponentsGuide.Wasm.run_instance(__MODULE__,
+      #   imports: [
+      #     http: [
+      #       get: fn address -> 201 end
+      #     ]
+      #   ]
+      # )
     end
   end
 

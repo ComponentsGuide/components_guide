@@ -25,7 +25,11 @@ defmodule ComponentsGuide.WasmBuilder do
     # TODO: should this be its own struct type?
     def imported_func(name, params, result_type) do
       # param_types = [:i32]
-      %__MODULE__{name: name, param_types: expand_type(params), result_type: {:result, expand_type(result_type)}}
+      %__MODULE__{
+        name: name,
+        param_types: expand_type(params),
+        result_type: {:result, expand_type(result_type)}
+      }
     end
 
     defp expand_type(type) do
@@ -35,6 +39,14 @@ defmodule ComponentsGuide.WasmBuilder do
         _ -> type
       end
     end
+  end
+
+  defmodule FuncImport do
+    defstruct unique_id: 0,
+              module_name: "",
+              name: "",
+              param_types: [],
+              result_types: []
   end
 
   defmodule Module do

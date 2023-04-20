@@ -33,7 +33,7 @@ defmodule ComponentsGuide.Wasm.WasmNative do
     def wasm_call_bulk(_, _), do: error()
     def wasm_steps(_, _), do: error()
 
-    def wasm_run_instance(_), do: error()
+    def wasm_run_instance(_, _), do: error()
     def wasm_instance_get_global_i32(_, _), do: error()
     def wasm_instance_set_global_i32(_, _, _), do: error()
     def wasm_instance_call_func(_, _), do: error()

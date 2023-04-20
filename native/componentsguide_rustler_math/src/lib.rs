@@ -5,13 +5,14 @@ use anyhow::anyhow;
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
 use rustler::{
-    nif, Atom, Binary, Encoder, Env, Error, NewBinary, NifRecord, NifStruct, NifTaggedEnum,
-    NifTuple, NifUnitEnum, ResourceArc, Term,
+    nif, Atom, Binary, Encoder, Env, Error, LocalPid, NewBinary, NifRecord, NifStruct,
+    NifTaggedEnum, NifTuple, NifUnitEnum, OwnedEnv, ResourceArc, Term,
 };
 use std::convert::{TryFrom, TryInto};
 use std::ffi::CStr;
+// use std::rc::Rc;
 use std::slice;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 use wabt::Wat2Wasm;
 
 #[nif]
@@ -52,7 +53,7 @@ enum WasmModuleDefinition<'a> {
 //     name: String,
 // }
 
-#[derive(NifUnitEnum)]
+#[derive(Clone, NifUnitEnum)]
 enum GlobalType {
     I32,
     I64,
@@ -70,6 +71,16 @@ impl TryFrom<&wasmtime::ValType> for GlobalType {
             ValType::F64 => GlobalType::F64,
             _ => anyhow::bail!("Unsupported global type {}", val),
         })
+    }
+}
+impl From<GlobalType> for wasmtime::ValType {
+    fn from(val: GlobalType) -> wasmtime::ValType {
+        match val {
+            GlobalType::I32 => ValType::I32,
+            GlobalType::I64 => ValType::I64,
+            GlobalType::F32 => ValType::F32,
+            GlobalType::F64 => ValType::F64,
+        }
     }
 }
 
@@ -155,7 +166,11 @@ fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i3
 }
 
 #[nif]
-fn wasm_call(wat_source: String, f: String, args: Vec<WasmSupportedValue>) -> Result<Vec<WasmSupportedValue>, Error> {
+fn wasm_call(
+    wat_source: String,
+    f: String,
+    args: Vec<WasmSupportedValue>,
+) -> Result<Vec<WasmSupportedValue>, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call(f, args))
@@ -314,9 +329,129 @@ struct RunningInstance {
     instance: Instance,
 }
 
+#[derive(Clone, NifStruct)]
+#[module = "ComponentsGuide.WasmBuilder.FuncImport"]
+struct FuncImport {
+    unique_id: i64,
+    module_name: String,
+    name: String,
+    param_types: Vec<GlobalType>,
+    result_types: Vec<GlobalType>,
+}
+
+impl TryInto<wasmtime::FuncType> for FuncImport {
+    type Error = anyhow::Error;
+
+    fn try_into(self) -> Result<wasmtime::FuncType, anyhow::Error> {
+        let params: Vec<ValType> = self.param_types.into_iter().map(|t| t.into()).collect();
+        let results: Vec<ValType> = self.result_types.into_iter().map(|t| t.into()).collect();
+
+        Ok(FuncType::new(params, results))
+    }
+}
+
+struct ImportsTable
+// where T: Fn(&[Val], &mut [Val]) -> Result<()>,
+{
+    funcs: Vec<FuncImport>,
+}
+
+trait CallbackReceiver: Send + Sync + Clone + Copy {
+    fn pid(self) -> Option<LocalPid>;
+    fn receive(self, func_id: i64, params: &[Val], results: &mut [Val]) -> Result<()>;
+}
+
+#[derive(Clone, Copy)]
+struct NoopCallbackReceiver {}
+impl CallbackReceiver for NoopCallbackReceiver {
+    fn pid(self) -> Option<LocalPid> {
+        None
+    }
+    fn receive(self, _func_id: i64, _params: &[Val], _results: &mut [Val]) -> Result<()> {
+        // TODO: this should return an error "To use imported functions run an instance."
+        // Do nothing
+        Ok(())
+    }
+}
+
+#[derive(Clone, Copy)]
+struct EnvCallbackReceiver<'a> {
+    env: Env<'a>,
+}
+impl CallbackReceiver for EnvCallbackReceiver<'_> {
+    fn pid(self) -> Option<LocalPid> {
+        None
+    }
+    fn receive(self, func_id: i64, params: &[Val], results: &mut [Val]) -> Result<()> {
+        // TODO
+        Ok(())
+    }
+}
+
+unsafe impl<'a> Send for EnvCallbackReceiver<'a> {}
+unsafe impl<'a> Sync for EnvCallbackReceiver<'a> {}
+// impl Send for EnvCallbackReceiver {}
+
+impl ImportsTable {
+    fn define<T: CallbackReceiver>(self, linker: &mut Linker<()>, receiver: T) -> Result<()> {
+        // let mut env = OwnedEnv::new();
+        let rc = Arc::new(receiver);
+
+        for fi in self.funcs {
+            let ft: FuncType = fi.clone().try_into()?;
+            // let ft: FuncType = FuncType::new(vec![ValType::I32], vec![ValType::I32]);
+            let func_id = fi.unique_id;
+
+            // let r = rc.clone();
+            let r = Arc::downgrade(&rc);
+            let pid = receiver.pid();
+
+            linker.func_new(
+                &fi.module_name,
+                &fi.name,
+                ft,
+                move |_caller, params, results| {
+                    results[0] = Val::I32(42);
+                    Ok(())
+
+                    // match pid {
+                    //     None => Ok(()),
+                    //     Some(pid) => {
+                    //         let mut env = OwnedEnv::new();
+                    //         env.send_and_clear(&pid, |env| {
+                    //             (func_id).encode(env)
+                    //         });
+                    //         Ok(())
+                    //     }
+                    // }
+
+                    // receiver.receive(func_id, params, result)
+                    // r.upgrade()
+                    //     .expect("Still alive")
+                    //     .receive(func_id, params, result)
+
+                    // func.write().unwrap()(params, result)
+                    // TODO
+                    // env.send_and_clear(&pid, |env| {
+                    //     (atom::call_exfn(), func_id, sval_vec_to_term(env, values)).encode(env)
+                    // });
+                    // Ok(())
+                },
+            )?;
+            // linker.define(&store, fi.module_name, fi.name, memory)?;
+        }
+        Ok(())
+    }
+}
+
 impl RunningInstance {
-    fn new(wat_source: WasmModuleDefinition) -> Result<Self, anyhow::Error> {
+    fn new_with_imports<T: CallbackReceiver>(
+        wat_source: WasmModuleDefinition,
+        imports: ImportsTable,
+        receiver: T,
+    ) -> Result<Self, anyhow::Error> {
         let engine = Engine::default();
+        let module = Module::new(&engine, &wat_source)?;
 
         // A `Store` is what will own instances, functions, globals, etc. All wasm
         // items are stored within a `Store`, and it's what we'll always be using to
@@ -329,7 +464,23 @@ impl RunningInstance {
         let memory = Memory::new(&mut store, memory_ty)?;
         linker.define(&store, "env", "buffer", memory)?;
 
-        let module = Module::new(&engine, &wat_source)?;
+        // linker.func_wrap("http", "get", |x: i32| x)?;
+        imports.define(&mut linker, receiver)?;
+
+        // let ft: FuncType = FuncType::new(
+        //     vec![ValType::I32],
+        //     vec![ValType::I32],
+        // );
+        // linker.func_new(
+        //     "http",
+        //     "get",
+        //     ft,
+        //     move |_caller, params, results| {
+        //         results[0] = Val::I32(42);
+        //         Ok(())
+        //     }
+        // )?;
+
         let instance = linker.instantiate(&mut store, &module)?;
 
         return Ok(Self {
@@ -337,6 +488,14 @@ impl RunningInstance {
             memory: memory,
             instance: instance,
         });
+    }
+
+    fn new(wat_source: WasmModuleDefinition) -> Result<Self, anyhow::Error> {
+        let imports_table = ImportsTable {
+            funcs: Vec::default(),
+        };
+        let noop = NoopCallbackReceiver {};
+        Self::new_with_imports(wat_source, imports_table, noop)
     }
 
     fn get_global_value_i32(&mut self, global_name: String) -> Result<i32, anyhow::Error> {
@@ -400,7 +559,11 @@ impl RunningInstance {
         return Ok(result);
     }
 
-    fn call(&mut self, f: String, args: Vec<WasmSupportedValue>) -> Result<Vec<WasmSupportedValue>, anyhow::Error> {
+    fn call(
+        &mut self,
+        f: String,
+        args: Vec<WasmSupportedValue>,
+    ) -> Result<Vec<WasmSupportedValue>, anyhow::Error> {
         let func = self
             .instance
             .get_func(&mut self.store, &f)
@@ -463,9 +626,15 @@ impl RunningInstance {
 fn wasm_run_instance(
     env: Env,
     source: WasmModuleDefinition,
+    func_imports: Vec<FuncImport>,
 ) -> Result<ResourceArc<RunningInstanceResource>, Error> {
     env.send(&env.pid(), env.error_tuple("running_instance"));
-    let running_instance = RunningInstance::new(source).map_err(string_error)?;
+    let imports_table = ImportsTable {
+        funcs: func_imports,
+    };
+    let receiver = EnvCallbackReceiver { env: env };
+    let running_instance =
+        RunningInstance::new_with_imports(source, imports_table, receiver).map_err(string_error)?;
 
     // info!("running_instance: {}", running_instance);
 

@@ -385,9 +385,10 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     end
 
     test "calls import" do
-      instance = HTTPProxy.start()
+      instance = HTTPProxy.start(nil)
 
       status = Wasm.instance_call(instance, "get_status")
+      assert status == 0
     end
   end
 end

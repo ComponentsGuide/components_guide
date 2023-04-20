@@ -121,9 +121,9 @@ defmodule ComponentsGuide.Wasm do
     end
   end
 
-  def run_instance(source) do
+  def run_instance(source, imports \\ []) do
     source = {:wat, process_source(source)}
-    wasm_run_instance(source)
+    wasm_run_instance(source, imports)
   end
 
   def instance_get_global(instance, global_name),
