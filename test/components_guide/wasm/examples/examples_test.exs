@@ -368,4 +368,26 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
       assert SimpleWeekdayParser.parse(a) == 0
     end
   end
+
+  describe "HTTPProxy" do
+    alias ComponentsGuide.Wasm.Examples.HTTPProxy
+
+    test "wat" do
+      IO.puts(HTTPProxy.to_wat())
+      assert HTTPProxy.to_wat() =~
+               ~S"""
+               (module $HTTPProxy
+                 (import "env" "buffer" (memory 3))
+                 (import "http" "get" (func $http_get (param i32) (result i32)))
+                 (global $input_offset (mut i32) (i32.const 65536))
+                 (export "input_offset" (global $input_offset))
+               """
+    end
+
+    test "calls import" do
+      instance = HTTPProxy.start()
+
+      status = Wasm.instance_call(instance, "get_status")
+    end
+  end
 end

@@ -11,8 +11,30 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
+  defmodule Param do
+    defstruct [:name, :type]
+  end
+
   defmodule Func do
     defstruct [:name, :params, :result, :local_types, :body]
+  end
+
+  defmodule FuncType do
+    defstruct [:name, :param_types, :result_type]
+
+    # TODO: should this be its own struct type?
+    def imported_func(name, params, result_type) do
+      # param_types = [:i32]
+      %__MODULE__{name: name, param_types: expand_type(params), result_type: {:result, expand_type(result_type)}}
+    end
+
+    defp expand_type(type) do
+      case Macro.expand_literals(type, __ENV__) do
+        ComponentsGuide.WasmBuilder.I32 -> :i32
+        ComponentsGuide.WasmBuilder.F32 -> :f32
+        _ -> type
+      end
+    end
   end
 
   defmodule Module do
@@ -54,10 +76,6 @@ defmodule ComponentsGuide.WasmBuilder do
         exported: exported == :exported
       }
     end
-  end
-
-  defmodule Param do
-    defstruct [:name, :type]
   end
 
   defmodule IfElse do
@@ -188,11 +206,25 @@ defmodule ComponentsGuide.WasmBuilder do
     imports =
       for {first, sub_imports} <- imports do
         for {second, definition} <- sub_imports do
-          quote do
-            %Import{module: unquote(first), name: unquote(second), type: unquote(definition)}
+          case definition do
+            {:func, _meta, [name, arg1]} ->
+              quote do
+                %Import{
+                  module: unquote(first),
+                  name: unquote(second),
+                  type: FuncType.imported_func(unquote(name), unquote(arg1), nil)
+                }
+              end
+
+            _ ->
+              quote do
+                %Import{module: unquote(first), name: unquote(second), type: unquote(definition)}
+              end
           end
         end
       end
+
+    imports = List.flatten(imports)
 
     internal_global_types = Keyword.get(options, :globals, [])
     exported_global_types = Keyword.get(options, :exported_globals, [])
@@ -276,6 +308,11 @@ defmodule ComponentsGuide.WasmBuilder do
       F32 -> :f32
       _ -> type
     end
+  end
+
+  def func(options) do
+    name = Keyword.fetch!(options, :name)
+    FuncType.imported_func(name, options[:params], options[:result])
   end
 
   defmacro func(call, options \\ [], do: block) do
@@ -594,6 +631,7 @@ defmodule ComponentsGuide.WasmBuilder do
           # ~s[(global $#{name} i32 (i32.const #{initial_value}))],
           ~s[(global $#{name} (mut i32) (i32.const #{initial_value}))],
           "\n",
+          "  " <> indent,
           ~s[(export "#{name}" (global $#{name}))],
           "\n"
         ]
@@ -603,9 +641,19 @@ defmodule ComponentsGuide.WasmBuilder do
         # TODO: handle more than just (mut i32), e.g. non-mut or f64
         do: ["  " <> indent, "(global $#{name} (mut i32) (i32.const #{initial_value}))", "\n"]
       ),
-      [indent, to_wat(body, "  " <> indent), "\n"],
+      case body do
+        [] ->
+          ""
+
+        body ->
+          [indent, to_wat(body, "  " <> indent), "\n"]
+      end,
       [indent, ")", "\n"]
     ]
+  end
+
+  def to_wat(%Import{module: nil, name: name, type: type}, indent) do
+    ~s[#{indent}(import "#{name}" #{to_wat(type)})]
   end
 
   def to_wat(%Import{module: module, name: name, type: type}, indent) do
@@ -618,6 +666,10 @@ defmodule ComponentsGuide.WasmBuilder do
 
   def to_wat(%Memory{name: name, min: min}, indent) do
     ~s"#{indent}(memory #{to_wat(name)} #{min})"
+  end
+
+  def to_wat(%FuncType{name: name, param_types: :i32, result_type: result_type}, indent) do
+    ~s[#{indent}(func $#{name} (param i32) #{to_wat(result_type)})]
   end
 
   def to_wat(%Data{offset: offset, value: value, nul_terminated: true}, indent) do
