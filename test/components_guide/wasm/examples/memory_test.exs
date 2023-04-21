@@ -14,13 +14,16 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     test "multiple allocations" do
       inst = BumpAllocator.start()
-      assert Instance.call(inst, :alloc, 0x10) == 0x10000
-      assert Instance.call(inst, :alloc, 0x10) == 0x10010
-      assert Instance.call(inst, :alloc, 0x10) == 0x10020
-      Instance.call(inst, :free_all)
-      assert Instance.call(inst, :alloc, 0x10) == 0x10000
-      assert Instance.call(inst, :alloc, 0x10) == 0x10010
-      assert Instance.call(inst, :alloc, 0x10) == 0x10020
+      alloc = Instance.capture(inst, :alloc, 1)
+      free_all = Instance.capture(inst, :free_all, 0)
+
+      assert alloc.(0x10) == 0x10000
+      assert alloc.(0x10) == 0x10010
+      assert alloc.(0x10) == 0x10020
+      free_all.()
+      assert alloc.(0x10) == 0x10000
+      assert alloc.(0x10) == 0x10010
+      assert alloc.(0x10) == 0x10020
     end
   end
 
