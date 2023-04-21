@@ -667,13 +667,16 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
       func parse(), result: I32, locals: [i: I32] do
+        # If does no end in nul byte, return 0
         if memory32_8![I32.add(input_offset, 3)].unsigned do
           return(0)
         end
 
+        # Write nul byte at end
         memory32_8![I32.add(input_offset, 3)] = 0
         i = memory32![input_offset]
 
+        # Check equality to each weekday as a i32 e.g. `Mon\0`
         inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
           if I32.eq(i, day_i32!), do: return(index!)
         end
