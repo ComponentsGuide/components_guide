@@ -99,7 +99,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       raw_wat(~S[(export "_test_list32_sum" (func $list32_sum))])
     end
 
-    def start(_init) do
+    def start() do
       imports = [
         {:log, :int32, fn value ->
           IO.inspect(value, label: "wasm log int32")
