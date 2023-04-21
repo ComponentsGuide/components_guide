@@ -174,6 +174,14 @@ defmodule ComponentsGuide.WasmBuilder do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: nil}
     end
 
+    def if_eqz(value, do: when_true, else: when_false) do
+      if_else(eqz(value), do: when_true, else: when_false)
+    end
+
+    def if_eqz(value, do: when_true) do
+      if_else(eqz(value), do: when_true)
+    end
+
     def from_4_byte_ascii(<<int::little-size(32)>>), do: int
   end
 
@@ -291,6 +299,8 @@ defmodule ComponentsGuide.WasmBuilder do
   defmacro defwasm(options \\ [], do: block) do
     name = __CALLER__.module |> Elixir.Module.split() |> List.last()
 
+    # options = Macro.expand(options, __CALLER__)
+
     # block = quote context: __CALLER__.module, do: unquote(block)
     definition = define_module(name, options, block, __CALLER__)
 
@@ -301,6 +311,7 @@ defmodule ComponentsGuide.WasmBuilder do
         import Kernel, except: [if: 2]
         import ComponentsGuide.WasmBuilderUsing
 
+        # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
         unquote(definition)
       end
       # TODO: what is the best way to pass this value along?

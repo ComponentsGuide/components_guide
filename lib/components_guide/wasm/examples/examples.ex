@@ -524,11 +524,12 @@ defmodule ComponentsGuide.Wasm.Examples do
       # EscapeHTML.cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
       cpfuncp(escape, from: EscapeHTML, result: I32)
 
-      cpfuncp(bump_alloc, from: BumpAllocator, result: I32)
+      cpfuncp(bump_alloc32, from: BumpAllocator, result: I32)
       cpfuncp(bump_free_all, from: BumpAllocator, result: I32)
 
-      func alloc(byte_size(I32)), result: I32 do
-        call(:bump_alloc, byte_size)
+      func alloc_bytes(byte_size(I32)), result: I32 do
+        # Need better maths than this
+        call(:bump_alloc32, I32.add(I32.div_u(byte_size, 4), 1))
       end
 
       func rewind do

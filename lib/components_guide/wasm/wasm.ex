@@ -54,7 +54,10 @@ defmodule ComponentsGuide.Wasm do
         other -> {:wat, other}
       end
 
-    wasm_list_imports(source)
+    case wasm_list_imports(source) do
+      {:error, reason} -> raise reason
+      other -> other
+    end
   end
 
   def wat2wasm(source), do: process_source(source) |> ComponentsGuide.Wasm.WasmNative.wat2wasm()
@@ -166,12 +169,17 @@ defmodule ComponentsGuide.Wasm do
 
     @impl true
     def handle_info({:reply_to_func_call_out, func_id, resource}, imports) do
+      # IO.inspect(func_id, label: "reply_to_func_call_out func_id")
+      # IO.inspect(resource, label: "reply_to_func_call_out resource")
+
       handler =
         imports
         |> Enum.find_value(fn
           %FuncImport{unique_id: ^func_id, do: handler} -> handler
           _ -> nil
         end)
+
+      # IO.inspect(handler, label: "reply_to_func_call_out found func")
 
       # TODO: wrap in try/catch
       # and call wasm_call_out_reply_failure when it fails.
@@ -250,6 +258,7 @@ defmodule ComponentsGuide.Wasm do
     do: wasm_instance_set_global_i32(instance, to_string(global_name), new_value)
 
   defp do_instance_call(instance, f, args) do
+    f = to_string(f)
     # wasm_instance_call_func(instance, f, args)
     wasm_instance_call_func_i32(instance, f, args)
   end
@@ -281,6 +290,11 @@ defmodule ComponentsGuide.Wasm do
     end)
   end
 
+  def instance_write_i32(instance, memory_offset, value)
+      when is_integer(memory_offset) and is_integer(value) do
+    wasm_instance_write_i32(instance, memory_offset, value)
+  end
+
   def instance_write_string_nul_terminated(instance, memory_offset, string)
       when is_integer(memory_offset) do
     wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
@@ -295,12 +309,14 @@ defmodule ComponentsGuide.Wasm do
   def instance_read_memory(instance, start, length)
       when is_integer(start) and is_integer(length) do
     wasm_instance_read_memory(instance, start, length)
+    |> IO.iodata_to_binary()
   end
 
   def instance_read_memory(instance, start_global_name, length)
       when is_atom(start_global_name) and is_integer(length) do
     start = wasm_instance_get_global_i32(instance, to_string(start_global_name))
     wasm_instance_read_memory(instance, start, length)
+    |> IO.iodata_to_binary()
   end
 
   defp process_source(string) when is_binary(string), do: string

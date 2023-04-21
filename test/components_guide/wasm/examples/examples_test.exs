@@ -373,7 +373,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     alias ComponentsGuide.Wasm.Examples.HTTPProxy
 
     test "wat" do
-      IO.puts(HTTPProxy.to_wat())
+      #IO.puts(HTTPProxy.to_wat())
 
       assert HTTPProxy.to_wat() =~
                ~S"""

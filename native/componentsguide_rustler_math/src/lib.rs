@@ -2,6 +2,13 @@
 
 pub mod atom;
 
+use std::time::Duration;
+use std::convert::{TryFrom, TryInto};
+use std::ffi::CStr;
+// use std::rc::Rc;
+use std::slice;
+use std::sync::{Arc, RwLock};
+use std::thread;
 use anyhow::anyhow;
 use crossbeam_channel::bounded;
 // use log::{info, warn};
@@ -11,12 +18,6 @@ use rustler::{
     nif, Atom, Binary, Encoder, Env, Error, LocalPid, NewBinary, NifRecord, NifStruct,
     NifTaggedEnum, NifTuple, NifUnitEnum, OwnedBinary, OwnedEnv, ResourceArc, Term,
 };
-use std::convert::{TryFrom, TryInto};
-use std::ffi::CStr;
-// use std::rc::Rc;
-use std::slice;
-use std::sync::{Arc, RwLock};
-use std::thread;
 use wabt::Wat2Wasm;
 
 #[nif]
@@ -528,23 +529,45 @@ impl ImportsTable {
                     // results[0] = Val::I32(42);
                     // eprintln!("Error: Could not complete task");
 
-                    results[0] = Val::I32(42);
+                    let result_count = results.len();
+
+                    if result_count > 0 {
+                        results[0] = Val::I32(42);
+                    }
                     let mut owned_env = OwnedEnv::new();
 
                     let (sender, recv) = bounded::<OwnedBinary>(1);
 
                     // let mut owned_env2 = owned_env.clone();
-                    let reply_value = thread::spawn(move || {
+                    thread::spawn(move || {
                         let mut owned_env = OwnedEnv::new();
                         let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
-                        let r2 = reply.clone();
                         owned_env.run(|env| {
                             env.send(
                                 &pid,
                                 (atom::reply_to_func_call_out(), func_id, reply).encode(env),
                             );
                         });
-                        let reply_binary = recv.recv().expect("Did not write back reply value 1");
+                        // let reply_binary = recv.recv().expect("Did not write back reply value 1");
+                        // let reply_binary = recv.recv_timeout(Duration::from_secs(5)).expect("Did not recv reply value in time");
+
+                        // // let reply_binary2 = reply_binary
+                        // //     .as_ref()
+                        // //     .expect("Did not write back reply value 2");
+                        // eprintln!("Got reply");
+                        // // reply_binary2.to_vec()
+
+                        // let number = owned_env.run(|env| {
+                        //     let (term, _size) = env
+                        //         .binary_to_term(reply_binary.as_ref())
+                        //         .expect("Could not decode term");
+                        //     let number: i32 = term.decode().expect("Not a i32");
+                        //     number
+                        // });
+                        // number
+                    });
+
+                    let reply_binary = recv.recv_timeout(Duration::from_secs(5)).expect("Did not recv reply value in time");
 
                         // let reply_binary2 = reply_binary
                         //     .as_ref()
@@ -559,10 +582,9 @@ impl ImportsTable {
                             let number: i32 = term.decode().expect("Not a i32");
                             number
                         });
-                        number
-                    });
+                        // number
 
-                    let number = reply_value.join().expect("Thread failed.");
+                    // let number = reply_value.join().expect("Thread failed.");
 
                     // let number = owned_env.run(|env| {
                     //     let reply_binary2 = reply_binary2.join().expect("Thread failed.");
@@ -578,7 +600,9 @@ impl ImportsTable {
                     // let reply_saved_term = reply_saved_term.join()?;
                     // let number: i32 = reply_term.decode()?;
 
-                    results[0] = Val::I32(number);
+                    if result_count > 0 {
+                        results[0] = Val::I32(number);
+                    }
                     Ok(())
 
                     // receiver.receive(func_id, params, result)
@@ -755,7 +779,18 @@ impl RunningInstance {
 
         let result: Vec<i32> = result.iter().map(|v| v.unwrap_i32()).collect();
         let s = wasm_extract_string(&mut self.store, &self.memory, result)?;
-        return Ok(s);
+        Ok(s)
+    }
+
+    fn write_i32(
+        &mut self,
+        memory_offset: i32,
+        value: u32,
+    ) -> Result<(), anyhow::Error> {
+        let offset: usize = memory_offset.try_into().unwrap();
+        let bytes = value.to_le_bytes();
+        self.memory.write(&mut self.store, offset, &bytes)?;
+        Ok(())
     }
 
     fn write_string_nul_terminated(
@@ -770,11 +805,11 @@ impl RunningInstance {
         // let vec = s.as_mut_vec();
         bytes.push(0);
         self.memory.write(&mut self.store, offset, &bytes)?;
-        return Ok(bytes.len().try_into().unwrap());
+        Ok(bytes.len().try_into().unwrap())
     }
 
     fn read_memory(&self, start: i32, length: i32) -> Result<Vec<u8>, anyhow::Error> {
-        return wasm_read_memory(&self.store, &self.memory, start, length);
+        wasm_read_memory(&self.store, &self.memory, start, length)
     }
 }
 
@@ -867,6 +902,19 @@ fn wasm_instance_call_func_i32_string(
 ) -> Result<String, Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     return instance.call_i32_string(f, args).map_err(string_error);
+}
+
+#[nif]
+fn wasm_instance_write_i32(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    memory_offset: i32,
+    value: u32,
+) -> Result<(), Error> {
+    let mut instance = resource.lock.write().map_err(string_error)?;
+    instance
+        .write_i32(memory_offset, value)
+        .map_err(string_error)
 }
 
 #[nif]
@@ -984,6 +1032,7 @@ rustler::init!(
         wasm_instance_call_func,
         wasm_instance_call_func_i32,
         wasm_instance_call_func_i32_string,
+        wasm_instance_write_i32,
         wasm_instance_write_string_nul_terminated,
         wasm_instance_read_memory,
         wasm_call_out_reply,
