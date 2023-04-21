@@ -1,6 +1,29 @@
 defmodule ComponentsGuide.Wasm.Examples.State do
   alias ComponentsGuide.Wasm
 
+  defmodule StateMachine do
+    defmacro on(call, target: target) do
+      use ComponentsGuide.WasmBuilder
+      # import ComponentsGuide.WasmBuilder
+      # alias ComponentsGuide.WasmBuilder.{I32, F32}
+      import Kernel, except: [if: 2]
+      import ComponentsGuide.WasmBuilderUsing
+
+      {name, args} = Macro.decompose_call(call)
+      [current_state] = args
+      # IO.inspect(args)
+      # IO.inspect(target)
+
+      quote do
+        func unquote(name) do
+          if I32.eq(global_get(:state), unquote(current_state)) do
+            [unquote(target), global_set(:state)]
+          end
+        end
+      end
+    end
+  end
+
   # Port examples from https://xstate-catalogue.com
 
   defmodule Counter do
@@ -32,6 +55,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   defmodule Loader do
     use Wasm
 
+    import StateMachine
+
     # defmodule LoadableMachine do
     #   use Machine,
     #     states: [:idle, :loading, :loaded, :failed]
@@ -44,6 +69,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     #   def entry(:loading), do: :load
     #   def on(:loading, :success), do: :loaded
     #   def on(:loading, :failure), do: :failed
+
+    #   on succeeded(:loading), do: :loaded
+    #   on failed(:loading), do: :failed
     # end
 
     defwasm exported_globals: [
@@ -77,26 +105,46 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       #   end
       # end
 
-      func begin do
-        if I32.eq(state, idle) do
-          state = loading
-          # {:raw_wat, ~s[(global.set $state (i32.const 1))]}
+      # on(begin(idle), target: loading, action: :load)
+      on(begin(idle), target: loading)
+      on(success(loading), target: loaded)
+      on(failure(loading), target: failed)
 
-          # TODO: Call entry callback “load”
-        end
-      end
+      # state_machine state do
+      #   idle ->
+      #     on(begin, target: loading)
 
-      func success do
-        if I32.eq(state, loading) do
-          state = loaded
-        end
-      end
+      #   loading ->
+      #     on(success, target: loaded)
+      #     on(failure, target: failed)
 
-      func failure do
-        if I32.eq(state, loading) do
-          state = failed
-        end
-      end
+      #   loaded ->
+      #     nil
+
+      #   failed ->
+      #     nil
+      # end
+
+      # func begin do
+      #   if I32.eq(state, idle) do
+      #     state = loading
+      #     # {:raw_wat, ~s[(global.set $state (i32.const 1))]}
+
+      #     # TODO: Call entry callback “load”
+      #   end
+      # end
+
+      # func success do
+      #   if I32.eq(state, loading) do
+      #     state = loaded
+      #   end
+      # end
+
+      # func failure do
+      #   if I32.eq(state, loading) do
+      #     state = failed
+      #   end
+      # end
     end
 
     alias ComponentsGuide.Wasm
