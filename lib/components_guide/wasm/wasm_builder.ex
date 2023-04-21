@@ -1,3 +1,4 @@
+# TODO: rename to Orb
 defmodule ComponentsGuide.WasmBuilder do
   alias ComponentsGuide.Wasm.Ops
   require Ops
