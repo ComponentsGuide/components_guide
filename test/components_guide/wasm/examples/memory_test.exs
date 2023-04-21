@@ -39,15 +39,12 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       count = Instance.capture(inst, :_test_list_count, 1)
       sum = Instance.capture(inst, :_test_list32_sum, 1)
 
-      i1 = 3
-      i2 = 4
-      i3 = 5
       # i1 = alloc.(0x4)
       # i2 = alloc.(0x4)
       # i3 = alloc.(0x4)
-      l1 = cons.(i1, 0x0)
-      l2 = cons.(i2, l1)
-      l3 = cons.(i3, l2)
+      l1 = cons.(3, 0x0)
+      l2 = cons.(4, l1)
+      l3 = cons.(5, l2)
 
       # Instance.write_i32(inst, i1, 0xdeadbeef)
       # Instance.write_i32(inst, i1, 3)
