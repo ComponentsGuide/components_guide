@@ -159,6 +159,11 @@ defmodule ComponentsGuide.Wasm do
       {:ok, imports}
     end
 
+    # @impl true
+    # def handle_info({:set_instance, instance}, imports) do
+    #   {:noreply, %{state | instance: instance}}
+    # end
+
     @impl true
     def handle_info({:reply_to_func_call_out, func_id, resource}, imports) do
       handler =
@@ -170,6 +175,8 @@ defmodule ComponentsGuide.Wasm do
 
       # TODO: wrap in try/catch
       # and call wasm_call_out_reply_failure when it fails.
+      # TODO: pass correct params
+      # TODO: pass instance to func, so it can read memory
       value = handler.(0)
       ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, value)
 
