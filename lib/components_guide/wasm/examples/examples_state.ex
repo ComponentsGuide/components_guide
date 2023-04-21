@@ -5,6 +5,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule Counter do
     use Wasm
+    alias Wasm.Instance
 
     defwasm imports: [
               env: [buffer: memory(1)]
@@ -24,13 +25,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     alias ComponentsGuide.Wasm
 
-    def get_current(instance) do
-      Wasm.instance_call(instance, "get_current")
-    end
-
-    def increment(instance) do
-      Wasm.instance_call(instance, "increment")
-    end
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def increment(instance), do: Instance.call(instance, :increment)
   end
 
   defmodule Loader do
