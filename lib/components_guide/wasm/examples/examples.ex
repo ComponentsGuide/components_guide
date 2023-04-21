@@ -662,7 +662,7 @@ defmodule ComponentsGuide.Wasm.Examples do
     use Wasm
 
     @weekdays_i32 (for s <- ~w(Mon Tue Wed Thu Fri Sat Sun) do
-                     "#{s}\0" |> then(fn <<a::little-size(32)>> -> a end)
+                    I32.from_4_byte_ascii("#{s}\0")
                    end)
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do

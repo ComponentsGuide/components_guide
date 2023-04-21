@@ -174,6 +174,8 @@ defmodule ComponentsGuide.WasmBuilder do
     def if_else(condition, do: when_true) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: nil}
     end
+
+    def from_4_byte_ascii(<<int::little-size(32)>>), do: int
   end
 
   defmodule F32 do
