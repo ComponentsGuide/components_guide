@@ -14,17 +14,28 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       # IO.inspect(args)
       # IO.inspect(target)
 
-      quote do
-        func unquote(name) do
-          if I32.eq(global_get(:state), unquote(current_state)) do
-            [unquote(target), global_set(:state)]
+      case current_state do
+        {:_, _, _} ->
+          quote do
+            func unquote(name) do
+              [unquote(target), global_set(:state)]
+            end
           end
-        end
+
+        _other ->
+          quote do
+            func unquote(name) do
+              if I32.eq(global_get(:state), unquote(current_state)) do
+                [unquote(target), global_set(:state)]
+              end
+            end
+          end
       end
     end
   end
 
-  # Port examples from https://xstate-catalogue.com
+  # TODO: Port examples from https://xstate-catalogue.com
+  # TODO: Add this file upload example https://twitter.com/jagregory/status/1449265165816393730
 
   defmodule Counter do
     use Wasm
@@ -79,6 +90,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               loading: i32(1),
               loaded: i32(2),
               failed: i32(3)
+              # failed_timed_out
+              # failed_network_error
+              # failed_bad_response
             ],
             globals: [
               state: i32(0)
@@ -106,6 +120,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       # end
 
       # on(begin(idle), target: loading, action: :load)
+      # on(begin(idle -> loading, action: :load))
       on(begin(idle), target: loading)
       on(success(loading), target: loaded)
       on(failure(loading), target: failed)
@@ -222,6 +237,194 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     def user_did_submit(instance), do: Instance.call(instance, "user_did_submit")
     def destination_did_succeed(instance), do: Instance.call(instance, "destination_did_succeed")
     def destination_did_fail(instance), do: Instance.call(instance, "destination_did_fail")
+  end
+
+  defmodule OfflineStatus do
+    use Wasm
+    import StateMachine
+
+    defwasm exported_globals: [
+              # Allow setting initial state
+              state: i32(0),
+              offline?: i32(0),
+              online?: i32(1),
+              listen_to_window: i32(1)
+              # listen_to_window_offline: i32(1),
+              # listen_to_window_online: i32(1),
+              # memory: memory_with_data("navigator.onLine\0")
+            ] do
+      func get_current, result: I32 do
+        state
+      end
+
+      on(online(offline?), target: online?)
+      on(offline(online?), target: offline?)
+    end
+
+    alias ComponentsGuide.Wasm.Instance
+
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def offline(instance), do: Instance.call(instance, :offline)
+    def online(instance), do: Instance.call(instance, :online)
+  end
+
+  defmodule FocusListener do
+    use Wasm
+    import StateMachine
+
+    defwasm exported_globals: [
+              active: i32(0),
+              inactive: i32(1)
+              # listen_to_document_focusin: i32(1),
+              # memory: memory_with_data("ownerDocument.activeElement\0")
+            ],
+            imports: [
+              conditions: [
+                is_focused: func(name: :check_is_active, params: nil, result: I32)
+              ]
+            ],
+            globals: [
+              state: i32(0)
+            ] do
+      func get_current, result: I32 do
+        state
+      end
+
+      # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
+      on(focus(inactive), target: active)
+    end
+
+    alias ComponentsGuide.Wasm.Instance
+
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def offline(instance), do: Instance.call(instance, :offline)
+    def online(instance), do: Instance.call(instance, :online)
+  end
+
+  defmodule Dialog do
+    use Wasm
+    import StateMachine
+
+    @states %{
+      closed?: i32(0),
+      open?: i32(1)
+    }
+
+    # defstatemachine [:closed?, :open?] do
+    #   on(open(closed?), target: open?)
+    #   on(close(open?), target: closed?)
+    # end
+
+    defwasm exported_globals: [
+              closed?: @states.closed?,
+              open?: @states.open?
+            ],
+            globals: [
+              state: @states.closed?
+            ] do
+      func get_current, result: I32 do
+        state
+      end
+
+      on(open(closed?), target: open?)
+      on(close(open?), target: closed?)
+    end
+
+    alias ComponentsGuide.Wasm.Instance
+
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def open(instance), do: Instance.call(instance, :open)
+    def close(instance), do: Instance.call(instance, :close)
+  end
+
+  defmodule AbortController do
+    use Wasm
+    import StateMachine
+
+    defwasm exported_globals: [
+              idle: i32(0),
+              aborted: i32(1)
+            ],
+            globals: [
+              state: i32(0)
+            ] do
+      # func aborted?, do: state
+      func aborted?, result: I32 do
+        state
+      end
+
+      on(abort(idle), target: aborted)
+    end
+
+    alias ComponentsGuide.Wasm.Instance
+
+    def aborted?(instance), do: Instance.call(instance, :aborted?)
+    def abort(instance), do: Instance.call(instance, :abort)
+  end
+
+  # Or is it Future?
+  defmodule Promise do
+    use Wasm
+    import StateMachine
+
+    defwasm exported_globals: [
+              pending: i32(0),
+              resolved: i32(1),
+              rejected: i32(2)
+            ],
+            globals: [
+              state: i32(0)
+            ] do
+      func get_current, result: I32 do
+        state
+      end
+
+      on(resolve(pending), target: resolved)
+      on(reject(pending), target: rejected)
+    end
+
+    alias ComponentsGuide.Wasm.Instance
+
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def resolve(instance), do: Instance.call(instance, :resolve)
+    def reject(instance), do: Instance.call(instance, :reject)
+  end
+
+  defmodule CSSTransition do
+    use Wasm
+    import StateMachine
+
+    @states I32.enum([
+              :initial?,
+              :started?,
+              :canceled?,
+              :ended?
+            ])
+
+    defwasm exported_globals: [
+              initial?: @states.initial?,
+              started?: @states.started?,
+              canceled?: @states.canceled?,
+              ended?: @states.ended?
+            ],
+            globals: [
+              state: @states.initial?
+            ] do
+      func get_current, result: I32 do
+        state
+      end
+
+      on(transitionstart(_), target: started?)
+      on(transitioncancel(_), target: canceled?)
+      on(transitionend(_), target: ended?)
+    end
+
+    alias ComponentsGuide.Wasm.Instance
+
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def transitionstart(instance), do: Instance.call(instance, :transitionstart)
+    def transitioncancel(instance), do: Instance.call(instance, :transitioncancel)
+    def transitionend(instance), do: Instance.call(instance, :transitionend)
   end
 
   defmodule LamportClock do

@@ -27,6 +27,27 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     end
   end
 
+  describe "Dialog" do
+    alias State.Dialog
+
+    test "works" do
+      # Like Agent.start(fun)
+      instance = Dialog.start()
+      assert Dialog.get_current(instance) == 0
+
+      Dialog.open(instance)
+      assert Dialog.get_current(instance) == 1
+
+      Dialog.close(instance)
+      assert Dialog.get_current(instance) == 0
+    end
+
+    test "wasm size" do
+      wasm = Dialog.to_wasm()
+      assert byte_size(wasm) == 130
+    end
+  end
+
   describe "Loader" do
     alias State.Loader
 

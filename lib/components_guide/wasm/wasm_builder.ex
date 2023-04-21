@@ -184,6 +184,10 @@ defmodule ComponentsGuide.WasmBuilder do
       if_else(eqz(value), do: when_true)
     end
 
+    def enum(cases) do
+      Map.new(Enum.with_index(cases), fn {key, index} -> {key, {:i32_const, index}} end)
+    end
+
     def from_4_byte_ascii(<<int::little-size(32)>>), do: int
   end
 
