@@ -776,12 +776,12 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     defwasm imports: [
               env: [buffer: memory(3)],
-              # http_get: func http_get(I32),
               http: [
                 get: func(name: :http_get, params: I32, result: I32)
               ]
             ],
             exported_globals: [
+              # memory: memory(3),
               input_offset: i32(@input_offset)
             ] do
       func get_status(), result: I32 do
