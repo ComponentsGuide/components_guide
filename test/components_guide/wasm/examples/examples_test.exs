@@ -393,7 +393,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     end
 
     test "works by using correct imported function" do
-      instance = HTTPProxy.start(nil)
+      instance = HTTPProxy.start()
 
       status = Wasm.instance_call(instance, "get_status")
       assert status == 200

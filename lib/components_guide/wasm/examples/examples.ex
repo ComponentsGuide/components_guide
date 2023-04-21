@@ -790,7 +790,7 @@ defmodule ComponentsGuide.Wasm.Examples do
       end
     end
 
-    def start(_init) do
+    def start() do
       imports = [
         {:http, :get, fn _address -> 200 end}
         # {:http, :get, fn instance, address ->
