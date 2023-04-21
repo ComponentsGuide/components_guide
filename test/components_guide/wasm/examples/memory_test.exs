@@ -53,9 +53,11 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
       Instance.log_memory(inst, 0x10000, 32)
 
+      assert count.(0x0) == 0
       assert count.(l1) == 1
       assert count.(l2) == 2
       assert count.(l3) == 3
+      assert sum.(0x0) == 0
       assert sum.(l1) == 3
       assert sum.(l2) == 7
       assert sum.(l3) == 12
