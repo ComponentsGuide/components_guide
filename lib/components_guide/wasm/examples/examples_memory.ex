@@ -66,28 +66,28 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       funcp tl(ptr(I32)), result: I32 do
-        # call(:log32, ptr)
         I32.if_eqz(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
-        # 0x0
-        # memory32![I32.add(ptr, 1)]
-        # :return
       end
 
-      funcp count(ptr(I32)), result: I32, locals: [count: I32] do
+      funcp list_count(ptr(I32)), result: I32, locals: [count: I32] do
         defloop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(count)
 
           ptr = call(:tl, ptr)
-          # ptr = memory32![I32.add(ptr, 1)]
           count = I32.add(count, 1)
           branch(Iterate)
-
-          # 0x2
         end
+      end
 
-        # if I32.eqz(ptr), do: return(count)
+      funcp list32_sum(ptr(I32)), result: I32, locals: [sum: I32] do
+        defloop Iterate, result: I32 do
+          if I32.eqz(ptr), do: return(sum)
 
-        # 0x1
+          sum = I32.add(sum, call(:hd, ptr))
+          ptr = call(:tl, ptr)
+
+          branch(Iterate)
+        end
       end
 
       # export_test_func :bump_alloc
@@ -95,7 +95,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       raw_wat(~S[(export "_test_cons" (func $cons))])
       raw_wat(~S[(export "_test_hd" (func $hd))])
       raw_wat(~S[(export "_test_tl" (func $tl))])
-      raw_wat(~S[(export "_test_count" (func $count))])
+      raw_wat(~S[(export "_test_list_count" (func $list_count))])
+      raw_wat(~S[(export "_test_list32_sum" (func $list32_sum))])
     end
 
     def start(_init) do
@@ -106,27 +107,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         end}
       ]
 
-      IO.inspect(imports)
-
       ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
-    end
-
-    def capture(inst, :_test_alloc, 1) do
-      fn size ->
-        Wasm.Instance.call(inst, :_test_alloc, size)
-      end
-    end
-
-    def capture(inst, :_test_cons, 2) do
-      fn hd, tl ->
-        Wasm.Instance.call(inst, :_test_cons, hd, tl)
-      end
-    end
-
-    def capture(inst, :_test_count, 1) do
-      fn ptr ->
-        Wasm.Instance.call(inst, :_test_count, ptr)
-      end
     end
   end
 end
