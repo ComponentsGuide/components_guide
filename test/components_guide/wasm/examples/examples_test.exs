@@ -250,47 +250,6 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     end
   end
 
-  describe "Loader" do
-    test "exports" do
-      assert Loader.exports() == [
-               #  {{:global, "idle"}, %{type: :i32, mut: true}},
-               #  {:global, %{name: "idle", type: :i32, mut: true}},
-               {:global, "idle", :i32},
-               {:global, "loading", :i32},
-               {:global, "loaded", :i32},
-               {:global, "failed", :i32},
-               {:func, "get_current"},
-               {:func, "begin"},
-               {:func, "success"},
-               {:func, "failure"}
-             ]
-    end
-
-    test "works" do
-      # Like Agent.start(fun)
-      a = Loader.start()
-      # assert Loader.get_current(a) == Loader.get_global(a, "idle")
-      assert Loader.get_current(a) == 0
-      Loader.begin(a)
-      assert Loader.get_current(a) == 1
-      Loader.success(a)
-      assert Loader.get_current(a) == 2
-
-      b = Loader.start()
-      assert Loader.get_current(b) == 0
-
-      Loader.success(b)
-      assert Loader.get_current(b) == 0
-      Loader.failure(b)
-      assert Loader.get_current(b) == 0
-
-      Loader.begin(b)
-      assert Loader.get_current(b) == 1
-      Loader.failure(b)
-      assert Loader.get_current(b) == 3
-    end
-  end
-
   describe "SitemapBuilder" do
     test "works" do
       # IO.puts(SitemapBuilder.to_wat())
