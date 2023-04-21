@@ -4,10 +4,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
   defmacro __using__(_) do
     quote do
-      import Kernel, except: [if: 2]
       import ComponentsGuide.WasmBuilder
       alias ComponentsGuide.WasmBuilder.{I32, F32}
-      import ComponentsGuide.WasmBuilderUsing
     end
   end
 
@@ -298,13 +296,20 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       # Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
-      def __wasm_module__(), do: unquote(definition)
+      def __wasm_module__() do
+        import Kernel, except: [if: 2]
+        import ComponentsGuide.WasmBuilderUsing
+
+        unquote(definition)
+      end
       # TODO: what is the best way to pass this value along?
       # def __wasm_module__(), do: @wasm_module
 
       def __wasm_funcp__(name), do: Module.fetch_funcp!(__wasm_module__(), name)
 
       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
+
+      # import Kernel
     end
   end
 
