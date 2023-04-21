@@ -25,7 +25,7 @@ defmodule ComponentsGuide.Wasm do
         ComponentsGuide.Wasm.list_exports(__MODULE__)
       end
 
-      def imports() do
+      def import_types() do
         ComponentsGuide.Wasm.list_imports(__MODULE__)
       end
 

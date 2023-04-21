@@ -768,17 +768,57 @@ defmodule ComponentsGuide.Wasm.Examples do
     # Expects an input callback `fetch` or `http_get`
     # Will work like Cloudflare/Vercel does with its patching of fetch()
 
-    def start(init) do
-      # imports = []
-      imports = [
+    defp process_imports(imports) do
+      # {"http", "get", {:func, %{params: [:i32], results: [:i32]}}}
+
+      import_types = Map.new(import_types(), fn {mod, name, type} ->
+        {{mod, name}, type}
+      end)
+
+      for {{mod, name, func}, index} <- Enum.with_index(imports) do
+        mod = Atom.to_string(mod)
+        name = Atom.to_string(name)
+        {:func, %{params: params, results: results}} = Map.fetch!(import_types, {mod, name})
+
+        {:arity, arity} = Function.info(func, :arity)
+        params_count = Enum.count(params)
+        case params_count do
+          ^arity -> nil
+          _other_count ->
+            IO.inspect(IEx.Info.info(params_count))
+            IO.inspect(IEx.Info.info(arity))
+            IO.inspect(arity == params_count)
+            raise "Function arity #{inspect(arity)} must match WebAssembly params count #{inspect(params_count)}."
+        end
+        # We are not using Kernel.if
+        # if params_count != arity do
+        # end
+
+
         %Wasm.FuncImport{
-          unique_id: 0,
-          module_name: "http",
-          name: "get",
-          param_types: [:i32], # TODO: how to read string from memory?
-          result_types: [:i32],
-          do: fn _x -> 200 end
-        },
+          unique_id: index,
+          module_name: mod,
+          name: name,
+          # param_types: [:i32], # TODO: how to read string from memory?
+          # result_types: [:i32],
+          param_types: params,
+          result_types: results,
+          do: func
+        }
+      end
+    end
+
+    def start(_init) do
+      imports = [
+        # %Wasm.FuncImport{
+        #   unique_id: 0,
+        #   module_name: "http",
+        #   name: "get",
+        #   param_types: [:i32], # TODO: how to read string from memory?
+        #   result_types: [:i32],
+        #   do: fn _x -> 200 end
+        # },
+        {:http, :get, fn _address -> 200 end}
         # http: [
         #   func get(address(I32)), result: I32 do
         #     200
@@ -793,7 +833,8 @@ defmodule ComponentsGuide.Wasm.Examples do
       ]
 
       IO.inspect(imports)
-      # TODO: use Function.info(x, :arity)
+
+      imports = process_imports(imports)
 
       ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
 

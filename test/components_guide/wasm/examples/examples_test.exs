@@ -386,7 +386,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     end
 
     test "list exports" do
-      assert HTTPProxy.imports() == [
+      assert HTTPProxy.import_types() == [
                {"env", "buffer", {:memory}},
                {"http", "get", {:func, %{params: [:i32], results: [:i32]}}},
              ]
