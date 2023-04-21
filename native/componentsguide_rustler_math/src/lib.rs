@@ -64,6 +64,20 @@ enum GlobalType {
     F32,
     F64,
 }
+impl TryFrom<wasmtime::ValType> for GlobalType {
+    type Error = anyhow::Error;
+
+    fn try_from(val: wasmtime::ValType) -> Result<Self, anyhow::Error> {
+        Ok(match val {
+            ValType::I32 => GlobalType::I32,
+            ValType::I64 => GlobalType::I64,
+            ValType::F32 => GlobalType::F32,
+            ValType::F64 => GlobalType::F64,
+            _ => anyhow::bail!("Unsupported global type {}", val),
+        })
+    }
+}
+// TODO: remove this one
 impl TryFrom<&wasmtime::ValType> for GlobalType {
     type Error = anyhow::Error;
 
@@ -86,6 +100,48 @@ impl From<GlobalType> for wasmtime::ValType {
             GlobalType::F64 => ValType::F64,
         }
     }
+}
+
+#[derive(NifTaggedEnum)]
+enum WasmExternType {
+    Func {
+        params: Vec<GlobalType>,
+        results: Vec<GlobalType>,
+    },
+    // Func(GlobalType),
+    Global(GlobalType),
+    Memory(),
+    Table(),
+    // Baz{ a: i32, b: i32 },
+}
+
+impl TryFrom<ExternType> for WasmExternType {
+    type Error = anyhow::Error;
+    
+    fn try_from(val: ExternType) -> Result<Self, anyhow::Error> {
+        Ok(match val {
+            ExternType::Func(f) => {
+                let params: Result<Vec<GlobalType>> =
+                    f.params().into_iter().map(|p| p.try_into()).collect();
+                let results: Result<Vec<GlobalType>> =
+                    f.results().into_iter().map(|p| p.try_into()).collect();
+                WasmExternType::Func {
+                    params: params?,
+                    results: results?,
+                }
+            }
+            ExternType::Global(g) => WasmExternType::Global(g.content().try_into()?),
+            ExternType::Memory(_m) => WasmExternType::Memory(),
+            ExternType::Table(_t) => WasmExternType::Table(),
+        })
+    }
+}
+
+#[derive(NifTuple)]
+struct WasmImport {
+    module: String,
+    name: String,
+    extern_type: WasmExternType,
 }
 
 #[derive(NifTaggedEnum)]
@@ -159,6 +215,28 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
         .collect();
 
     exports.map_err(string_error)
+}
+
+#[nif]
+fn wasm_list_imports(source: WasmModuleDefinition) -> Result<Vec<WasmImport>, Error> {
+    let engine = Engine::default();
+    let module = Module::new(&engine, &source).map_err(string_error)?;
+    let imports = module.imports();
+
+    let imports: Result<Vec<WasmImport>, anyhow::Error> = imports
+        .into_iter()
+        .map(|import| {
+            let module_name = import.module().to_string();
+            let name = import.name().to_string();
+            Ok(WasmImport{
+                module: module_name,
+                name: name,
+                extern_type: import.ty().try_into()?,
+            })
+        })
+        .collect();
+
+    imports.map_err(string_error)
 }
 
 #[nif]
@@ -410,7 +488,7 @@ struct CallOutToFuncReply {
     // lock: RwLock<Term>,
     func_id: i64,
     lock: RwLock<Option<OwnedBinary>>,
-    sender: crossbeam_channel::Sender<OwnedBinary>
+    sender: crossbeam_channel::Sender<OwnedBinary>,
 }
 
 impl CallOutToFuncReply {
@@ -419,13 +497,17 @@ impl CallOutToFuncReply {
         Self {
             func_id: func_id,
             lock: RwLock::new(None),
-            sender: sender
+            sender: sender,
         }
     }
 }
 
 impl ImportsTable {
-    fn define<T: CallbackReceiver>(self, linker: &mut Linker<()>, callback_receiver: T) -> Result<()> {
+    fn define<T: CallbackReceiver>(
+        self,
+        linker: &mut Linker<()>,
+        callback_receiver: T,
+    ) -> Result<()> {
         // let mut env = OwnedEnv::new();
         let rc = Arc::new(callback_receiver);
 
@@ -457,7 +539,10 @@ impl ImportsTable {
                         let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
                         let r2 = reply.clone();
                         owned_env.run(|env| {
-                            env.send(&pid, (atom::reply_to_func_call_out(), func_id, reply).encode(env));
+                            env.send(
+                                &pid,
+                                (atom::reply_to_func_call_out(), func_id, reply).encode(env),
+                            );
                         });
                         let reply_binary = recv.recv().expect("Did not write back reply value 1");
 
@@ -478,7 +563,6 @@ impl ImportsTable {
                     });
 
                     let number = reply_value.join().expect("Thread failed.");
-
 
                     // let number = owned_env.run(|env| {
                     //     let reply_binary2 = reply_binary2.join().expect("Thread failed.");
@@ -821,7 +905,10 @@ fn wasm_call_out_reply(
     // let mut binary = resource.lock.write().map_err(string_error)?;
     // *binary = Some(reply.to_binary());
 
-    resource.sender.send(reply.to_binary()).map_err(string_error)?;
+    resource
+        .sender
+        .send(reply.to_binary())
+        .map_err(string_error)?;
 
     return Ok(());
 }
@@ -884,6 +971,7 @@ rustler::init!(
         add,
         reverse_string,
         wasm_list_exports,
+        wasm_list_imports,
         wasm_call_i32,
         wasm_call,
         wasm_call_void,

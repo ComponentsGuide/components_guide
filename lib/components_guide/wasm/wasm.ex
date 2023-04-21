@@ -21,8 +21,12 @@ defmodule ComponentsGuide.Wasm do
         ComponentsGuide.Wasm.wat2wasm(__MODULE__)
       end
 
-      def exports do
+      def exports() do
         ComponentsGuide.Wasm.list_exports(__MODULE__)
+      end
+
+      def imports() do
+        ComponentsGuide.Wasm.list_imports(__MODULE__)
       end
 
       def start() do
@@ -41,6 +45,16 @@ defmodule ComponentsGuide.Wasm do
       end
 
     wasm_list_exports(source)
+  end
+
+  def list_imports(source) do
+    source =
+      case process_source(source) do
+        {:wat, _} = value -> value
+        other -> {:wat, other}
+      end
+
+    wasm_list_imports(source)
   end
 
   def wat2wasm(source), do: process_source(source) |> ComponentsGuide.Wasm.WasmNative.wat2wasm()

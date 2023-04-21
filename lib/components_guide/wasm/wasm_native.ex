@@ -24,6 +24,7 @@ defmodule ComponentsGuide.Wasm.WasmNative do
   def reverse_string(_), do: error()
 
   def wasm_list_exports(_), do: error()
+  def wasm_list_imports(_), do: error()
 
   def wasm_call_i32(_, _, _), do: error()
   def wasm_call(_, _, _), do: error()

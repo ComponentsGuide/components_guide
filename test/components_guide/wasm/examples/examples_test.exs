@@ -374,6 +374,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
 
     test "wat" do
       IO.puts(HTTPProxy.to_wat())
+
       assert HTTPProxy.to_wat() =~
                ~S"""
                (module $HTTPProxy
@@ -384,7 +385,14 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
                """
     end
 
-    test "calls import" do
+    test "list exports" do
+      assert HTTPProxy.imports() == [
+               {"env", "buffer", {:memory}},
+               {"http", "get", {:func, %{params: [:i32], results: [:i32]}}},
+             ]
+    end
+
+    test "works by using correct imported function" do
       instance = HTTPProxy.start(nil)
 
       status = Wasm.instance_call(instance, "get_status")
