@@ -200,16 +200,12 @@ defmodule ComponentsGuide.Wasm do
       {:arity, arity} = Function.info(func, :arity)
       params_count = Enum.count(params)
 
-      case params_count do
-        ^arity ->
-          nil
+      if params_count != arity do
+        IO.inspect(IEx.Info.info(params_count))
+        IO.inspect(IEx.Info.info(arity))
+        IO.inspect(arity == params_count)
 
-        _other_count ->
-          IO.inspect(IEx.Info.info(params_count))
-          IO.inspect(IEx.Info.info(arity))
-          IO.inspect(arity == params_count)
-
-          raise "Function arity #{inspect(arity)} must match WebAssembly params count #{inspect(params_count)}."
+        raise "Function arity #{inspect(arity)} must match WebAssembly params count #{inspect(params_count)}."
       end
 
       # We are not using Kernel.if
