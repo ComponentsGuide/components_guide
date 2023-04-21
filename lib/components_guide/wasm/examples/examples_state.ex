@@ -1,6 +1,38 @@
 defmodule ComponentsGuide.Wasm.Examples.State do
   alias ComponentsGuide.Wasm
 
+  # Port examples from https://xstate-catalogue.com
+
+  defmodule Counter do
+    use Wasm
+
+    defwasm imports: [
+              env: [buffer: memory(1)]
+            ],
+            globals: [
+              count: i32(0)
+            ] do
+      func get_current, result: I32 do
+        count
+      end
+
+      func increment, result: I32 do
+        count = I32.add(count, 1)
+        count
+      end
+    end
+
+    alias ComponentsGuide.Wasm
+
+    def get_current(instance) do
+      Wasm.instance_call(instance, "get_current")
+    end
+
+    def increment(instance) do
+      Wasm.instance_call(instance, "increment")
+    end
+  end
+
   defmodule Loader do
     use Wasm
 
@@ -80,5 +112,42 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     def begin(instance), do: Wasm.instance_call(instance, "begin")
     def success(instance), do: Wasm.instance_call(instance, "success")
     def failure(instance), do: Wasm.instance_call(instance, "failure")
+  end
+
+  defmodule LamportClock do
+    use Wasm
+
+    defwasm exported_globals: [time: i32(0)] do
+      func will_send(), result: I32 do
+        time = I32.add(time, 1)
+        time
+      end
+
+      func received(incoming_time(I32)), result: I32 do
+        if I32.gt_u(incoming_time, time) do
+          time = incoming_time
+        end
+
+        time = I32.add(time, 1)
+        time
+      end
+    end
+
+    def read(instance) do
+      Wasm.instance_get_global(instance, :time)
+    end
+
+    def will_send(instance) do
+      Wasm.instance_call(instance, "will_send")
+    end
+
+    def send(a, b) do
+      t = will_send(a)
+      received(b, t)
+    end
+
+    def received(instance, incoming_time) do
+      Wasm.instance_call(instance, "received", incoming_time)
+    end
   end
 end

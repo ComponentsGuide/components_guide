@@ -6,9 +6,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
   alias ComponentsGuide.Wasm.Examples.{
     EscapeHTML,
     HTMLPage,
-    Counter,
     CounterHTML,
-    Loader,
     SitemapBuilder,
     LamportClock
   }
@@ -185,27 +183,6 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     end
   end
 
-  describe "Counter" do
-    test "list exports" do
-      assert Counter.exports() == [
-               {:func, "get_current"},
-               {:func, "increment"}
-             ]
-    end
-
-    test "works" do
-      # Like Agent.start(fun)
-      instance = Counter.start()
-      assert Counter.get_current(instance) == 0
-
-      Counter.increment(instance)
-      assert Counter.get_current(instance) == 1
-
-      Counter.increment(instance)
-      assert Counter.get_current(instance) == 2
-    end
-  end
-
   describe "CounterHTML" do
     test "list exports" do
       assert CounterHTML.exports() == [
@@ -270,22 +247,6 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     end
   end
 
-  describe "LamportClock" do
-    # test "validate definition", do: LamportClock.validate_definition!()
-
-    test "works" do
-      a = LamportClock.start()
-      b = LamportClock.start()
-
-      assert LamportClock.received(a, 7) == 8
-
-      LamportClock.send(a, b)
-
-      assert LamportClock.read(a) == 9
-      assert LamportClock.read(b) == 10
-    end
-  end
-
   describe "SimpleWeekdayParser" do
     alias ComponentsGuide.Wasm.Examples.SimpleWeekdayParser
 
@@ -332,7 +293,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     alias ComponentsGuide.Wasm.Examples.HTTPProxy
 
     test "wat" do
-      #IO.puts(HTTPProxy.to_wat())
+      # IO.puts(HTTPProxy.to_wat())
 
       assert HTTPProxy.to_wat() =~
                ~S"""
@@ -347,7 +308,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     test "list exports" do
       assert HTTPProxy.import_types() == [
                {"env", "buffer", {:memory}},
-               {"http", "get", {:func, %{params: [:i32], results: [:i32]}}},
+               {"http", "get", {:func, %{params: [:i32], results: [:i32]}}}
              ]
     end
 
