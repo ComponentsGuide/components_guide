@@ -37,7 +37,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     test "multiple allocations" do
       inst = LinkedLists.start()
-      alloc = Instance.capture(inst, :_test_alloc, 1)
+      # alloc = Instance.capture(inst, :_test_alloc, 1)
       cons = Instance.capture(inst, :_test_cons, 2)
       count = Instance.capture(inst, :_test_list_count, 1)
       sum = Instance.capture(inst, :_test_list32_sum, 1)

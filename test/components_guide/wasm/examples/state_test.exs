@@ -77,6 +77,66 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     end
   end
 
+  describe "Form" do
+    alias State.Form
+
+    test "works" do
+      # Like Agent.start(fun)
+      a = Form.start()
+
+      initial = Instance.get_global(a, "initial")
+      edited = Instance.get_global(a, "edited")
+      submitting = Instance.get_global(a, "submitting")
+      succeeded = Instance.get_global(a, "succeeded")
+      failed = Instance.get_global(a, "failed")
+
+      get_current = Instance.capture(a, :get_current, 0)
+      get_edit_count = Instance.capture(a, :get_edit_count, 0)
+      can_submit? = Instance.capture(a, :can_submit, 0)
+
+      assert MapSet.new([initial, edited, submitting, succeeded, failed]) |> MapSet.size() == 5
+
+      assert get_current.() == initial
+      assert get_edit_count.() == 0
+      assert can_submit?.() == 1
+
+      Form.did_edit(a)
+      assert get_current.() == edited
+      assert get_edit_count.() == 1
+      assert can_submit?.() == 1
+
+      Form.did_edit(a)
+      assert get_current.() == edited
+      assert get_edit_count.() == 2
+      assert can_submit?.() == 1
+
+      Form.did_submit(a)
+      assert get_current.() == submitting
+      assert get_edit_count.() == 2
+      assert can_submit?.() == 0
+
+      Form.did_submit(a)
+      assert get_current.() == submitting
+      assert get_edit_count.() == 2
+      assert can_submit?.() == 0
+
+      Form.did_succeed(a)
+      assert get_current.() == succeeded
+      assert get_edit_count.() == 2
+      assert can_submit?.() == 1
+
+      b = Form.start()
+      get_current = Instance.capture(b, :get_current, 0)
+      can_submit? = Instance.capture(a, :can_submit, 0)
+
+      Form.did_edit(b)
+      Form.did_submit(b)
+      Form.did_fail(b)
+      assert get_current.() == failed
+      assert can_submit?.() == 1
+    end
+  end
+
   describe "LamportClock" do
     alias State.LamportClock
 
