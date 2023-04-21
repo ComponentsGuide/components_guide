@@ -44,9 +44,9 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     defwasm imports: [
               env: [buffer: memory(1)],
-              log: [
-                int32: func(name: :log32, params: I32, result: I32)
-              ]
+              # log: [
+              #   int32: func(name: :log32, params: I32, result: I32)
+              # ]
             ],
             globals: [
               bump_offset: i32(@bump_start)

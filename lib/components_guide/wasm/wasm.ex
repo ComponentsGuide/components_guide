@@ -195,15 +195,14 @@ defmodule ComponentsGuide.Wasm do
   defp process_imports(import_types, imports) do
     # {"http", "get", {:func, %{params: [:i32], results: [:i32]}}}
 
-    import_types =
-      Map.new(import_types, fn {mod, name, type} ->
-        {{mod, name}, type}
+    imports =
+      Map.new(imports, fn {mod, name, func} ->
+        {{Atom.to_string(mod), Atom.to_string(name)}, func}
       end)
 
-    for {{mod, name, func}, index} <- Enum.with_index(imports) do
-      mod = Atom.to_string(mod)
-      name = Atom.to_string(name)
-      {:func, %{params: params, results: results}} = Map.fetch!(import_types, {mod, name})
+    for {{mod, name, {:func, func_type}}, index} <- Enum.with_index(import_types) do
+      %{params: params, results: results} = func_type
+      func = Map.fetch!(imports, {mod, name})
 
       {:arity, arity} = Function.info(func, :arity)
       params_count = Enum.count(params)
@@ -215,10 +214,6 @@ defmodule ComponentsGuide.Wasm do
 
         raise "Function arity #{inspect(arity)} must match WebAssembly params count #{inspect(params_count)}."
       end
-
-      # We are not using Kernel.if
-      # if params_count != arity do
-      # end
 
       %FuncImport{
         unique_id: index,
@@ -315,6 +310,7 @@ defmodule ComponentsGuide.Wasm do
   def instance_read_memory(instance, start_global_name, length)
       when is_atom(start_global_name) and is_integer(length) do
     start = wasm_instance_get_global_i32(instance, to_string(start_global_name))
+
     wasm_instance_read_memory(instance, start, length)
     |> IO.iodata_to_binary()
   end
