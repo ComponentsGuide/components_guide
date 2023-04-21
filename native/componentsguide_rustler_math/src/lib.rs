@@ -217,7 +217,7 @@ fn wasm_list_exports(source: WasmModuleDefinition) -> Result<Vec<WasmExport>, Er
     exports.map_err(string_error)
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_list_imports(source: WasmModuleDefinition) -> Result<Vec<WasmImport>, Error> {
     let engine = Engine::default();
     let module = Module::new(&engine, &source).map_err(string_error)?;

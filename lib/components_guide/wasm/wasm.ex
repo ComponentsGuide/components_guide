@@ -26,7 +26,7 @@ defmodule ComponentsGuide.Wasm do
       end
 
       def import_types() do
-        ComponentsGuide.Wasm.list_imports(__MODULE__)
+        ComponentsGuide.Wasm.list_import_types(__MODULE__)
       end
 
       def start() do
@@ -47,7 +47,7 @@ defmodule ComponentsGuide.Wasm do
     wasm_list_exports(source)
   end
 
-  def list_imports(source) do
+  def list_import_types(source) do
     source =
       case process_source(source) do
         {:wat, _} = value -> value
@@ -177,7 +177,54 @@ defmodule ComponentsGuide.Wasm do
     end
   end
 
+  defp process_imports(import_types, imports) do
+    # {"http", "get", {:func, %{params: [:i32], results: [:i32]}}}
+
+    import_types =
+      Map.new(import_types, fn {mod, name, type} ->
+        {{mod, name}, type}
+      end)
+
+    for {{mod, name, func}, index} <- Enum.with_index(imports) do
+      mod = Atom.to_string(mod)
+      name = Atom.to_string(name)
+      {:func, %{params: params, results: results}} = Map.fetch!(import_types, {mod, name})
+
+      {:arity, arity} = Function.info(func, :arity)
+      params_count = Enum.count(params)
+
+      case params_count do
+        ^arity ->
+          nil
+
+        _other_count ->
+          IO.inspect(IEx.Info.info(params_count))
+          IO.inspect(IEx.Info.info(arity))
+          IO.inspect(arity == params_count)
+
+          raise "Function arity #{inspect(arity)} must match WebAssembly params count #{inspect(params_count)}."
+      end
+
+      # We are not using Kernel.if
+      # if params_count != arity do
+      # end
+
+      %FuncImport{
+        unique_id: index,
+        module_name: mod,
+        name: name,
+        # TODO: how to read string from memory?
+        param_types: params,
+        result_types: results,
+        do: func
+      }
+    end
+  end
+
   def run_instance(source, imports \\ []) do
+    import_types = list_import_types(source)
+    imports = process_imports(import_types, imports)
+
     {:ok, pid} = ReplyServer.start_link(imports)
     source = {:wat, process_source(source)}
     instance = wasm_run_instance(source, imports, pid)
