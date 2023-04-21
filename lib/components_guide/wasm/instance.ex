@@ -16,10 +16,20 @@ defmodule ComponentsGuide.Wasm.Instance do
   defdelegate call(instance, f, a, b), to: Wasm, as: :instance_call
   defdelegate call(instance, f, a, b, c), to: Wasm, as: :instance_call
 
+  def capture(inst, f, arity) do
+    # call = Function.capture(__MODULE__, :call, arity + 2)
+    case arity do
+      0 -> fn -> call(inst, f) end
+      1 -> fn a -> call(inst, f, a) end
+      2 -> fn a, b -> call(inst, f, a, b) end
+      3 -> fn a, b, c -> call(inst, f, a, b, c) end
+    end
+  end
+
   def log_memory(instance, start, length) do
     bytes = read_memory(instance, start, length)
     hex = Base.encode16(bytes)
-    hex_pretty = hex |> String.to_charlist() |> Stream.chunk_every(4) |> Enum.join(" ")
+    hex_pretty = hex |> String.to_charlist() |> Stream.chunk_every(8) |> Enum.join(" ")
     IO.inspect(hex_pretty, limit: :infinite, label: "Wasm instance memory")
     # IO.inspect(bytes, base: :hex, label: "Wasm instance memory")
   end
