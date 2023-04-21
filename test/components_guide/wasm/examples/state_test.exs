@@ -92,48 +92,48 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
       get_current = Instance.capture(a, :get_current, 0)
       get_edit_count = Instance.capture(a, :get_edit_count, 0)
-      can_submit? = Instance.capture(a, :can_submit, 0)
+      user_can_submit? = Instance.capture(a, :user_can_submit, 0)
 
       assert MapSet.new([initial, edited, submitting, succeeded, failed]) |> MapSet.size() == 5
 
       assert get_current.() == initial
       assert get_edit_count.() == 0
-      assert can_submit?.() == 1
+      assert user_can_submit?.() == 1
 
-      Form.did_edit(a)
+      Form.user_did_edit(a)
       assert get_current.() == edited
       assert get_edit_count.() == 1
-      assert can_submit?.() == 1
+      assert user_can_submit?.() == 1
 
-      Form.did_edit(a)
+      Form.user_did_edit(a)
       assert get_current.() == edited
       assert get_edit_count.() == 2
-      assert can_submit?.() == 1
+      assert user_can_submit?.() == 1
 
-      Form.did_submit(a)
+      Form.user_did_submit(a)
       assert get_current.() == submitting
       assert get_edit_count.() == 2
-      assert can_submit?.() == 0
+      assert user_can_submit?.() == 0
 
-      Form.did_submit(a)
+      Form.user_did_submit(a)
       assert get_current.() == submitting
       assert get_edit_count.() == 2
-      assert can_submit?.() == 0
+      assert user_can_submit?.() == 0
 
-      Form.did_succeed(a)
+      Form.destination_did_succeed(a)
       assert get_current.() == succeeded
       assert get_edit_count.() == 2
-      assert can_submit?.() == 1
+      assert user_can_submit?.() == 1
 
       b = Form.start()
       get_current = Instance.capture(b, :get_current, 0)
-      can_submit? = Instance.capture(a, :can_submit, 0)
+      user_can_submit? = Instance.capture(a, :user_can_submit, 0)
 
-      Form.did_edit(b)
-      Form.did_submit(b)
-      Form.did_fail(b)
+      Form.user_did_edit(b)
+      Form.user_did_submit(b)
+      Form.destination_did_fail(b)
       assert get_current.() == failed
-      assert can_submit?.() == 1
+      assert user_can_submit?.() == 1
     end
   end
 

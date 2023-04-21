@@ -134,12 +134,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         edit_count
       end
 
-      func can_submit, result: I32 do
+      func user_can_submit, result: I32 do
         state |> I32.eq(submitting) |> I32.eqz()
         # eq(state, submitting) |> eqz()
       end
 
-      func did_edit do
+      func user_did_edit do
         # if I32.go(state in [initial, edited]) do
         #   state = edited
         #   edit_count = I32.add(edit_count, 1)
@@ -151,19 +151,19 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         end
       end
 
-      func did_submit do
+      func user_did_submit do
         if I32.eqz(I32.eq(state, submitting)) do
           state = submitting
         end
       end
 
-      func did_succeed do
+      func destination_did_succeed do
         if I32.eq(state, submitting) do
           state = succeeded
         end
       end
 
-      func did_fail do
+      func destination_did_fail do
         if I32.eq(state, submitting) do
           state = failed
         end
@@ -172,12 +172,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     alias ComponentsGuide.Wasm.Instance
 
-    def get_current(instance), do: Instance.call(instance, "get_current")
-    def get_edit_count(instance), do: Instance.call(instance, "get_edit_count")
-    def did_edit(instance), do: Instance.call(instance, "did_edit")
-    def did_submit(instance), do: Instance.call(instance, "did_submit")
-    def did_succeed(instance), do: Instance.call(instance, "did_succeed")
-    def did_fail(instance), do: Instance.call(instance, "did_fail")
+    # def get_current(instance), do: Instance.call(instance, "get_current")
+    # def get_edit_count(instance), do: Instance.call(instance, "get_edit_count")
+    def user_did_edit(instance), do: Instance.call(instance, "user_did_edit")
+    def user_did_submit(instance), do: Instance.call(instance, "user_did_submit")
+    def destination_did_succeed(instance), do: Instance.call(instance, "destination_did_succeed")
+    def destination_did_fail(instance), do: Instance.call(instance, "destination_did_fail")
   end
 
   defmodule LamportClock do
