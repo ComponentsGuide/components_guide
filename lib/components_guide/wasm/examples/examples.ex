@@ -799,9 +799,7 @@ defmodule ComponentsGuide.Wasm.Examples do
           unique_id: index,
           module_name: mod,
           name: name,
-          # param_types: [:i32], # TODO: how to read string from memory?
-          # result_types: [:i32],
-          param_types: params,
+          param_types: params, # TODO: how to read string from memory?
           result_types: results,
           do: func
         }
@@ -810,14 +808,6 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     def start(_init) do
       imports = [
-        # %Wasm.FuncImport{
-        #   unique_id: 0,
-        #   module_name: "http",
-        #   name: "get",
-        #   param_types: [:i32], # TODO: how to read string from memory?
-        #   result_types: [:i32],
-        #   do: fn _x -> 200 end
-        # },
         {:http, :get, fn _address -> 200 end}
         # http: [
         #   func get(address(I32)), result: I32 do
@@ -837,15 +827,6 @@ defmodule ComponentsGuide.Wasm.Examples do
       imports = process_imports(imports)
 
       ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
-
-
-      # ComponentsGuide.Wasm.run_instance(__MODULE__,
-      #   imports: [
-      #     http: [
-      #       get: fn address -> 201 end
-      #     ]
-      #   ]
-      # )
     end
   end
 
