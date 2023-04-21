@@ -140,7 +140,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       end
 
       func user_did_edit do
-        # if I32.go(state in [initial, edited]) do
+        # if I32.magic(state in [initial, edited]) do
         #   state = edited
         #   edit_count = I32.add(edit_count, 1)
         # end
@@ -182,6 +182,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule LamportClock do
     use Wasm
+    alias Wasm.Instance
 
     defwasm exported_globals: [time: i32(0)] do
       func will_send(), result: I32 do
@@ -200,11 +201,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
 
     def read(instance) do
-      Wasm.instance_get_global(instance, :time)
+      Instance.get_global(instance, :time)
     end
 
-    def will_send(instance) do
-      Wasm.instance_call(instance, "will_send")
+    defp will_send(instance) do
+      Instance.call(instance, :will_send)
     end
 
     def send(a, b) do
@@ -213,7 +214,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
 
     def received(instance, incoming_time) do
-      Wasm.instance_call(instance, "received", incoming_time)
+      Instance.call(instance, :received, incoming_time)
     end
   end
 end

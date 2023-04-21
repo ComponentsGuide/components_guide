@@ -4,6 +4,8 @@ defmodule ComponentsGuide.Wasm do
   defmacro __using__(_) do
     quote location: :keep do
       use ComponentsGuide.WasmBuilder
+      # TODO: allow use Wasm.Instance?
+      # alias ComponentsGuide.Wasm.Instance
 
       # @on_load :validate_definition!
       # @after_compile __MODULE__
