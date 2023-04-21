@@ -768,6 +768,11 @@ defmodule ComponentsGuide.Wasm.Examples do
     def start(_init) do
       imports = [
         {:http, :get, fn _address -> 200 end}
+        # {:http, :get, fn instance, address ->
+        #   url_string = Instance.read_string(instance, address)
+        #   resp = Fetch.get!(url_string)
+        #   resp.status
+        # end}
         # http: [
         #   func get(address(I32)), result: I32 do
         #     200

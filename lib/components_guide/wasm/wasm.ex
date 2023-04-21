@@ -246,16 +246,16 @@ defmodule ComponentsGuide.Wasm do
   def instance_set_global(instance, global_name, new_value),
     do: wasm_instance_set_global_i32(instance, to_string(global_name), new_value)
 
-  def do_instance_call(instance, f, args) do
+  defp do_instance_call(instance, f, args) do
     # wasm_instance_call_func(instance, f, args)
     wasm_instance_call_func_i32(instance, f, args)
   end
 
   # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
-  def instance_call(instance, f), do: wasm_instance_call_func_i32(instance, f, [])
-  def instance_call(instance, f, a), do: wasm_instance_call_func_i32(instance, f, [a])
-  def instance_call(instance, f, a, b), do: wasm_instance_call_func_i32(instance, f, [a, b])
-  def instance_call(instance, f, a, b, c), do: wasm_instance_call_func_i32(instance, f, [a, b, c])
+  def instance_call(instance, f), do: do_instance_call(instance, f, [])
+  def instance_call(instance, f, a), do: do_instance_call(instance, f, [a])
+  def instance_call(instance, f, a, b), do: do_instance_call(instance, f, [a, b])
+  def instance_call(instance, f, a, b, c), do: do_instance_call(instance, f, [a, b, c])
 
   def instance_call_returning_string(instance, f),
     do: wasm_instance_call_func_i32_string(instance, f, [])
