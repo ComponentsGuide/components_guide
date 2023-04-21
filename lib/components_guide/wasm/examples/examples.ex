@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule EscapeHTML do
     use Wasm
@@ -318,11 +319,12 @@ defmodule ComponentsGuide.Wasm.Examples do
         i = 64
 
         defloop Clear do
-          # TODO: write 4 bytes instead of 1 byte at a time.
-          memory32_8![I32.add(i, @bump_start)] = 0x0
-          i = I32.sub(i, 1)
-          # TODO?: branch(Clear, if: I32.ge_u(i, 0))
-          branch(Clear, if: I32.gt_u(i, 0))
+          memory32![I32.add(i, @bump_start)] = 0x0
+
+          if I32.gt_u(i, 0) do
+            i = I32.sub(i, 1)
+            branch(Clear)
+          end
         end
       end
 
@@ -506,7 +508,7 @@ defmodule ComponentsGuide.Wasm.Examples do
               env: [buffer: memory(3)]
             ],
             exported_globals: [
-              input_offset: i32(@input_offset)
+              input_offset: i32(@bump_start)
             ],
             globals: [
               body_chunk_index: i32(0),
@@ -517,7 +519,17 @@ defmodule ComponentsGuide.Wasm.Examples do
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
       # cpfuncp EscapeHTML, escape
+      # cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
+      # EscapeHTML.cpfuncp(escape, result: I32)
+      # EscapeHTML.cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
       cpfuncp(escape, from: EscapeHTML, result: I32)
+
+      cpfuncp(bump_alloc, from: BumpAllocator, result: I32)
+      cpfuncp(bump_free_all, from: BumpAllocator, result: I32)
+
+      func alloc(byte_size(I32)), result: I32 do
+        call(:bump_alloc, byte_size)
+      end
 
       func rewind do
         body_chunk_index = 0
@@ -561,46 +573,50 @@ defmodule ComponentsGuide.Wasm.Examples do
 
       func next_body_chunk, result: I32 do
         defblock Main, result: I32 do
+          # if I32.eq(body_chunk_index, 0), return: @strings.xml_declaration.offset
+
           if I32.eq(body_chunk_index, 0) do
+            # return(@strings.xml_declaration.offset)
             push(@strings.xml_declaration.offset)
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 1) do
             push(@strings.urlset_start.offset)
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 2) do
             push(@strings.url_start.offset)
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 3) do
             push(@strings.loc_start.offset)
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 4) do
+            # call(:escape, read_offset: input_offset, write_offset: output_offset)
             call(:escape, input_offset, output_offset)
             push(output_offset)
 
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 5) do
             push(@strings.loc_end.offset)
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 6) do
             push(@strings.url_end.offset)
-            branch(Main)
+            break(Main)
           end
 
           if I32.eq(body_chunk_index, 7) do
             push(@strings.urlset_end.offset)
-            branch(Main)
+            break(Main)
           end
 
           0x0
@@ -611,6 +627,9 @@ defmodule ComponentsGuide.Wasm.Examples do
     end
 
     def write_input(instance, string) do
+      # address = Wasm.instance_call(instance, :alloc, byte_size(string))
+      # Wasm.instance_write_string_nul_terminated(instance, address, string)
+
       Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
     end
 
@@ -795,11 +814,6 @@ defmodule ComponentsGuide.Wasm.Examples do
 
       ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
     end
-  end
-
-  defmodule BumpAllocator do
-    def alloc(_byte_size), do: :todo
-    def free_all(), do: :todo
   end
 
   defmodule Base64Encode do
