@@ -1,11 +1,12 @@
 defmodule ComponentsGuideWeb.WasmShared do
   alias ComponentsGuide.Wasm.Examples
   alias ComponentsGuide.Wasm.Examples.Numeric
+  alias ComponentsGuide.Wasm.Examples.HTML
 
   @all_modules %{
-    "escape_html.wasm" => Examples.EscapeHTML,
-    "html_page.wasm" => Examples.HTMLPage,
-    "counter_html.wasm" => Examples.CounterHTML,
+    "escape_html.wasm" => HTML.EscapeHTML,
+    "html_page.wasm" => HTML.HTMLPage,
+    "counter_html.wasm" => HTML.CounterHTML,
     "simple_weekday_parser.wasm" => Examples.SimpleWeekdayParser,
     "sitemap_builder.wasm" => Examples.SitemapBuilder,
     "numeric_unit_interval.wasm" => Numeric.UnitInterval
@@ -20,7 +21,7 @@ defmodule ComponentsGuideWeb.WasmController do
   use ComponentsGuideWeb, :controller
   plug(:put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON)
 
-  alias ComponentsGuide.Wasm.Examples
+  alias ComponentsGuide.Wasm.Examples.HTML
 
   import ComponentsGuideWeb.WasmShared
   @modules all_modules()
@@ -30,9 +31,9 @@ defmodule ComponentsGuideWeb.WasmController do
       case get_format(conn) do
         "html" ->
           [
-            escape_html_wat: Examples.EscapeHTML.to_wat(),
-            html_page_wat: Examples.HTMLPage.to_wat(),
-            counter_html_wat: Examples.CounterHTML.to_wat()
+            escape_html_wat: HTML.EscapeHTML.to_wat(),
+            html_page_wat: HTML.HTMLPage.to_wat(),
+            counter_html_wat: HTML.CounterHTML.to_wat()
           ]
 
         _ ->
@@ -77,7 +78,7 @@ end
 defmodule ComponentsGuideWeb.WasmHTML do
   use ComponentsGuideWeb, :html
 
-  alias ComponentsGuide.Wasm.Examples.{CounterHTML}
+  alias ComponentsGuide.Wasm.Examples.HTML.{CounterHTML}
 
   embed_templates("wasm_html/*")
 end
