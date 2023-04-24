@@ -827,9 +827,10 @@ defmodule ComponentsGuide.WasmBuilder do
         ?",
         String.replace(string, ~S["], ~S[\"]),
         ?",
-        ")"
+        ")",
       ]
     end
+    |> Enum.intersperse("\n")
   end
 
   def to_wat(

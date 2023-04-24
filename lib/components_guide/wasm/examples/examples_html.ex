@@ -218,8 +218,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         count
       end
 
-      data_nul_terminated(@strings)
-
       func rewind, locals: [i: I32] do
         body_chunk_index = 0
         bump_offset = @bump_start
@@ -259,7 +257,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, result: I32 do
         defblock Main, result: I32 do
           if I32.eq(body_chunk_index, 0) do
-            push(@strings.output_start.offset)
+            const(~S[<output class="flex p-4 bg-gray-800">])
             branch(Main)
           end
 
@@ -269,12 +267,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           end
 
           if I32.eq(body_chunk_index, 2) do
-            push(@strings.output_end.offset)
+            const(~S[</output>])
             branch(Main)
           end
 
           if I32.eq(body_chunk_index, 3) do
-            push(@strings.button_increment.offset)
+            const(~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>])
             branch(Main)
           end
 

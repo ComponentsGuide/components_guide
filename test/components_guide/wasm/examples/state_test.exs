@@ -113,7 +113,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
       get_current = Instance.capture(a, :get_current, 0)
       get_edit_count = Instance.capture(a, :get_edit_count, 0)
-      user_can_submit? = Instance.capture(a, :user_can_submit, 0)
+      user_can_submit? = Instance.capture(a, :user_can_submit?, 0)
 
       assert MapSet.new([initial, edited, submitting, succeeded, failed]) |> MapSet.size() == 5
 
@@ -148,7 +148,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
       b = Form.start()
       get_current = Instance.capture(b, :get_current, 0)
-      user_can_submit? = Instance.capture(a, :user_can_submit, 0)
+      user_can_submit? = Instance.capture(a, :user_can_submit?, 0)
 
       Form.user_did_edit(b)
       Form.user_did_submit(b)

@@ -194,7 +194,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
     end
 
     test "compiles small" do
-      assert byte_size(CounterHTML.to_wasm()) == 501
+      assert byte_size(CounterHTML.to_wasm()) == 504
     end
 
     test "works" do
