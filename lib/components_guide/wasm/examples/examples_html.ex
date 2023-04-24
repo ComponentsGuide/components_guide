@@ -101,7 +101,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, result: I32 do
         defblock Main, result: I32 do
           if I32.eq(body_chunk_index, 0) do
-            const("<!doctype html>")
+            const(~S"<!doctype html>")
             break(Main)
           end
 

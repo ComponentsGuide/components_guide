@@ -222,8 +222,8 @@ defmodule ComponentsGuide.WasmBuilder do
   defmodule Constants do
     defstruct offset: 0xFF, items: []
 
-    def add_constant(%__MODULE__{} = receiver, value) do
-      update_in(receiver.items, &[value | &1])
+    def from(items) do
+      %__MODULE__{items: items}
     end
 
     def to_keylist(%__MODULE__{offset: offset, items: items}) do
@@ -302,7 +302,7 @@ defmodule ComponentsGuide.WasmBuilder do
     # block_items = block_items
 
     {block_items, constants} =
-      Macro.prewalk(block_items, %Constants{}, fn
+      Macro.prewalk(block_items, [], fn
         {:=, _meta1, [{global, _meta2, nil}, input]}, constants
         when is_atom(global) and is_map_key(globals, global) ->
           {[input, global_set(global)], constants}
@@ -311,8 +311,7 @@ defmodule ComponentsGuide.WasmBuilder do
           {{:global_get, meta, [atom]}, constants}
 
         {:const, _, [str]}, constants ->
-          {quote(do: data_for_constant(unquote(Macro.escape(str)))),
-           Constants.add_constant(constants, Macro.escape(str))}
+          {quote(do: data_for_constant(unquote(str))), [str | constants]}
 
         other, constants ->
           {other, constants}
@@ -323,9 +322,9 @@ defmodule ComponentsGuide.WasmBuilder do
     Elixir.Module.put_attribute(env.module, :wasm_constants, constants)
 
     block_items =
-      case constants.items do
+      case constants do
         [] -> block_items
-        _ -> [Macro.escape(constants) | block_items]
+        _ -> [quote(do: Constants.from(unquote(constants))) | block_items]
       end
 
     quote do
@@ -350,9 +349,13 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       # Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
-      def data_for_constant(value) do
-        constants = Constants.to_map(@wasm_constants)
-        Map.fetch!(constants, value)
+      defmacro data_for_constant(value) do
+        quote do
+          constants = Constants.from(unquote(@wasm_constants))
+          constants = Constants.to_map(constants)
+          Map.fetch!(constants, unquote(value))
+        end
+
         # %Data{offset: 0xff, value: value, nul_terminated: true}
       end
 
