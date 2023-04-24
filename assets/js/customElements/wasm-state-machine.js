@@ -37,9 +37,20 @@ function initWasmHTML(el, wasmInstancePromise) {
     const buttonTemplate = el.querySelector("[data-template=button]").content;
 
     const globalNames = Object.keys(instance.exports).filter(name => instance.exports[name] instanceof WebAssembly.Global);
-    const eventNames = Object.keys(instance.exports)
-      .filter(name => typeof instance.exports[name] === "function")
-      .filter(name => !name.startsWith("get_"));
+    const globalMap = new Map(
+      Array.from(globalNames, globalName => [globalName, instance.exports[globalName]]).concat(
+        Array.from(globalNames, globalName => [instance.exports[globalName].value, globalName])
+      )
+    );
+    const functionNames = Object.keys(instance.exports)
+    .filter(name => typeof instance.exports[name] === "function");
+    const eventNames = functionNames.filter(name => !name.startsWith("get_") && !name.endsWith("?"));
+    const calculationNames = functionNames.filter(name => name.endsWith("?") || name.startsWith("get_"));
+
+    function getCurrentText() {
+      const current = instance.exports.get_current();
+      return String(globalMap.get(current) ?? current);
+    }
 
     function update() {
       const slots = new Map(Array.from(el.querySelectorAll("[slot]"), slot => [slot.slot, slot]))
@@ -56,9 +67,15 @@ function initWasmHTML(el, wasmInstancePromise) {
 
       for (globalName of globalNames) {
         const slot = slots.get(globalName);
-        console.log(globalName, slot)
         if (slot) {
           slot.textContent = `${globalName}: ${instance.exports[globalName].value}`;
+        }
+      }
+
+      for (calculationName of calculationNames) {
+        const slot = slots.get(calculationName);
+        if (slot) {
+          slot.textContent = `${calculationName}: ${instance.exports[calculationName]()}`;
         }
       }
 
@@ -72,7 +89,7 @@ function initWasmHTML(el, wasmInstancePromise) {
       }
 
       if (slots.has("state") && typeof instance.exports["get_current"] === "function") {
-        slots.get("state").textContent = `State: ${instance.exports.get_current()}`;
+        slots.get("state").textContent = getCurrentText();
       }
     }
 

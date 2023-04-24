@@ -14,6 +14,7 @@ defmodule ComponentsGuideWeb.WasmShared do
     "offline_status.wasm" => State.OfflineStatus,
     "dialog_state.wasm" => State.Dialog,
     "promise_state.wasm" => State.Promise,
+    "form_state_machine.wasm" => State.Form,
   }
 
   defmacro all_modules do
@@ -42,6 +43,7 @@ defmodule ComponentsGuideWeb.WasmController do
             offline_status_wat: State.OfflineStatus.to_wat(),
             dialog_state_wat: State.Dialog.to_wat(),
             promise_state_wat: State.Promise.to_wat(),
+            form_state_wat: State.Form.to_wat(),
           ]
 
         _ ->

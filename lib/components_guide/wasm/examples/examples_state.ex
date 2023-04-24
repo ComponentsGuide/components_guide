@@ -47,7 +47,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               count: i32(0)
             ] do
-      func get_current, result: I32, do: count
+      func(get_current, result: I32, do: count)
 
       func increment, result: I32 do
         count = I32.add(count, 1)
@@ -95,7 +95,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func get_current, result: I32, do: state
+      func(get_current, result: I32, do: state)
 
       # defstates :state do
       #   state Idle do
@@ -177,12 +177,18 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             ],
             globals: [
               state: i32(0),
-              edit_count: i32(0)
+              edit_count: i32(0),
+              submitted_edit_count: i32(0)
             ] do
-      func get_current, result: I32, do: state
-      func get_edit_count, result: I32, do: edit_count
+      func(get_current, result: I32, do: state)
+      func(get_edit_count, result: I32, do: edit_count)
+      func(get_submitted_edit_count, result: I32, do: submitted_edit_count)
 
-      func user_can_submit, result: I32 do
+      func user_can_edit?, result: I32 do
+        state |> I32.eq(submitting) |> I32.eqz()
+      end
+
+      func user_can_submit?, result: I32 do
         state |> I32.eq(submitting) |> I32.eqz()
         # eq(state, submitting) |> eqz()
       end
@@ -193,7 +199,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         #   edit_count = I32.add(edit_count, 1)
         # end
 
-        if I32.or(I32.eq(state, initial), I32.eq(state, edited)) do
+        if I32.or(
+             I32.eq(state, initial),
+             I32.eq(state, edited),
+             I32.eq(state, succeeded),
+             I32.eq(state, failed)
+           ) do
           state = edited
           edit_count = I32.add(edit_count, 1)
         end
@@ -202,6 +213,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       func user_did_submit do
         if I32.eqz(I32.eq(state, submitting)) do
           state = submitting
+          submitted_edit_count = edit_count
         end
       end
 
@@ -246,12 +258,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               state: @states.offline?,
               offline?: @states.offline?,
               online?: @states.online?,
-              listen_to_window: i32(1)
+              listen_to_window: i32(99)
               # listen_to_window_offline: i32(1),
               # listen_to_window_online: i32(1),
               # memory: memory_with_data("navigator.onLine\0")
             ] do
-      func get_current, result: I32, do: state
+      func(get_current, result: I32, do: state)
 
       on(online(offline?), target: online?)
       on(offline(online?), target: offline?)
@@ -282,7 +294,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func get_current, result: I32, do: state
+      func(get_current, result: I32, do: state)
 
       # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
       on(focus(inactive), target: active)
@@ -318,7 +330,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.closed?
             ] do
-      func get_current, result: I32, do: state
+      func(get_current, result: I32, do: state)
       on(open(closed?), target: open?)
       on(close(open?), target: closed?)
       # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
@@ -344,7 +356,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func aborted?, result: I32, do: state
+      func(aborted?, result: I32, do: state)
 
       on(abort(active), target: aborted)
     end
@@ -370,7 +382,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.pending
             ] do
-      func get_current, result: I32, do: state
+      func(get_current, result: I32, do: state)
 
       on(resolve(pending), target: resolved)
       on(reject(pending), target: rejected)

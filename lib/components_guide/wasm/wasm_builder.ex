@@ -168,7 +168,10 @@ defmodule ComponentsGuide.WasmBuilder do
       }
     end
 
-    def unquote(:or)(a, b, c), do: {:i32, :or, {{:i32, :or, {a, b}}, c}}
+    defp _or(a, b), do: {:i32, :or, {a, b}}
+    def unquote(:or)(a, b, c), do: _or(a, _or(b, c))
+    # def unquote(:or)(a, b, c, d), do: _or(a, _or(b, _or(c, d)))
+    def unquote(:or)(a, b, c, d), do: a |> _or(b |> _or(c |> _or(d)))
 
     def if_else(condition, do: when_true, else: when_false) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}

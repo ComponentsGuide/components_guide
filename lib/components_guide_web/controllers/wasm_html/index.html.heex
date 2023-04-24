@@ -1,16 +1,23 @@
 <link rel="preload" href="/wasm/module/simple_weekday_parser.wasm" as="fetch" crossorigin="anonymous">
 <link rel="preload" href="/wasm/module/counter_html.wasm" as="fetch" crossorigin="anonymous">
 
-<header class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <h1>WebAssembly</h1>
+<enhanced-navigation class="flex flex-col" data-add-aria-current-page data-add-article-navigation>
 
-  <p>These examples are written in a WAT (WebAssembly text format) DSL using Elixir macros. I plan to make it an open source library soon. You can <a href="https://github.com/ComponentsGuide/components_guide/blob/master/lib/components_guide/wasm/wasm_examples.ex">view their source on GitHub</a>.</p>
+<div class="mx-auto grid-flow-col md:grid md:grid-cols-[20rem_minmax(0,var(--max-width))] xl:grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8" style="--max-width: 46em">
+
+<header class="prose md:prose-xl prose-invert px-4 py-16">
+  <p class="px-2 pb-6 mb-6 text-4xl text-indigo-300 border-b-4 border-current"><%= "WebAssembly" %></p>
+
+  <p>These examples are written in a WAT (WebAssembly text format) DSL using Elixir macros. I plan to make it an open source library soon.</p>
+  <p>You can <a href="https://github.com/ComponentsGuide/components_guide/blob/master/lib/components_guide/wasm/wasm_examples.ex">view their source on GitHub</a>.</p>
 
   <hr>
 </header>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <h2>Stateful Counter that renders to HTML</h2>
+<div>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+  <h2 id="stateful-counter-html">Stateful Counter that renders to HTML</h2>
   <h3>Server with initial HTML + Client side rendering:</h3>
   <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
     <%= raw(CounterHTML.initial_html()) %>
@@ -29,16 +36,73 @@
   </details>
 </article>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <h2>Offline Status State Machine</h2>
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+  <h2 id="form-state">Form State Machine</h2>
+  <wasm-state-machine data-url="/wasm/module/form_state_machine.wasm" class="block">
+    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
+    <ul slot="globalsList" class="flex flex-wrap gap-16 border border-white/25"></ul>
+    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+      State: <span slot="state" class="font-bold"></span>
+    </output>
+    <div slot="get_edit_count"></div>
+    <div slot="get_submitted_edit_count"></div>
+    <div slot="user_can_edit?"></div>
+    <div slot="user_can_submit?"></div>
+    <div slot="eventHandlers" class="flex flex-wrap gap-4"></div>
+  </wasm-state-machine>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$Form</code> Wat source</summary>
+    <pre class="lang-wasm"><code><%= @form_state_wat %></code></pre>
+  </details>
+</article>
+
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+  <h2 id="promise-state">Promise State Machine</h2>
+  <wasm-state-machine data-url="/wasm/module/promise_state.wasm" class="block">
+    <ul slot="globalsList" class="flex flex-wrap gap-16 border border-white/25"></ul>
+    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+      State: <span slot="state" class="font-bold"></span>
+    </output>
+    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
+    <div slot="eventHandlers" class="flex gap-4"></div>
+  </wasm-state-machine>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$Promise</code> Wat source</summary>
+    <pre class="lang-wasm"><code><%= @promise_state_wat %></code></pre>
+  </details>
+</article>
+
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+  <h2 id="dialog-state">Dialog State Machine</h2>
+  <wasm-state-machine data-url="/wasm/module/dialog_state.wasm" class="block">
+    <ul slot="globalsList" class="flex flex-wrap gap-16 border border-white/25"></ul>
+    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+      State: <span slot="state" class="font-bold"></span>
+    </output>
+    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
+    <div slot="eventHandlers" class="flex gap-4"></div>
+  </wasm-state-machine>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
+    <pre class="lang-wasm"><code><%= @dialog_state_wat %></code></pre>
+  </details>
+</article>
+
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+  <h2 id="offline-state">Offline Status State Machine</h2>
   <wasm-state-machine data-url="/wasm/module/offline_status.wasm" class="block">
-    <output slot="state" class="px-4 py-3 text-black/90 bg-yellow-500/90 rounded-full"></output>
-    <ul>
-      <li slot="offline?"></li>
-      <li slot="online?"></li>
-    </ul>
+    <ul slot="globalsList" class="flex flex-wrap gap-16 border border-white/25"></ul>
+    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+      State: <span slot="state" class="font-bold"></span>
+    </output>
     <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
     <div slot="eventHandlers" class="flex gap-4"></div>
   </wasm-state-machine>
@@ -48,44 +112,12 @@
   </details>
 </article>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <h2>Promise State Machine</h2>
-  <wasm-state-machine data-url="/wasm/module/promise_state.wasm" class="block">
-    <output slot="state" class="px-4 py-3 text-black/90 bg-yellow-500/90 rounded-full"></output>
-    <ul slot="globalsList"></ul>
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
-    <div slot="eventHandlers" class="flex gap-4"></div>
-  </wasm-state-machine>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
-    <pre class="lang-wasm"><code><%= @dialog_state_wat %></code></pre>
-  </details>
-</article>
-
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
-
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <h2>Dialog State Machine</h2>
-  <wasm-state-machine data-url="/wasm/module/dialog_state.wasm" class="block">
-    <output slot="state" class="px-4 py-3 text-black/90 bg-yellow-500/90 rounded-full"></output>
-    <ul slot="globalsList"></ul>
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
-    <div slot="eventHandlers" class="flex gap-4"></div>
-  </wasm-state-machine>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
-    <pre class="lang-wasm"><code><%= @dialog_state_wat %></code></pre>
-  </details>
-</article>
-
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
-
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
   <form-escape-html data-url="/wasm/module/escape_html.wasm">
     <form id="escape-html-form" class="">
-      <h2>Escape HTML</h2>
+      <h2 id="escape-html">Escape HTML</h2>
       <label for="input-a">
         Input to be HTML escaped
         <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis both agreed that \"2 > 1\"" %></textarea>
@@ -101,7 +133,7 @@
   </details>
 </article>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
 
 <script type="module">
   class FormEscapeHTML extends HTMLElement {
@@ -177,10 +209,10 @@
   customElements.define("form-escape-html", FormEscapeHTML);
 </script>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
   <form-html-page data-url="/wasm/module/html_page.wasm">
     <form id="html-page-form" class="">
-      <h2>HTML Page via Request/Response</h2>
+      <h2 id="html-page">HTML Page via Request/Response</h2>
       <label for="input-a">
         Request body (try typing <code>good</code> or <code>bad</code>)
         <textarea id="input-a" name="input" rows="1" class="block w-full text-black"><%= "good" %></textarea>
@@ -279,3 +311,22 @@
 
   customElements.define("form-html-page", FormHTMLPage);
 </script>
+
+  </div>
+
+  <aside class="sticky top-0 h-screen hidden xl:block" hidden>
+      <nav class="pt-16 text-gray-200">
+        <div class="pl-5 pb-2 font-bold uppercase text-white">On this page</div>
+        <slot name="article-navigation-items">
+          <template>
+            <ul class="list-none">
+              <li class="border-l-4 border-gray-800 hover:border-blue-400"></li>
+            </ul>
+            <a href="#" class="inline-flex py-1 pl-4 hover:text-blue-400"></a>
+          </template>
+        </slot>
+      </nav>
+    </aside>
+  </div>
+
+</enhanced-navigation>
