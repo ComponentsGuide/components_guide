@@ -6,6 +6,7 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   defdelegate read_memory(instance, start, length), to: Wasm, as: :instance_read_memory
   defdelegate write_i32(instance, memory_offset, value), to: Wasm, as: :instance_write_i32
+  defdelegate write_i64(instance, memory_offset, value), to: Wasm, as: :instance_write_i64
 
   defdelegate write_string_nul_terminated(instance, memory_offset, string),
     to: Wasm,

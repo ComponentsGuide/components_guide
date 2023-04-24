@@ -297,6 +297,11 @@ defmodule ComponentsGuide.Wasm do
     wasm_instance_write_i32(instance, memory_offset, value)
   end
 
+  def instance_write_i64(instance, memory_offset, value)
+      when is_integer(memory_offset) and is_integer(value) do
+    wasm_instance_write_i64(instance, memory_offset, value)
+  end
+
   def instance_write_string_nul_terminated(instance, memory_offset, string)
       when is_integer(memory_offset) do
     wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
