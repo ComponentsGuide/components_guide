@@ -214,9 +214,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               body_chunk_index: i32(0),
               bump_offset: i32(@bump_start)
             ] do
-      func get_current, result: I32 do
-        count
-      end
+      func get_current, result: I32, do: count
 
       func increment, result: I32 do
         count = I32.add(count, 1)
