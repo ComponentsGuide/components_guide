@@ -8,8 +8,10 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+
 import "./customElements/enhanced-navigation";
 import "./customElements/wasm-html";
+import "./customElements/wasm-state-machine";
 
 window.IMPORT = {
   DOMTesting: () => import("@testing-library/dom")

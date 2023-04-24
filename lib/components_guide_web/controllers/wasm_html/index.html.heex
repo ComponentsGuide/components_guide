@@ -30,6 +30,23 @@
 </article>
 
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+  <h2>Offline Status State Machine</h2>
+  <wasm-state-machine data-url="/wasm/module/offline_status.wasm" class="block">
+    <output slot="state" class="p-4 bg-white/25 rounded-full"></output>
+    <ul>
+      <li slot="offline?"></li>
+      <li slot="online?"></li>
+    </ul>
+    <template data-template="button"><button class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Event</button></template>
+    <div slot="eventHandlers" class="flex gap-4"></div>
+  </wasm-state-machine>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$OfflineStatus</code> Wat source</summary>
+    <pre class="lang-wasm"><code><%= @offline_status_wat %></code></pre>
+  </details>
+</article>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
   <form-escape-html data-url="/wasm/module/escape_html.wasm">
     <form id="escape-html-form" class="">
       <h2>Escape HTML</h2>

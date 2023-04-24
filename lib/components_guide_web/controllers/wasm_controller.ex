@@ -2,6 +2,7 @@ defmodule ComponentsGuideWeb.WasmShared do
   alias ComponentsGuide.Wasm.Examples
   alias ComponentsGuide.Wasm.Examples.Numeric
   alias ComponentsGuide.Wasm.Examples.HTML
+  alias ComponentsGuide.Wasm.Examples.State
 
   @all_modules %{
     "escape_html.wasm" => HTML.EscapeHTML,
@@ -9,7 +10,8 @@ defmodule ComponentsGuideWeb.WasmShared do
     "counter_html.wasm" => HTML.CounterHTML,
     "simple_weekday_parser.wasm" => Examples.SimpleWeekdayParser,
     "sitemap_builder.wasm" => Examples.SitemapBuilder,
-    "numeric_unit_interval.wasm" => Numeric.UnitInterval
+    "numeric_unit_interval.wasm" => Numeric.UnitInterval,
+    "offline_status.wasm" => State.OfflineStatus,
   }
 
   defmacro all_modules do
@@ -22,6 +24,7 @@ defmodule ComponentsGuideWeb.WasmController do
   plug(:put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON)
 
   alias ComponentsGuide.Wasm.Examples.HTML
+  alias ComponentsGuide.Wasm.Examples.State
 
   import ComponentsGuideWeb.WasmShared
   @modules all_modules()
@@ -33,7 +36,8 @@ defmodule ComponentsGuideWeb.WasmController do
           [
             escape_html_wat: HTML.EscapeHTML.to_wat(),
             html_page_wat: HTML.HTMLPage.to_wat(),
-            counter_html_wat: HTML.CounterHTML.to_wat()
+            counter_html_wat: HTML.CounterHTML.to_wat(),
+            offline_status_wat: State.OfflineStatus.to_wat()
           ]
 
         _ ->
