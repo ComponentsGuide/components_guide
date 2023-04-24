@@ -41,7 +41,12 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defmodule Module do
-    defstruct name: nil, imports: [], exported_globals: [], globals: [], body: []
+    defstruct name: nil,
+              imports: [],
+              exported_globals: [],
+              exported_mutable_global_types: [],
+              globals: [],
+              body: []
 
     def fetch_funcp!(%__MODULE__{body: body}, name) do
       body = List.flatten(body)
@@ -272,8 +277,11 @@ defmodule ComponentsGuide.WasmBuilder do
 
     imports = List.flatten(imports)
 
+    # TODO split into readonly_globals and mutable_globals?
     internal_global_types = Keyword.get(options, :globals, [])
+    # TODO rename to export_readonly_globals?
     exported_global_types = Keyword.get(options, :exported_globals, [])
+    exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
 
     # internal_global_types =
     #   for {name, value} <- internal_global_types do
@@ -291,7 +299,7 @@ defmodule ComponentsGuide.WasmBuilder do
     #   end
 
     globals =
-      (internal_global_types ++ exported_global_types)
+      (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
       |> Keyword.new(fn {key, _} -> {key, nil} end)
       |> Map.new()
 
@@ -338,6 +346,7 @@ defmodule ComponentsGuide.WasmBuilder do
         imports: unquote(imports),
         globals: unquote(internal_global_types),
         exported_globals: unquote(exported_global_types),
+        exported_mutable_global_types: unquote(exported_mutable_global_types),
         body: unquote(block_items)
       }
     end
@@ -731,6 +740,7 @@ defmodule ComponentsGuide.WasmBuilder do
           name: name,
           imports: imports,
           exported_globals: exported_globals,
+          exported_mutable_global_types: exported_mutable_global_types,
           globals: globals,
           body: body
         },
@@ -741,6 +751,20 @@ defmodule ComponentsGuide.WasmBuilder do
       [for(import_def <- imports, do: [to_wat(import_def, "  " <> indent), "\n"])],
       for(
         {name, {:i32_const, initial_value}} <- exported_globals,
+        # TODO: handle more than just (mut i32), e.g. non-mut or f64
+        do: [
+          "  " <> indent,
+          # ~s[(export "#{name}" (global $#{name} i32 (i32.const #{initial_value})))],
+          # ~s[(global $#{name} i32 (i32.const #{initial_value}))],
+          ~s[(global $#{name} i32 (i32.const #{initial_value}))],
+          "\n",
+          "  " <> indent,
+          ~s[(export "#{name}" (global $#{name}))],
+          "\n"
+        ]
+      ),
+      for(
+        {name, {:i32_const, initial_value}} <- exported_mutable_global_types,
         # TODO: handle more than just (mut i32), e.g. non-mut or f64
         do: [
           "  " <> indent,
@@ -827,7 +851,7 @@ defmodule ComponentsGuide.WasmBuilder do
         ?",
         String.replace(string, ~S["], ~S[\"]),
         ?",
-        ")",
+        ")"
       ]
     end
     |> Enum.intersperse("\n")

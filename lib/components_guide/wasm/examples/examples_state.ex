@@ -169,11 +169,13 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
 
     defwasm exported_globals: [
-              initial: i32(0),
               edited: i32(1),
               submitting: i32(2),
               succeeded: i32(3),
               failed: i32(4)
+            ],
+            exported_mutable_globals: [
+              initial: i32(0)
             ],
             globals: [
               state: i32(0),
@@ -254,14 +256,16 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # end
 
     defwasm exported_globals: [
-              # Allow setting initial state
-              state: @states.offline?,
               offline?: @states.offline?,
               online?: @states.online?,
               listen_to_window: i32(0x100)
               # listen_to_window_offline: i32(1),
               # listen_to_window_online: i32(1),
               # memory: memory_with_data("navigator.onLine\0")
+            ],
+            exported_mutable_globals: [
+              # Allow setting initial state
+              state: @states.offline?
             ] do
       func(get_current, result: I32, do: state)
 
@@ -284,7 +288,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               active: i32(0),
               inactive: i32(1)
               # listen_to_document_focusin: i32(1),
-              # memory: memory_with_data("ownerDocument.activeElement\0")
             ],
             imports: [
               conditions: [
@@ -436,7 +439,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     alias Wasm.Instance
 
-    defwasm exported_globals: [time: i32(0)] do
+    defwasm exported_globals: [], exported_mutable_globals: [time: i32(0)] do
       func will_send(), result: I32 do
         time = I32.add(time, 1)
         time

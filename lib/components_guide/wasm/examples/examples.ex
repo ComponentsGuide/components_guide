@@ -104,7 +104,7 @@ defmodule ComponentsGuide.Wasm.Examples do
                 get: func(name: :http_get, params: I32, result: I32)
               ]
             ],
-            exported_globals: [
+            exported_mutable_globals: [
               # memory: memory(3),
               input_offset: i32(@input_offset)
             ] do

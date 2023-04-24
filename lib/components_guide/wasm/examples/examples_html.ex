@@ -74,7 +74,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               env: [buffer: memory(2)]
             ],
             # export_memory: memory(2),
-            exported_globals: [
+            exported_mutable_globals: [
               request_body_write_offset: i32(@request_body_write_offset)
             ],
             globals: [
