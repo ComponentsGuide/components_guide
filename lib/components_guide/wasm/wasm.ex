@@ -266,17 +266,22 @@ defmodule ComponentsGuide.Wasm do
   def instance_call(instance, f, a, b), do: do_instance_call(instance, f, [a, b])
   def instance_call(instance, f, a, b, c), do: do_instance_call(instance, f, [a, b, c])
 
+  defp do_instance_call_returning_string(instance, f, args) do
+    f = to_string(f)
+    wasm_instance_call_func_i32_string(instance, f, args)
+  end
+
   def instance_call_returning_string(instance, f),
-    do: wasm_instance_call_func_i32_string(instance, f, [])
+    do: do_instance_call_returning_string(instance, f, [])
 
   def instance_call_returning_string(instance, f, a),
-    do: wasm_instance_call_func_i32_string(instance, f, [a])
+    do: do_instance_call_returning_string(instance, f, [a])
 
   def instance_call_returning_string(instance, f, a, b),
-    do: wasm_instance_call_func_i32_string(instance, f, [a, b])
+    do: do_instance_call_returning_string(instance, f, [a, b])
 
   def instance_call_returning_string(instance, f, a, b, c),
-    do: wasm_instance_call_func_i32_string(instance, f, [a, b, c])
+    do: do_instance_call_returning_string(instance, f, [a, b, c])
 
   def instance_call_stream_string_chunks(instance, f) do
     Stream.unfold(0, fn n ->

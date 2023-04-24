@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule EscapeHTML do
@@ -60,7 +61,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     end
 
     def write_input(instance, string) do
-      Wasm.instance_write_string_nul_terminated(instance, 1024, string)
+      Instance.write_string_nul_terminated(instance, 1024, string)
     end
   end
 
@@ -126,45 +127,40 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     alias ComponentsGuide.Wasm
 
     def get_request_body_write_offset(instance) do
-      Wasm.instance_get_global(instance, "request_body_write_offset")
-      # Wasm.instance_call(instance, "get_request_body_write_offset")
+      Instance.get_global(instance, :request_body_write_offset)
+      # Instance.call(instance, "get_request_body_write_offset")
     end
 
     def set_request_body_write_offset(instance, offset) do
-      Wasm.instance_set_global(instance, "request_body_write_offset", offset)
+      Instance.set_global(instance, :request_body_write_offset, offset)
     end
 
     def write_string_nul_terminated(instance, offset, string) do
-      Wasm.instance_write_string_nul_terminated(instance, offset, string)
+      Instance.write_string_nul_terminated(instance, offset, string)
     end
 
     def set_request_body(instance, body) do
-      Wasm.instance_write_string_nul_terminated(instance, :request_body_write_offset, body)
+      Instance.write_string_nul_terminated(instance, :request_body_write_offset, body)
     end
 
     def get(instance) do
-      Wasm.instance_call(instance, "GET")
+      Instance.call(instance, "GET")
     end
 
     def get_status(instance) do
-      Wasm.instance_call(instance, "get_status")
+      Instance.call(instance, :get_status)
     end
 
     def get_headers(instance) do
-      Wasm.instance_call_returning_string(instance, "get_headers")
+      Instance.call_reading_string(instance, :get_headers)
     end
 
     def next_body_chunk(instance) do
-      Wasm.instance_call_returning_string(instance, "next_body_chunk")
+      Instance.call_reading_string(instance, :next_body_chunk)
     end
 
     def all_body_chunks(instance) do
-      Stream.unfold(0, fn n ->
-        case Wasm.instance_call_returning_string(instance, "next_body_chunk") do
-          "" -> nil
-          s -> {s, n + 1}
-        end
-      end)
+      Instance.call_stream_string_chunks(instance, :next_body_chunk)
     end
 
     def read_body(instance) do
