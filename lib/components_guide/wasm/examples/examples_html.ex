@@ -54,7 +54,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         end
       end
 
-      func escape_html, result: I32, locals: [read_offset: I32, write_offset: I32, char: I32] do
+      func escape_html, result: I32 do
         call(:escape, 1024, 1024 + 1024)
       end
     end
@@ -72,6 +72,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     defwasm imports: [
               env: [buffer: memory(2)]
             ],
+            # export_memory: memory(2),
             exported_globals: [
               request_body_write_offset: i32(@request_body_write_offset)
             ],

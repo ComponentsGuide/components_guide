@@ -228,7 +228,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
     def to_keylist(%__MODULE__{offset: offset, items: items}) do
       {lookup_table, _} =
-        Enum.map_reduce(items, offset, fn string, offset ->
+        items
+        |> Enum.map_reduce(offset, fn string, offset ->
           {{string, offset}, offset + byte_size(string) + 1}
         end)
 
@@ -319,6 +320,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
     # block_items = List.flatten(block_items)
 
+    constants = Enum.reverse(constants)
     Elixir.Module.put_attribute(env.module, :wasm_constants, constants)
 
     block_items =
