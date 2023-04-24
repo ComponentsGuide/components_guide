@@ -97,10 +97,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      # func get_current, do: state
-      func get_current, result: I32 do
-        state
-      end
+      func get_current, result: I32, do: state
 
       # defstates :state do
       #   state Idle do
@@ -184,14 +181,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               state: i32(0),
               edit_count: i32(0)
             ] do
-      # func get_current, do: state
-      func get_current, result: I32 do
-        state
-      end
-
-      func get_edit_count, result: I32 do
-        edit_count
-      end
+      func get_current, result: I32, do: state
+      func get_edit_count, result: I32, do: edit_count
 
       func user_can_submit, result: I32 do
         state |> I32.eq(submitting) |> I32.eqz()
@@ -253,9 +244,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               # listen_to_window_online: i32(1),
               # memory: memory_with_data("navigator.onLine\0")
             ] do
-      func get_current, result: I32 do
-        state
-      end
+      func get_current, result: I32, do: state
 
       on(online(offline?), target: online?)
       on(offline(online?), target: offline?)
@@ -286,9 +275,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func get_current, result: I32 do
-        state
-      end
+      func get_current, result: I32, do: state
 
       # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
       on(focus(inactive), target: active)
@@ -305,10 +292,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
-    @states %{
-      closed?: i32(0),
-      open?: i32(1)
-    }
+    @states I32.enum([:closed?, :open?])
 
     # defstatemachine [:closed?, :open?] do
     #   on(open(closed?), target: open?)
@@ -322,10 +306,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.closed?
             ] do
-      func get_current, result: I32 do
-        state
-      end
-
+      func get_current, result: I32, do: state
       on(open(closed?), target: open?)
       on(close(open?), target: closed?)
     end

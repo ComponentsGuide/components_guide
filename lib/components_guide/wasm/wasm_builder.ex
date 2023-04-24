@@ -344,7 +344,12 @@ defmodule ComponentsGuide.WasmBuilder do
     FuncType.imported_func(name, options[:params], options[:result])
   end
 
-  defmacro func(call, options \\ [], do: block) do
+  defmacro func(call, options) do
+    {block, options} = Keyword.pop!(options, :do)
+    define_func(call, :public, options, block)
+  end
+
+  defmacro func(call, options, do: block) do
     define_func(call, :public, options, block)
   end
 
