@@ -352,6 +352,7 @@ defmodule ComponentsGuide.WasmBuilder do
       defmacro data_for_constant(value) do
         quote do
           constants = Constants.from(unquote(@wasm_constants))
+          # dbg(Constants.to_keylist(constants))
           constants = Constants.to_map(constants)
           Map.fetch!(constants, unquote(value))
         end
@@ -811,6 +812,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   def to_wat(%Constants{} = constants, indent) do
+    # dbg(Constants.to_keylist(constants))
     for {string, offset} <- Constants.to_keylist(constants) do
       [
         indent,

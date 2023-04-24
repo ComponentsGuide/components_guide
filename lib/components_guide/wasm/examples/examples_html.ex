@@ -313,26 +313,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     use Wasm
 
     @page_size 64 * 1024
-    @readonly_start 0xFF
+    @readonly_start 0xFFf
     @bump_start 1 * @page_size
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
     # @output_offset 2 * 64 * 1024
-
-    @strings pack_strings_nul_terminated(@readonly_start,
-               xml_declaration: ~S[<?xml version="1.0" encoding="UTF-8"?>\n],
-               urlset_start: ~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n],
-               urlset_end: ~S[</urlset>\n],
-               url_start: ~S[<url>\n],
-               url_end: ~S[</url>\n],
-               loc_start: ~S[<loc>],
-               loc_end: ~S[</loc>\n]
-             )
-
-    @escaped_html_table [
-      {?&, ~C"&amp;"},
-      {?<, ~C"&lt;"}
-    ]
 
     defwasm imports: [
               env: [buffer: memory(3)]
@@ -400,30 +385,25 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       # </urlset>
       # """
 
-      data_nul_terminated(@strings)
-
       func next_body_chunk, result: I32 do
         defblock Main, result: I32 do
-          # if I32.eq(body_chunk_index, 0), return: @strings.xml_declaration.offset
-
           if I32.eq(body_chunk_index, 0) do
-            # return(@strings.xml_declaration.offset)
-            push(@strings.xml_declaration.offset)
+            const(~S[<?xml version="1.0" encoding="UTF-8"?>\n])
             break(Main)
           end
 
           if I32.eq(body_chunk_index, 1) do
-            push(@strings.urlset_start.offset)
+            const(~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n])
             break(Main)
           end
 
           if I32.eq(body_chunk_index, 2) do
-            push(@strings.url_start.offset)
+            const(~S[<url>\n])
             break(Main)
           end
 
           if I32.eq(body_chunk_index, 3) do
-            push(@strings.loc_start.offset)
+            const(~S[<loc>])
             break(Main)
           end
 
@@ -436,17 +416,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           end
 
           if I32.eq(body_chunk_index, 5) do
-            push(@strings.loc_end.offset)
+            const(~S[</loc>\n])
             break(Main)
           end
 
           if I32.eq(body_chunk_index, 6) do
-            push(@strings.url_end.offset)
+            const(~S[</url>\n])
             break(Main)
           end
 
           if I32.eq(body_chunk_index, 7) do
-            push(@strings.urlset_end.offset)
+            const(~S[</urlset>\n])
             break(Main)
           end
 

@@ -233,7 +233,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
 
   describe "SitemapBuilder" do
     test "works" do
-      # IO.puts(SitemapBuilder.to_wat())
       instance = SitemapBuilder.start()
 
       SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2&c=3")

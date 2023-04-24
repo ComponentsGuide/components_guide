@@ -1,7 +1,6 @@
 defmodule ComponentsGuide.Wasm.ExamplesTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
 
   alias ComponentsGuide.Wasm.Examples
