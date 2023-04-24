@@ -667,6 +667,72 @@ defmodule ComponentsGuide.Wasm.Examples do
     end
   end
 
+  defmodule WebPageIntegrationTest do
+    use Wasm
+
+    defwasm imports: [
+      navigate: [
+        visit: func(name: :visit, params: I32, result: I32)
+      ],
+      query: [
+        get_by_role: func(name: :get_by_role, params: I32, result: I32),
+        expect_by_role: func(name: :get_by_role, params: I32),
+      ]
+    ] do
+      func test_home_page, result: I32 do
+        # imports.visit("/")
+        # imports.expect_by_role("link", "Home")
+        call(:visit, const("/"))
+        call(:expect_by_role, const("link"), const("Home"))
+      end
+    end
+  end
+
+  defmodule TailwindLike do
+    use Wasm
+
+    defwasm imports: [
+      navigate: [
+        visit: func(name: :visit, params: I32, result: I32)
+      ],
+      query: [
+        get_by_role: func(name: :get_by_role, params: I32, result: I32),
+        expect_by_role: func(name: :get_by_role, params: I32),
+      ]
+    ] do
+      func test_home_page, result: I32.String do
+        # imports.visit("/")
+        # imports.expect_by_role("link", "Home")
+        _html = const(~s[<button class="text-lg">Click me</button>])
+        _css = const_set_insert(:css, ~s[.text-lg{font-size: 125%}])
+        # css = const_list_append(:css, ~s[.text-lg{font-size: 125%}])
+
+        # wind(~s[<button class="text-lg">Click me</button>])
+      end
+    end
+  end
+
+  defmodule FormState do
+    use Wasm
+
+    defwasm imports: [
+
+    ] do
+      func on_input(input_name(I32), string_value(I32)) do
+        # TODO: store string_value under key input_name
+        # TODO: add funcs like Keyword.put() to the LinkedLists wasm module
+      end
+
+      func on_reset() do
+
+      end
+
+      func to_urlencoded, result: I32 do
+        -1
+      end
+    end
+  end
+
   defmodule Base64Encode do
   end
 

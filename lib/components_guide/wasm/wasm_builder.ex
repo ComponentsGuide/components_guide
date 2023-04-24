@@ -611,6 +611,16 @@ defmodule ComponentsGuide.WasmBuilder do
     # {:for, meta, [for_arg, [do: quote do: inline(do: unquote(block))]]}
   end
 
+  def const(string) when is_binary(string) do
+    {:const_string, string}
+  end
+
+  def const_set_insert(set_name, string) when is_atom(set_name) and is_binary(string) do
+    :todo
+  end
+
+  # TODO: add a comptime keyword like Zig: https://kristoff.it/blog/what-is-zig-comptime/
+
   def br_if(identifier, condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 

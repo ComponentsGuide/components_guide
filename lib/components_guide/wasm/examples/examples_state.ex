@@ -47,9 +47,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               count: i32(0)
             ] do
-      func get_current, result: I32 do
-        count
-      end
+      func get_current, result: I32, do: count
 
       func increment, result: I32 do
         count = I32.add(count, 1)
@@ -234,11 +232,20 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
+    @states I32.enum([:offline?, :online?])
+
+    # defstate Offline do
+    #   on(online, target: Online)
+    # end
+    # defstate Online do
+    #   on(offline, target: Offline)
+    # end
+
     defwasm exported_globals: [
               # Allow setting initial state
-              state: i32(0),
-              offline?: i32(0),
-              online?: i32(1),
+              state: @states.offline?,
+              offline?: @states.offline?,
+              online?: @states.online?,
               listen_to_window: i32(1)
               # listen_to_window_offline: i32(1),
               # listen_to_window_online: i32(1),
@@ -353,17 +360,17 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
+    @states I32.enum([:pending, :resolved, :rejected])
+
     defwasm exported_globals: [
-              pending: i32(0),
-              resolved: i32(1),
-              rejected: i32(2)
+              pending: @states.pending,
+              resolved: @states.resolved,
+              rejected: @states.rejected
             ],
             globals: [
-              state: i32(0)
+              state: @states.pending
             ] do
-      func get_current, result: I32 do
-        state
-      end
+      func get_current, result: I32, do: state
 
       on(resolve(pending), target: resolved)
       on(reject(pending), target: rejected)
@@ -433,21 +440,14 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       end
     end
 
-    def read(instance) do
-      Instance.get_global(instance, :time)
-    end
+    def read(instance), do: Instance.get_global(instance, :time)
+    def received(instance, incoming_time), do: Instance.call(instance, :received, incoming_time)
 
-    defp will_send(instance) do
-      Instance.call(instance, :will_send)
-    end
+    defp will_send(instance), do: Instance.call(instance, :will_send)
 
     def send(a, b) do
       t = will_send(a)
       received(b, t)
-    end
-
-    def received(instance, incoming_time) do
-      Instance.call(instance, :received, incoming_time)
     end
   end
 end
