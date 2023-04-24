@@ -292,6 +292,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
+    # Generate state machine on the fly:
+    # /wasm/state-machine/Closed,Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
+    # Generate state machine on the fly with initial state Open:
+    # /wasm/state-machine/Closed,Open/Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
+
     @states I32.enum([:closed?, :open?])
 
     # defstatemachine [:closed?, :open?] do
