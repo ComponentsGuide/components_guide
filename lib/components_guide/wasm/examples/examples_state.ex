@@ -337,10 +337,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      # func aborted?, do: state
-      func aborted?, result: I32 do
-        state
-      end
+      func aborted?, result: I32, do: state
 
       on(abort(active), target: aborted)
     end
