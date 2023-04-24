@@ -68,7 +68,7 @@ function initWasmHTML(el, wasmInstancePromise) {
       for (globalName of globalNames) {
         const slot = slots.get(globalName);
         if (slot) {
-          slot.textContent = `${globalName}: ${instance.exports[globalName].value}`;
+          slot.textContent = `${globalName} = ${instance.exports[globalName].value}`;
         }
       }
 
@@ -83,7 +83,7 @@ function initWasmHTML(el, wasmInstancePromise) {
         const listEl = slots.get("globalsList");
         for (globalName of globalNames) {
           listEl.appendChild(Object.assign(el.ownerDocument.createElement("li"), {
-            textContent: `${globalName}: ${instance.exports[globalName].value}`
+            textContent: `${globalName} = ${instance.exports[globalName].value}`
           }));
         }
       }
