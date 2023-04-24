@@ -13,6 +13,7 @@ defmodule ComponentsGuideWeb.WasmShared do
     "numeric_unit_interval.wasm" => Numeric.UnitInterval,
     "offline_status.wasm" => State.OfflineStatus,
     "dialog_state.wasm" => State.Dialog,
+    "promise_state.wasm" => State.Promise,
   }
 
   defmacro all_modules do
@@ -40,6 +41,7 @@ defmodule ComponentsGuideWeb.WasmController do
             counter_html_wat: HTML.CounterHTML.to_wat(),
             offline_status_wat: State.OfflineStatus.to_wat(),
             dialog_state_wat: State.Dialog.to_wat(),
+            promise_state_wat: State.Promise.to_wat(),
           ]
 
         _ ->
