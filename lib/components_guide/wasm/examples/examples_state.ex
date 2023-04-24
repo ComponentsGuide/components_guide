@@ -331,7 +331,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     import StateMachine
 
     defwasm exported_globals: [
-              idle: i32(0),
+              active: i32(0),
               aborted: i32(1)
             ],
             globals: [
@@ -342,7 +342,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         state
       end
 
-      on(abort(idle), target: aborted)
+      on(abort(active), target: aborted)
     end
 
     alias ComponentsGuide.Wasm.Instance
