@@ -754,12 +754,7 @@ defmodule ComponentsGuide.WasmBuilder do
         # TODO: handle more than just (mut i32), e.g. non-mut or f64
         do: [
           "  " <> indent,
-          # ~s[(export "#{name}" (global $#{name} i32 (i32.const #{initial_value})))],
-          # ~s[(global $#{name} i32 (i32.const #{initial_value}))],
-          ~s[(global $#{name} i32 (i32.const #{initial_value}))],
-          "\n",
-          "  " <> indent,
-          ~s[(export "#{name}" (global $#{name}))],
+          ~s[(global $#{name} (export "#{name}") i32 (i32.const #{initial_value}))],
           "\n"
         ]
       ),
@@ -770,10 +765,7 @@ defmodule ComponentsGuide.WasmBuilder do
           "  " <> indent,
           # ~s[(export "#{name}" (global $#{name} i32 (i32.const #{initial_value})))],
           # ~s[(global $#{name} i32 (i32.const #{initial_value}))],
-          ~s[(global $#{name} (mut i32) (i32.const #{initial_value}))],
-          "\n",
-          "  " <> indent,
-          ~s[(export "#{name}" (global $#{name}))],
+          ~s[(global $#{name} (export "#{name}") (mut i32) (i32.const #{initial_value}))],
           "\n"
         ]
       ),
@@ -886,7 +878,7 @@ defmodule ComponentsGuide.WasmBuilder do
         indent,
         case name do
           name when is_atom(name) -> ~s[(func $#{name} ]
-          {:export, name} -> ~s[(func (export "#{name}") ]
+          {:export, name} -> ~s[(func $#{name} (export "#{name}") ]
         end,
         Enum.intersperse(
           for(param <- params, do: to_wat(param)) ++ if(result, do: [to_wat(result)], else: []),

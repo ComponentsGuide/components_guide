@@ -58,8 +58,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
                (module $HTTPProxy
                  (import "env" "buffer" (memory 3))
                  (import "http" "get" (func $http_get (param i32) (result i32)))
-                 (global $input_offset (mut i32) (i32.const 65536))
-                 (export "input_offset" (global $input_offset))
+                 (global $input_offset (export "input_offset") (mut i32) (i32.const 65536))
                """
     end
 

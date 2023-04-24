@@ -11,7 +11,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
       end
 
     wasm_source = """
-    (func (export "answer") (result i32)
+    (func $answer (export "answer") (result i32)
       (i32.const 42)
     )\
     """
@@ -55,7 +55,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
     wasm_source = """
     (module $SingleFunc
       (memory (export "mem") 1)
-      (func (export "answer") (result i32)
+      (func $answer (export "answer") (result i32)
         (i32.const 42)
       )
     )
@@ -86,10 +86,10 @@ defmodule ComponentsGuide.WasmBuilderTest do
     wasm_source = """
     (module $ManyFuncs
       (memory (export "mem") 1)
-      (func (export "answer") (result i32)
+      (func $answer (export "answer") (result i32)
         (i32.mul (i32.const 2) (i32.const 21))
       )
-      (func (export "get_pi") (result f32)
+      (func $get_pi (export "get_pi") (result f32)
         (f32.const 3.14)
       )
       (func $internal (result f32)
@@ -160,7 +160,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
       (data (i32.const #{413 * 24}) "Payload Too Large\\00")
       (data (i32.const #{422 * 24}) "Unprocessable Entity\\00")
       (data (i32.const #{429 * 24}) "Too Many Requests\\00")
-      (func (export "lookup") (param $status i32) (result i32)
+      (func $lookup (export "lookup") (param $status i32) (result i32)
         (i32.mul (local.get $status) (i32.const 24))
       )
     )
@@ -188,7 +188,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
 
     wasm_source = """
     (module $WithinRange
-      (func (export "validate") (param $num i32) (result i32)
+      (func $validate (export "validate") (param $num i32) (result i32)
         (local $lt i32)
         (local $gt i32)
         (i32.lt_s (local.get $num) (i32.const 1))
@@ -242,13 +242,13 @@ defmodule ComponentsGuide.WasmBuilderTest do
       (import "env" "buffer" (memory 1))
       (global $count (mut i32) (i32.const 0))
       (global $tally (mut i32) (i32.const 0))
-      (func (export "insert") (param $element i32)
+      (func $insert (export "insert") (param $element i32)
         (i32.add (global.get $count) (i32.const 1))
         (global.set $count)
         (i32.add (global.get $tally) (local.get $element))
         (global.set $tally)
       )
-      (func (export "calculate_mean") (result i32)
+      (func $calculate_mean (export "calculate_mean") (result i32)
         (i32.div_u (global.get $tally) (global.get $count))
       )
     )
@@ -286,7 +286,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
     wasm_source = """
     (module $FileNameSafe
       (import "env" "buffer" (memory 2))
-      (func (export "get_is_valid") (result i32)
+      (func $get_is_valid (export "get_is_valid") (result i32)
         (local $i i32)
         (local $char i32)
         (i32.const 1024)
