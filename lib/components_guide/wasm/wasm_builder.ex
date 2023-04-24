@@ -44,6 +44,8 @@ defmodule ComponentsGuide.WasmBuilder do
     defstruct name: nil, imports: [], exported_globals: [], globals: [], body: []
 
     def fetch_funcp!(%__MODULE__{body: body}, name) do
+      body = List.flatten(body)
+
       # func = Enum.find(body, &match?(%Func{name: ^name}, &1))
       func =
         Enum.find(body, fn
@@ -217,6 +219,27 @@ defmodule ComponentsGuide.WasmBuilder do
     %Module{name: name, body: body}
   end
 
+  defmodule Constants do
+    defstruct offset: 0xff, items: []
+
+    def add_constant(%__MODULE__{} = receiver, value) do
+      update_in(receiver.items, &[value | &1])
+    end
+
+    def to_keylist(%__MODULE__{offset: offset, items: items}) do
+      {lookup_table, _} =
+        Enum.map_reduce(items, offset, fn string, offset ->
+          {{string, offset}, offset + byte_size(string) + 1}
+        end)
+
+        lookup_table
+    end
+
+    def to_map(%__MODULE__{} = receiver) do
+      receiver |> to_keylist() |> Map.new()
+    end
+  end
+
   defp define_module(name, options, block, env) do
     options = Macro.expand(options, env)
 
@@ -272,24 +295,36 @@ defmodule ComponentsGuide.WasmBuilder do
     block_items =
       case block do
         {:__block__, _meta, block_items} -> block_items
-        single -> [single]
+        single -> List.wrap(single)
       end
 
     # block_items = Macro.expand(block_items, env)
     # block_items = block_items
 
-    block_items =
-      Macro.prewalk(block_items, fn
-        {:=, _meta1, [{global, _meta2, nil}, input]}
+    {block_items, constants} =
+      Macro.prewalk(block_items, %Constants{}, fn
+        {:=, _meta1, [{global, _meta2, nil}, input]}, constants
         when is_atom(global) and is_map_key(globals, global) ->
-          [input, global_set(global)]
+          {[input, global_set(global)], constants}
 
-        {atom, meta, nil} when is_atom(atom) and is_map_key(globals, atom) ->
-          {:global_get, meta, [atom]}
+        {atom, meta, nil}, constants when is_atom(atom) and is_map_key(globals, atom) ->
+          {{:global_get, meta, [atom]}, constants}
 
-        other ->
-          other
+        {:const, _, [str]}, constants ->
+          {(quote do: data_for_constant(unquote(Macro.escape(str)))), Constants.add_constant(constants, Macro.escape(str))}
+
+        other, constants ->
+          {other, constants}
       end)
+
+    # block_items = List.flatten(block_items)
+
+    Elixir.Module.put_attribute(env.module, :wasm_constants, constants)
+
+    block_items = case constants.items do
+      [] -> block_items
+      _ -> [Macro.escape(constants) | block_items]
+    end
 
     quote do
       %Module{
@@ -313,6 +348,14 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       # Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
+      def data_for_constant(value) do
+        constants = Constants.to_map(@wasm_constants)
+        dbg(@wasm_constants)
+        dbg(constants)
+        Map.fetch!(constants, value)
+        # %Data{offset: 0xff, value: value, nul_terminated: true}
+      end
+
       def __wasm_module__() do
         import Kernel, except: [if: 2]
         import ComponentsGuide.WasmBuilderUsing
@@ -320,6 +363,7 @@ defmodule ComponentsGuide.WasmBuilder do
         # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
         unquote(definition)
       end
+
       # TODO: what is the best way to pass this value along?
       # def __wasm_module__(), do: @wasm_module
 
@@ -456,7 +500,16 @@ defmodule ComponentsGuide.WasmBuilder do
           other
       end)
 
+    # constants = for {:const, _, [str]} when is_binary(str) <- Macro.prewalker(block_items) do
+    #   str
+    # end
+    # {data_els, _} = Enum.map_reduce(constants, 0x4, fn string, offset ->
+    #   {data_nul_terminated(offset, string), offset + byte_size(string) + 1}
+    # end)
+
     quote do
+      # List.flatten([
+      #   unquote(Macro.escape(data_els)),
       %Func{
         name: unquote(name),
         params: unquote(params),
@@ -464,6 +517,8 @@ defmodule ComponentsGuide.WasmBuilder do
         local_types: unquote(local_types),
         body: unquote(block_items)
       }
+
+      # ])
     end
   end
 
@@ -611,8 +666,17 @@ defmodule ComponentsGuide.WasmBuilder do
     # {:for, meta, [for_arg, [do: quote do: inline(do: unquote(block))]]}
   end
 
-  def const(string) when is_binary(string) do
-    {:const_string, string}
+  def const(value) do
+    {:const_string, value}
+    # mod = __CALLER__.module
+    # mod = __ENV__.module
+
+    # quote do
+    #   var!(offset) = Elixir.Module.get_attribute(unquote(mod), :data_offset, 0x4)
+    #   var!(new_offset) = byte_size(unquote(value)) + 1
+    #   Elixir.Module.put_attribute(unquote(mod), :data_offset, var!(new_offset))
+    #   %Data{offset: var!(offset), value: unquote(value), nul_terminated: true}
+    # end
   end
 
   def const_set_insert(set_name, string) when is_atom(set_name) and is_binary(string) do
@@ -741,6 +805,21 @@ defmodule ComponentsGuide.WasmBuilder do
       ?",
       ")"
     ]
+  end
+
+  def to_wat(%Constants{} = constants, indent) do
+    for {string, offset} <- Constants.to_keylist(constants) do
+      [
+        indent,
+        "(data (i32.const ",
+        to_string(offset),
+        ") ",
+        ?",
+        String.replace(string, ~S["], ~S[\"]),
+        ?",
+        ")"
+      ]
+    end
   end
 
   def to_wat(
