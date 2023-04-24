@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Instance
 
   alias ComponentsGuide.Wasm.Examples.{
     EscapeHTML,
@@ -315,8 +316,40 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     test "works by using correct imported function" do
       instance = HTTPProxy.start()
 
-      status = Wasm.instance_call(instance, "get_status")
+      status = Instance.call(instance, "get_status")
       assert status == 200
+    end
+  end
+
+  describe "HTMLFormBuilder" do
+    # alias ComponentsGuide.Wasm.Examples.HTMLFormBuilder
+
+    @tag :skip
+    test "works" do
+      instance = HTMLFormBuilder.start()
+
+      form = [
+        [:textbox, "first_name"],
+        [:textbox, "last_name"],
+      ]
+
+      first_name = Instance.alloc_string(instance, "first_name")
+      Instance.call(instance, :add_textbox, first_name)
+      last_name = Instance.alloc_string(instance, "last_name")
+      Instance.call(instance, :add_textbox, last_name)
+      # Instance.call(instance, :add_textbox, "first_name")
+      # Instance.call(instance, :add_textbox, "last_name")
+
+      html = Instance.read_body(instance)
+
+      assert html == ~S"""
+      <label for="first_name">
+        <input type="text" id="first_name" name="first_name">
+      </label>
+      <label for="last_name">
+        <input type="text" id="last_name" name="last_name">
+      </label>
+      """
     end
   end
 end
