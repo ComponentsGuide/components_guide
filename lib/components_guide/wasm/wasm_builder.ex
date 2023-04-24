@@ -967,6 +967,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   def to_wat(:nop, indent), do: [indent, "nop"]
+  def to_wat(:drop, indent), do: [indent, "drop"]
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
