@@ -67,18 +67,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule HTMLPage do
     use Wasm
 
-    @strings pack_strings_nul_terminated(4,
-               doctype: "<!doctype html>",
-               good: "<h1>Good</h1>",
-               bad: "<h1>Bad</h1>",
-               content_type: "content-type: text/html;charset=utf-8\\r\\n"
-             )
-
-    # Doesn’t work because we are evaluating the block at compile time.
-    def doctype do
-      4
-    end
-
     @request_body_write_offset 65536
 
     defwasm imports: [
@@ -91,11 +79,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               body_chunk_index: i32(0)
               # request_body_write_offset: i32(@request_body_write_offset)
             ] do
-      data_nul_terminated(@strings)
-
-      func get_request_body_write_offset, result: I32 do
-        request_body_write_offset
-      end
+      func(get_request_body_write_offset, result: I32, do: request_body_write_offset)
 
       func GET do
         body_chunk_index = 0
@@ -106,76 +90,35 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func get_status, result: I32 do
-        # I32.if_else(call(:get_is_valid), do: 200, else: 400)
-        I32.if_else call(:get_is_valid) do
-          200
-        else
-          400
-        end
-
-        # if call(:get_is_valid) do
-        #   return(200)
-        # else
-        #   return(400)
-        # end
+        I32.if_else(call(:get_is_valid), do: 200, else: 400)
+        # if call(:get_is_valid), result: I32, do: 200, else: 400
       end
 
       func get_headers, result: I32 do
-        @strings.content_type.offset
+        const("content-type: text/html;charset=utf-8\\r\\n")
       end
 
-      func next_body_chunk, result: I32, locals: [is_valid: I32] do
-        is_valid = call(:get_is_valid)
+      func next_body_chunk, result: I32 do
+        defblock Main, result: I32 do
+          if I32.eq(body_chunk_index, 0) do
+            const("<!doctype html>")
+            break(Main)
+          end
+
+          if I32.eq(body_chunk_index, 1) do
+            if call(:get_is_valid), result: I32 do
+              const("<h1>Good</h1>")
+            else
+              const("<h1>Bad</h1>")
+            end
+
+            break(Main)
+          end
+
+          0x0
+        end
+
         body_chunk_index = I32.add(body_chunk_index, 1)
-
-        # I32.if_else(I32.eq(body_chunk_index, 1),
-        #   do: 4,
-        #   else: I32.if_else(is_valid, do: 20, else: 40)
-        # )
-        # I32.if_else(I32.eq(body_chunk_index, 1),
-        #   do: lookup_data(:doctype),
-        #   else: I32.if_else(is_valid, do: lookup_data(:good_heading), else: lookup_data(:bad_heading))
-        # )
-
-        # br_table do
-        #   1 -> 4
-        #   2 ->
-        #     if is_valid do
-        #       @strings.good.offset
-        #     else
-        #       @strings.bad.offset
-        #     end
-        #   _ -> 0
-        # end
-
-        # I32.if_else I32.eq(body_chunk_index, 1), do: return(4)
-        # I32.if_else I32.eq(body_chunk_index, 2), do: return(@strings.good.offset)
-        # 0
-
-        # if I32.eq(body_chunk_index, 1) do
-        #   return(@strings.doctype.offset)
-        #   # :return
-        # end
-
-        # if I32.eq(body_chunk_index, 2) do
-        #   @strings.good.offset
-        #   # if is_valid do
-        #   #   push(@strings.good.offset)
-        #   # else
-        #   #   push(@strings.bad.offset)
-        #   # end
-        # else
-        #   push(0)
-        # end
-
-        I32.if_else(I32.eq(body_chunk_index, 1),
-          do: const("<!doctype html>"),
-          else:
-            I32.if_else(I32.eq(body_chunk_index, 2),
-              do: I32.if_else(is_valid, do: const("<h1>Good</h1>"), else: const("<h1>Bad</h1>")),
-              else: 0
-            )
-        )
       end
     end
 

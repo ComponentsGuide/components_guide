@@ -220,7 +220,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defmodule Constants do
-    defstruct offset: 0xff, items: []
+    defstruct offset: 0xFF, items: []
 
     def add_constant(%__MODULE__{} = receiver, value) do
       update_in(receiver.items, &[value | &1])
@@ -232,7 +232,7 @@ defmodule ComponentsGuide.WasmBuilder do
           {{string, offset}, offset + byte_size(string) + 1}
         end)
 
-        lookup_table
+      lookup_table
     end
 
     def to_map(%__MODULE__{} = receiver) do
@@ -311,7 +311,8 @@ defmodule ComponentsGuide.WasmBuilder do
           {{:global_get, meta, [atom]}, constants}
 
         {:const, _, [str]}, constants ->
-          {(quote do: data_for_constant(unquote(Macro.escape(str)))), Constants.add_constant(constants, Macro.escape(str))}
+          {quote(do: data_for_constant(unquote(Macro.escape(str)))),
+           Constants.add_constant(constants, Macro.escape(str))}
 
         other, constants ->
           {other, constants}
@@ -321,10 +322,11 @@ defmodule ComponentsGuide.WasmBuilder do
 
     Elixir.Module.put_attribute(env.module, :wasm_constants, constants)
 
-    block_items = case constants.items do
-      [] -> block_items
-      _ -> [Macro.escape(constants) | block_items]
-    end
+    block_items =
+      case constants.items do
+        [] -> block_items
+        _ -> [Macro.escape(constants) | block_items]
+      end
 
     quote do
       %Module{
@@ -373,7 +375,7 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defp expand_type(type) do
+  def expand_type(type) do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
       F32 -> :f32
@@ -881,7 +883,7 @@ defmodule ComponentsGuide.WasmBuilder do
       [
         indent,
         "(if ",
-        if(result, do: "(result #{result}) ", else: ""),
+        if(result, do: ["(result ", to_string(expand_type(result)), ") "], else: ""),
         to_wat(condition, ""),
         ?\n
       ],
@@ -1033,6 +1035,28 @@ defmodule ComponentsGuide.WasmBuilderUsing do
   import Kernel, except: [if: 2]
   import ComponentsGuide.WasmBuilder
   # alias ComponentsGuide.WasmBuilder.{I32}
+
+  defmacro if(condition, [result: result], do: when_true, else: when_false) do
+    quote do
+      %ComponentsGuide.WasmBuilder.IfElse{
+        result: unquote(result),
+        condition: unquote(condition),
+        when_true: unquote(when_true),
+        when_false: unquote(when_false)
+      }
+    end
+  end
+
+  defmacro if(condition, result: result, do: when_true, else: when_false) do
+    quote do
+      %ComponentsGuide.WasmBuilder.IfElse{
+        result: unquote(result),
+        condition: unquote(condition),
+        when_true: unquote(when_true),
+        when_false: unquote(when_false)
+      }
+    end
+  end
 
   defmacro if(condition, do: when_true, else: when_false) do
     quote do
