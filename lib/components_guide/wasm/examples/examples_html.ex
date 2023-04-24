@@ -172,7 +172,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           do: const("<!doctype html>"),
           else:
             I32.if_else(I32.eq(body_chunk_index, 2),
-              do: I32.if_else(is_valid, do: @strings.good.offset, else: @strings.bad.offset),
+              do: I32.if_else(is_valid, do: const("<h1>Good</h1>"), else: const("<h1>Bad</h1>")),
               else: 0
             )
         )

@@ -350,8 +350,6 @@ defmodule ComponentsGuide.WasmBuilder do
 
       def data_for_constant(value) do
         constants = Constants.to_map(@wasm_constants)
-        dbg(@wasm_constants)
-        dbg(constants)
         Map.fetch!(constants, value)
         # %Data{offset: 0xff, value: value, nul_terminated: true}
       end
