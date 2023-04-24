@@ -51,7 +51,7 @@
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
   <h2 id="form-state">Form State Machine</h2>
   <wasm-state-machine data-url="/wasm/module/form_state_machine.wasm" class="block">
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-blue-100 bg-blue-600 hover:text-blue-800 hover:bg-blue-300 border border-blue-500 rounded-lg">Event</button></template>
+    <template data-template="button"><.blue_button>Event</.blue_button></template>
     <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
     <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
       State: <span slot="state" class="font-bold"></span>
@@ -70,15 +70,15 @@
 
 <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
   <h2 id="promise-state">Promise State Machine</h2>
   <wasm-state-machine data-url="/wasm/module/promise_state.wasm" class="block">
-    <ul slot="globalsList" class="flex flex-wrap gap-x-16 border border-white/25"></ul>
+    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
     <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
       State: <span slot="state" class="font-bold"></span>
     </output>
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
-    <div slot="eventHandlers" class="flex gap-4"></div>
+    <template data-template="button"><.blue_button>Event</.blue_button></template>
+    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
   </wasm-state-machine>
   <details class="mt-8">
     <summary class="cursor-pointer">View <code>$Promise</code> Wat source</summary>
@@ -88,15 +88,15 @@
 
 <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
   <h2 id="dialog-state">Dialog State Machine</h2>
   <wasm-state-machine data-url="/wasm/module/dialog_state.wasm" class="block">
-    <ul slot="globalsList" class="flex flex-wrap gap-x-16 border border-white/25"></ul>
+    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
     <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
       State: <span slot="state" class="font-bold"></span>
     </output>
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
-    <div slot="eventHandlers" class="flex gap-4"></div>
+    <template data-template="button"><.blue_button>Event</.blue_button></template>
+    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
   </wasm-state-machine>
   <details class="mt-8">
     <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
@@ -106,15 +106,15 @@
 
 <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
   <h2 id="offline-state">Offline Status State Machine</h2>
   <wasm-state-machine data-url="/wasm/module/offline_status.wasm" class="block">
-    <ul slot="globalsList" class="flex flex-wrap gap-x-16 border border-white/25"></ul>
+    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
     <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
       State: <span slot="state" class="font-bold"></span>
     </output>
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
-    <div slot="eventHandlers" class="flex gap-4"></div>
+    <template data-template="button"><.blue_button>Event</.blue_button></template>
+    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
   </wasm-state-machine>
   <details class="mt-8">
     <summary class="cursor-pointer">View <code>$OfflineStatus</code> Wat source</summary>

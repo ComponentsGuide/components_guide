@@ -14,7 +14,7 @@ defmodule ComponentsGuideWeb.WasmShared do
     "offline_status.wasm" => State.OfflineStatus,
     "dialog_state.wasm" => State.Dialog,
     "promise_state.wasm" => State.Promise,
-    "form_state_machine.wasm" => State.Form,
+    "form_state_machine.wasm" => State.Form
   }
 
   defmacro all_modules do
@@ -43,7 +43,7 @@ defmodule ComponentsGuideWeb.WasmController do
             offline_status_wat: State.OfflineStatus.to_wat(),
             dialog_state_wat: State.Dialog.to_wat(),
             promise_state_wat: State.Promise.to_wat(),
-            form_state_wat: State.Form.to_wat(),
+            form_state_wat: State.Form.to_wat()
           ]
 
         _ ->
@@ -91,6 +91,21 @@ defmodule ComponentsGuideWeb.WasmHTML do
   alias ComponentsGuide.Wasm.Examples.HTML.{CounterHTML}
 
   embed_templates("wasm_html/*")
+
+  def blue_button(assigns) do
+    ~H"""
+    <button
+      type={assigns[:type]}
+      class={[
+        "mt-4 px-3 py-1 text-blue-100 bg-blue-600 hover:text-blue-800 hover:bg-blue-300 border border-blue-500 rounded-lg",
+        assigns[:class]
+      ]}
+      {assigns[:rest] || []}
+    >
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
 end
 
 defmodule ComponentsGuideWeb.WasmJSON do
