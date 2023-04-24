@@ -309,6 +309,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       func get_current, result: I32, do: state
       on(open(closed?), target: open?)
       on(close(open?), target: closed?)
+      # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
+      # TODO: emit did_cancel event
+      on(cancel(open?), target: closed?)
     end
 
     alias ComponentsGuide.Wasm.Instance
