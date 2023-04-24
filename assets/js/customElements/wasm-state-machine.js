@@ -35,12 +35,10 @@ class WasmStateMachine extends HTMLElement {
 function initWasmHTML(el, wasmInstancePromise) {
   wasmInstancePromise.then(({ instance }) => {
     const buttonTemplate = el.querySelector("[data-template=button]").content;
-    console.log("buttonTemplate", buttonTemplate)
 
-    const exportNames = Object.keys(instance.exports);
     const globalNames = Object.keys(instance.exports).filter(name => instance.exports[name] instanceof WebAssembly.Global);
     const eventNames = Object.keys(instance.exports)
-      .filter(name => instance.exports[name] instanceof Function)
+      .filter(name => typeof instance.exports[name] === "function")
       .filter(name => !name.startsWith("get_"));
 
     function update() {
@@ -62,6 +60,19 @@ function initWasmHTML(el, wasmInstancePromise) {
         if (slot) {
           slot.textContent = `${globalName}: ${instance.exports[globalName].value}`;
         }
+      }
+
+      if (slots.get("globalsList")?.childElementCount === 0) {
+        const listEl = slots.get("globalsList");
+        for (globalName of globalNames) {
+          listEl.appendChild(Object.assign(el.ownerDocument.createElement("li"), {
+            textContent: `${globalName}: ${instance.exports[globalName].value}`
+          }));
+        }
+      }
+
+      if (slots.has("state") && typeof instance.exports["get_current"] === "function") {
+        slots.get("state").textContent = `State: ${instance.exports.get_current()}`;
       }
     }
 

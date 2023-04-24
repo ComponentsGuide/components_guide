@@ -29,15 +29,17 @@
   </details>
 </article>
 
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
+
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
   <h2>Offline Status State Machine</h2>
   <wasm-state-machine data-url="/wasm/module/offline_status.wasm" class="block">
-    <output slot="state" class="p-4 bg-white/25 rounded-full"></output>
+    <output slot="state" class="px-4 py-3 text-black/90 bg-yellow-500/90 rounded-full"></output>
     <ul>
       <li slot="offline?"></li>
       <li slot="online?"></li>
     </ul>
-    <template data-template="button"><button class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Event</button></template>
+    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
     <div slot="eventHandlers" class="flex gap-4"></div>
   </wasm-state-machine>
   <details class="mt-8">
@@ -45,6 +47,24 @@
     <pre class="lang-wasm"><code><%= @offline_status_wat %></code></pre>
   </details>
 </article>
+
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
+
+<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
+  <h2>Dialog State Machine</h2>
+  <wasm-state-machine data-url="/wasm/module/dialog_state.wasm" class="block">
+    <output slot="state" class="px-4 py-3 text-black/90 bg-yellow-500/90 rounded-full"></output>
+    <ul slot="globalsList"></ul>
+    <template data-template="button"><button class="mt-4 px-3 py-1 text-purple-900 bg-purple-300 border border-purple-800 rounded">Event</button></template>
+    <div slot="eventHandlers" class="flex gap-4"></div>
+  </wasm-state-machine>
+  <details class="mt-8">
+    <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
+    <pre class="lang-wasm"><code><%= @dialog_state_wat %></code></pre>
+  </details>
+</article>
+
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
 
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
   <form-escape-html data-url="/wasm/module/escape_html.wasm">
@@ -64,6 +84,8 @@
     <pre class="lang-wasm"><code><%= @escape_html_wat %></code></pre>
   </details>
 </article>
+
+<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16"><hr></div>
 
 <script type="module">
   class FormEscapeHTML extends HTMLElement {
@@ -140,7 +162,6 @@
 </script>
 
 <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto px-4 py-16">
-  <hr />
   <form-html-page data-url="/wasm/module/html_page.wasm">
     <form id="html-page-form" class="">
       <h2>HTML Page via Request/Response</h2>

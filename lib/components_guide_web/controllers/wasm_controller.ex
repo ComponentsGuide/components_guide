@@ -12,6 +12,7 @@ defmodule ComponentsGuideWeb.WasmShared do
     "sitemap_builder.wasm" => Examples.SitemapBuilder,
     "numeric_unit_interval.wasm" => Numeric.UnitInterval,
     "offline_status.wasm" => State.OfflineStatus,
+    "dialog_state.wasm" => State.Dialog,
   }
 
   defmacro all_modules do
@@ -37,7 +38,8 @@ defmodule ComponentsGuideWeb.WasmController do
             escape_html_wat: HTML.EscapeHTML.to_wat(),
             html_page_wat: HTML.HTMLPage.to_wat(),
             counter_html_wat: HTML.CounterHTML.to_wat(),
-            offline_status_wat: State.OfflineStatus.to_wat()
+            offline_status_wat: State.OfflineStatus.to_wat(),
+            dialog_state_wat: State.Dialog.to_wat(),
           ]
 
         _ ->
