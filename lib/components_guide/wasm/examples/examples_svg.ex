@@ -12,7 +12,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
               env: [buffer: memory(2)]
             ],
             exported_mutable_globals: [
-              color_hex: i32(0)
+              color_hex: i32(0x000000ff)
             ],
             globals: [
               body_chunk_index: i32(0)
@@ -58,7 +58,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
     end
 
     def read_body(instance) do
-      Instance.call_joining_string_chunks(:next_body_chunk, instance)
+      Instance.call_joining_string_chunks(instance, :next_body_chunk)
     end
   end
 end

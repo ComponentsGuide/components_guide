@@ -8,13 +8,24 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
   describe "Square" do
     alias SVG.Square
 
-    test "works" do
+    test "creates a black square" do
       instance = Square.start()
 
-      svg = Instance.call_joining_string_chunks(instance, :next_body_chunk)
+      svg = Square.read_body(instance)
 
       assert svg == ~S"""
-             <svg width="64" height="64"><rect width="64" height="64" fill="00000000" /></svg>
+             <svg width="64" height="64"><rect width="64" height="64" fill="000000ff" /></svg>
+             """
+    end
+
+    test "can set color_hex global" do
+      instance = Square.start()
+
+      Instance.set_global(instance, :color_hex, 0xAA33BBFF)
+      svg = Square.read_body(instance)
+
+      assert svg == ~S"""
+             <svg width="64" height="64"><rect width="64" height="64" fill="aa33bbff" /></svg>
              """
     end
   end
