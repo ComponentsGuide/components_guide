@@ -292,6 +292,10 @@ defmodule ComponentsGuide.Wasm do
     end)
   end
 
+  def instance_call_joining_string_chunks(instance, f) do
+    instance_call_stream_string_chunks(instance, f) |> Enum.join()
+  end
+
   def instance_write_i32(instance, memory_offset, value)
       when is_integer(memory_offset) and is_integer(value) do
     wasm_instance_write_i32(instance, memory_offset, value)
