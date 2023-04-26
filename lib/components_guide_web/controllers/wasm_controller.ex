@@ -2,12 +2,14 @@ defmodule ComponentsGuideWeb.WasmShared do
   alias ComponentsGuide.Wasm.Examples
   alias ComponentsGuide.Wasm.Examples.Numeric
   alias ComponentsGuide.Wasm.Examples.HTML
+  alias ComponentsGuide.Wasm.Examples.SVG
   alias ComponentsGuide.Wasm.Examples.State
 
   @all_modules %{
     "escape_html.wasm" => HTML.EscapeHTML,
     "html_page.wasm" => HTML.HTMLPage,
     "counter_html.wasm" => HTML.CounterHTML,
+    "svg_square.wasm" => SVG.Square,
     "simple_weekday_parser.wasm" => Examples.SimpleWeekdayParser,
     "sitemap_builder.wasm" => Examples.SitemapBuilder,
     "numeric_unit_interval.wasm" => Numeric.UnitInterval,
