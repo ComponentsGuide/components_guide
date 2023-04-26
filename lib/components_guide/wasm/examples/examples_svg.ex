@@ -20,6 +20,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
       cpfuncp(i32_to_hex_lower, from: HexConversion)
 
       func rewind do
+        body_chunk_index = 0
       end
 
       func next_body_chunk, result: I32 do
