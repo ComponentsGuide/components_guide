@@ -35,7 +35,8 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
           end
 
           if I32.eq(body_chunk_index, 2) do
-            call(:i32_to_hex_lower, color_hex, 0x10000)
+            memory32_8![0x10000] = ?#
+            call(:i32_to_hex_lower, color_hex, 0x10001)
             0x10000
             break(Main)
           end

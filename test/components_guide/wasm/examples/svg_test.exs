@@ -14,7 +14,7 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
       svg = Square.read_body(instance)
 
       assert svg == ~S"""
-             <svg width="64" height="64"><rect width="64" height="64" fill="000000ff" /></svg>
+             <svg width="64" height="64"><rect width="64" height="64" fill="#000000ff" /></svg>
              """
     end
 
@@ -25,7 +25,7 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
       svg = Square.read_body(instance)
 
       assert svg == ~S"""
-             <svg width="64" height="64"><rect width="64" height="64" fill="aa33bbff" /></svg>
+             <svg width="64" height="64"><rect width="64" height="64" fill="#aa33bbff" /></svg>
              """
     end
   end
