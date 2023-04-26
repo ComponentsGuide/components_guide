@@ -41,11 +41,12 @@ defmodule ComponentsGuide.WasmBuilderTest do
              body: [
                %WasmBuilder.Memory{name: {:export, :mem}, min: 1},
                %WasmBuilder.Func{
-                 name: {:export, :answer},
+                 name: :answer,
                  params: [],
                  result: {:result, :i32},
                  local_types: [],
-                 body: [42]
+                 body: [42],
+                 exported?: true
                }
              ]
            }

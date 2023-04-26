@@ -15,7 +15,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defmodule Func do
-    defstruct [:name, :params, :result, :local_types, :body]
+    defstruct [:name, :params, :result, :local_types, :body, :exported?]
   end
 
   defmodule FuncType do
@@ -43,6 +43,7 @@ defmodule ComponentsGuide.WasmBuilder do
   defmodule Module do
     defstruct name: nil,
               imports: [],
+              memory: nil,
               exported_globals: [],
               exported_mutable_global_types: [],
               globals: [],
@@ -67,7 +68,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defmodule Memory do
-    defstruct [:name, :min]
+    defstruct name: "", min: 0, exported?: false
   end
 
   defmodule Data do
@@ -283,6 +284,24 @@ defmodule ComponentsGuide.WasmBuilder do
     exported_global_types = Keyword.get(options, :exported_globals, [])
     exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
 
+    memory =
+      case Keyword.get(options, :exported_memory) do
+        nil ->
+          nil
+
+        min when is_integer(min) ->
+          quote do: %Memory{name: "memory", min: unquote(min), exported?: true}
+
+        # Macro.escape(%Memory{name: "memory", min: min, exported?: true})
+
+        mem_options when is_list(mem_options) ->
+          Macro.escape(%Memory{
+            name: "memory",
+            min: Keyword.get(mem_options, :min),
+            exported?: true
+          })
+      end
+
     # internal_global_types =
     #   for {name, value} <- internal_global_types do
     #     quote do
@@ -347,6 +366,7 @@ defmodule ComponentsGuide.WasmBuilder do
         globals: unquote(internal_global_types),
         exported_globals: unquote(exported_global_types),
         exported_mutable_global_types: unquote(exported_mutable_global_types),
+        memory: unquote(memory),
         body: unquote(block_items)
       }
     end
@@ -461,10 +481,12 @@ defmodule ComponentsGuide.WasmBuilder do
 
     # {name, args} = Macro.decompose_call(call)
 
-    name =
+    name = name
+
+    exported? =
       case visibility do
-        :public -> export(name)
-        :private -> name
+        :public -> true
+        :private -> false
       end
 
     params =
@@ -533,7 +555,8 @@ defmodule ComponentsGuide.WasmBuilder do
         params: unquote(params),
         result: result(unquote(result_type)),
         local_types: unquote(local_types),
-        body: unquote(block_items)
+        body: unquote(block_items),
+        exported?: unquote(exported?)
       }
 
       # ])
@@ -714,8 +737,13 @@ defmodule ComponentsGuide.WasmBuilder do
   def branch(identifier), do: br(identifier)
   def branch(identifier, options), do: br(identifier, options)
 
+  # For blocks
   def break(identifier), do: br(identifier)
   def break(identifier, options), do: br(identifier, options)
+
+  # For loops
+  def continue_if(identifier, condition),
+    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
   def return(value), do: {:return, value}
@@ -741,6 +769,7 @@ defmodule ComponentsGuide.WasmBuilder do
           imports: imports,
           exported_globals: exported_globals,
           exported_mutable_global_types: exported_mutable_global_types,
+          memory: memory,
           globals: globals,
           body: body
         },
@@ -749,6 +778,20 @@ defmodule ComponentsGuide.WasmBuilder do
     [
       [indent, "(module $#{name}", "\n"],
       [for(import_def <- imports, do: [to_wat(import_def, "  " <> indent), "\n"])],
+      case memory do
+        nil ->
+          []
+
+        %Memory{min: min} ->
+          [
+            ~S{(memory $memory (export "memory")},
+            case min do
+              nil -> []
+              int -> [" ", to_string(int)]
+            end,
+            ~S{)}
+          ]
+      end,
       for(
         {name, {:i32_const, initial_value}} <- exported_globals,
         # TODO: handle more than just (mut i32), e.g. non-mut or f64
@@ -870,15 +913,22 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   def to_wat(
-        %Func{name: name, params: params, result: result, local_types: local_types, body: body},
+        %Func{
+          name: name,
+          params: params,
+          result: result,
+          local_types: local_types,
+          body: body,
+          exported?: exported?
+        },
         indent
       ) do
     [
       [
         indent,
-        case name do
-          name when is_atom(name) -> ~s[(func $#{name} ]
-          {:export, name} -> ~s[(func $#{name} (export "#{name}") ]
+        case exported? do
+          false -> ~s[(func $#{name} ]
+          true -> ~s[(func $#{name} (export "#{name}") ]
         end,
         Enum.intersperse(
           for(param <- params, do: to_wat(param)) ++ if(result, do: [to_wat(result)], else: []),

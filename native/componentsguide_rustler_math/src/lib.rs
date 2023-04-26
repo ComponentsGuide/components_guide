@@ -35,7 +35,7 @@ fn string_error<T: ToString>(error: T) -> Error {
     return Error::Term(Box::new(error.to_string()));
 }
 
-fn map_return_values_i32(env: Env, values: Vec<i32>) -> Term {
+fn map_return_values_i32(env: Env, values: Vec<u32>) -> Term {
     match values[..] {
         [] => rustler::types::atom::nil().encode(env),
         [a] => a.encode(env),
@@ -241,7 +241,7 @@ fn wasm_list_imports(source: WasmModuleDefinition) -> Result<Vec<WasmImport>, Er
 }
 
 #[nif]
-fn wasm_call_i32(wat_source: String, f: String, args: Vec<i32>) -> Result<Vec<i32>, Error> {
+fn wasm_call_i32(wat_source: String, f: String, args: Vec<u32>) -> Result<Vec<u32>, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call_i32(f, args))
@@ -269,7 +269,7 @@ fn wasm_call_void(wat_source: String, f: String) -> Result<(), Error> {
 }
 
 #[nif]
-fn wasm_call_i32_string(wat_source: String, f: String, args: Vec<i32>) -> Result<String, Error> {
+fn wasm_call_i32_string(wat_source: String, f: String, args: Vec<u32>) -> Result<String, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
         .and_then(|mut i| i.call_i32_string(f, args))
@@ -279,8 +279,8 @@ fn wasm_call_i32_string(wat_source: String, f: String, args: Vec<i32>) -> Result
 fn wasm_read_memory<T>(
     store: &Store<T>,
     memory: &Memory,
-    start: i32,
-    length: i32,
+    start: u32,
+    length: u32,
 ) -> Result<Vec<u8>, anyhow::Error> {
     let start: usize = start.try_into().unwrap();
     let length: usize = length.try_into().unwrap();
@@ -294,7 +294,7 @@ fn wasm_read_memory<T>(
 fn wasm_extract_string<T>(
     store: &mut Store<T>,
     memory: &Memory,
-    result: Vec<i32>,
+    result: Vec<u32>,
 ) -> Result<String, anyhow::Error> {
     match result.as_slice() {
         [] => anyhow::bail!("Receive empty result"),
@@ -329,10 +329,10 @@ fn wasm_extract_string<T>(
 
 #[derive(NifTaggedEnum)]
 enum WasmStepInstruction {
-    Call(String, Vec<i32>),
-    CallString(String, Vec<i32>),
-    WriteStringNulTerminated(i32, String, bool),
-    ReadMemory(i32, i32),
+    Call(String, Vec<u32>),
+    CallString(String, Vec<u32>),
+    WriteStringNulTerminated(u32, String, bool),
+    ReadMemory(u32, u32),
     // Baz{ a: i32, b: i32 },
 }
 
@@ -379,11 +379,11 @@ fn wasm_steps_internal(
 #[derive(NifTuple)]
 struct WasmBulkCall {
     f: String,
-    args: Vec<i32>,
+    args: Vec<u32>,
 }
 
 #[nif]
-fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<i32>>, Error> {
+fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<u32>>, Error> {
     wasm_call_bulk_internal(wat_source, true, calls).map_err(string_error)
 }
 
@@ -391,7 +391,7 @@ fn wasm_call_bulk_internal(
     wat_source: String,
     buffer: bool,
     calls: Vec<WasmBulkCall>,
-) -> Result<Vec<Vec<i32>>, anyhow::Error> {
+) -> Result<Vec<Vec<u32>>, anyhow::Error> {
     let mut running_instance = RunningInstance::new(WasmModuleDefinition::Wat(wat_source))?;
 
     let results: Result<Vec<_>, _> = calls
@@ -579,7 +579,7 @@ impl ImportsTable {
                             let (term, _size) = env
                                 .binary_to_term(reply_binary.as_ref())
                                 .expect("Could not decode term");
-                            let number: i32 = term.decode().expect("Not a i32");
+                            let number: u32 = term.decode().expect("Not a u32");
                             number
                         });
                         // number
@@ -601,7 +601,7 @@ impl ImportsTable {
                     // let number: i32 = reply_term.decode()?;
 
                     if result_count > 0 {
-                        results[0] = Val::I32(number);
+                        results[0] = Val::I32(number as i32);
                     }
                     Ok(())
 
@@ -697,14 +697,14 @@ impl RunningInstance {
     fn set_global_value_i32(
         &mut self,
         global_name: String,
-        new_value: i32,
+        new_value: u32,
     ) -> Result<(), anyhow::Error> {
         let global = self
             .instance
             .get_global(&mut self.store, &global_name)
             .ok_or(anyhow!("{} was not an exported global", global_name))?;
 
-        return global.set(&mut self.store, Val::I32(new_value));
+        return global.set(&mut self.store, Val::I32(new_value as i32));
     }
 
     fn call_0(&mut self, f: String) -> Result<(), anyhow::Error> {
@@ -720,14 +720,14 @@ impl RunningInstance {
         return Ok(result);
     }
 
-    fn call_i32(&mut self, f: String, args: Vec<i32>) -> Result<Vec<i32>, anyhow::Error> {
+    fn call_i32(&mut self, f: String, args: Vec<u32>) -> Result<Vec<u32>, anyhow::Error> {
         let func = self
             .instance
             .get_func(&mut self.store, &f)
             .expect(&format!("{} was not an exported function", f));
 
         let func_type = func.ty(&self.store);
-        let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+        let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i as i32)).collect();
 
         let mut result: Vec<Val> = Vec::with_capacity(16);
         let result_length = func_type.results().len();
@@ -735,7 +735,7 @@ impl RunningInstance {
 
         func.call(&mut self.store, &args, &mut result)?;
 
-        let result: Vec<i32> = result.iter().map(|v| v.unwrap_i32()).collect();
+        let result: Vec<u32> = result.iter().map(|v| v.unwrap_i32() as u32).collect();
         return Ok(result);
     }
 
@@ -762,14 +762,14 @@ impl RunningInstance {
         result
     }
 
-    fn call_i32_string(&mut self, f: String, args: Vec<i32>) -> Result<String, anyhow::Error> {
+    fn call_i32_string(&mut self, f: String, args: Vec<u32>) -> Result<String, anyhow::Error> {
         let func = self
             .instance
             .get_func(&mut self.store, &f)
             .expect(&format!("{} was not an exported function", f));
 
         let func_type = func.ty(&self.store);
-        let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i)).collect();
+        let args: Vec<Val> = args.into_iter().map(|i| Val::I32(i as i32)).collect();
 
         let mut result: Vec<Val> = Vec::with_capacity(16);
         let result_length = func_type.results().len();
@@ -777,14 +777,14 @@ impl RunningInstance {
 
         func.call(&mut self.store, &args, &mut result)?;
 
-        let result: Vec<i32> = result.iter().map(|v| v.unwrap_i32()).collect();
+        let result: Vec<u32> = result.iter().map(|v| v.unwrap_i32() as u32).collect();
         let s = wasm_extract_string(&mut self.store, &self.memory, result)?;
         Ok(s)
     }
 
     fn write_i32(
         &mut self,
-        memory_offset: i32,
+        memory_offset: u32,
         value: u32,
     ) -> Result<(), anyhow::Error> {
         let offset: usize = memory_offset.try_into().unwrap();
@@ -795,7 +795,7 @@ impl RunningInstance {
 
     fn write_i64(
         &mut self,
-        memory_offset: i32,
+        memory_offset: u32,
         value: u64,
     ) -> Result<(), anyhow::Error> {
         let offset: usize = memory_offset.try_into().unwrap();
@@ -806,7 +806,7 @@ impl RunningInstance {
 
     fn write_string_nul_terminated(
         &mut self,
-        memory_offset: i32,
+        memory_offset: u32,
         string: String,
     ) -> Result<i32, anyhow::Error> {
         let offset: usize = memory_offset.try_into().unwrap();
@@ -819,7 +819,7 @@ impl RunningInstance {
         Ok(bytes.len().try_into().unwrap())
     }
 
-    fn read_memory(&self, start: i32, length: i32) -> Result<Vec<u8>, anyhow::Error> {
+    fn read_memory(&self, start: u32, length: u32) -> Result<Vec<u8>, anyhow::Error> {
         wasm_read_memory(&self.store, &self.memory, start, length)
     }
 }
@@ -870,7 +870,7 @@ fn wasm_instance_set_global_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
     global_name: String,
-    new_value: i32,
+    new_value: u32,
 ) -> Result<(), Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance
@@ -897,7 +897,7 @@ fn wasm_instance_call_func_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
     f: String,
-    args: Vec<i32>,
+    args: Vec<u32>,
 ) -> Result<Term, Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     let result = instance.call_i32(f, args).map_err(string_error)?;
@@ -909,7 +909,7 @@ fn wasm_instance_call_func_i32_string(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
     f: String,
-    args: Vec<i32>,
+    args: Vec<u32>,
 ) -> Result<String, Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
     return instance.call_i32_string(f, args).map_err(string_error);
@@ -919,7 +919,7 @@ fn wasm_instance_call_func_i32_string(
 fn wasm_instance_write_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
-    memory_offset: i32,
+    memory_offset: u32,
     value: u32,
 ) -> Result<(), Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
@@ -932,7 +932,7 @@ fn wasm_instance_write_i32(
 fn wasm_instance_write_i64(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
-    memory_offset: i32,
+    memory_offset: u32,
     value: u64,
 ) -> Result<(), Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
@@ -945,7 +945,7 @@ fn wasm_instance_write_i64(
 fn wasm_instance_write_string_nul_terminated(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
-    memory_offset: i32,
+    memory_offset: u32,
     string: String,
 ) -> Result<i32, Error> {
     let mut instance = resource.lock.write().map_err(string_error)?;
@@ -959,8 +959,8 @@ fn wasm_instance_write_string_nul_terminated(
 #[nif]
 fn wasm_instance_read_memory(
     resource: ResourceArc<RunningInstanceResource>,
-    start: i32,
-    length: i32,
+    start: u32,
+    length: u32,
 ) -> Result<Vec<u8>, Error> {
     let instance = resource.lock.read().map_err(string_error)?;
     let result = instance.read_memory(start, length).map_err(string_error)?;
