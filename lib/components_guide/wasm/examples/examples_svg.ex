@@ -3,8 +3,9 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
+  alias ComponentsGuide.Wasm.Examples.Parser.HexConversion
 
-  defmodule    do
+  defmodule Square do
     use Wasm
 
     defwasm imports: [
@@ -16,6 +17,8 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
             globals: [
               body_chunk_index: i32(0)
             ] do
+      cpfuncp(i32_to_hex_lower, from: HexConversion)
+
       func rewind do
       end
 
@@ -27,12 +30,23 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
           end
 
           if I32.eq(body_chunk_index, 1) do
-            const(~S[<rect width="64" height="64" fill="red" />])
+            const(~S[<rect width="64" height="64" fill="])
             break(Main)
           end
 
           if I32.eq(body_chunk_index, 2) do
-            const(~S[</svg>])
+            call(:i32_to_hex_lower, color_hex, 0x10000)
+            0x10000
+            break(Main)
+          end
+
+          if I32.eq(body_chunk_index, 3) do
+            const(~S[" />])
+            break(Main)
+          end
+
+          if I32.eq(body_chunk_index, 4) do
+            const(~S[</svg>\n])
             break(Main)
           end
 
