@@ -4,7 +4,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
 
-  defmodule Square do
+  defmodule    do
     use Wasm
 
     defwasm imports: [
