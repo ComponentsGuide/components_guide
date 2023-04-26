@@ -36,6 +36,35 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
   end
 
+  defmodule MemEql do
+    use Wasm
+
+    defwasm imports: [
+              env: [buffer: memory(1)]
+            ] do
+      funcp mem_eql_8(address_a(I32), address_b(I32)), result: I32, locals: [i: I32, byte_a: I32, byte_b: I32] do
+        defloop EachChar, result: I32 do
+          byte_a = memory32_8![I32.add(address_a, i)].unsigned
+          byte_b = memory32_8![I32.add(address_b, i)].unsigned
+
+          if I32.eqz(byte_a) do
+            return(I32.eqz(byte_b))
+          end
+
+          if I32.eq(byte_a, byte_b) do
+            i = I32.add(i, 1)
+            branch(EachChar)
+            # return(0x1)
+          end
+
+          return(0x0)
+        end
+      end
+
+      raw_wat(~S[(export "_mem_eql_8" (func $mem_eql_8))])
+    end
+  end
+
   defmodule LinkedLists do
     use Wasm
 
@@ -43,7 +72,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @bump_start 1 * @page_size
 
     defwasm imports: [
-              env: [buffer: memory(1)],
+              env: [buffer: memory(1)]
               # log: [
               #   int32: func(name: :log32, params: I32, result: I32)
               # ]
@@ -101,10 +130,11 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     def start() do
       imports = [
-        {:log, :int32, fn value ->
-          IO.inspect(value, label: "wasm log int32")
-          0
-        end}
+        {:log, :int32,
+         fn value ->
+           IO.inspect(value, label: "wasm log int32")
+           0
+         end}
       ]
 
       ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
