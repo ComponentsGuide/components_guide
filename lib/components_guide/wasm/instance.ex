@@ -19,11 +19,22 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   defdelegate call_reading_string(instance, f), to: Wasm, as: :instance_call_returning_string
   defdelegate call_reading_string(instance, f, a), to: Wasm, as: :instance_call_returning_string
-  defdelegate call_reading_string(instance, f, a, b), to: Wasm, as: :instance_call_returning_string
-  defdelegate call_reading_string(instance, f, a, b, c), to: Wasm, as: :instance_call_returning_string
 
-  defdelegate call_stream_string_chunks(instance, f), to: Wasm, as: :instance_call_stream_string_chunks
-  defdelegate call_joining_string_chunks(instance, f), to: Wasm, as: :instance_call_joining_string_chunks
+  defdelegate call_reading_string(instance, f, a, b),
+    to: Wasm,
+    as: :instance_call_returning_string
+
+  defdelegate call_reading_string(instance, f, a, b, c),
+    to: Wasm,
+    as: :instance_call_returning_string
+
+  defdelegate call_stream_string_chunks(instance, f),
+    to: Wasm,
+    as: :instance_call_stream_string_chunks
+
+  defdelegate call_joining_string_chunks(instance, f),
+    to: Wasm,
+    as: :instance_call_joining_string_chunks
 
   def capture(inst, f, arity) do
     # call = Function.capture(__MODULE__, :call, arity + 2)

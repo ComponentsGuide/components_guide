@@ -204,20 +204,33 @@ defmodule ComponentsGuide.WasmBuilder do
 
     defmacro match(value, do: transform) do
       statements =
-        for {:->, _, [[match], target]} <- transform do
-          quote do
-            %ComponentsGuide.WasmBuilder.IfElse{
-              # result: I32,
-              condition: I32.eq(unquote(value), unquote(match)),
-              when_true: [unquote(target), branch(:i32_map)]
-            }
+        for {:->, _, [input, target]} <- transform do
+          case input do
+            [{:_, _, _}] ->
+              target
+
+            [match] ->
+              quote do
+                %ComponentsGuide.WasmBuilder.IfElse{
+                  condition: I32.eq(unquote(value), unquote(match)),
+                  when_true: [unquote(target), branch(:i32_map)]
+                }
+              end
           end
+        end
+
+      catchall = for {:->, _, [[{:_, _, _}], _]} <- transform, do: true
+
+      final_instruction =
+        case catchall do
+          [] -> :unreachable
+          [true] -> []
         end
 
       quote do
         defblock :i32_map, result: I32 do
           unquote(statements)
-          :unreachable
+          unquote(final_instruction)
         end
       end
     end

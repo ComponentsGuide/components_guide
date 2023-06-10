@@ -211,7 +211,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               body_chunk_index: i32(0),
               bump_offset: i32(@bump_start)
             ] do
-      func get_current, result: I32, do: count
+      func(get_current, result: I32, do: count)
 
       func increment, result: I32 do
         count = I32.add(count, 1)
@@ -255,28 +255,23 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func next_body_chunk, result: I32 do
-        defblock Main, result: I32 do
-          if I32.eq(body_chunk_index, 0) do
+        I32.match body_chunk_index do
+          0 ->
             const(~S[<output class="flex p-4 bg-gray-800">])
-            branch(Main)
-          end
 
-          if I32.eq(body_chunk_index, 1) do
+          1 ->
             call(:i32toa, count)
-            branch(Main)
-          end
 
-          if I32.eq(body_chunk_index, 2) do
+          2 ->
             const(~S[</output>])
-            branch(Main)
-          end
 
-          if I32.eq(body_chunk_index, 3) do
-            const(~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>])
-            branch(Main)
-          end
+          3 ->
+            const(
+              ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+            )
 
-          0x0
+          _ ->
+            0x0
         end
 
         body_chunk_index = I32.add(body_chunk_index, 1)
@@ -308,7 +303,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     use Wasm
 
     @page_size 64 * 1024
-    @readonly_start 0xFFf
+    @readonly_start 0xFFF
     @bump_start 1 * @page_size
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
