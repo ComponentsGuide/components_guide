@@ -447,7 +447,7 @@ defmodule ComponentsGuide.WasmBuilder do
       # TODO: what is the best way to pass this value along?
       # def __wasm_module__(), do: @wasm_module
 
-      def __wasm_funcp__(name), do: Module.fetch_funcp!(__wasm_module__(), name)
+      def funcp(name), do: Module.fetch_funcp!(__wasm_module__(), name)
 
       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
@@ -490,7 +490,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
     source = Keyword.fetch!(options, :from)
     source = Macro.expand(source, __CALLER__)
-    func = source.__wasm_funcp__(name)
+    func = source.funcp(name)
 
     # local_def = Macro.expand_literals(define_func(call, :private, options, nil), __CALLER__)
 

@@ -419,7 +419,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @page_size 64 * 1024
     @bump_start 1 * @page_size
-    # @output_offset 2 * 64 * 1024
+
+    @field_types I32.enum([
+      :textbox,
+      :url,
+      :email,
+      :checkbox,
+      :hidden
+    ])
+
+    # @textbox_tuple Tuple.define(name: I32, label: I32)
 
     defwasm imports: [
               env: [buffer: memory(3)],
@@ -436,22 +445,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ] do
       # func escape_html, result: I32, from: StringHelpers
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
-
-      # EscapeHTML.funcp(escape, result: I32)
-      # cpfuncp EscapeHTML, escape
-      # cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
-      # EscapeHTML.cpfuncp(escape, result: I32)
-      # EscapeHTML.cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
-      cpfuncp(escape, from: EscapeHTML, result: I32)
-
-      cpfuncp(bump_alloc, from: BumpAllocator, result: I32)
-      cpfuncp(bump_free_all, from: BumpAllocator, result: I32)
-
-      cpfuncp(cons, from: LinkedLists, result: I32)
-      cpfuncp(hd, from: LinkedLists, result: I32)
-      cpfuncp(tl, from: LinkedLists, result: I32)
-      cpfuncp(reverse, from: LinkedLists, result: I32)
-      cpfuncp(list_count, from: LinkedLists, result: I32)
+      EscapeHTML.funcp(:escape)
+      BumpAllocator.funcp(:bump_alloc)
+      BumpAllocator.funcp(:bump_free_all)
+      LinkedLists.funcp(:cons)
+      LinkedLists.funcp(:hd)
+      LinkedLists.funcp(:tl)
+      LinkedLists.funcp(:reverse)
 
       func alloc(byte_size(I32)), result: I32 do
         # Need better maths than this to round up to aligned memory?
@@ -466,18 +466,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func rewind do
         body_chunk_index = 0
       end
-
-      # func next_body_chunk, ~E"""
-      # <?xml version="1.0" encoding="UTF-8"?>
-      # <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      # <url>
-      # <loc>
-      #   <% call(:escape, input_offset, output_offset) %>
-      #   <%= output_offset %>
-      # </loc>
-      # </url>
-      # </urlset>
-      # """
 
       func next_body_chunk, result: I32, locals: [out: I32] do
         I32.match body_chunk_index do
