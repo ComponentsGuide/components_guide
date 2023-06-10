@@ -15,6 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       # IO.inspect(target)
 
       case current_state do
+        # If current state is `_` i.e. being ignored.
         {:_, _, _} ->
           quote do
             func unquote(name) do
@@ -22,7 +23,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             end
           end
 
-        _other ->
+        # If we are checking what the current state is.
+        current_state ->
           quote do
             func unquote(name) do
               if I32.eq(global_get(:state), unquote(current_state)) do
