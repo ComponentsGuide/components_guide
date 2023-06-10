@@ -44,18 +44,16 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       import Kernel, except: [if: 2]
       import ComponentsGuide.WasmBuilderUsing
 
-      dbg(targets)
-      IO.inspect(targets)
-
       {name, []} = Macro.decompose_call(call)
 
-      statements = for {:->, _, [[match], target]} <- targets do
-        quote do
-          if I32.eq(global_get(:state), unquote(match)) do
-            [unquote(target), global_set(:state), :return]
+      statements =
+        for {:->, _, [[match], target]} <- targets do
+          quote do
+            if I32.eq(global_get(:state), unquote(match)) do
+              [unquote(target), global_set(:state), :return]
+            end
           end
         end
-      end
 
       quote do
         func unquote(name) do
@@ -527,14 +525,14 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.initial?,
               change_count: i32(0)
-            ] do
+            ],
+            exported_memory: 1 do
       # change_count = i32(0)
 
       func(get_current, result: I32, do: state)
       func(get_change_count, result: I32, do: change_count)
 
-      # func(get_pathname, result: I32, do: change_count)
-      func(get_search_params, result: I32, do: change_count)
+      func(get_search_params, result: I32, do: 0x0)
 
       on next() do
         initial? -> destination?
@@ -542,17 +540,20 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         dates? -> flights?
       end
 
-      func get_pathname, result: I32 do
-        defblock Main, result: I32 do
-          # if I32.eq(state, initial?) do
-          #   const(~S"/book")
-          #   branch(Main)
-          # end
+      func get_path, result: I32 do
+        # I32.block do
+        # end
 
-          # if I32.eq(state, destination?) do
-          #   const(~S"/destination")
-          #   branch(Main)
-          # end
+        defblock Main, result: I32 do
+          if I32.eq(state, initial?) do
+            const("/book")
+            branch(Main)
+          end
+
+          if I32.eq(state, destination?) do
+            const("/destination")
+            branch(Main)
+          end
 
           0x0
         end

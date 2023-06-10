@@ -188,14 +188,17 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       dates? = Instance.get_global(instance, :dates?)
 
       get_current = Instance.capture(instance, :get_current, 0)
-      get_pathname = Instance.call_reading_string(instance, :get_pathname, 0)
+      get_path = Instance.capture_reading_string(instance, :get_path, 0)
+      # get_path = Instance.capture(instance, :get_path, 0)
       next = Instance.capture(instance, :next, 0)
 
       assert get_current.() == initial?
-      assert get_pathname.() == ""
+      # assert Instance.call_reading_string(instance, :get_path) == ""
+      assert get_path.() == "/book"
 
       next.()
       assert get_current.() == destination?
+      assert get_path.() == "/destination"
 
       next.()
       assert get_current.() == dates?
