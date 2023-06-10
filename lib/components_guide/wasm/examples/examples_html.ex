@@ -101,23 +101,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func next_body_chunk, result: I32 do
-        defblock Main, result: I32 do
-          if I32.eq(body_chunk_index, 0) do
+        I32.match body_chunk_index do
+          0 ->
             const(~S"<!doctype html>")
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 1) do
+          1 ->
             if call(:get_is_valid), result: I32 do
               const("<h1>Good</h1>")
             else
               const("<h1>Bad</h1>")
             end
 
-            break(Main)
-          end
-
-          0x0
+          _ ->
+            0x0
         end
 
         body_chunk_index = I32.add(body_chunk_index, 1)
@@ -376,51 +372,34 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       # """
 
       func next_body_chunk, result: I32 do
-        defblock Main, result: I32 do
-          if I32.eq(body_chunk_index, 0) do
+        I32.match body_chunk_index do
+          0 ->
             const(~S[<?xml version="1.0" encoding="UTF-8"?>\n])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 1) do
+          1 ->
             const(~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 2) do
+          2 ->
             const(~S[<url>\n])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 3) do
+          3 ->
             const(~S[<loc>])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 4) do
-            # call(:escape, read_offset: input_offset, write_offset: output_offset)
+          4 ->
             call(:escape, input_offset, output_offset)
             push(output_offset)
 
-            break(Main)
-          end
-
-          if I32.eq(body_chunk_index, 5) do
+          5 ->
             const(~S[</loc>\n])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 6) do
+          6 ->
             const(~S[</url>\n])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 7) do
+          7 ->
             const(~S[</urlset>\n])
-            break(Main)
-          end
 
-          0x0
+          _ ->
+            0x0
         end
 
         body_chunk_index = I32.add(body_chunk_index, 1)
