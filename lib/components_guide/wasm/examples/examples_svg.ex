@@ -24,35 +24,26 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
       end
 
       func next_body_chunk, result: I32 do
-        defblock Main, result: I32 do
-          if I32.eq(body_chunk_index, 0) do
+        I32.match body_chunk_index do
+          0 ->
             const(~S[<svg width="64" height="64">])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 1) do
+          1 ->
             const(~S[<rect width="64" height="64" fill="])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 2) do
+          2 ->
             memory32_8![0x10000] = ?#
             call(:i32_to_hex_lower, color_hex, 0x10001)
-            0x10000
-            break(Main)
-          end
+            push(0x10000)
 
-          if I32.eq(body_chunk_index, 3) do
+          3 ->
             const(~S[" />])
-            break(Main)
-          end
 
-          if I32.eq(body_chunk_index, 4) do
+          4 ->
             const(~S[</svg>\n])
-            break(Main)
-          end
 
-          0x0
+          _ ->
+            0x0
         end
 
         body_chunk_index = I32.add(body_chunk_index, 1)

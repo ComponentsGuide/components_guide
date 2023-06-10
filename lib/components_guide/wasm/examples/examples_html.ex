@@ -185,13 +185,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule CounterHTML do
     use Wasm
 
-    @strings pack_strings_nul_terminated(0x4,
-               output_start: ~S[<output class="flex p-4 bg-gray-800">],
-               output_end: ~S[</output>],
-               button_increment:
-                 ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
-             )
-
     # @body deftemplate(~E"""
     #       <output class="flex p-4 bg-gray-800"><%= call(:i32toa, count) %></output>
     #       <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
