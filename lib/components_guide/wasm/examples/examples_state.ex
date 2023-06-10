@@ -523,7 +523,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               flights?: @states.flights?,
               seats?: @states.seats?,
               checkout?: @states.checkout?,
-              checkout_failed?: @states.checkout_failed?,
+              checkout_failed?: @states.checkout_failed?
             ],
             globals: [
               state: @states.initial?,

@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.WASI do
     defwasm imports: [
               wasi_unstable: [
                 clock_res_get: func(name: :clock_res_get, params: [I32, I32], result: I32),
-                clock_time_get: func(name: :clock_time_get, params: [I32, I64, I32], result: I32),
+                clock_time_get: func(name: :clock_time_get, params: [I32, I64, I32], result: I32)
               ]
             ] do
     end

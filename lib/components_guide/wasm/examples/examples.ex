@@ -6,9 +6,9 @@ defmodule ComponentsGuide.Wasm.Examples do
     use Wasm
 
     @weekdays_i32 (for s <- ~w(Mon Tue Wed Thu Fri Sat Sun) do
-                    #  I32.from_4_byte_ascii(s <> <<0>>)
+                     #  I32.from_4_byte_ascii(s <> <<0>>)
                      I32.from_4_byte_ascii(s <> "\0")
-                    #  I32.from_4_byte_ascii("#{s}\0")
+                     #  I32.from_4_byte_ascii("#{s}\0")
                    end)
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
@@ -143,14 +143,14 @@ defmodule ComponentsGuide.Wasm.Examples do
     use Wasm
 
     defwasm imports: [
-      navigate: [
-        visit: func(name: :visit, params: I32, result: I32)
-      ],
-      query: [
-        get_by_role: func(name: :get_by_role, params: I32, result: I32),
-        expect_by_role: func(name: :get_by_role, params: I32),
-      ]
-    ] do
+              navigate: [
+                visit: func(name: :visit, params: I32, result: I32)
+              ],
+              query: [
+                get_by_role: func(name: :get_by_role, params: I32, result: I32),
+                expect_by_role: func(name: :get_by_role, params: I32)
+              ]
+            ] do
       func test_home_page, result: I32 do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
@@ -164,14 +164,14 @@ defmodule ComponentsGuide.Wasm.Examples do
     use Wasm
 
     defwasm imports: [
-      navigate: [
-        visit: func(name: :visit, params: I32, result: I32)
-      ],
-      query: [
-        get_by_role: func(name: :get_by_role, params: I32, result: I32),
-        expect_by_role: func(name: :get_by_role, params: I32),
-      ]
-    ] do
+              navigate: [
+                visit: func(name: :visit, params: I32, result: I32)
+              ],
+              query: [
+                get_by_role: func(name: :get_by_role, params: I32, result: I32),
+                expect_by_role: func(name: :get_by_role, params: I32)
+              ]
+            ] do
       func test_home_page, result: I32.String do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
@@ -187,16 +187,13 @@ defmodule ComponentsGuide.Wasm.Examples do
   defmodule FormState do
     use Wasm
 
-    defwasm imports: [
-
-    ] do
+    defwasm imports: [] do
       func on_input(input_name(I32), string_value(I32)) do
         # TODO: store string_value under key input_name
         # TODO: add funcs like Keyword.put() to the LinkedLists wasm module
       end
 
       func on_reset() do
-
       end
 
       func to_urlencoded, result: I32 do

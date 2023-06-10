@@ -42,7 +42,9 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     defwasm imports: [
               env: [buffer: memory(1)]
             ] do
-      funcp mem_eql_8(address_a(I32), address_b(I32)), result: I32, locals: [i: I32, byte_a: I32, byte_b: I32] do
+      funcp mem_eql_8(address_a(I32), address_b(I32)),
+        result: I32,
+        locals: [i: I32, byte_a: I32, byte_b: I32] do
         defloop EachChar, result: I32 do
           byte_a = memory32_8![I32.add(address_a, i)].unsigned
           byte_b = memory32_8![I32.add(address_b, i)].unsigned
