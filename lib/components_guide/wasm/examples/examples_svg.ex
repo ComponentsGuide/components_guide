@@ -12,7 +12,8 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
               env: [buffer: memory(2)]
             ],
             exported_mutable_globals: [
-              color_hex: i32(0x000000FF) # Opaque black
+              # Opaque black
+              color_hex: i32(0x000000FF)
             ],
             globals: [
               body_chunk_index: i32(0)

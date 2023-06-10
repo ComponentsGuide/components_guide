@@ -100,9 +100,25 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         I32.if_eqz(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
       end
 
+      funcp reverse(node(I32)), result: I32, locals: [prev: I32, current: I32, next: I32] do
+        current = node
+        defloop Iterate, result: I32 do
+          if I32.eqz(current), do: return(prev)
+
+          next = memory32![I32.add(current, 4)]
+          memory32![I32.add(current, 4)] = prev
+          prev = current
+          current = next
+          branch(Iterate)
+        end
+      end
+
       funcp list_count(ptr(I32)), result: I32, locals: [count: I32] do
         defloop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(count)
+          # if I32.eqz(ptr), return: count
+          # return(count, if: I32.eqz(ptr))
+          # guard ptr, else_return: count
 
           ptr = call(:tl, ptr)
           count = I32.add(count, 1)
@@ -126,6 +142,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       raw_wat(~S[(export "_test_cons" (func $cons))])
       raw_wat(~S[(export "_test_hd" (func $hd))])
       raw_wat(~S[(export "_test_tl" (func $tl))])
+      raw_wat(~S[(export "_test_reverse" (func $reverse))])
       raw_wat(~S[(export "_test_list_count" (func $list_count))])
       raw_wat(~S[(export "_test_list32_sum" (func $list32_sum))])
     end

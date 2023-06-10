@@ -83,6 +83,15 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       count = Instance.capture(inst, :_test_list_count, 1)
       sum = Instance.capture(inst, :_test_list32_sum, 1)
 
+      enum = fn (node) ->
+        Stream.unfold(node, fn node ->
+          case Instance.call(inst, :_test_hd, node) do
+            0x0 -> nil
+            value -> {value, Instance.call(inst, :_test_tl, node)}
+          end
+        end)
+      end
+
       # i1 = alloc.(0x4)
       # i2 = alloc.(0x4)
       # i3 = alloc.(0x4)
@@ -97,14 +106,21 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
       Instance.log_memory(inst, 0x10000, 32)
 
+      assert Enum.to_list(enum.(l3)) == [5, 4, 3]
+
       assert count.(0x0) == 0
       assert count.(l1) == 1
       assert count.(l2) == 2
       assert count.(l3) == 3
+
       assert sum.(0x0) == 0
       assert sum.(l1) == 3
       assert sum.(l2) == 7
       assert sum.(l3) == 12
+
+      Instance.call(inst, :_test_reverse, l3)
+      Instance.log_memory(inst, 0x10000, 32)
+      assert Enum.to_list(enum.(l1)) == [3, 4, 5]
     end
   end
 end

@@ -8,7 +8,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
     EscapeHTML,
     HTMLPage,
     CounterHTML,
-    SitemapBuilder
+    SitemapBuilder,
+    HTMLFormBuilder
   }
 
   describe "EscapeHTML" do
@@ -251,9 +252,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
   end
 
   describe "HTMLFormBuilder" do
-    # alias ComponentsGuide.Wasm.Examples.HTMLFormBuilder
-
-    @tag :skip
+    # @tag :skip
     test "works" do
       instance = HTMLFormBuilder.start()
 
@@ -262,22 +261,27 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
         [:textbox, "last_name"],
       ]
 
-      first_name = Instance.alloc_string(instance, "first_name")
-      Instance.call(instance, :add_textbox, first_name)
-      last_name = Instance.alloc_string(instance, "last_name")
-      Instance.call(instance, :add_textbox, last_name)
-      # Instance.call(instance, :add_textbox, "first_name")
-      # Instance.call(instance, :add_textbox, "last_name")
+      add_textbox = Instance.capture(instance, :add_textbox, 1)
 
-      html = Instance.read_body(instance)
+      first_name = Instance.alloc_string(instance, "first_name")
+      add_textbox.(first_name)
+
+      last_name = Instance.alloc_string(instance, "last_name")
+      add_textbox.(last_name)
+
+      Instance.log_memory(instance, 64 * 1024, 100)
+
+      html = HTMLFormBuilder.read_body(instance)
 
       assert html == ~S"""
+      <form>
       <label for="first_name">
-        <input type="text" id="first_name" name="first_name">
+        <input type="text" name="first_name">
       </label>
       <label for="last_name">
-        <input type="text" id="last_name" name="last_name">
+        <input type="text" name="last_name">
       </label>
+      </form>
       """
     end
   end

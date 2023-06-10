@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
   defmodule EscapeHTML do
     use Wasm
@@ -410,6 +411,137 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       Wasm.instance_call(instance, "rewind")
       Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
       # Wasm.instance_call_returning_string(instance, "next_body_chunk")
+    end
+  end
+
+  defmodule HTMLFormBuilder do
+    use Wasm
+
+    @page_size 64 * 1024
+    @bump_start 1 * @page_size
+    # @output_offset 2 * 64 * 1024
+
+    defwasm imports: [
+              env: [buffer: memory(3)],
+              log: [
+                int32: func(name: :log32, params: I32, result: I32)
+              ]
+            ],
+            exported_globals: [
+            ],
+            globals: [
+              body_chunk_index: i32(0),
+              bump_offset: i32(@bump_start),
+              form_element_list: i32(0x0)
+            ] do
+      # func escape_html, result: I32, from: StringHelpers
+      # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
+
+      # EscapeHTML.funcp(escape, result: I32)
+      # cpfuncp EscapeHTML, escape
+      # cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
+      # EscapeHTML.cpfuncp(escape, result: I32)
+      # EscapeHTML.cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
+      cpfuncp(escape, from: EscapeHTML, result: I32)
+
+      cpfuncp(bump_alloc, from: BumpAllocator, result: I32)
+      cpfuncp(bump_free_all, from: BumpAllocator, result: I32)
+
+      cpfuncp(cons, from: LinkedLists, result: I32)
+      cpfuncp(hd, from: LinkedLists, result: I32)
+      cpfuncp(tl, from: LinkedLists, result: I32)
+      cpfuncp(reverse, from: LinkedLists, result: I32)
+      cpfuncp(list_count, from: LinkedLists, result: I32)
+
+      func alloc(byte_size(I32)), result: I32 do
+        # Need better maths than this to round up to aligned memory?
+        call(:bump_alloc, byte_size)
+      end
+
+      func add_textbox(name_ptr(I32)) do
+        form_element_list = call(:cons, name_ptr, form_element_list)
+        # :nop
+      end
+
+      func rewind do
+        body_chunk_index = 0
+      end
+
+      # func next_body_chunk, ~E"""
+      # <?xml version="1.0" encoding="UTF-8"?>
+      # <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      # <url>
+      # <loc>
+      #   <% call(:escape, input_offset, output_offset) %>
+      #   <%= output_offset %>
+      # </loc>
+      # </url>
+      # </urlset>
+      # """
+
+      func next_body_chunk, result: I32, locals: [out: I32] do
+        I32.match body_chunk_index do
+          0 ->
+            form_element_list = call(:reverse, form_element_list)
+
+            if I32.eqz(form_element_list) do
+              body_chunk_index = 6
+            else
+              body_chunk_index = 1
+            end
+            const(~S[<form>\n])
+            return()
+
+          1 ->
+            const(~S[<label for="])
+
+          2 ->
+            call(:hd, form_element_list)
+
+          3 ->
+            const(~S[">\n  <input type="text" name="])
+
+          4 ->
+            call(:hd, form_element_list)
+
+          5 ->
+            const(~S[">\n</label>\n])
+
+            form_element_list = call(:tl, form_element_list)
+            if I32.eqz(form_element_list) do
+              body_chunk_index = 6
+            else
+              body_chunk_index = 1
+            end
+            return()
+
+          6 ->
+            const(~S[</form>\n])
+
+          _ ->
+            0x0
+        end
+
+        body_chunk_index = I32.add(body_chunk_index, 1)
+      end
+    end
+
+    def read_body(instance) do
+      Wasm.instance_call(instance, "rewind")
+      Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
+      # Wasm.instance_call_returning_string(instance, "next_body_chunk")
+    end
+
+    def start() do
+      imports = [
+        {:log, :int32,
+         fn value ->
+           IO.inspect(value, label: "wasm log int32")
+           0
+         end}
+      ]
+
+      ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
     end
   end
 end

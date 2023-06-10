@@ -55,6 +55,12 @@ defmodule ComponentsGuide.Wasm.Instance do
     end
   end
 
+  def alloc_string(instance, string) do
+    offset = call(instance, :alloc, byte_size(string) + 1)
+    write_string_nul_terminated(instance, offset, string)
+    offset
+  end
+
   def log_memory(instance, start, length) do
     bytes = read_memory(instance, start, length)
     hex = Base.encode16(bytes)
