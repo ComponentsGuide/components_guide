@@ -483,12 +483,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         I32.match body_chunk_index do
           0 ->
             form_element_list = call(:reverse, form_element_list)
+            body_chunk_index = form_element_list |> I32.if_eqz(do: 6, else: 1)
 
-            if I32.eqz(form_element_list) do
-              body_chunk_index = 6
-            else
-              body_chunk_index = 1
-            end
+            # if I32.eqz(form_element_list) do
+            #   body_chunk_index = 6
+            # else
+            #   body_chunk_index = 1
+            # end
             const(~S[<form>\n])
             return()
 
@@ -508,11 +509,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             const(~S[">\n</label>\n])
 
             form_element_list = call(:tl, form_element_list)
-            if I32.eqz(form_element_list) do
-              body_chunk_index = 6
-            else
-              body_chunk_index = 1
-            end
+            body_chunk_index = form_element_list |> I32.if_eqz(do: 6, else: 1)
             return()
 
           6 ->
