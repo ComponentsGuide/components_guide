@@ -256,30 +256,36 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
     test "works" do
       instance = HTMLFormBuilder.start()
 
-      form = [
-        [:textbox, "first_name"],
-        [:textbox, "last_name"],
-      ]
+      # form = [
+      #   [:textbox, "first_name"],
+      #   [:textbox, "last_name"],
+      # ]
 
       add_textbox = Instance.capture(instance, :add_textbox, 1)
 
-      first_name = Instance.alloc_string(instance, "first_name")
-      add_textbox.(first_name)
+      name = Instance.alloc_string(instance, "name")
+      add_textbox.(name)
 
-      last_name = Instance.alloc_string(instance, "last_name")
-      add_textbox.(last_name)
+      bio = Instance.alloc_string(instance, "bio")
+      add_textbox.(bio)
 
-      Instance.log_memory(instance, 64 * 1024, 100)
+      website = Instance.alloc_string(instance, "website")
+      add_textbox.(website)
+
+      # Instance.log_memory(instance, 64 * 1024, 100)
 
       html = HTMLFormBuilder.read_body(instance)
 
       assert html == ~S"""
       <form>
-      <label for="first_name">
-        <input type="text" name="first_name">
+      <label for="name">
+        <input type="text" name="name">
       </label>
-      <label for="last_name">
-        <input type="text" name="last_name">
+      <label for="bio">
+        <input type="text" name="bio">
+      </label>
+      <label for="website">
+        <input type="text" name="website">
       </label>
       </form>
       """
