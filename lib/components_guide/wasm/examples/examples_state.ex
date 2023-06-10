@@ -26,12 +26,41 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         # If we are checking what the current state is.
         current_state ->
           quote do
+            # Module.register_attribute(__MODULE__, String.to_atom("func_#{unquote(name)}"), accumulate: true)
+
             func unquote(name) do
               if I32.eq(global_get(:state), unquote(current_state)) do
                 [unquote(target), global_set(:state)]
               end
             end
           end
+      end
+    end
+
+    defmacro on(call, do: targets) do
+      use ComponentsGuide.WasmBuilder
+      # import ComponentsGuide.WasmBuilder
+      # alias ComponentsGuide.WasmBuilder.{I32, F32}
+      import Kernel, except: [if: 2]
+      import ComponentsGuide.WasmBuilderUsing
+
+      dbg(targets)
+      IO.inspect(targets)
+
+      {name, []} = Macro.decompose_call(call)
+
+      statements = for {:->, _, [[match], target]} <- targets do
+        quote do
+          if I32.eq(global_get(:state), unquote(match)) do
+            [unquote(target), global_set(:state), :return]
+          end
+        end
+      end
+
+      quote do
+        func unquote(name) do
+          unquote(statements)
+        end
       end
     end
   end
@@ -465,6 +494,74 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     def send(a, b) do
       t = will_send(a)
       received(b, t)
+    end
+  end
+
+  defmodule FlightBooking do
+    use Wasm
+    import StateMachine
+
+    @states I32.enum([
+              :initial?,
+              :destination?,
+              :dates?,
+              :flights?,
+              :seats?,
+              :checkout?,
+              :failed?,
+              :booked?,
+              :confirmation?
+            ])
+
+    # @transitions do
+    #   initial?, :next -> destination?
+    #   destination?, :next -> dates?
+    # end
+
+    defwasm exported_globals: [
+              initial?: @states.initial?,
+              destination?: @states.destination?,
+              dates?: @states.dates?,
+              flights?: @states.flights?
+            ],
+            globals: [
+              state: @states.initial?,
+              change_count: i32(0)
+            ] do
+      # change_count = i32(0)
+
+      func(get_current, result: I32, do: state)
+      func(get_change_count, result: I32, do: change_count)
+
+      # func(get_pathname, result: I32, do: change_count)
+      func(get_search_params, result: I32, do: change_count)
+
+      on next() do
+        initial? -> destination?
+        destination? -> dates?
+        dates? -> flights?
+      end
+
+      func get_pathname, result: I32 do
+        defblock Main, result: I32 do
+          # if I32.eq(state, initial?) do
+          #   const(~S"/book")
+          #   branch(Main)
+          # end
+
+          # if I32.eq(state, destination?) do
+          #   const(~S"/destination")
+          #   branch(Main)
+          # end
+
+          0x0
+        end
+      end
+
+      # on(initial?, :next, target: destination?)
+      # on(next(destination?), target: dates?)
+      # on(transitioncancel(_), target: canceled?)
+      # on(transitionend(_), target: ended?)
     end
   end
 end

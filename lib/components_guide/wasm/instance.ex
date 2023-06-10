@@ -35,6 +35,15 @@ defmodule ComponentsGuide.Wasm.Instance do
     end
   end
 
+  def capture_reading_string(inst, f, arity) do
+    case arity do
+      0 -> fn -> call_reading_string(inst, f) end
+      1 -> fn a -> call_reading_string(inst, f, a) end
+      2 -> fn a, b -> call_reading_string(inst, f, a, b) end
+      3 -> fn a, b, c -> call_reading_string(inst, f, a, b, c) end
+    end
+  end
+
   def log_memory(instance, start, length) do
     bytes = read_memory(instance, start, length)
     hex = Base.encode16(bytes)

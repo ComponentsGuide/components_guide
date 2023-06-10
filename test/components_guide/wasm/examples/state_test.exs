@@ -175,4 +175,30 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert LamportClock.read(b) == 10
     end
   end
+
+  describe "FlightBooking" do
+    alias State.FlightBooking
+
+    test "works" do
+      # Like Agent.start(fun)
+      instance = FlightBooking.start()
+
+      initial? = Instance.get_global(instance, :initial?)
+      destination? = Instance.get_global(instance, :destination?)
+      dates? = Instance.get_global(instance, :dates?)
+
+      get_current = Instance.capture(instance, :get_current, 0)
+      get_pathname = Instance.call_reading_string(instance, :get_pathname, 0)
+      next = Instance.capture(instance, :next, 0)
+
+      assert get_current.() == initial?
+      assert get_pathname.() == ""
+
+      next.()
+      assert get_current.() == destination?
+
+      next.()
+      assert get_current.() == dates?
+    end
+  end
 end
