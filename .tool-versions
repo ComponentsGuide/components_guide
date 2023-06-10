@@ -1,5 +1,5 @@
 nodejs 16.19.1
-erlang 25.3
-elixir 1.14.3-otp-25
+erlang 26.0.1
+elixir 1.14.5-otp-26
 python 3.11.2
-rust 1.67.1
+rust 1.70.0

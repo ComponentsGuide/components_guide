@@ -52,7 +52,7 @@ defmodule ComponentsGuide.MixProject do
       {:unicode_guards, "~> 1.0"},
       {:castore, "~> 0.1.0"},
       {:cachex, "~> 3.1"},
-      {:ecto, "~> 3.8.4"},
+      {:ecto, "~> 3.9.5"},
       {:jason, "~> 1.0"},
       {:mojito, "~> 0.6.1"},
       {:mint, "~> 1.0"},
