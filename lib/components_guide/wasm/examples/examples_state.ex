@@ -545,7 +545,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       end
 
       func get_path, result: String do
-        I32.map state do
+        I32.match state do
           initial? -> const("/book")
           destination? -> const("/destination")
           dates? -> const("/dates")

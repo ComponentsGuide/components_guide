@@ -202,7 +202,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
     def from_4_byte_ascii(<<int::little-size(32)>>), do: int
 
-    defmacro map(value, do: transform) do
+    defmacro match(value, do: transform) do
       statements =
         for {:->, _, [[match], target]} <- transform do
           quote do
