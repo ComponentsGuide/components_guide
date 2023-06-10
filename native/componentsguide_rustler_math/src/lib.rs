@@ -2,15 +2,15 @@
 
 pub mod atom;
 
-use std::time::Duration;
 use std::convert::{TryFrom, TryInto};
 use std::ffi::CStr;
+use std::time::Duration;
 // use std::rc::Rc;
+use anyhow::anyhow;
+use crossbeam_channel::bounded;
 use std::slice;
 use std::sync::{Arc, RwLock};
 use std::thread;
-use anyhow::anyhow;
-use crossbeam_channel::bounded;
 // use log::{info, warn};
 use wasmtime::*;
 //use anyhow::Error as anyhowError;
@@ -118,7 +118,7 @@ enum WasmExternType {
 
 impl TryFrom<ExternType> for WasmExternType {
     type Error = anyhow::Error;
-    
+
     fn try_from(val: ExternType) -> Result<Self, anyhow::Error> {
         Ok(match val {
             ExternType::Func(f) => {
@@ -229,7 +229,7 @@ fn wasm_list_imports(source: WasmModuleDefinition) -> Result<Vec<WasmImport>, Er
         .map(|import| {
             let module_name = import.module().to_string();
             let name = import.name().to_string();
-            Ok(WasmImport{
+            Ok(WasmImport {
                 module: module_name,
                 name: name,
                 extern_type: import.ty().try_into()?,
@@ -567,22 +567,24 @@ impl ImportsTable {
                         // number
                     });
 
-                    let reply_binary = recv.recv_timeout(Duration::from_secs(5)).expect("Did not recv reply value in time");
+                    let reply_binary = recv
+                        .recv_timeout(Duration::from_secs(5))
+                        .expect("Did not recv reply value in time");
 
-                        // let reply_binary2 = reply_binary
-                        //     .as_ref()
-                        //     .expect("Did not write back reply value 2");
-                        eprintln!("Got reply");
-                        // reply_binary2.to_vec()
+                    // let reply_binary2 = reply_binary
+                    //     .as_ref()
+                    //     .expect("Did not write back reply value 2");
+                    eprintln!("Got reply");
+                    // reply_binary2.to_vec()
 
-                        let number = owned_env.run(|env| {
-                            let (term, _size) = env
-                                .binary_to_term(reply_binary.as_ref())
-                                .expect("Could not decode term");
-                            let number: u32 = term.decode().expect("Not a u32");
-                            number
-                        });
-                        // number
+                    let number = owned_env.run(|env| {
+                        let (term, _size) = env
+                            .binary_to_term(reply_binary.as_ref())
+                            .expect("Could not decode term");
+                        let number: u32 = term.decode().expect("Not a u32");
+                        number
+                    });
+                    // number
 
                     // let number = reply_value.join().expect("Thread failed.");
 
@@ -640,28 +642,28 @@ impl RunningInstance {
         let mut store = Store::new(&engine, ());
         let mut linker = Linker::new(&engine);
 
-        let memory_ty = MemoryType::new(3, None);
-        let memory = Memory::new(&mut store, memory_ty)?;
-        linker.define(&store, "env", "buffer", memory)?;
+        let has_exported_memory: bool = module.exports().any(|export| match export.ty() {
+            ExternType::Memory(_) => true,
+            _ => false,
+        });
 
-        // linker.func_wrap("http", "get", |x: i32| x)?;
+        let mut imported_memory: Option<Memory> = match has_exported_memory {
+            true => None,
+            false => {
+                let memory_ty = MemoryType::new(3, None);
+                let memory = Memory::new(&mut store, memory_ty)?;
+                linker.define(&store, "env", "buffer", memory)?;
+                Some(memory)
+            }
+        };
+
         imports.define(&mut linker, receiver)?;
 
-        // let ft: FuncType = FuncType::new(
-        //     vec![ValType::I32],
-        //     vec![ValType::I32],
-        // );
-        // linker.func_new(
-        //     "http",
-        //     "get",
-        //     ft,
-        //     move |_caller, params, results| {
-        //         results[0] = Val::I32(42);
-        //         Ok(())
-        //     }
-        // )?;
-
         let instance = linker.instantiate(&mut store, &module)?;
+
+        let memory = imported_memory
+            .or_else(|| instance.get_memory(&mut store, "memory"))
+            .expect("Expected memory to be exported.");
 
         return Ok(Self {
             store: store,
@@ -782,22 +784,14 @@ impl RunningInstance {
         Ok(s)
     }
 
-    fn write_i32(
-        &mut self,
-        memory_offset: u32,
-        value: u32,
-    ) -> Result<(), anyhow::Error> {
+    fn write_i32(&mut self, memory_offset: u32, value: u32) -> Result<(), anyhow::Error> {
         let offset: usize = memory_offset.try_into().unwrap();
         let bytes = value.to_le_bytes();
         self.memory.write(&mut self.store, offset, &bytes)?;
         Ok(())
     }
 
-    fn write_i64(
-        &mut self,
-        memory_offset: u32,
-        value: u64,
-    ) -> Result<(), anyhow::Error> {
+    fn write_i64(&mut self, memory_offset: u32, value: u64) -> Result<(), anyhow::Error> {
         let offset: usize = memory_offset.try_into().unwrap();
         let bytes = value.to_le_bytes();
         self.memory.write(&mut self.store, offset, &bytes)?;
