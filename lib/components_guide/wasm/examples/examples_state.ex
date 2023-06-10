@@ -506,7 +506,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               :flights?,
               :seats?,
               :checkout?,
-              :failed?,
+              :checkout_failed?,
               :booked?,
               :confirmation?
             ])
@@ -520,7 +520,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               initial?: @states.initial?,
               destination?: @states.destination?,
               dates?: @states.dates?,
-              flights?: @states.flights?
+              flights?: @states.flights?,
+              seats?: @states.seats?,
+              checkout?: @states.checkout?,
+              checkout_failed?: @states.checkout_failed?,
             ],
             globals: [
               state: @states.initial?,
@@ -538,24 +541,16 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         initial? -> destination?
         destination? -> dates?
         dates? -> flights?
+        flights? -> seats?
       end
 
-      func get_path, result: I32 do
-        # I32.block do
-        # end
-
-        defblock Main, result: I32 do
-          if I32.eq(state, initial?) do
-            const("/book")
-            branch(Main)
-          end
-
-          if I32.eq(state, destination?) do
-            const("/destination")
-            branch(Main)
-          end
-
-          0x0
+      func get_path, result: String do
+        I32.map state do
+          initial? -> const("/book")
+          destination? -> const("/destination")
+          dates? -> const("/dates")
+          flights? -> const("/flights")
+          seats? -> const("/seats")
         end
       end
 

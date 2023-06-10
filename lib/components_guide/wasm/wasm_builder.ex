@@ -7,6 +7,7 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       import ComponentsGuide.WasmBuilder
       alias ComponentsGuide.WasmBuilder.{I32, F32}
+      require ComponentsGuide.WasmBuilder.I32
     end
   end
 
@@ -200,6 +201,26 @@ defmodule ComponentsGuide.WasmBuilder do
     end
 
     def from_4_byte_ascii(<<int::little-size(32)>>), do: int
+
+    defmacro map(value, do: transform) do
+      statements =
+        for {:->, _, [[match], target]} <- transform do
+          quote do
+            %ComponentsGuide.WasmBuilder.IfElse{
+              # result: I32,
+              condition: I32.eq(unquote(value), unquote(match)),
+              when_true: [unquote(target), branch(:i32_map)]
+            }
+          end
+        end
+
+      quote do
+        defblock :i32_map, result: I32 do
+          unquote(statements)
+          :unreachable
+        end
+      end
+    end
   end
 
   defmodule F32 do
@@ -417,6 +438,7 @@ defmodule ComponentsGuide.WasmBuilder do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
       F32 -> :f32
+      String -> :i32
       _ -> type
     end
   end
@@ -747,6 +769,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
   def return(), do: :return
   def return(value), do: {:return, value}
+
+  def unreachable(), do: :unreachable
 
   def raw_wat(source), do: {:raw_wat, String.trim(source)}
 
@@ -1095,6 +1119,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
   def to_wat(:return, indent), do: [indent, "return"]
   def to_wat({:return, value}, indent), do: [indent, "(return ", to_wat(value), ?)]
+
+  def to_wat(:unreachable, indent), do: [indent, "unreachable"]
 
   # def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
   def to_wat({:raw_wat, source}, indent) do

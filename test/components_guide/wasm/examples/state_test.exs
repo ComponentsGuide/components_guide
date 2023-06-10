@@ -180,12 +180,14 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     alias State.FlightBooking
 
     test "works" do
-      # Like Agent.start(fun)
+      # IO.puts(FlightBooking.to_wat())
       instance = FlightBooking.start()
 
       initial? = Instance.get_global(instance, :initial?)
       destination? = Instance.get_global(instance, :destination?)
       dates? = Instance.get_global(instance, :dates?)
+      flights? = Instance.get_global(instance, :flights?)
+      seats? = Instance.get_global(instance, :seats?)
 
       get_current = Instance.capture(instance, :get_current, 0)
       get_path = Instance.capture_reading_string(instance, :get_path, 0)
@@ -202,6 +204,15 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
       next.()
       assert get_current.() == dates?
+      assert get_path.() == "/dates"
+
+      next.()
+      assert get_current.() == flights?
+      assert get_path.() == "/flights"
+
+      next.()
+      assert get_current.() == seats?
+      assert get_path.() == "/seats"
     end
   end
 end
