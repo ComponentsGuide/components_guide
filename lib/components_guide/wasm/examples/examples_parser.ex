@@ -1,5 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.Parser do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Examples.Memory.MemEql
+  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule HexConversion do
     use Wasm
@@ -26,6 +28,35 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
 
           branch(Digits, if: I32.gt_u(i, 0))
         end
+      end
+    end
+  end
+
+  defmodule DomainNames do
+    use Wasm
+
+    # memory :export, min: 1
+    # @wasm_memory export?: true, min: 1
+
+    @page_size 64 * 1024
+    @bump_start 1 * @page_size
+
+    defwasm exported_memory: 1, globals: [
+      bump_offset: i32(@bump_start)
+    ] do
+      MemEql.funcp(:mem_eql_8)
+      BumpAllocator.funcp(:bump_alloc)
+
+      func alloc(byte_size(I32)), result: I32 do
+        # Need better maths than this to round up to aligned memory?
+        # BumpAllocator.call(:bump_alloc, byte_size)
+        call(:bump_alloc, byte_size)
+      end
+
+      func lookup_domain_name(value(I32)), result: I32 do
+        # MemEql.call(:mem_eql_8, value, const("com"))
+        # call(:mem_eql_8, value, const("com"))
+        0x0
       end
     end
   end

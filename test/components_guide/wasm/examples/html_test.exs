@@ -261,15 +261,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       #   [:textbox, "last_name"],
       # ]
 
+      alloc_string = &Instance.alloc_string(instance, &1)
       add_textbox = Instance.capture(instance, :add_textbox, 1)
 
-      name = Instance.alloc_string(instance, "name")
+      name = alloc_string.("name")
       add_textbox.(name)
 
-      bio = Instance.alloc_string(instance, "bio")
+      bio = alloc_string.("bio")
       add_textbox.(bio)
 
-      website = Instance.alloc_string(instance, "website")
+      website = alloc_string.("website")
       add_textbox.(website)
 
       # Instance.log_memory(instance, 64 * 1024, 100)

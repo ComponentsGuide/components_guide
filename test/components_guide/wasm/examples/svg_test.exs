@@ -1,4 +1,4 @@
-defmodule ComponentsGuide.Wasm.Examples.ParserTest do
+defmodule ComponentsGuide.Wasm.Examples.SVGTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Wasm.Instance

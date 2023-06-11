@@ -507,9 +507,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     end
 
     def read_body(instance) do
-      Wasm.instance_call(instance, "rewind")
-      Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
-      # Wasm.instance_call_returning_string(instance, "next_body_chunk")
+      Instance.call_joining_string_chunks(instance, :next_body_chunk)
     end
 
     def start() do

@@ -1,7 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.ParserTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Parser
 
@@ -31,6 +30,20 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
       # Does NOT write outside its bounds.
       assert Instance.read_memory(inst, 0x100 - 1, 1) == <<0>>
       assert Instance.read_memory(inst, 0x100 + 9, 1) == <<0>>
+    end
+  end
+
+  describe "DomainNames" do
+    alias Parser.DomainNames
+
+    test "lookup_domain_name" do
+      inst = DomainNames.start()
+      lookup_domain_name = Instance.capture(inst, :lookup_domain_name, 1)
+      alloc_string = &Instance.alloc_string(inst, &1)
+
+      assert lookup_domain_name.(alloc_string.("com")) == 0
+      assert lookup_domain_name.(alloc_string.("org")) == 0
+      assert lookup_domain_name.(alloc_string.("foo")) == 0
     end
   end
 end
