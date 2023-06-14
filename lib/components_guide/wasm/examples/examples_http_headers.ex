@@ -10,6 +10,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     use BumpAllocator
 
+    # @wasm_global {:private, i32(0)}
+    # @wasm_global private: i32(0)
+    # global private: i32(0)
+
     defwasm globals: [
               private: i32(0),
               public: i32(0),
@@ -63,8 +67,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
                 byte_size(", max-age=")
               )
 
-              # _ = IntToString.u32toa(max_age_seconds, I32.add(start, byte_count))
-              _ = call(:u32toa, max_age_seconds, I32.add(start, byte_count))
+              _ = IntToString.u32toa(max_age_seconds, I32.add(start, byte_count))
 
               start
             else

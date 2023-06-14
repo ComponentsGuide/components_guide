@@ -89,7 +89,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
         min ->
           %__MODULE__{min: Enum.sum(list)}
-        end
+      end
     end
   end
 
@@ -357,6 +357,8 @@ defmodule ComponentsGuide.WasmBuilder do
     # TODO rename to export_readonly_globals?
     exported_global_types = Keyword.get(options, :exported_globals, [])
     exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
+
+    # internal_global_types = internal_global_types ++ List.wrap(Elixir.Module.get_attribute(env.module, :wasm_global))
 
     memory =
       case Keyword.get(options, :exported_memory) do
