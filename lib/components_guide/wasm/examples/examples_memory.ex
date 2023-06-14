@@ -11,7 +11,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     #   unquote(Macro.escape([bump_offset: i32(@bump_start)]))
     # end
 
-    defwasm globals: [
+    defmacro bump_offset() do
+      Macro.escape(@bump_start)
+    end
+
+    defwasm exported_memory: 1,
+            globals: [
               bump_offset: i32(@bump_start)
             ] do
       funcp bump_alloc(size(I32)), result: I32, locals: [address: I32] do
@@ -26,12 +31,28 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         bump_offset = @bump_start
       end
 
+      funcp bump_memcpy(dest(I32), src(I32), byte_count(I32)),
+        locals: [i: I32] do
+        defloop EachByte do
+          memory32_8![1] = i32(5)
+
+          if I32.lt_u(byte_count, i) do
+            i = I32.add(i, 1)
+            branch(EachByte)
+          end
+        end
+      end
+
       func alloc(size(I32)), result: I32 do
         call(:bump_alloc, size)
       end
 
       func free_all() do
         call(:bump_free_all)
+      end
+
+      func memcpy(dest(I32), src(I32), byte_count(I32)) do
+        call(:memcpy, dest, src, byte_count)
       end
     end
   end
@@ -45,7 +66,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       funcp mem_eql_8(address_a(I32), address_b(I32)),
         result: I32,
         locals: [i: I32, byte_a: I32, byte_b: I32] do
-        defloop EachChar, result: I32 do
+        defloop EachByte, result: I32 do
           byte_a = memory32_8![I32.add(address_a, i)].unsigned
           byte_b = memory32_8![I32.add(address_b, i)].unsigned
 
@@ -55,7 +76,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
           if I32.eq(byte_a, byte_b) do
             i = I32.add(i, 1)
-            branch(EachChar)
+            branch(EachByte)
             # return(0x1)
           end
 
@@ -102,6 +123,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
       funcp reverse(node(I32)), result: I32, locals: [prev: I32, current: I32, next: I32] do
         current = node
+
         defloop Iterate, result: I32 do
           if I32.eqz(current), do: return(prev)
 

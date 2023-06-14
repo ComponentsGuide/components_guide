@@ -8,6 +8,15 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
   describe "BumpAllocator" do
     alias Memory.BumpAllocator
 
+    test "compiles" do
+      try do
+        BumpAllocator.start()
+      rescue
+        RuntimeError ->
+          IO.puts(BumpAllocator.to_wat())
+      end
+    end
+
     test "single allocation" do
       assert Wasm.call(BumpAllocator, :alloc, 16) == 64 * 1024
     end
@@ -24,6 +33,12 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       assert alloc.(0x10) == 0x10000
       assert alloc.(0x10) == 0x10010
       assert alloc.(0x10) == 0x10020
+    end
+
+    test "memcpy" do
+      inst = BumpAllocator.start()
+      alloc = Instance.capture(inst, :alloc, 1)
+      memcpy = Instance.capture(inst, :memcpy, 1)
     end
   end
 
