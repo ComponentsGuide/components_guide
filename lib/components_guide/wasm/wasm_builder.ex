@@ -802,18 +802,19 @@ defmodule ComponentsGuide.WasmBuilder do
 
     block_items = get_block_items(block)
 
-    block_items = Macro.prewalk(block_items, fn
-      {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, []} ->
-        # quote do: br(unquote(identifier))
-        quote do: {:br, unquote(identifier)}
+    block_items =
+      Macro.prewalk(block_items, fn
+        {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, []} ->
+          # quote do: br(unquote(identifier))
+          quote do: {:br, unquote(identifier)}
 
-      {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, [[if: condition]]} ->
-        # quote do: br(unquote(identifier))
-        quote do: {:br_if, unquote(identifier), unquote(condition)}
+        {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, [[if: condition]]} ->
+          # quote do: br(unquote(identifier))
+          quote do: {:br_if, unquote(identifier), unquote(condition)}
 
-      other ->
-        other
-    end)
+        other ->
+          other
+      end)
 
     # quote bind_quoted: [identifier: identifier] do
     quote do

@@ -30,6 +30,10 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
         end
       end
     end
+
+    def i32_to_hex_lower(value, write_to_address) do
+      call(:i32_to_hex_lower, value, write_to_address)
+    end
   end
 
   defmodule DomainNames do
