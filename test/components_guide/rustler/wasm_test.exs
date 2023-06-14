@@ -343,7 +343,7 @@ defmodule ComponentsGuide.WasmTest do
       func get_is_valid, result: I32, locals: [read_offset: I32, char: I32] do
         read_offset = 1024
 
-        loop Continue, result: I32 do
+        loop EachChar, result: I32 do
           defblock Outer do
             defblock Inner do
               # char = I32.load8_u(read_offset)
@@ -352,8 +352,8 @@ defmodule ComponentsGuide.WasmTest do
               # char = I32.memory![read_offset].unsigned
               char = I32.memory8!(read_offset).unsigned
               # char = memory32_8![read_offset].unsigned
-              br(Inner, if: I32.eq(char, ?/))
-              br(Outer, if: char)
+              break(Inner, if: I32.eq(char, ?/))
+              break(Outer, if: char)
               push(1)
               return()
             end
@@ -363,7 +363,7 @@ defmodule ComponentsGuide.WasmTest do
           end
 
           read_offset = I32.add(read_offset, 1)
-          br(Continue)
+          br(EachChar)
         end
       end
     end
@@ -406,7 +406,7 @@ defmodule ComponentsGuide.WasmTest do
 
             # char = I32.load8_u(read_offset)
             # I32.store8(I32.add(read_offset, 1024), char)
-            br(Outer, if: char)
+            break(Outer, if: char)
             # Outer.branch(if: char)
             push(I32.sub(read_offset, 1024))
             return()
@@ -451,7 +451,7 @@ defmodule ComponentsGuide.WasmTest do
               memory32_8![I32.add(write_offset, 3)] = ?p
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-              br(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?<) do
@@ -460,7 +460,7 @@ defmodule ComponentsGuide.WasmTest do
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
               write_offset = I32.add(write_offset, 3)
-              br(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?>) do
@@ -469,7 +469,7 @@ defmodule ComponentsGuide.WasmTest do
               memory32_8![I32.add(write_offset, 2)] = ?t
               memory32_8![I32.add(write_offset, 3)] = ?;
               write_offset = I32.add(write_offset, 3)
-              br(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?") do
@@ -480,7 +480,7 @@ defmodule ComponentsGuide.WasmTest do
               memory32_8![I32.add(write_offset, 4)] = ?t
               memory32_8![I32.add(write_offset, 5)] = ?;
               write_offset = I32.add(write_offset, 5)
-              br(Outer)
+              break(Outer)
             end
 
             if I32.eq(char, ?') do
@@ -490,13 +490,13 @@ defmodule ComponentsGuide.WasmTest do
               memory32_8![I32.add(write_offset, 3)] = ?9
               memory32_8![I32.add(write_offset, 4)] = ?;
               write_offset = I32.add(write_offset, 4)
-              br(Outer)
+              break(Outer)
             end
 
             memory32_8![write_offset] = char
-            br(Outer, if: char)
+            break(Outer, if: char)
 
-            # br(Outer, if: char)
+            # break(Outer, if: char)
             # Outer.branch(if: char)
             # Outer.if(char)
             push(I32.sub(write_offset, 1024 + 1024))
