@@ -152,7 +152,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       func to_string(),
         result: I32.String,
         locals: [
-          start: I32,
+          str: I32,
           byte_count: I32,
           writer: I32,
           name_len: I32,
@@ -165,8 +165,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         byte_count = [name_len, 1, value_len, extra_len] |> Enum.reduce(&I32.add/2)
 
         # Add 1 for nul-byte
-        start = alloc(I32.add(byte_count, 1))
-        writer = start
+        str = alloc(I32.add(byte_count, 1))
+        writer = str
 
         write!(name, name_len)
         write!(?=)
@@ -179,7 +179,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
           )
         end
 
-        start
+        str
       end
     end
   end
