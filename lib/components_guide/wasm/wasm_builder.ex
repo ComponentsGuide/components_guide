@@ -201,6 +201,10 @@ defmodule ComponentsGuide.WasmBuilder do
     # def unquote(:or)(a, b, c, d), do: _or(a, _or(b, _or(c, d)))
     def unquote(:or)(a, b, c, d), do: a |> _or(b |> _or(c |> _or(d)))
 
+    def add(items) when is_list(items) do
+      Enum.reduce(items, &add/2)
+    end
+
     defmacro when?(condition, do: when_true, else: when_false) do
       quote do
         %IfElse{
