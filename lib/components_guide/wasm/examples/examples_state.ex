@@ -532,10 +532,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             exported_memory: 1 do
       # change_count = i32(0)
 
-      func(get_current, result: I32, do: state)
-      func(get_change_count, result: I32, do: change_count)
+      func(get_current(), result: I32, do: state)
+      func(get_change_count(), result: I32, do: change_count)
 
-      func(get_search_params, result: I32, do: 0x0)
+      func(get_search_params(), result: I32, do: 0x0)
 
       on next() do
         initial? -> destination?
@@ -544,7 +544,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         flights? -> seats?
       end
 
-      func get_path, result: I32.String do
+      func get_path(), result: I32.String do
         I32.match state do
           initial? -> const("/book")
           destination? -> const("/destination")
