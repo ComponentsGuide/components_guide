@@ -516,6 +516,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     #   destination?, :next -> dates?
     # end
 
+    @wasm_memory 1
+
     defwasm exported_globals: [
               initial?: @states.initial?,
               destination?: @states.destination?,
@@ -528,8 +530,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.initial?,
               change_count: i32(0)
-            ],
-            exported_memory: 1 do
+            ] do
       # change_count = i32(0)
 
       func(get_current(), result: I32, do: state)

@@ -8,6 +8,14 @@ defmodule ComponentsGuide.WasmBuilder do
       import ComponentsGuide.WasmBuilder
       alias ComponentsGuide.WasmBuilder.{I32, F32}
       require ComponentsGuide.WasmBuilder.I32
+
+      # @before_compile {unquote(__MODULE__), :register_attributes}
+
+      if Elixir.Module.open?(__MODULE__) do
+        # Elixir.Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
+        Elixir.Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
+        # @wasm_memory 0
+      end
     end
   end
 
@@ -70,6 +78,18 @@ defmodule ComponentsGuide.WasmBuilder do
 
   defmodule Memory do
     defstruct name: "", min: 0, exported?: false
+
+    def from(nil), do: nil
+
+    def from(list) when is_list(list) do
+      case Enum.sum(list) do
+        0 ->
+          nil
+
+        min ->
+          %__MODULE__{min: Enum.sum(list)}
+        end
+    end
   end
 
   defmodule Data do
@@ -419,7 +439,7 @@ defmodule ComponentsGuide.WasmBuilder do
         globals: unquote(internal_global_types),
         exported_globals: unquote(exported_global_types),
         exported_mutable_global_types: unquote(exported_mutable_global_types),
-        memory: unquote(memory),
+        memory: unquote(memory) || Memory.from(@wasm_memory),
         body: unquote(block_items)
       }
     end
@@ -861,6 +881,21 @@ defmodule ComponentsGuide.WasmBuilder do
       case memory do
         nil ->
           []
+
+        list when is_list(list) ->
+          min = Enum.sum(list)
+
+          case min do
+            0 ->
+              []
+
+            int ->
+              [
+                ~S{(memory $memory (export "memory")},
+                [" ", to_string(int)],
+                ~S{)}
+              ]
+          end
 
         %Memory{min: min} ->
           [

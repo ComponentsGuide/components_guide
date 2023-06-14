@@ -11,6 +11,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     #   unquote(Macro.escape([bump_offset: i32(@bump_start)]))
     # end
 
+    defmacro __using__(_opts) do
+      quote do
+        @wasm_memory 2
+      end
+    end
+
     defmacro bump_offset() do
       Macro.escape(@bump_start)
     end

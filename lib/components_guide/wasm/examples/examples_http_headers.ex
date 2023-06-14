@@ -8,19 +8,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 
     use Wasm
-    require BumpAllocator
+    use BumpAllocator
 
-    @page_size 64 * 1024
-    @bump_start 1 * @page_size
-
-    defwasm exported_memory: 2,
-            globals: [
+    defwasm globals: [
               private: i32(0),
               public: i32(0),
               immutable: i32(0),
               max_age_seconds: i32(-1),
               s_max_age_seconds: i32(-1),
-              # bump_offset: i32(@bump_start)
               bump_offset: i32(BumpAllocator.bump_offset())
             ] do
       BumpAllocator.funcp(:bump_alloc)
@@ -68,6 +63,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
                 byte_size(", max-age=")
               )
 
+              # _ = IntToString.u32toa(max_age_seconds, I32.add(start, byte_count))
               _ = call(:u32toa, max_age_seconds, I32.add(start, byte_count))
 
               start

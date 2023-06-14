@@ -3,7 +3,13 @@ defmodule ComponentsGuide.Wasm do
 
   defmacro __using__(_) do
     quote location: :keep do
-      use ComponentsGuide.WasmBuilder
+      Elixir.Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
+
+      # use ComponentsGuide.WasmBuilder
+      import ComponentsGuide.WasmBuilder
+      alias ComponentsGuide.WasmBuilder.{I32, F32}
+      require ComponentsGuide.WasmBuilder.I32
+
       require Logger
       # TODO: allow use Wasm.Instance?
       # alias ComponentsGuide.Wasm.Instance

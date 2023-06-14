@@ -52,8 +52,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
     end
 
-    def u32toa_count(value) do
-      call(:u32toa_count, value)
-    end
+    def u32toa(value, end_offset), do: call(:u32toa_count, value, end_offset)
+    def u32toa_count(value), do: call(:u32toa_count, value)
   end
 end
