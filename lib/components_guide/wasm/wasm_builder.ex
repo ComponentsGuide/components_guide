@@ -459,7 +459,7 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       # Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
-      defmacro data_for_constant(value) do
+      defmacrop data_for_constant(value) do
         quote do
           constants = Constants.from(unquote(@wasm_constants))
           # dbg(Constants.to_keylist(constants))
@@ -849,7 +849,16 @@ defmodule ComponentsGuide.WasmBuilder do
   def drop(), do: :drop
   def drop(expression), do: [expression, :drop]
 
-  def unreachable(), do: :unreachable
+  def unreachable!(), do: :unreachable
+
+  def assert!(condition) do
+    %IfElse{
+      result: nil,
+      condition: condition,
+      when_true: nop(),
+      when_false: unreachable!()
+    }
+  end
 
   def raw_wat(source), do: {:raw_wat, String.trim(source)}
 
