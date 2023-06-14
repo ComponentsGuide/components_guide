@@ -135,6 +135,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
               bump_offset: i32(BumpAllocator.bump_offset()),
               name: i32(0),
               value: i32(0),
+              domain: i32(0),
               secure: i32(0),
               http_only: i32(0)
             ] do
@@ -148,12 +149,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         call(:bump_alloc, byte_count)
       end
 
-      func set_cookie_name(new_name(I32)) do
+      func set_cookie_name(new_name(I32.String)) do
         name = new_name
       end
 
-      func set_cookie_value(new_value(I32)) do
+      func set_cookie_value(new_value(I32.String)) do
         value = new_value
+      end
+
+      func set_domain(new_value(I32.String)) do
+        domain = new_value
       end
 
       func set_secure() do
@@ -172,11 +177,20 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
           writer: I32,
           name_len: I32,
           value_len: I32,
+          domain_len: I32,
           extra_len: I32
         ] do
         name_len = strlen(name)
         value_len = strlen(value)
-        extra_len = I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
+        domain_len = strlen(domain)
+
+        extra_len =
+          I32.add([
+            I32.when?(domain_len, do: byte_size("; Domain="), else: 0),
+            I32.when?(secure, do: byte_size("; Secure"), else: 0),
+            I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
+          ])
+
         byte_count = I32.add([name_len, 1, value_len, extra_len])
 
         # Add 1 for nul-byte
@@ -187,6 +201,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         write!(?=)
         write!(value, value_len)
 
+        if domain_len do
+          write!(const("; Domain="))
+          write!(domain, domain_len)
+        end
+
         if secure do
           write!(const("; Secure"))
         end
@@ -194,6 +213,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         if http_only do
           write!(const("; HttpOnly"))
         end
+
+        # assert!()
 
         str
       end
