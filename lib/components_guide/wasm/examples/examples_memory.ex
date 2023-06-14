@@ -46,7 +46,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
           if I32.lt_u(i, byte_count) do
             i = I32.add(i, 1)
-            branch(EachByte)
+            EachByte.continue()
           end
         end
       end
@@ -96,7 +96,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
           if I32.eq(byte_a, byte_b) do
             i = I32.add(i, 1)
-            branch(EachByte)
+            EachByte.continue()
             # return(0x1)
           end
 
@@ -122,7 +122,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         loop EachChar do
           if memory32_8![I32.add(string_ptr, count)].unsigned do
             count = I32.add(count, 1)
-            br(EachChar)
+            EachChar.continue()
           end
         end
 
@@ -174,7 +174,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           memory32![I32.add(current, 4)] = prev
           prev = current
           current = next
-          branch(Iterate)
+          Iterate.continue()
         end
       end
 
@@ -187,7 +187,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
           ptr = call(:tl, ptr)
           count = I32.add(count, 1)
-          branch(Iterate)
+          Iterate.continue()
         end
       end
 
@@ -198,7 +198,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           sum = I32.add(sum, call(:hd, ptr))
           ptr = call(:tl, ptr)
 
-          branch(Iterate)
+          Iterate.continue()
         end
       end
 

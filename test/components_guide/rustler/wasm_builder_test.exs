@@ -276,12 +276,14 @@ defmodule ComponentsGuide.WasmBuilderTest do
               char = I32.load8_u(i)
               br_if(:inner, I32.eq(char, ?/))
               br_if(Outer, char)
-              return 1
+              return(1)
             end
-            return 0
+
+            return(0)
           end
+
           i = I32.add(i, 1)
-          br :continue
+          {:br, :continue}
         end
       end
     end

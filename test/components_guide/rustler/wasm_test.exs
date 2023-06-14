@@ -363,7 +363,7 @@ defmodule ComponentsGuide.WasmTest do
           end
 
           read_offset = I32.add(read_offset, 1)
-          br(EachChar)
+          EachChar.continue()
         end
       end
     end
@@ -413,7 +413,7 @@ defmodule ComponentsGuide.WasmTest do
           end
 
           read_offset = I32.add(read_offset, 1)
-          br(EachChar)
+          EachChar.continue()
           # EachChar.branch()
         end
       end
@@ -505,7 +505,7 @@ defmodule ComponentsGuide.WasmTest do
 
           read_offset = I32.add(read_offset, 1)
           write_offset = I32.add(write_offset, 1)
-          br(EachChar)
+          EachChar.continue()
         end
       end
     end
