@@ -219,7 +219,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)
-            branch(Clear)
+            Clear.continue()
           end
         end
       end
@@ -238,7 +238,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           value = I32.div_u(value, 10)
           memory32_8![working_offset] = I32.add(?0, digit)
 
-          branch(Digits, if: I32.gt_u(value, 0))
+          continue(Digits, if: I32.gt_u(value, 0))
         end
 
         working_offset
@@ -348,7 +348,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)
-            branch(Clear)
+            Clear.continue()
           end
         end
       end

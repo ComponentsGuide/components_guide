@@ -249,7 +249,7 @@ defmodule ComponentsGuide.WasmBuilder do
               quote do
                 %ComponentsGuide.WasmBuilder.IfElse{
                   condition: I32.eq(unquote(value), unquote(match)),
-                  when_true: [unquote(get_block_items(target)), branch(:i32_map)]
+                  when_true: [unquote(get_block_items(target)), break(:i32_map)]
                 }
               end
           end
@@ -872,9 +872,6 @@ defmodule ComponentsGuide.WasmBuilder do
 
   def break(identifier, if: condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
-
-  def branch(identifier), do: break(identifier)
-  def branch(identifier, options), do: break(identifier, options)
 
   # For loops
   def continue(identifier, if: condition),
