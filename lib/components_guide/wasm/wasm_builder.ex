@@ -867,12 +867,14 @@ defmodule ComponentsGuide.WasmBuilder do
   def br_if(identifier, condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
-  def branch(identifier), do: br(identifier)
-  def branch(identifier, options), do: br(identifier, options)
-
   # For blocks
-  def break(identifier), do: br(identifier)
-  def break(identifier, options), do: br(identifier, options)
+  def break(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
+
+  def break(identifier, if: condition),
+    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
+
+  def branch(identifier), do: break(identifier)
+  def branch(identifier, options), do: break(identifier, options)
 
   # For loops
   def continue(identifier, if: condition),

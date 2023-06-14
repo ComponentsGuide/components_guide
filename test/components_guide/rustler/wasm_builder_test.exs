@@ -274,8 +274,8 @@ defmodule ComponentsGuide.WasmBuilderTest do
           defblock Outer do
             defblock :inner do
               char = I32.load8_u(i)
-              br_if(:inner, I32.eq(char, ?/))
-              br_if(Outer, char)
+              break(:inner, if: I32.eq(char, ?/))
+              break(Outer, if: char)
               return(1)
             end
 

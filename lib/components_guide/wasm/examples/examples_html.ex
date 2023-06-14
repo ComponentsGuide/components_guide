@@ -52,7 +52,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           # halt(EachChar)
           # :continue
           # EachChar
-          branch(EachChar)
+          EachChar.continue()
         end
       end
 
