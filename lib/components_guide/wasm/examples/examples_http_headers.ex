@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule CacheControl do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
@@ -19,11 +20,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
               immutable: i32(0),
               max_age_seconds: i32(-1),
               s_max_age_seconds: i32(-1),
-              bump_offset: i32(@bump_start)
-              # bump_offset: i32(BumpAllocator.bump_offset())
+              # bump_offset: i32(@bump_start)
+              bump_offset: i32(BumpAllocator.bump_offset())
             ] do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
+      IntToString.funcp(:u32toa_count)
+      IntToString.funcp(:u32toa)
 
       func set_private() do
         private = 1
@@ -45,21 +48,32 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         s_max_age_seconds = age_seconds
       end
 
-      func to_string(), result: String, locals: [start: I32, digit: I32] do
+      func to_string(), result: String, locals: [start: I32, byte_count: I32] do
         if private, result: I32 do
           const("private")
         else
           if public, result: I32 do
-            start = call(:bump_alloc, byte_size("public") + 1)
-            # start = call(:bump_alloc, 7)
-            # call(:bump_memcpy, start, const("public"), 6)
-            # start = BumpAllocator.alloc(byte_size("public") + 1)
-            BumpAllocator.memcpy(start, const("public"), 6)
-            # memory32_8![start] = ?p
-            # memory32_8![I32.add(start, 1)] = ?u
-            # memory32_8![I32.add(start, 2)] = ?b
-            # const("public")
-            start
+            if I32.ge_s(max_age_seconds, 0), result: I32 do
+              byte_count =
+                byte_size("public, max-age=")
+                |> I32.add(IntToString.u32toa_count(max_age_seconds))
+
+              # Add 1 for nul-byte
+              start = BumpAllocator.alloc(I32.add(byte_count, 1))
+              BumpAllocator.memcpy(start, const("public"), 6)
+
+              BumpAllocator.memcpy(
+                I32.add(start, 6),
+                const(", max-age="),
+                byte_size(", max-age=")
+              )
+
+              _ = call(:u32toa, max_age_seconds, I32.add(start, byte_count))
+
+              start
+            else
+              const("public")
+            end
           else
             if immutable, result: I32 do
               const("immutable")

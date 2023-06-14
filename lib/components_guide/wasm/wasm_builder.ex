@@ -579,6 +579,9 @@ defmodule ComponentsGuide.WasmBuilder do
         {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
           {:local_get, meta, [atom]}
 
+        {:=, _, [{:_, _, nil}, value]} ->
+          quote do: [unquote(value), :drop]
+
         other ->
           other
       end)
@@ -801,11 +804,16 @@ defmodule ComponentsGuide.WasmBuilder do
   def break(identifier, options), do: br(identifier, options)
 
   # For loops
-  def continue_if(identifier, condition),
+  def continue(identifier, if: condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
   def return(value), do: {:return, value}
+
+  def nop(), do: :nop
+
+  def drop(), do: :drop
+  def drop(expression), do: [expression, :drop]
 
   def unreachable(), do: :unreachable
 

@@ -63,6 +63,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     def memcpy(dest, src, byte_count) do
       call(:bump_memcpy, dest, src, byte_count)
     end
+
+    # def memcpy(dest, {:const_string, string}) do
+    #   call(:bump_memcpy, dest, src, byte_count(string))
+    # end
   end
 
   defmodule MemEql do

@@ -4,6 +4,7 @@ defmodule ComponentsGuide.Wasm do
   defmacro __using__(_) do
     quote location: :keep do
       use ComponentsGuide.WasmBuilder
+      require Logger
       # TODO: allow use Wasm.Instance?
       # alias ComponentsGuide.Wasm.Instance
 
@@ -32,7 +33,14 @@ defmodule ComponentsGuide.Wasm do
       end
 
       def start() do
-        ComponentsGuide.Wasm.run_instance(__MODULE__)
+        try do
+          ComponentsGuide.Wasm.run_instance(__MODULE__)
+        rescue
+          x in [RuntimeError] ->
+            # IO.puts(__MODULE__.to_wat())
+            Logger.error(__MODULE__.to_wat())
+            raise x
+        end
       end
 
       defoverridable start: 0
