@@ -17,9 +17,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # global private: i32(0)
 
     defwasm globals: [
-              private: i32(0),
-              public: i32(0),
-              immutable: i32(0),
+              private: i32_boolean(0),
+              public: i32_boolean(0),
+              immutable: i32_boolean(0),
               max_age_seconds: i32(-1),
               s_max_age_seconds: i32(-1),
               bump_offset: i32(BumpAllocator.bump_offset())
@@ -133,11 +133,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     defwasm globals: [
               bump_offset: i32(BumpAllocator.bump_offset()),
-              name: i32(0),
-              value: i32(0),
-              domain: i32(0),
-              secure: i32(0),
-              http_only: i32(0)
+              name: i32_null_string(),
+              value: i32_null_string(),
+              domain: i32_null_string(),
+              secure: i32_boolean(0),
+              http_only: i32_boolean(0)
             ] do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)

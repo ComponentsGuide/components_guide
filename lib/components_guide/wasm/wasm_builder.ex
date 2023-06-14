@@ -756,6 +756,9 @@ defmodule ComponentsGuide.WasmBuilder do
 
   # TODO: unused
   def i32_const(value), do: {:i32_const, value}
+  def i32_boolean(0), do: {:i32_const, 0}
+  def i32_boolean(1), do: {:i32_const, 1}
+  def i32_null_string(), do: {:i32_const, 0}
   def i32(op) when op in Ops.i32(:all), do: {:i32, op}
   def i32(n) when is_integer(n), do: {:i32_const, n}
 
