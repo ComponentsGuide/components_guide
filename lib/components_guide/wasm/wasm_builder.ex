@@ -14,6 +14,7 @@ defmodule ComponentsGuide.WasmBuilder do
       if Elixir.Module.open?(__MODULE__) do
         # Elixir.Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
         Elixir.Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
+        Elixir.Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
         # @wasm_memory 0
       end
     end
@@ -436,7 +437,7 @@ defmodule ComponentsGuide.WasmBuilder do
       %Module{
         name: unquote(name),
         imports: unquote(imports),
-        globals: unquote(internal_global_types),
+        globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
         exported_globals: unquote(exported_global_types),
         exported_mutable_global_types: unquote(exported_mutable_global_types),
         memory: unquote(memory) || Memory.from(@wasm_memory),

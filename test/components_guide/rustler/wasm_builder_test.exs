@@ -1,7 +1,7 @@
 defmodule ComponentsGuide.WasmBuilderTest do
   use ExUnit.Case, async: true
 
-  use ComponentsGuide.WasmBuilder
+  import ComponentsGuide.WasmBuilder
   alias ComponentsGuide.WasmBuilder
 
   test "func" do
@@ -66,6 +66,8 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule ManyFuncs do
+    use ComponentsGuide.WasmBuilder
+
     defwasm do
       memory(export(:mem), 1)
 
@@ -103,6 +105,8 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule HTTPStatusLookup do
+    use ComponentsGuide.WasmBuilder
+
     @statuses [
       {200, "OK"},
       {201, "Created"},
