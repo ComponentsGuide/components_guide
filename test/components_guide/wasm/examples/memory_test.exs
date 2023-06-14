@@ -49,6 +49,20 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
     end
   end
 
+  describe "StringHelpers" do
+    alias Memory.StringHelpers
+
+    test "strlen" do
+      inst = StringHelpers.start()
+      strlen = Instance.capture(inst, :strlen, 1)
+
+      Instance.write_string_nul_terminated(inst, 0x00100, "hello")
+      Instance.write_string_nul_terminated(inst, 0x00200, "me")
+      assert strlen.(0x00100) == 5
+      assert strlen.(0x00200) == 2
+    end
+  end
+
   describe "MemEql" do
     alias Memory.MemEql
 

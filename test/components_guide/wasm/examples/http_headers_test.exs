@@ -46,4 +46,23 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "immutable"
     end
   end
+
+  describe "SetCookie" do
+    alias HTTPHeaders.SetCookie
+
+    test "name and value" do
+      inst = SetCookie.start()
+      Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
+      Instance.call(inst, :set_cookie_value, Instance.alloc_string(inst, "value"))
+      assert Instance.call_reading_string(inst, :to_string) == "foo=value"
+    end
+
+    # test "HttpOnly" do
+    #   inst = SetCookie.start()
+    #   Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
+    #   Instance.call(inst, :set_cookie_value, Instance.alloc_string(inst, "value"))
+    #   Instance.call(inst, :set_http_only)
+    #   assert Instance.call_reading_string(inst, :to_string) == "foo=value; HttpOnly"
+    # end
+  end
 end

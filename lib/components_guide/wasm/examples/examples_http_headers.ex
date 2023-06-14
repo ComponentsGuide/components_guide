@@ -2,9 +2,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory.StringHelpers
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule CacheControl do
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 
     use Wasm
@@ -95,6 +97,67 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
             end
           end
         end
+      end
+    end
+  end
+
+  defmodule SetCookie do
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+
+    use Wasm
+    use BumpAllocator
+
+    defwasm globals: [
+              bump_offset: i32(BumpAllocator.bump_offset()),
+              name: i32(0),
+              value: i32(0),
+              http_only: i32(0)
+            ] do
+      BumpAllocator.funcp(:bump_alloc)
+      BumpAllocator.funcp(:bump_memcpy)
+      StringHelpers.funcp(:strlen)
+      IntToString.funcp(:u32toa_count)
+      IntToString.funcp(:u32toa)
+
+      func alloc(byte_count(I32)), result: I32 do
+        call(:bump_alloc, byte_count)
+      end
+
+      func set_cookie_name(new_name(I32)) do
+        name = new_name
+      end
+
+      func set_cookie_value(new_value(I32)) do
+        value = new_value
+      end
+
+      func set_http_only() do
+        http_only = 1
+      end
+
+      func to_string(),
+        result: I32.String,
+        locals: [start: I32, byte_count: I32, name_len: I32, value_len: I32, int_offset: I32] do
+        name_len = call(:strlen, name)
+        value_len = call(:strlen, value)
+        byte_count = name_len |> I32.add(1) |> I32.add(value_len)
+
+        # Add 1 for nul-byte
+        start = alloc(I32.add(byte_count, 1))
+        memcpy(start, name, name_len)
+        memory32_8![I32.add(start, name_len)] = ?=
+
+        memcpy(I32.add(1, I32.add(start, name_len)), value, value_len)
+
+        # if immutable do
+        #   memcpy(
+        #     start |> I32.add(int_offset),
+        #     const(", immutable"),
+        #     byte_size(", immutable")
+        #   )
+        # end
+
+        start
       end
     end
   end

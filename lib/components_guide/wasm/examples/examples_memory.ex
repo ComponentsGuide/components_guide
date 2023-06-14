@@ -108,6 +108,29 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
   end
 
+  defmodule StringHelpers do
+    use Wasm
+    use BumpAllocator
+
+    defwasm do
+      func strlen(string_ptr(I32)), result: I32, locals: [count: I32] do
+        # while (string_ptr[count] != 0) {
+        #   count++;
+        # }
+
+        # loop EachChar, while: memory32_8![count] do
+        loop EachChar do
+          if memory32_8![I32.add(string_ptr, count)].unsigned do
+            count = I32.add(count, 1)
+            br(EachChar)
+          end
+        end
+
+        count
+      end
+    end
+  end
+
   defmodule LinkedLists do
     use Wasm
 
