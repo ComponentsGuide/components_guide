@@ -186,7 +186,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
         extra_len =
           I32.add([
-            I32.when?(domain_len, do: byte_size("; Domain="), else: 0),
+            I32.when?(domain_len, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
             I32.when?(secure, do: byte_size("; Secure"), else: 0),
             I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
           ])
@@ -214,7 +214,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
           write!(const("; HttpOnly"))
         end
 
-        # assert!()
+        assert!(I32.eq(writer, I32.add(str, byte_count)))
 
         str
       end
