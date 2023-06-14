@@ -685,7 +685,7 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defp get_block_items(block) do
+  def get_block_items(block) do
     case block do
       nil -> nil
       {:__block__, _meta, block_items} -> block_items
@@ -707,6 +707,22 @@ defmodule ComponentsGuide.WasmBuilder do
 
       other ->
         other
+    end
+  end
+
+  defmacro loop(identifier, options \\ [], do: block) do
+    identifier = expand_identifier(identifier, __CALLER__)
+    result_type = Keyword.get(options, :result, nil) |> expand_type()
+
+    block_items = get_block_items(block)
+
+    # quote bind_quoted: [identifier: identifier] do
+    quote do
+      %Loop{
+        identifier: unquote(identifier),
+        result: unquote(result_type),
+        body: unquote(block_items)
+      }
     end
   end
 
@@ -1166,8 +1182,8 @@ defmodule ComponentsGuide.WasmBuilderUsing do
       %ComponentsGuide.WasmBuilder.IfElse{
         result: unquote(result),
         condition: unquote(condition),
-        when_true: unquote(when_true),
-        when_false: unquote(when_false)
+        when_true: unquote(ComponentsGuide.WasmBuilder.get_block_items(when_true)),
+        when_false: unquote(ComponentsGuide.WasmBuilder.get_block_items(when_false))
       }
     end
   end

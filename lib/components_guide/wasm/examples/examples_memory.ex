@@ -15,7 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       Macro.escape(@bump_start)
     end
 
-    defwasm exported_memory: 1,
+    defwasm exported_memory: 2,
             globals: [
               bump_offset: i32(@bump_start)
             ] do
@@ -33,10 +33,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
       funcp bump_memcpy(dest(I32), src(I32), byte_count(I32)),
         locals: [i: I32] do
-        defloop EachByte do
-          memory32_8![1] = i32(5)
+        loop EachByte do
+          memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
 
-          if I32.lt_u(byte_count, i) do
+          if I32.lt_u(i, byte_count) do
             i = I32.add(i, 1)
             branch(EachByte)
           end
@@ -52,8 +52,16 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       func memcpy(dest(I32), src(I32), byte_count(I32)) do
-        call(:memcpy, dest, src, byte_count)
+        call(:bump_memcpy, dest, src, byte_count)
       end
+    end
+
+    def alloc(byte_count) do
+      call(:bump_alloc, byte_count)
+    end
+
+    def memcpy(dest, src, byte_count) do
+      call(:bump_memcpy, dest, src, byte_count)
     end
   end
 
@@ -66,7 +74,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       funcp mem_eql_8(address_a(I32), address_b(I32)),
         result: I32,
         locals: [i: I32, byte_a: I32, byte_b: I32] do
-        defloop EachByte, result: I32 do
+        loop EachByte, result: I32 do
           byte_a = memory32_8![I32.add(address_a, i)].unsigned
           byte_b = memory32_8![I32.add(address_b, i)].unsigned
 

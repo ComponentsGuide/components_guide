@@ -421,12 +421,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     @bump_start 1 * @page_size
 
     @field_types I32.enum([
-      :textbox,
-      :url,
-      :email,
-      :checkbox,
-      :hidden
-    ])
+                   :textbox,
+                   :url,
+                   :email,
+                   :checkbox,
+                   :hidden
+                 ])
 
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 
@@ -436,8 +436,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
                 int32: func(name: :log32, params: I32, result: I32)
               ]
             ],
-            exported_globals: [
-            ],
+            exported_globals: [],
             globals: [
               body_chunk_index: i32(0),
               bump_offset: i32(@bump_start),
