@@ -108,14 +108,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use BumpAllocator
 
     defp write(src, byte_count) do
+      # wasmsnippet locals: [:writer] do
+      #   writer = call(:write, writer, src, byte_count)
+      # end
       [
-        call(:write, local_get(:writer), src, byte_count),
+        memcpy(local_get(:writer), src, byte_count),
+        I32.add(local_get(:writer), byte_count),
         local_set(:writer)
       ]
     end
 
     defp write(char) do
       [
+        # I32.store8!(writer, char)
         {:i32, :store8, local_get(:writer), char},
         I32.add(1, local_get(:writer)),
         local_set(:writer)
@@ -148,11 +153,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
       func set_http_only() do
         http_only = 1
-      end
-
-      funcp write(dest(I32), src(I32), byte_count(I32)), result: I32 do
-        memcpy(dest, src, byte_count)
-        I32.add(dest, byte_count)
       end
 
       func to_string(),
