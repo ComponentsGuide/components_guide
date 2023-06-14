@@ -23,7 +23,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           digit = I32.rem_u(value, 10)
           value = I32.div_u(value, 10)
 
-          continue(Digits, if: I32.gt_u(value, 0))
+          Digits.continue(if: I32.gt_u(value, 0))
         end
 
         digit_count
@@ -45,7 +45,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           value = I32.div_u(value, 10)
           memory32_8![working_offset] = I32.add(?0, digit)
 
-          continue(Digits, if: I32.gt_u(value, 0))
+          Digits.continue(if: I32.gt_u(value, 0))
         end
 
         working_offset

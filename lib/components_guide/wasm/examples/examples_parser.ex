@@ -26,7 +26,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
             memory32_8![I32.add(write_to_address, i)] = I32.add(?0, digit)
           end
 
-          continue(Digits, if: I32.gt_u(i, 0))
+          Digits.continue(if: I32.gt_u(i, 0))
         end
       end
     end

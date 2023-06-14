@@ -803,9 +803,13 @@ defmodule ComponentsGuide.WasmBuilder do
     block_items = get_block_items(block)
 
     block_items = Macro.prewalk(block_items, fn
-      {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, _} ->
+      {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, []} ->
         # quote do: br(unquote(identifier))
         quote do: {:br, unquote(identifier)}
+
+      {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, [[if: condition]]} ->
+        # quote do: br(unquote(identifier))
+        quote do: {:br_if, unquote(identifier), unquote(condition)}
 
       other ->
         other
@@ -871,10 +875,6 @@ defmodule ComponentsGuide.WasmBuilder do
   def break(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
 
   def break(identifier, if: condition),
-    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
-
-  # For loops
-  def continue(identifier, if: condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
