@@ -802,6 +802,15 @@ defmodule ComponentsGuide.WasmBuilder do
 
     block_items = get_block_items(block)
 
+    block_items = Macro.prewalk(block_items, fn
+      {{:., _, [{:__aliases__, _, [identifier]}, :continue]}, _, _} ->
+        # quote do: br(unquote(identifier))
+        quote do: {:br, unquote(identifier)}
+
+      other ->
+        other
+    end)
+
     # quote bind_quoted: [identifier: identifier] do
     quote do
       %Loop{
@@ -856,11 +865,6 @@ defmodule ComponentsGuide.WasmBuilder do
   # TODO: add a comptime keyword like Zig: https://kristoff.it/blog/what-is-zig-comptime/
 
   def br_if(identifier, condition),
-    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
-
-  def br(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
-
-  def br(identifier, if: condition),
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def branch(identifier), do: br(identifier)
