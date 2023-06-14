@@ -507,13 +507,21 @@ defmodule ComponentsGuide.WasmBuilder do
     FuncType.imported_func(name, options[:params], options[:result])
   end
 
-  defmacro func(call, options) do
+  defmacro func(call, options) when is_list(options) do
     {block, options} = Keyword.pop!(options, :do)
     define_func(call, :public, options, block)
   end
 
-  defmacro func(call, options, do: block) do
+  defmacro func(call, options, do: block) when is_list(options) do
     define_func(call, :public, options, block)
+  end
+
+  defmacro func(call, result_type, do: block) do
+    define_func(call, :public, [result: result_type], block)
+  end
+
+  defmacro func(call, result_type, locals, do: block) when is_list(locals) do
+    define_func(call, :public, [result: result_type, locals: locals], block)
   end
 
   # TODO: require `globals` option be passed to explicitly list global used.

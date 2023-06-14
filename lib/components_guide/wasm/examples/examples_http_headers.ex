@@ -145,7 +145,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
 
-      func alloc(byte_count(I32)), result: I32 do
+      func alloc(byte_count(I32)), I32 do
         call(:bump_alloc, byte_count)
       end
 
@@ -170,16 +170,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       end
 
       func to_string(),
-        result: I32.String,
-        locals: [
-          str: I32,
-          byte_count: I32,
-          writer: I32,
-          name_len: I32,
-          value_len: I32,
-          domain_len: I32,
-          extra_len: I32
-        ] do
+           I32.String,
+           str: I32,
+           byte_count: I32,
+           writer: I32,
+           name_len: I32,
+           value_len: I32,
+           domain_len: I32,
+           extra_len: I32 do
         name_len = strlen(name)
         value_len = strlen(value)
         domain_len = strlen(domain)
