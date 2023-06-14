@@ -107,14 +107,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     use BumpAllocator
 
-    defp write(src, byte_count) do
+    defp write!(src, byte_count) do
       snippet [writer: I32] do
         memcpy(writer, src, byte_count)
         writer = I32.add(writer, byte_count)
       end
     end
 
-    defp write(char) do
+    defp write!(char) do
       snippet [writer: I32] do
         memory32_8![writer] = char
         writer = I32.add(writer, 1)
@@ -168,12 +168,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         start = alloc(I32.add(byte_count, 1))
         writer = start
 
-        write(name, name_len)
-        write(?=)
-        write(value, value_len)
+        write!(name, name_len)
+        write!(?=)
+        write!(value, value_len)
 
         if http_only do
-          write(
+          write!(
             const("; HttpOnly"),
             byte_size("; HttpOnly")
           )
