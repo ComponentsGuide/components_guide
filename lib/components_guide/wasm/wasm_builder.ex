@@ -591,34 +591,35 @@ defmodule ComponentsGuide.WasmBuilder do
         single -> [single]
       end
 
-    block_items =
-      Macro.prewalk(block_items, fn
-        {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
-          quote do: {:i32, :store8, unquote(offset), unquote(value)}
+    block_items = do_snippet(locals, block_items)
+    # block_items =
+    #   Macro.prewalk(block_items, fn
+    #     {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
+    #       quote do: {:i32, :store8, unquote(offset), unquote(value)}
 
-        {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
-         _} ->
-          quote do: {:i32, :load8_u, unquote(offset)}
+    #     {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
+    #      _} ->
+    #       quote do: {:i32, :load8_u, unquote(offset)}
 
-        {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
-          quote do: {:i32, :store, unquote(offset), unquote(value)}
+    #     {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
+    #       quote do: {:i32, :store, unquote(offset), unquote(value)}
 
-        {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
-          quote do: {:i32, :load, unquote(offset)}
+    #     {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
+    #       quote do: {:i32, :load, unquote(offset)}
 
-        {:=, _, [{local, _, nil}, input]}
-        when is_atom(local) and is_map_key(locals, local) ->
-          [input, quote(do: {:local_set, unquote(local)})]
+    #     {:=, _, [{local, _, nil}, input]}
+    #     when is_atom(local) and is_map_key(locals, local) ->
+    #       [input, quote(do: {:local_set, unquote(local)})]
 
-        {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
-          {:local_get, meta, [atom]}
+    #     {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
+    #       {:local_get, meta, [atom]}
 
-        {:=, _, [{:_, _, nil}, value]} ->
-          quote do: [unquote(value), :drop]
+    #     {:=, _, [{:_, _, nil}, value]} ->
+    #       quote do: [unquote(value), :drop]
 
-        other ->
-          other
-      end)
+    #     other ->
+    #       other
+    #   end)
 
     # constants = for {:const, _, [str]} when is_binary(str) <- Macro.prewalker(block_items) do
     #   str
@@ -641,6 +642,50 @@ defmodule ComponentsGuide.WasmBuilder do
 
       # ])
     end
+  end
+
+  def do_snippet(locals, block_items) do
+    Macro.prewalk(block_items, fn
+      {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
+        quote do: {:i32, :store8, unquote(offset), unquote(value)}
+
+      {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _, _} ->
+        quote do: {:i32, :load8_u, unquote(offset)}
+
+      {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
+        quote do: {:i32, :store, unquote(offset), unquote(value)}
+
+      {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
+        quote do: {:i32, :load, unquote(offset)}
+
+      {:=, _, [{local, _, nil}, input]}
+      when is_atom(local) and is_map_key(locals, local) ->
+        [input, quote(do: {:local_set, unquote(local)})]
+
+      {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
+        {:local_get, meta, [atom]}
+
+      {:=, _, [{:_, _, nil}, value]} ->
+        quote do: [unquote(value), :drop]
+
+      other ->
+        other
+    end)
+  end
+
+  defmacro snippet(locals, do: block) do
+    block_items =
+      case block do
+        {:__block__, _meta, items} -> items
+        single -> [single]
+      end
+
+    locals = Map.new(locals, fn key -> {key, true} end)
+    do_snippet(locals, block_items)
+
+    # quote do
+    #   unquote(result)
+    # end
   end
 
   def memory(name \\ nil, min) do

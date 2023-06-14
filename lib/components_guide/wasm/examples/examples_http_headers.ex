@@ -108,23 +108,30 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use BumpAllocator
 
     defp write(src, byte_count) do
-      # wasmsnippet locals: [:writer] do
-      #   writer = call(:write, writer, src, byte_count)
-      # end
-      [
-        memcpy(local_get(:writer), src, byte_count),
-        I32.add(local_get(:writer), byte_count),
-        local_set(:writer)
-      ]
+      snippet [:writer] do
+        memcpy(writer, src, byte_count)
+        writer = I32.add(writer, byte_count)
+      end
+
+      # [
+      #   memcpy(local_get(:writer), src, byte_count),
+      #   I32.add(local_get(:writer), byte_count),
+      #   local_set(:writer)
+      # ]
     end
 
     defp write(char) do
-      [
-        # I32.store8!(writer, char)
-        {:i32, :store8, local_get(:writer), char},
-        I32.add(1, local_get(:writer)),
-        local_set(:writer)
-      ]
+      snippet [:writer] do
+        memory32_8![writer] = char
+        writer = I32.add(writer, 1)
+      end
+
+      # [
+      #   # I32.store8!(writer, char)
+      #   {:i32, :store8, local_get(:writer), char},
+      #   I32.add(1, local_get(:writer)),
+      #   local_set(:writer)
+      # ]
     end
 
     defwasm globals: [
@@ -157,10 +164,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
       func to_string(),
         result: I32.String,
-        locals: [start: I32, byte_count: I32, writer: I32, name_len: I32, value_len: I32, extra_len: I32] do
+        locals: [
+          start: I32,
+          byte_count: I32,
+          writer: I32,
+          name_len: I32,
+          value_len: I32,
+          extra_len: I32
+        ] do
         name_len = call(:strlen, name)
         value_len = call(:strlen, value)
-        extra_len = I32.if_else http_only, do: byte_size("; HttpOnly"), else: 0
+        extra_len = I32.if_else(http_only, do: byte_size("; HttpOnly"), else: 0)
         byte_count = [name_len, 1, value_len, extra_len] |> Enum.reduce(&I32.add/2)
 
         # Add 1 for nul-byte
