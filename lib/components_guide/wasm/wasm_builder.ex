@@ -680,7 +680,7 @@ defmodule ComponentsGuide.WasmBuilder do
         single -> [single]
       end
 
-    locals = Map.new(locals, fn key -> {key, true} end)
+    locals = Map.new(locals)
     do_snippet(locals, block_items)
 
     # quote do

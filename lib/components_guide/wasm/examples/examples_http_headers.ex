@@ -108,30 +108,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use BumpAllocator
 
     defp write(src, byte_count) do
-      snippet [:writer] do
+      snippet [writer: I32] do
         memcpy(writer, src, byte_count)
         writer = I32.add(writer, byte_count)
       end
-
-      # [
-      #   memcpy(local_get(:writer), src, byte_count),
-      #   I32.add(local_get(:writer), byte_count),
-      #   local_set(:writer)
-      # ]
     end
 
     defp write(char) do
-      snippet [:writer] do
+      snippet [writer: I32] do
         memory32_8![writer] = char
         writer = I32.add(writer, 1)
       end
-
-      # [
-      #   # I32.store8!(writer, char)
-      #   {:i32, :store8, local_get(:writer), char},
-      #   I32.add(1, local_get(:writer)),
-      #   local_set(:writer)
-      # ]
     end
 
     defwasm globals: [
