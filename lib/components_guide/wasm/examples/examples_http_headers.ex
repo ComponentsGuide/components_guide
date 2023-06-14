@@ -161,7 +161,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         ] do
         name_len = call(:strlen, name)
         value_len = call(:strlen, value)
-        extra_len = I32.if_else(http_only, do: byte_size("; HttpOnly"), else: 0)
+        extra_len = I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
         byte_count = I32.add([name_len, 1, value_len, extra_len])
 
         # Add 1 for nul-byte
