@@ -270,7 +270,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
       func get_is_valid, result: I32, locals: [i: I32, char: I32] do
         i = 1024
 
-        defloop :continue, result: I32 do
+        loop :continue, result: I32 do
           defblock Outer do
             defblock :inner do
               char = I32.load8_u(i)

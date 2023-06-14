@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         locals: [char: I32, bytes_written: I32] do
         bytes_written = 0
 
-        defloop EachChar, result: I32 do
+        loop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
 
@@ -214,7 +214,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
         i = 64
 
-        defloop Clear do
+        loop Clear do
           memory32![I32.add(i, @bump_start)] = 0x0
 
           if I32.gt_u(i, 0) do
@@ -231,7 +231,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         # We then start from the back, as we have to print the digits in reverse.
         working_offset = bump_offset
 
-        defloop Digits do
+        loop Digits do
           working_offset = I32.sub(working_offset, 1)
 
           digit = I32.rem_u(value, 10)
@@ -337,13 +337,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         # for (i = 64, i >= 0; i--)
         i = 64
 
-        # defloop Clear, 64..0//-1 do
-        # defloop Clear, 0..64 do
-        # defloop 0, 64, -1, i do
+        # loop Clear, 64..0//-1 do
+        # loop Clear, 0..64 do
+        # loop 0, 64, -1, i do
         # i.loop 0, 64, -1 do
         # while I32.ge_u(i, 0) do
         # loop Clear, while: I32.ge_u(i, 0) do
-        defloop Clear do
+        loop Clear do
           memory32![I32.add(i, @bump_start)] = 0x0
 
           if I32.gt_u(i, 0) do

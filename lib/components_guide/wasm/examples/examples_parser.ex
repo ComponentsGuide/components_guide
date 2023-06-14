@@ -14,7 +14,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
       func i32_to_hex_lower(value(I32), write_to_address(I32)), locals: [i: I32, digit: I32] do
         i = 8
 
-        defloop Digits do
+        loop Digits do
           i = I32.sub(i, 1)
 
           digit = I32.rem_u(value, 16)

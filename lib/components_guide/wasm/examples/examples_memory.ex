@@ -167,7 +167,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       funcp reverse(node(I32)), result: I32, locals: [prev: I32, current: I32, next: I32] do
         current = node
 
-        defloop Iterate, result: I32 do
+        loop Iterate, result: I32 do
           if I32.eqz(current), do: return(prev)
 
           next = memory32![I32.add(current, 4)]
@@ -179,7 +179,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       funcp list_count(ptr(I32)), result: I32, locals: [count: I32] do
-        defloop Iterate, result: I32 do
+        loop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(count)
           # if I32.eqz(ptr), return: count
           # return(count, if: I32.eqz(ptr))
@@ -192,7 +192,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       funcp list32_sum(ptr(I32)), result: I32, locals: [sum: I32] do
-        defloop Iterate, result: I32 do
+        loop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(sum)
 
           sum = I32.add(sum, call(:hd, ptr))

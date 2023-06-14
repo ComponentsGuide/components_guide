@@ -343,7 +343,7 @@ defmodule ComponentsGuide.WasmTest do
       func get_is_valid, result: I32, locals: [read_offset: I32, char: I32] do
         read_offset = 1024
 
-        defloop Continue, result: I32 do
+        loop Continue, result: I32 do
           defblock Outer do
             defblock Inner do
               # char = I32.load8_u(read_offset)
@@ -394,7 +394,7 @@ defmodule ComponentsGuide.WasmTest do
       func do_copy, result: I32, locals: [read_offset: I32, char: I32] do
         read_offset = 1024
 
-        defloop EachChar, result: I32 do
+        loop EachChar, result: I32 do
           defblock Outer do
             # char = I32.memory8!(read_offset).unsigned
             # I32.memory8!(I32.add(read_offset, 1024), char)
@@ -440,7 +440,7 @@ defmodule ComponentsGuide.WasmTest do
         read_offset = 1024
         write_offset = 1024 + 1024
 
-        defloop EachChar, result: I32 do
+        loop EachChar, result: I32 do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
 

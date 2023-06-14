@@ -812,22 +812,6 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defmacro defloop(identifier, options \\ [], do: block) do
-    identifier = expand_identifier(identifier, __CALLER__)
-    result_type = Keyword.get(options, :result, nil) |> expand_type()
-
-    block_items = get_block_items(block)
-
-    # quote bind_quoted: [identifier: identifier] do
-    quote do
-      %Loop{
-        identifier: unquote(identifier),
-        result: unquote(result_type),
-        body: unquote(block_items)
-      }
-    end
-  end
-
   defmacro defblock(identifier, options \\ [], do: block) do
     identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
