@@ -107,6 +107,21 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     use BumpAllocator
 
+    defp write(src, byte_count) do
+      [
+        call(:write, local_get(:writer), src, byte_count),
+        local_set(:writer)
+      ]
+    end
+
+    defp write(char) do
+      [
+        {:i32, :store8, local_get(:writer), char},
+        I32.add(1, local_get(:writer)),
+        local_set(:writer)
+      ]
+    end
+
     defwasm globals: [
               bump_offset: i32(BumpAllocator.bump_offset()),
               name: i32(0),
@@ -135,27 +150,33 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         http_only = 1
       end
 
+      funcp write(dest(I32), src(I32), byte_count(I32)), result: I32 do
+        memcpy(dest, src, byte_count)
+        I32.add(dest, byte_count)
+      end
+
       func to_string(),
         result: I32.String,
-        locals: [start: I32, byte_count: I32, name_len: I32, value_len: I32, int_offset: I32] do
+        locals: [start: I32, byte_count: I32, writer: I32, name_len: I32, value_len: I32, extra_len: I32] do
         name_len = call(:strlen, name)
         value_len = call(:strlen, value)
-        byte_count = name_len |> I32.add(1) |> I32.add(value_len)
+        extra_len = I32.if_else http_only, do: byte_size("; HttpOnly"), else: 0
+        byte_count = [name_len, 1, value_len, extra_len] |> Enum.reduce(&I32.add/2)
 
         # Add 1 for nul-byte
         start = alloc(I32.add(byte_count, 1))
-        memcpy(start, name, name_len)
-        memory32_8![I32.add(start, name_len)] = ?=
+        writer = start
 
-        memcpy(I32.add(1, I32.add(start, name_len)), value, value_len)
+        write(name, name_len)
+        write(?=)
+        write(value, value_len)
 
-        # if immutable do
-        #   memcpy(
-        #     start |> I32.add(int_offset),
-        #     const(", immutable"),
-        #     byte_size(", immutable")
-        #   )
-        # end
+        if http_only do
+          write(
+            const("; HttpOnly"),
+            byte_size("; HttpOnly")
+          )
+        end
 
         start
       end
