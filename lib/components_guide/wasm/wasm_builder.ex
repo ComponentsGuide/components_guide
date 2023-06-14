@@ -470,7 +470,7 @@ defmodule ComponentsGuide.WasmBuilder do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
       F32 -> :f32
-      String -> :i32
+      I32.String -> :i32
       _ -> type
     end
   end

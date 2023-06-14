@@ -544,7 +544,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         flights? -> seats?
       end
 
-      func get_path, result: String do
+      func get_path, result: I32.String do
         I32.match state do
           initial? -> const("/book")
           destination? -> const("/destination")

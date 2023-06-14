@@ -48,7 +48,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         s_max_age_seconds = age_seconds
       end
 
-      func to_string(), result: String, locals: [start: I32, byte_count: I32] do
+      func to_string(), result: I32.String, locals: [start: I32, byte_count: I32] do
         I32.when? private do
           const("private")
         else
