@@ -15,13 +15,13 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
       i32_to_hex_lower.(0x00000000, 0x100)
       assert read.(0x100) == "00000000"
 
-      i32_to_hex_lower.(0x00abcdef, 0x100)
+      i32_to_hex_lower.(0x00ABCDEF, 0x100)
       assert read.(0x100) == "00abcdef"
 
-      i32_to_hex_lower.(0x44abcdef, 0x100)
+      i32_to_hex_lower.(0x44ABCDEF, 0x100)
       assert read.(0x100) == "44abcdef"
 
-      i32_to_hex_lower.(0xffff_ffff, 0x100)
+      i32_to_hex_lower.(0xFFFF_FFFF, 0x100)
       assert read.(0x100) == "ffffffff"
 
       i32_to_hex_lower.(1, 0x100)

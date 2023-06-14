@@ -80,9 +80,9 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
   defmodule MemEql do
     use Wasm
 
-    defwasm imports: [
-              env: [buffer: memory(1)]
-            ] do
+    @wasm_memory 1
+
+    defwasm do
       funcp mem_eql_8(address_a(I32), address_b(I32)),
         result: I32,
         locals: [i: I32, byte_a: I32, byte_b: I32] do

@@ -68,12 +68,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule Counter do
     use Wasm
-    alias Wasm.Instance
 
-    defwasm imports: [
-              env: [buffer: memory(1)]
-            ],
-            globals: [
+    @wasm_memory 1
+
+    defwasm globals: [
               count: i32(0)
             ] do
       func(get_current, result: I32, do: count)
@@ -85,6 +83,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
 
     alias ComponentsGuide.Wasm
+    alias Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def increment(instance), do: Instance.call(instance, :increment)

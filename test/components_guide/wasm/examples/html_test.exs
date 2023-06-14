@@ -58,6 +58,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
   describe "HTMLPage constructs an HTML response" do
     test "list exports" do
       assert HTMLPage.exports() == [
+               {:memory, "memory"},
                {:global, "request_body_write_offset", :i32},
                {:func, "get_request_body_write_offset"},
                {:func, "GET"},
@@ -187,6 +188,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
   describe "CounterHTML" do
     test "list exports" do
       assert CounterHTML.exports() == [
+               {:memory, "memory"},
                {:func, "get_current"},
                {:func, "increment"},
                {:func, "rewind"},
@@ -195,7 +197,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
     end
 
     test "compiles small" do
-      assert byte_size(CounterHTML.to_wasm()) == 504
+      assert byte_size(CounterHTML.to_wasm()) == 501
     end
 
     test "works" do
@@ -278,18 +280,18 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       html = HTMLFormBuilder.read_body(instance)
 
       assert html == ~S"""
-      <form>
-      <label for="name">
-        <input type="text" name="name">
-      </label>
-      <label for="bio">
-        <input type="text" name="bio">
-      </label>
-      <label for="website">
-        <input type="text" name="website">
-      </label>
-      </form>
-      """
+             <form>
+             <label for="name">
+               <input type="text" name="name">
+             </label>
+             <label for="bio">
+               <input type="text" name="bio">
+             </label>
+             <label for="website">
+               <input type="text" name="website">
+             </label>
+             </form>
+             """
     end
   end
 end

@@ -7,6 +7,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule EscapeHTML do
     use Wasm
 
+    @wasm_memory 2
+
     @escaped_html_table [
       {?&, ~C"&amp;"},
       {?<, ~C"&lt;"},
@@ -15,7 +17,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       {?', ~C"&#39;"}
     ]
 
-    defwasm imports: [env: [buffer: memory(2)]] do
+    defwasm do
       funcp escape(read_offset(I32), write_offset(I32)),
         result: I32,
         locals: [char: I32, bytes_written: I32] do
@@ -69,13 +71,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule HTMLPage do
     use Wasm
 
+    @wasm_memory 2
     @request_body_write_offset 65536
 
-    defwasm imports: [
-              env: [buffer: memory(2)]
-            ],
-            # export_memory: memory(2),
-            exported_mutable_globals: [
+    defwasm exported_mutable_globals: [
               request_body_write_offset: i32(@request_body_write_offset)
             ],
             globals: [
@@ -191,12 +190,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #       <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
     #       """)
 
+    @wasm_memory 1
     @bump_start 1024
 
-    defwasm imports: [
-              env: [buffer: memory(1)]
-            ],
-            globals: [
+    defwasm globals: [
               count: i32(0),
               body_chunk_index: i32(0),
               bump_offset: i32(@bump_start)
@@ -292,6 +289,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule SitemapBuilder do
     use Wasm
 
+    @wasm_memory 3
+
     @page_size 64 * 1024
     @readonly_start 0xFFF
     @bump_start 1 * @page_size
@@ -299,10 +298,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     @output_offset 2 * @page_size
     # @output_offset 2 * 64 * 1024
 
-    defwasm imports: [
-              env: [buffer: memory(3)]
-            ],
-            exported_globals: [
+    defwasm exported_globals: [
               input_offset: i32(@bump_start)
             ],
             globals: [
@@ -417,6 +413,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule HTMLFormBuilder do
     use Wasm
 
+    @wasm_memory 3
+
     @page_size 64 * 1024
     @bump_start 1 * @page_size
 
@@ -431,7 +429,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 
     defwasm imports: [
-              env: [buffer: memory(3)],
               log: [
                 int32: func(name: :log32, params: I32, result: I32)
               ]

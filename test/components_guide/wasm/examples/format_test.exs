@@ -12,7 +12,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert Wasm.call(IntToString, :u32toa_count, 7) == 1
       assert Wasm.call(IntToString, :u32toa_count, 17) == 2
       assert Wasm.call(IntToString, :u32toa_count, 173) == 3
-      assert Wasm.call(IntToString, :u32toa_count, 604800) == 6
+      assert Wasm.call(IntToString, :u32toa_count, 604_800) == 6
     end
   end
 end

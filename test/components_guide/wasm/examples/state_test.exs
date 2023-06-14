@@ -9,6 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
     test "list exports" do
       assert Counter.exports() == [
+               {:memory, "memory"},
                {:func, "get_current"},
                {:func, "increment"}
              ]

@@ -22,7 +22,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
     test "public, max-age=604800" do
       inst = CacheControl.start()
       Instance.call(inst, :set_public)
-      Instance.call(inst, :set_max_age, 604800)
+      Instance.call(inst, :set_max_age, 604_800)
       assert Instance.call_reading_string(inst, :to_string) == "public, max-age=604800"
     end
 
@@ -30,7 +30,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       inst = CacheControl.start()
       Instance.call(inst, :set_public)
       Instance.call(inst, :set_immutable)
-      Instance.call(inst, :set_max_age, 604800)
+      Instance.call(inst, :set_max_age, 604_800)
       assert Instance.call_reading_string(inst, :to_string) == "public, max-age=604800, immutable"
     end
 

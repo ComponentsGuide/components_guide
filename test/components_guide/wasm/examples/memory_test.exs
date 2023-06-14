@@ -119,7 +119,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       count = Instance.capture(inst, :_test_list_count, 1)
       sum = Instance.capture(inst, :_test_list32_sum, 1)
 
-      enum = fn (node) ->
+      enum = fn node ->
         Stream.unfold(node, fn node ->
           case Instance.call(inst, :_test_hd, node) do
             0x0 -> nil

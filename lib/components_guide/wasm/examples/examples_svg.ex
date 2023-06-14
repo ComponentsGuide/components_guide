@@ -8,10 +8,9 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
   defmodule Square do
     use Wasm
 
-    defwasm imports: [
-              env: [buffer: memory(2)]
-            ],
-            exported_mutable_globals: [
+    @wasm_memory 2
+
+    defwasm exported_mutable_globals: [
               # Opaque black
               color_hex: i32(0x000000FF)
             ],

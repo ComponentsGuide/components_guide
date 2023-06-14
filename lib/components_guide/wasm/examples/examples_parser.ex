@@ -6,11 +6,13 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
   defmodule HexConversion do
     use Wasm
 
+    @wasm_memory 2
+
     # memory :export, min: 1
     # @wasm_memory export?: true, min: 1
 
     # defwasm exported_memory: 1 do
-    defwasm imports: [env: [buffer: memory(2)]] do
+    defwasm do
       func i32_to_hex_lower(value(I32), write_to_address(I32)), locals: [i: I32, digit: I32] do
         i = 8
 
