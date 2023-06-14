@@ -106,10 +106,20 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     use Wasm
     use BumpAllocator
+    import StringHelpers
 
     defp write!(src, byte_count) do
       snippet writer: I32 do
         memcpy(writer, src, byte_count)
+        writer = I32.add(writer, byte_count)
+      end
+    end
+
+    defp write!({:i32_const_string, src_ptr, string}) do
+      byte_count = byte_size(string)
+
+      snippet writer: I32 do
+        memcpy(writer, src_ptr, byte_count)
         writer = I32.add(writer, byte_count)
       end
     end
@@ -125,6 +135,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
               bump_offset: i32(BumpAllocator.bump_offset()),
               name: i32(0),
               value: i32(0),
+              secure: i32(0),
               http_only: i32(0)
             ] do
       BumpAllocator.funcp(:bump_alloc)
@@ -145,6 +156,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         value = new_value
       end
 
+      func set_secure() do
+        secure = 1
+      end
+
       func set_http_only() do
         http_only = 1
       end
@@ -159,8 +174,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
           value_len: I32,
           extra_len: I32
         ] do
-        name_len = call(:strlen, name)
-        value_len = call(:strlen, value)
+        name_len = strlen(name)
+        value_len = strlen(value)
         extra_len = I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
         byte_count = I32.add([name_len, 1, value_len, extra_len])
 
@@ -172,11 +187,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         write!(?=)
         write!(value, value_len)
 
+        if secure do
+          write!(const("; Secure"))
+        end
+
         if http_only do
-          write!(
-            const("; HttpOnly"),
-            byte_size("; HttpOnly")
-          )
+          write!(const("; HttpOnly"))
         end
 
         str

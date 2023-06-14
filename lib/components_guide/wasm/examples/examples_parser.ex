@@ -14,6 +14,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     # defwasm exported_memory: 1 do
     defwasm do
       func i32_to_hex_lower(value(I32), write_to_address(I32)), locals: [i: I32, digit: I32] do
+        # func i32_to_hex_lower(value: I32, write_to_address: I32), locals: [i: I32, digit: I32] do
         i = 8
 
         loop Digits do

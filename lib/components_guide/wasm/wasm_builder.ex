@@ -468,7 +468,7 @@ defmodule ComponentsGuide.WasmBuilder do
           constants = Constants.from(unquote(@wasm_constants))
           # dbg(Constants.to_keylist(constants))
           constants = Constants.to_map(constants)
-          Map.fetch!(constants, unquote(value))
+          {:i32_const_string, Map.fetch!(constants, unquote(value)), unquote(value)}
         end
 
         # %Data{offset: 0xff, value: value, nul_terminated: true}
@@ -559,6 +559,10 @@ defmodule ComponentsGuide.WasmBuilder do
         :error -> {expand_identifier(call, __ENV__), []}
         other -> other
       end
+
+    if name == :i32_to_hex_lower do
+      dbg(args)
+    end
 
     # {name, args} = Macro.decompose_call(call)
 
@@ -1202,6 +1206,7 @@ defmodule ComponentsGuide.WasmBuilder do
   def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def to_wat({:result, value}, _indent), do: "(result #{value})"
   def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
+  def to_wat({:i32_const_string, value, _string}, indent), do: "#{indent}(i32.const #{value})"
   def to_wat({:global_get, identifier}, indent), do: "#{indent}(global.get $#{identifier})"
   def to_wat({:global_set, identifier}, indent), do: "#{indent}(global.set $#{identifier})"
   def to_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"

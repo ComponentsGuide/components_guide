@@ -64,5 +64,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       Instance.call(inst, :set_http_only)
       assert Instance.call_reading_string(inst, :to_string) == "foo=value; HttpOnly"
     end
+
+    test "HttpOnly Secure" do
+      inst = SetCookie.start()
+      Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
+      Instance.call(inst, :set_cookie_value, Instance.alloc_string(inst, "value"))
+      Instance.call(inst, :set_http_only)
+      Instance.call(inst, :set_secure)
+      assert Instance.call_reading_string(inst, :to_string) == "foo=value; Secure; HttpOnly"
+    end
   end
 end

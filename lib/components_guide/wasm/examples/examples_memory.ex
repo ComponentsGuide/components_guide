@@ -129,6 +129,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         count
       end
     end
+
+    def strlen(string_ptr), do: call(:strlen, string_ptr)
   end
 
   defmodule LinkedLists do
