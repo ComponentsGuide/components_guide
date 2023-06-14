@@ -49,21 +49,21 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       end
 
       func to_string(), result: String, locals: [start: I32, byte_count: I32] do
-        if private, result: I32 do
+        I32.when? private do
           const("private")
         else
-          if public, result: I32 do
-            if I32.ge_s(max_age_seconds, 0), result: I32 do
+          I32.when? public do
+            I32.when? I32.ge_s(max_age_seconds, 0) do
               byte_count =
                 byte_size("public, max-age=")
                 |> I32.add(IntToString.u32toa_count(max_age_seconds))
 
               # Add 1 for nul-byte
               start = BumpAllocator.alloc(I32.add(byte_count, 1))
-              BumpAllocator.memcpy(start, const("public"), 6)
+              BumpAllocator.memcpy(start, const("public"), byte_size("public"))
 
               BumpAllocator.memcpy(
-                I32.add(start, 6),
+                I32.add(start, byte_size("public")),
                 const(", max-age="),
                 byte_size(", max-age=")
               )
@@ -75,7 +75,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
               const("public")
             end
           else
-            if immutable, result: I32 do
+            I32.when? immutable do
               const("immutable")
             else
               const("hello")

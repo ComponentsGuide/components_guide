@@ -180,6 +180,17 @@ defmodule ComponentsGuide.WasmBuilder do
     # def unquote(:or)(a, b, c, d), do: _or(a, _or(b, _or(c, d)))
     def unquote(:or)(a, b, c, d), do: a |> _or(b |> _or(c |> _or(d)))
 
+    defmacro when?(condition, do: when_true, else: when_false) do
+      quote do
+        %IfElse{
+          result: :i32,
+          condition: unquote(condition),
+          when_true: unquote(get_block_items(when_true)),
+          when_false: unquote(get_block_items(when_false))
+        }
+      end
+    end
+
     def if_else(condition, do: when_true, else: when_false) do
       %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
     end
