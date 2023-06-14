@@ -14,6 +14,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     defmacro __using__(_opts) do
       quote do
         @wasm_memory 2
+
+        import unquote(__MODULE__)
       end
     end
 

@@ -14,7 +14,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
             globals: [
               bump_offset: i32(BumpAllocator.bump_offset())
             ] do
-      funcp u32toa_count(value(I32)),
+      func u32toa_count(value(I32)),
         result: I32,
         locals: [digit_count: I32, digit: I32] do
         loop Digits do
@@ -29,7 +29,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         digit_count
       end
 
-      funcp u32toa(value(I32), end_offset(I32)),
+      func u32toa(value(I32), end_offset(I32)),
         result: I32,
         locals: [working_offset: I32, digit: I32] do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.

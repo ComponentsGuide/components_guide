@@ -47,27 +47,41 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         s_max_age_seconds = age_seconds
       end
 
-      func to_string(), result: I32.String, locals: [start: I32, byte_count: I32] do
+      func to_string(), result: I32.String, locals: [start: I32, byte_count: I32, int_offset: I32] do
         I32.when? private do
           const("private")
         else
           I32.when? public do
             I32.when? I32.ge_s(max_age_seconds, 0) do
-              byte_count =
+              int_offset =
                 byte_size("public, max-age=")
                 |> I32.add(IntToString.u32toa_count(max_age_seconds))
 
-              # Add 1 for nul-byte
-              start = BumpAllocator.alloc(I32.add(byte_count, 1))
-              BumpAllocator.memcpy(start, const("public"), byte_size("public"))
+              if immutable do
+                byte_count = int_offset |> I32.add(byte_size(", immutable"))
+              end
 
-              BumpAllocator.memcpy(
+              # Add 1 for nul-byte
+              start = alloc(I32.add(byte_count, 1))
+              memcpy(start, const("public"), byte_size("public"))
+
+              memcpy(
                 I32.add(start, byte_size("public")),
                 const(", max-age="),
                 byte_size(", max-age=")
               )
 
-              _ = IntToString.u32toa(max_age_seconds, I32.add(start, byte_count))
+              _ = IntToString.u32toa(max_age_seconds, I32.add(start, int_offset))
+
+              # assert!(I32.eq(int_offset, 22))
+
+              if immutable do
+                memcpy(
+                  start |> I32.add(int_offset),
+                  const(", immutable"),
+                  byte_size(", immutable")
+                )
+              end
 
               start
             else
