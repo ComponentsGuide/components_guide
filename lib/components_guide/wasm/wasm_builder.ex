@@ -868,9 +868,6 @@ defmodule ComponentsGuide.WasmBuilder do
 
   # TODO: add a comptime keyword like Zig: https://kristoff.it/blog/what-is-zig-comptime/
 
-  def br_if(identifier, condition),
-    do: {:br_if, expand_identifier(identifier, __ENV__), condition}
-
   # For blocks
   def break(identifier), do: {:br, expand_identifier(identifier, __ENV__)}
 
