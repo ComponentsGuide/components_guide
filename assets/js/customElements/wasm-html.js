@@ -15,9 +15,9 @@ class WasmHTML extends HTMLElement {
       initWasmHTML(this, wasmInstancePromise, memory);
     }
 
-    if (this.dataset.scriptUrl) {
+    if (this.dataset.importUrl) {
       const memory = new WebAssembly.Memory({ initial: 2 });
-      const wasmModulePromise = window.importModule(this.dataset.scriptUrl);
+      const wasmModulePromise = window.importModule(this.dataset.importUrl);
       console.log("import(this.dataset.scriptUrl)", wasmModulePromise);
       const wasmInstancePromise = wasmModulePromise
         .then(exports => {
@@ -35,13 +35,14 @@ class WasmHTML extends HTMLElement {
           return instancePromise;
         })
         .then(instance => ({ instance }));
-      initWasmHTML(this, wasmInstancePromise, memory);
+      initWasmHTML(this, wasmInstancePromise);
     }
   }
 }
 
-function initWasmHTML(el, wasmInstancePromise, memory) {
+function initWasmHTML(el, wasmInstancePromise) {
   wasmInstancePromise.then(({ instance }) => {
+    const memory = instance.exports.memory;
     const rewind = instance.exports.rewind;
     const next_body_chunk = instance.exports.next_body_chunk;
 
@@ -52,12 +53,14 @@ function initWasmHTML(el, wasmInstancePromise, memory) {
     const utf8decoder = new TextDecoder();
 
     function update() {
+      console.log("update wasm-html", Object.entries(el.dataset))
       rewind();
 
       const chunks = [];
       //const chunks = new Uint8Array(1000);
       while (true) {
         const ptr = next_body_chunk();
+        console.log("next_body_chunk", ptr)
         if (ptr === 0) {
           break;
         }
@@ -67,6 +70,7 @@ function initWasmHTML(el, wasmInstancePromise, memory) {
         // Get subsection of memory between start and end, and decode it as UTF-8.
         //return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
         //chunks.concat(memoryToRead.subarray(0, count));
+        console.log(memoryBytes.subarray(ptr, 10))
         chunks.push(memoryBytes.subarray(ptr, endPtr));
         //chunks.set(memoryBytes.subarray(ptr, endPtr), chunks.length);
       }
@@ -74,7 +78,9 @@ function initWasmHTML(el, wasmInstancePromise, memory) {
       // There surely must be a better way to do this.
       // See: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
       const bytes = new Uint8Array(chunks.map(chunk => [...chunk]).flat());
+      console.log(chunks[0])
       const html = utf8decoder.decode(bytes);
+      console.log("rendered html", html)
       el.innerHTML = html;
     }
 

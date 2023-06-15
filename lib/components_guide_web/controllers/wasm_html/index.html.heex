@@ -44,9 +44,10 @@
         <p class="text-base italic">
           If you view source, you can see the server renders initial HTML. And then the exact same .wasm module is loaded in the browser for interactivity.
         </p>
-        <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
+        <wasm-html data-import-url="/wasm/script/counter_html.js" class="block">
           <%= raw(CounterHTML.initial_html()) %>
         </wasm-html>
+        <pre><code class="lang-html"><%= CounterHTML.initial_html() %></code></pre>
 
         <h3>Client side rendering only:</h3>
         <p class="text-base italic">
@@ -57,7 +58,7 @@
         </wasm-html>
 
         <h3>Lazy client-side rendering only:</h3>
-        <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
+        <wasm-html data-import-url="/wasm/script/counter_html.js" class="block">
           Loading…
         </wasm-html>
         <details class="mt-8">
