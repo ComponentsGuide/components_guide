@@ -1,0 +1,9 @@
+{
+  "actions" : {
+    "run" : {
+      "enabled" : true,
+      "script" : "source .envrc\nmake dev"
+    }
+  },
+  "openLogOnRun" : "start"
+}

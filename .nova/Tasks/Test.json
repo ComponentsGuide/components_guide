@@ -1,0 +1,9 @@
+{
+  "actions" : {
+    "build" : {
+      "enabled" : true,
+      "script" : "source .envrc\nmake test"
+    }
+  },
+  "openLogOnRun" : "start"
+}
