@@ -81,9 +81,9 @@
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
         <h2 id="form-state">Cache-Control HTTP Header Builder</h2>
         <wasm-string-builder data-url="/wasm/module/http_header_cache_control.wasm" class="flex justify-center">
-          <form class="text-left">
+          <form class="not-prose flex flex-col text-left gap-2">
             <output>
-              <pre><span slot="to_string"></span></pre>
+              <pre class="px-4 py-2 bg-black"><span slot="to_string"></span></pre>
             </output>
             <label class="block"><input type="checkbox" name="set_private"> Private</label>
             <label class="block"><input type="checkbox" name="set_public"> Public</label>
