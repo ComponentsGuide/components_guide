@@ -1,330 +1,392 @@
-<link rel="preload" href="/wasm/module/simple_weekday_parser.wasm" as="fetch" crossorigin="anonymous">
-<link rel="preload" href="/wasm/module/counter_html.wasm" as="fetch" crossorigin="anonymous">
+<link
+  rel="preload"
+  href="/wasm/module/simple_weekday_parser.wasm"
+  as="fetch"
+  crossorigin="anonymous"
+/>
+<link rel="preload" href="/wasm/module/counter_html.wasm" as="fetch" crossorigin="anonymous" />
 
 <enhanced-navigation class="flex flex-col" data-add-aria-current-page data-add-article-navigation>
+  <div
+    class="mx-auto grid-flow-col md:grid md:grid-cols-[20rem_minmax(0,var(--max-width))] xl:grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8"
+    style="--max-width: 46em"
+  >
+    <header class="md:sticky top-0 md:h-screen prose md:prose-lg prose-invert px-4 py-16">
+      <p class="px-2 pb-6 mb-6 text-4xl text-indigo-300 border-b-4 border-current">
+        <%= "WebAssembly" %>
+      </p>
 
-<div class="mx-auto grid-flow-col md:grid md:grid-cols-[20rem_minmax(0,var(--max-width))] xl:grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8" style="--max-width: 46em">
+      <p>
+        These examples are written in a WAT (WebAssembly text format) DSL using Elixir macros. I plan to make it an open source library soon.
+      </p>
+      <p>
+        You can <a href="https://github.com/ComponentsGuide/components_guide/tree/master/lib/components_guide/wasm/examples">view the modules’ source on GitHub</a>.
+      </p>
 
-<header class="md:sticky top-0 md:h-screen prose md:prose-lg prose-invert px-4 py-16">
-  <p class="px-2 pb-6 mb-6 text-4xl text-indigo-300 border-b-4 border-current"><%= "WebAssembly" %></p>
+      <p>Custom HTML elements are used to load and bootstrap the Wasm modules in the browser:</p>
+      <ul>
+        <li>
+          <a href="https://github.com/ComponentsGuide/components_guide/blob/master/assets/js/customElements/wasm-html.js">
+            <code><%= "<wasm-html>" %></code>
+          </a>
+          for Wasm modules that render HTML components.
+        </li>
+        <li>
+          <a href="https://github.com/ComponentsGuide/components_guide/blob/master/assets/js/customElements/wasm-state-machine.js">
+            <code><%= "<wasm-state-machine>" %></code>
+          </a>
+          for Wasm modules that model state machines.
+        </li>
+      </ul>
 
-  <p>These examples are written in a WAT (WebAssembly text format) DSL using Elixir macros. I plan to make it an open source library soon.</p>
-  <p>You can <a href="https://github.com/ComponentsGuide/components_guide/tree/master/lib/components_guide/wasm/examples">view the modules’ source on GitHub</a>.</p>
+      <hr />
+    </header>
 
-  <p>Custom HTML elements are used to load and bootstrap the Wasm modules in the browser:</p>
-  <ul>
-    <li><a href="https://github.com/ComponentsGuide/components_guide/blob/master/assets/js/customElements/wasm-html.js"><code><%= "<wasm-html>" %></code></a> for Wasm modules that render HTML components.</li>
-    <li><a href="https://github.com/ComponentsGuide/components_guide/blob/master/assets/js/customElements/wasm-state-machine.js"><code><%= "<wasm-state-machine>" %></code></a> for Wasm modules that model state machines.</li>
-  </ul>
+    <div>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+        <h2 id="stateful-counter-html">Stateful Counter that renders to HTML</h2>
+        <h3>Server with initial HTML + Client side rendering:</h3>
+        <p class="text-base italic">
+          If you view source, you can see the server renders initial HTML. And then the exact same .wasm module is loaded in the browser for interactivity.
+        </p>
+        <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
+          <%= raw(CounterHTML.initial_html()) %>
+        </wasm-html>
 
-  <hr>
-</header>
+        <h3>Client side rendering only:</h3>
+        <p class="text-base italic">
+          The initial HTML from the server is just a loader, with only the browser loading the wasm file.
+        </p>
+        <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
+          Loading…
+        </wasm-html>
 
-<div>
+        <h3>Lazy client-side rendering only:</h3>
+        <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
+          Loading…
+        </wasm-html>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$CounterHTML</code> Wasm source</summary>
+          <pre class="lang-wasm"><code><%= @counter_html_wat %></code></pre>
+        </details>
+      </article>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
-  <h2 id="stateful-counter-html">Stateful Counter that renders to HTML</h2>
-  <h3>Server with initial HTML + Client side rendering:</h3>
-  <p class="text-base italic">If you view source, you can see the server renders initial HTML. And then the exact same .wasm module is loaded in the browser for interactivity.</p>
-  <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
-    <%= raw(CounterHTML.initial_html()) %>
-  </wasm-html>
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
-  <h3>Client side rendering only:</h3>
-  <p class="text-base italic">The initial HTML from the server is just a loader, with only the browser loading the wasm file.</p>
-  <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
-    Loading…
-  </wasm-html>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
+        <h2 id="form-state">Form State Machine</h2>
+        <wasm-state-machine data-url="/wasm/module/form_state_machine.wasm" class="block">
+          <template data-template="button">
+            <.blue_button>Event</.blue_button>
+          </template>
+          <ul
+            slot="globalsList"
+            class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"
+          >
+          </ul>
+          <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+            State: <span slot="state" class="font-bold"></span>
+          </output>
+          <div slot="get_edit_count"></div>
+          <div slot="get_submitted_edit_count"></div>
+          <div slot="user_can_edit?"></div>
+          <div slot="user_can_submit?"></div>
+          <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
+        </wasm-state-machine>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$Form</code> Wat source</summary>
+          <pre class="lang-wasm"><code><%= @form_state_wat %></code></pre>
+        </details>
+      </article>
 
-  <h3>Lazy client-side rendering only:</h3>
-  <wasm-html data-script-url="/wasm/script/counter_html.js" class="block">
-    Loading…
-  </wasm-html>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$CounterHTML</code> Wasm source</summary>
-    <pre class="lang-wasm"><code><%= @counter_html_wat %></code></pre>
-  </details>
-</article>
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
+        <h2 id="promise-state">Promise State Machine</h2>
+        <wasm-state-machine data-url="/wasm/module/promise_state.wasm" class="block">
+          <ul
+            slot="globalsList"
+            class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"
+          >
+          </ul>
+          <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+            State: <span slot="state" class="font-bold"></span>
+          </output>
+          <template data-template="button">
+            <.blue_button>Event</.blue_button>
+          </template>
+          <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
+        </wasm-state-machine>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$Promise</code> Wat source</summary>
+          <pre class="lang-wasm"><code><%= @promise_state_wat %></code></pre>
+        </details>
+      </article>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
-  <h2 id="form-state">Form State Machine</h2>
-  <wasm-state-machine data-url="/wasm/module/form_state_machine.wasm" class="block">
-    <template data-template="button"><.blue_button>Event</.blue_button></template>
-    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
-    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
-      State: <span slot="state" class="font-bold"></span>
-    </output>
-    <div slot="get_edit_count"></div>
-    <div slot="get_submitted_edit_count"></div>
-    <div slot="user_can_edit?"></div>
-    <div slot="user_can_submit?"></div>
-    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
-  </wasm-state-machine>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$Form</code> Wat source</summary>
-    <pre class="lang-wasm"><code><%= @form_state_wat %></code></pre>
-  </details>
-</article>
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
+        <h2 id="dialog-state">Dialog State Machine</h2>
+        <wasm-state-machine data-url="/wasm/module/dialog_state.wasm" class="block">
+          <ul
+            slot="globalsList"
+            class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"
+          >
+          </ul>
+          <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+            State: <span slot="state" class="font-bold"></span>
+          </output>
+          <template data-template="button">
+            <.blue_button>Event</.blue_button>
+          </template>
+          <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
+        </wasm-state-machine>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
+          <pre class="lang-wasm"><code><%= @dialog_state_wat %></code></pre>
+        </details>
+      </article>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
-  <h2 id="promise-state">Promise State Machine</h2>
-  <wasm-state-machine data-url="/wasm/module/promise_state.wasm" class="block">
-    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
-    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
-      State: <span slot="state" class="font-bold"></span>
-    </output>
-    <template data-template="button"><.blue_button>Event</.blue_button></template>
-    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
-  </wasm-state-machine>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$Promise</code> Wat source</summary>
-    <pre class="lang-wasm"><code><%= @promise_state_wat %></code></pre>
-  </details>
-</article>
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
+        <h2 id="offline-state">Offline Status State Machine</h2>
+        <wasm-state-machine data-url="/wasm/module/offline_status.wasm" class="block">
+          <ul
+            slot="globalsList"
+            class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"
+          >
+          </ul>
+          <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
+            State: <span slot="state" class="font-bold"></span>
+          </output>
+          <template data-template="button">
+            <.blue_button>Event</.blue_button>
+          </template>
+          <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
+        </wasm-state-machine>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$OfflineStatus</code> Wat source</summary>
+          <pre class="lang-wasm"><code><%= @offline_status_wat %></code></pre>
+        </details>
+      </article>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
-  <h2 id="dialog-state">Dialog State Machine</h2>
-  <wasm-state-machine data-url="/wasm/module/dialog_state.wasm" class="block">
-    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
-    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
-      State: <span slot="state" class="font-bold"></span>
-    </output>
-    <template data-template="button"><.blue_button>Event</.blue_button></template>
-    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
-  </wasm-state-machine>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$Dialog</code> Wat source</summary>
-    <pre class="lang-wasm"><code><%= @dialog_state_wat %></code></pre>
-  </details>
-</article>
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+        <form-escape-html data-url="/wasm/module/escape_html.wasm">
+          <form id="escape-html-form" class="">
+            <h2 id="escape-html">Escape HTML</h2>
+            <label for="input-a">
+              Input to be HTML escaped <textarea
+                id="input-a"
+                name="input"
+                rows="8"
+                class="block w-full text-black"
+              ><%= "Milo & Otis both agreed that \"2 > 1\"" %></textarea>
+            </label>
+            <h3 class="mt-4">Resulting HTML:</h3>
+            <output class="block mt-4 font-mono"></output>
+            <button class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Benchmark</button>
+          </form>
+        </form-escape-html>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$EscapeHTML</code> Wasm source</summary>
+          <pre class="lang-wasm"><code><%= @escape_html_wat %></code></pre>
+        </details>
+      </article>
 
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
-  <h2 id="offline-state">Offline Status State Machine</h2>
-  <wasm-state-machine data-url="/wasm/module/offline_status.wasm" class="block">
-    <ul slot="globalsList" class="flex flex-wrap justify-center gap-x-16 px-12 border border-black/50 bg-black/20 rounded"></ul>
-    <output class="inline-block mb-4 px-5 py-2 text-black/90 bg-yellow-500/90 rounded-full">
-      State: <span slot="state" class="font-bold"></span>
-    </output>
-    <template data-template="button"><.blue_button>Event</.blue_button></template>
-    <div slot="eventHandlers" class="flex flex-wrap justify-center gap-4"></div>
-  </wasm-state-machine>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$OfflineStatus</code> Wat source</summary>
-    <pre class="lang-wasm"><code><%= @offline_status_wat %></code></pre>
-  </details>
-</article>
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
-
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
-  <form-escape-html data-url="/wasm/module/escape_html.wasm">
-    <form id="escape-html-form" class="">
-      <h2 id="escape-html">Escape HTML</h2>
-      <label for="input-a">
-        Input to be HTML escaped
-        <textarea id="input-a" name="input" rows="8" class="block w-full text-black"><%= "Milo & Otis both agreed that \"2 > 1\"" %></textarea>
-      </label>
-      <h3 class="mt-4">Resulting HTML:</h3>
-      <output class="block mt-4 font-mono"></output>
-      <button class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Benchmark</button>
-    </form>
-  </form-escape-html>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$EscapeHTML</code> Wasm source</summary>
-    <pre class="lang-wasm"><code><%= @escape_html_wat %></code></pre>
-  </details>
-</article>
-
-<div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr></div>
-
-<script type="module">
-  class FormEscapeHTML extends HTMLElement {
-    connectedCallback() {
-      const wasmURL = this.dataset.url;
-      initFormHTMLEscape(wasmURL);
-    }
-  }
-
-  function initFormHTMLEscape(wasmURL) {
-    const form = document.querySelector('form#escape-html-form');
-    const output = form.querySelector("output");
-
-    const memory = new WebAssembly.Memory({ initial: 2 });
-    const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
-      env: {
-        buffer: memory
-      }
-    });
-    wasmPromise.then(({ instance, module }) => {
-      const escape_html = instance.exports.escape_html;
-      output.innerText = "Change to see the calculation live locally.";
-
-      const memoryBytes = new Uint8Array(memory.buffer);
-      const memoryToWrite = memoryBytes.subarray(1024);
-      const memoryToRead = memoryBytes.subarray(2048);
-      //memory.set();
-      const utf8encoder = new TextEncoder();
-      const utf8decoder = new TextDecoder();
-
-      function update() {
-        const data = new FormData(form);
-        const input = String(data.get("input"));
-        const { written } = utf8encoder.encodeInto(input, memoryToWrite);
-        const count = escape_html();
-        memoryToWrite.fill(0, 0, written);
-        //const text = utf8decoder.decode(memoryBytes.subarray(2048, 2048 + count));
-        const text = utf8decoder.decode(memoryToRead.subarray(0, count));
-        output.innerText = `(${count} bytes) ${text}`;
-      }
-      function benchmark() {
-        const data = new FormData(form);
-        const input = String(data.get("input"));
-
-        const n = 100000;
-        const t0 = performance.now();
-        for (let i = 0; i < n; i++) {
-          const { written } = utf8encoder.encodeInto(input, memoryToWrite);
-          const count = escape_html();
-          memoryToWrite.fill(0, 0, written);
-          const text = utf8decoder.decode(memoryToRead.subarray(0, count));
-        }
-        const t1 = performance.now();
-        const t2 = performance.now();
-        for (let i = 0; i < n; i++) {
-          let text = input.replace("&", "&amp;")
-        }
-        const t3 = performance.now();
-        output.innerText = `${n} iterations: wasm in ${t1 - t0}ms, js in ${t3 - t2}ms`;
-      }
-
-      form.addEventListener("input", (event) => {
-        update();
-      });
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        benchmark();
-      });
-      queueMicrotask(update);
-    });
-  }
-
-  customElements.define("form-escape-html", FormEscapeHTML);
-</script>
-
-<article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
-  <form-html-page data-url="/wasm/module/html_page.wasm">
-    <form id="html-page-form" class="">
-      <h2 id="html-page">HTML Page via Request/Response</h2>
-      <label for="input-a">
-        Request body (try typing <code>good</code> or <code>bad</code>)
-        <textarea id="input-a" name="input" rows="1" class="block w-full text-black"><%= "good" %></textarea>
-      </label>
-      <h3 class="mt-4">Response:</h3>
-      <div class="block mt-4 font-mono">
-        <div>Status: <output name="statusOutput" class="text-red-200 data-[ok=true]:text-green-200"></output></div>
-        <div>Headers: <output name="headersOutput" class="block"></output></div>
-        <output name="contentOutput"><pre class="lang-html"><code></code></pre></output>
-        <output name="memoryOutput" class="max-w-full break-all whitespace-pre-wrap"></output>
-      </div>
-      <button hidden class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Load</button>
-    </form>
-  </form-html-page>
-  <details class="mt-8">
-    <summary class="cursor-pointer">View <code>$HTMLPage</code> Wasm source</summary>
-    <pre class="lang-wasm"><code><%= @html_page_wat %></code></pre>
-  </details>
-</article>
-
-<script type="module">
-  class FormHTMLPage extends HTMLElement {
-    connectedCallback() {
-      const wasmURL = this.dataset.url;
-      initFormHTMLPage(wasmURL);
-    }
-  }
-
-  function initFormHTMLPage(wasmURL) {
-    const form = document.forms['html-page-form'];
-
-    const memory = new WebAssembly.Memory({ initial: 2 });
-    const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
-      env: {
-        buffer: memory
-      }
-    });
-    wasmPromise.then(({ instance, module }) => {
-      console.log("Loaded wasm");
-      const start = instance.exports.GET;
-      const get_status = instance.exports.get_status;
-      const get_headers = instance.exports.get_headers;
-      const read_next_body_chunk = instance.exports.next_body_chunk;
-
-      const utf8encoder = new TextEncoder();
-      const utf8decoder = new TextDecoder();
-      const memoryBytes = new Uint8Array(memory.buffer);
-      const memoryToWrite = memoryBytes.subarray(65536);
-      function getStringAt(ptr) {
-        // Search for null-terminating byte.
-        const endPtr = memoryBytes.indexOf(0, ptr);
-        // Get subsection of memory between start and end, and decode it as UTF-8.
-        return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
-      }
-
-      function update() {
-        start();
-
-        const data = new FormData(form);
-        const input = String(data.get("input"));
-        const { written } = utf8encoder.encodeInto(input, memoryToWrite);
-        const status = get_status();
-        const headersOffset = get_headers();
-        const textChunks = [];
-        while (true) {
-          const offset = read_next_body_chunk();
-          if (offset === 0) {
-            break;
+      <script type="module">
+        class FormEscapeHTML extends HTMLElement {
+          connectedCallback() {
+            const wasmURL = this.dataset.url;
+            initFormHTMLEscape(wasmURL);
           }
-          textChunks.push(getStringAt(offset));
         }
 
-        memoryToWrite.fill(0, 0, written);
+        function initFormHTMLEscape(wasmURL) {
+          const form = document.querySelector('form#escape-html-form');
+          const output = form.querySelector("output");
 
-        form.elements.statusOutput.innerText = `${status}`;
-        form.elements.statusOutput.dataset.ok = status <= 299;
+          const memory = new WebAssembly.Memory({ initial: 2 });
+          const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
+            env: {
+              buffer: memory
+            }
+          });
+          wasmPromise.then(({ instance, module }) => {
+            const escape_html = instance.exports.escape_html;
+            output.innerText = "Change to see the calculation live locally.";
 
-        form.elements.headersOutput.innerText = getStringAt(headersOffset);
+            const memoryBytes = new Uint8Array(memory.buffer);
+            const memoryToWrite = memoryBytes.subarray(1024);
+            const memoryToRead = memoryBytes.subarray(2048);
+            //memory.set();
+            const utf8encoder = new TextEncoder();
+            const utf8decoder = new TextDecoder();
 
-        form.elements.contentOutput.querySelector('code').innerText = textChunks.join("");
-        window.Prism.highlightAllUnder(form.elements.contentOutput);
+            function update() {
+              const data = new FormData(form);
+              const input = String(data.get("input"));
+              const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+              const count = escape_html();
+              memoryToWrite.fill(0, 0, written);
+              //const text = utf8decoder.decode(memoryBytes.subarray(2048, 2048 + count));
+              const text = utf8decoder.decode(memoryToRead.subarray(0, count));
+              output.innerText = `(${count} bytes) ${text}`;
+            }
+            function benchmark() {
+              const data = new FormData(form);
+              const input = String(data.get("input"));
 
-        //form.elements.memoryOutput.innerText = String(Array.from(memoryBytes));
-      }
+              const n = 100000;
+              const t0 = performance.now();
+              for (let i = 0; i < n; i++) {
+                const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+                const count = escape_html();
+                memoryToWrite.fill(0, 0, written);
+                const text = utf8decoder.decode(memoryToRead.subarray(0, count));
+              }
+              const t1 = performance.now();
+              const t2 = performance.now();
+              for (let i = 0; i < n; i++) {
+                let text = input.replace("&", "&amp;")
+              }
+              const t3 = performance.now();
+              output.innerText = `${n} iterations: wasm in ${t1 - t0}ms, js in ${t3 - t2}ms`;
+            }
 
-      form.addEventListener("input", (event) => {
-        update();
-      });
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        //benchmark();
-      });
-      queueMicrotask(update);
-    });
-  }
+            form.addEventListener("input", (event) => {
+              update();
+            });
+            form.addEventListener("submit", (event) => {
+              event.preventDefault();
+              benchmark();
+            });
+            queueMicrotask(update);
+          });
+        }
 
-  customElements.define("form-html-page", FormHTMLPage);
-</script>
+        customElements.define("form-escape-html", FormEscapeHTML);
+      </script>
 
-  </div>
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+        <form-html-page data-url="/wasm/module/html_page.wasm">
+          <form id="html-page-form" class="">
+            <h2 id="html-page">HTML Page via Request/Response</h2>
+            <label for="input-a">
+              Request body (try typing <code>good</code>
+              or <code>bad</code>) <textarea
+                id="input-a"
+                name="input"
+                rows="1"
+                class="block w-full text-black"
+              ><%= "good" %></textarea>
+            </label>
+            <h3 class="mt-4">Response:</h3>
+            <div class="block mt-4 font-mono">
+              <div>
+                Status:
+                <output name="statusOutput" class="text-red-200 data-[ok=true]:text-green-200">
+                </output>
+              </div>
+              <div>Headers: <output name="headersOutput" class="block"></output></div>
+              <output name="contentOutput"><pre class="lang-html"><code></code></pre></output>
+              <output name="memoryOutput" class="max-w-full break-all whitespace-pre-wrap">
+              </output>
+            </div>
+            <button hidden class="mt-4 px-3 py-1 text-blue-900 bg-blue-300 rounded">Load</button>
+          </form>
+        </form-html-page>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>$HTMLPage</code> Wasm source</summary>
+          <pre class="lang-wasm"><code><%= @html_page_wat %></code></pre>
+        </details>
+      </article>
 
-  <aside class="sticky top-0 h-screen hidden xl:block" hidden>
+      <script type="module">
+        class FormHTMLPage extends HTMLElement {
+          connectedCallback() {
+            const wasmURL = this.dataset.url;
+            initFormHTMLPage(wasmURL);
+          }
+        }
+
+        function initFormHTMLPage(wasmURL) {
+          const form = document.forms['html-page-form'];
+
+          const memory = new WebAssembly.Memory({ initial: 2 });
+          const wasmPromise = WebAssembly.instantiateStreaming(fetch(wasmURL), {
+            env: {
+              buffer: memory
+            }
+          });
+          wasmPromise.then(({ instance, module }) => {
+            console.log("Loaded wasm");
+            const start = instance.exports.GET;
+            const get_status = instance.exports.get_status;
+            const get_headers = instance.exports.get_headers;
+            const read_next_body_chunk = instance.exports.next_body_chunk;
+
+            const utf8encoder = new TextEncoder();
+            const utf8decoder = new TextDecoder();
+            const memoryBytes = new Uint8Array(memory.buffer);
+            const memoryToWrite = memoryBytes.subarray(65536);
+            function getStringAt(ptr) {
+              // Search for null-terminating byte.
+              const endPtr = memoryBytes.indexOf(0, ptr);
+              // Get subsection of memory between start and end, and decode it as UTF-8.
+              return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
+            }
+
+            function update() {
+              start();
+
+              const data = new FormData(form);
+              const input = String(data.get("input"));
+              const { written } = utf8encoder.encodeInto(input, memoryToWrite);
+              const status = get_status();
+              const headersOffset = get_headers();
+              const textChunks = [];
+              while (true) {
+                const offset = read_next_body_chunk();
+                if (offset === 0) {
+                  break;
+                }
+                textChunks.push(getStringAt(offset));
+              }
+
+              memoryToWrite.fill(0, 0, written);
+
+              form.elements.statusOutput.innerText = `${status}`;
+              form.elements.statusOutput.dataset.ok = status <= 299;
+
+              form.elements.headersOutput.innerText = getStringAt(headersOffset);
+
+              form.elements.contentOutput.querySelector('code').innerText = textChunks.join("");
+              window.Prism.highlightAllUnder(form.elements.contentOutput);
+
+              //form.elements.memoryOutput.innerText = String(Array.from(memoryBytes));
+            }
+
+            form.addEventListener("input", (event) => {
+              update();
+            });
+            form.addEventListener("submit", (event) => {
+              event.preventDefault();
+              //benchmark();
+            });
+            queueMicrotask(update);
+          });
+        }
+
+        customElements.define("form-html-page", FormHTMLPage);
+      </script>
+    </div>
+
+    <aside class="sticky top-0 h-screen hidden xl:block" hidden>
       <nav class="pt-16 text-gray-200">
         <div class="pl-5 pb-2 font-bold uppercase text-white">On this page</div>
         <slot name="article-navigation-items">
@@ -338,5 +400,4 @@
       </nav>
     </aside>
   </div>
-
 </enhanced-navigation>
