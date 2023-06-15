@@ -1,6 +1,6 @@
 class WasmHTML extends HTMLElement {
   connectedCallback() {
-    const wasmURL = this.dataset.url;
+    const wasmURL = this.dataset.url ?? this.getAttribute("src") ?? this.querySelector("source[type='application/wasm']")?.src;
     if (wasmURL) {
       const memory = new WebAssembly.Memory({ initial: 2 });
       const wasmInstancePromise = WebAssembly.instantiateStreaming(fetch(wasmURL, { credentials: "omit" }), {
@@ -15,9 +15,10 @@ class WasmHTML extends HTMLElement {
       initWasmHTML(this, wasmInstancePromise, memory);
     }
 
-    if (this.dataset.importUrl) {
+    const importUrl = this.dataset.importUrl ?? this.querySelector("source[type='text/javascript']")?.src;
+    if (importUrl) {
       const memory = new WebAssembly.Memory({ initial: 2 });
-      const wasmModulePromise = window.importModule(this.dataset.importUrl);
+      const wasmModulePromise = window.importModule(importUrl);
       console.log("import(this.dataset.scriptUrl)", wasmModulePromise);
       const wasmInstancePromise = wasmModulePromise
         .then(exports => {
