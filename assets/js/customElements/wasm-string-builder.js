@@ -54,7 +54,8 @@ function initWasmHTML(el, wasmInstancePromise) {
       }
       updateCount += 1;
       
-      const { memory, to_string } = instance.exports;
+      const { memory, alloc, to_string } = instance.exports;
+      const memoryBytes = new Uint8Array(memory.buffer);
       
       // Apply current form values to instance’s exports.
       for (const formElement of formElements) {
@@ -65,9 +66,15 @@ function initWasmHTML(el, wasmInstancePromise) {
         if (formElement.type === "number") {
           instance.exports[formElement.name]?.call(null, formElement.valueAsNumber);
         }
+        
+        if (formElement.type === "text") {
+          const stringValue = formElement.value;
+          const bytes = utf8encoder.encode(stringValue);
+          const strPtr = alloc(bytes.length + 1);
+          utf8encoder.encodeInto(stringValue, memoryBytes.subarray(strPtr));
+          instance.exports[formElement.name]?.call(null, strPtr);
+        }
       }
-    
-      const memoryBytes = new Uint8Array(memory.buffer);
 
       const ptr = to_string();
       if (ptr === 0) {
