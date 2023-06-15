@@ -82,7 +82,8 @@ defmodule ComponentsGuide.Fetch do
 
           {conn, response} = do_request(conn, req, t)
 
-          response = Response.finish_timings(response, [:fetch, :load_many!, :request, :done], %{req: req})
+          response =
+            Response.finish_timings(response, [:fetch, :load_many!, :request, :done], %{req: req})
 
           {conn, [response | results]}
       end)

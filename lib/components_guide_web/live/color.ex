@@ -88,21 +88,30 @@ defmodule ComponentsGuideWeb.ColorLive do
     l_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..gradient_steps, do: {:lab, interpolate(n / gradient_steps, {0.0, 100.0}), a, b}),
+        for(
+          n <- 0..gradient_steps,
+          do: {:lab, interpolate(n / gradient_steps, {0.0, 100.0}), a, b}
+        ),
         "lab-l-gradient"
       )
 
     a_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..gradient_steps, do: {:lab, l, interpolate(n / gradient_steps, {-127.0, 127.0}), b}),
+        for(
+          n <- 0..gradient_steps,
+          do: {:lab, l, interpolate(n / gradient_steps, {-127.0, 127.0}), b}
+        ),
         "lab-a-gradient"
       )
 
     b_gradient_svg =
       Styling.svg_linear_gradient(
         "rotate(45)",
-        for(n <- 0..gradient_steps, do: {:lab, l, a, interpolate(n / gradient_steps, {-127.0, 127.0})}),
+        for(
+          n <- 0..gradient_steps,
+          do: {:lab, l, a, interpolate(n / gradient_steps, {-127.0, 127.0})}
+        ),
         "lab-b-gradient"
       )
 

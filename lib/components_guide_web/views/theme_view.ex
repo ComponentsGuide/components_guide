@@ -8,14 +8,15 @@ defmodule ComponentsGuideWeb.ThemeView do
 
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.5, a * 0.7, b * 2},
-      {:lab, l * 1.3, a * 0.8, b * 1.6},
-      {:lab, l * 1.1, a * 0.9, b * 1.2},
-      color,
-      {:lab, l * 0.9, a * 1.3, b * 0.7},
-      {:lab, l * 0.8, a * 1.7, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.5, a * 0.7, b * 2},
+        {:lab, l * 1.3, a * 0.8, b * 1.6},
+        {:lab, l * 1.1, a * 0.9, b * 1.2},
+        color,
+        {:lab, l * 0.9, a * 1.3, b * 0.7},
+        {:lab, l * 0.8, a * 1.7, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -23,12 +24,13 @@ defmodule ComponentsGuideWeb.ThemeView do
   defp gradient_styles(:cool_pink) do
     color = {:lab, 47, 10, -44}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, 47, 5, -44},
-      {:lab, 47, -24, -44},
-      color,
-      {:lab, 47, 53, -44}
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, 47, 5, -44},
+        {:lab, 47, -24, -44},
+        color,
+        {:lab, 47, 53, -44}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -39,11 +41,12 @@ defmodule ComponentsGuideWeb.ThemeView do
     b = -90
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.1, a * 1.1, b * 1.4},
-      color,
-      {:lab, l * 1.3, a * 0.5, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.1, a * 1.1, b * 1.4},
+        color,
+        {:lab, l * 1.3, a * 0.5, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -55,14 +58,15 @@ defmodule ComponentsGuideWeb.ThemeView do
 
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.5, a * 0.7, b * 2},
-      {:lab, l * 1.3, a * 0.8, b * 1.6},
-      {:lab, l * 1.1, a * 0.9, b * 1.2},
-      color,
-      {:lab, l * 0.9, a * 1.3, b * 0.7},
-      {:lab, l * 0.8, a * 1.7, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.5, a * 0.7, b * 2},
+        {:lab, l * 1.3, a * 0.8, b * 1.6},
+        {:lab, l * 1.1, a * 0.9, b * 1.2},
+        color,
+        {:lab, l * 0.9, a * 1.3, b * 0.7},
+        {:lab, l * 0.8, a * 1.7, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -74,14 +78,15 @@ defmodule ComponentsGuideWeb.ThemeView do
 
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.5, a * 0.7, b * 2},
-      {:lab, l * 1.3, a * 0.8, b * 1.6},
-      {:lab, l * 1.1, a * 0.9, b * 1.2},
-      color,
-      {:lab, l * 0.9, a * 1.3, b * 0.7},
-      {:lab, l * 0.8, a * 1.7, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.5, a * 0.7, b * 2},
+        {:lab, l * 1.3, a * 0.8, b * 1.6},
+        {:lab, l * 1.1, a * 0.9, b * 1.2},
+        color,
+        {:lab, l * 0.9, a * 1.3, b * 0.7},
+        {:lab, l * 0.8, a * 1.7, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end
@@ -93,14 +98,15 @@ defmodule ComponentsGuideWeb.ThemeView do
 
     color = {:lab, l, a, b}
 
-    gradient = Styling.linear_gradient("150grad", [
-      {:lab, l * 1.5, a * 0.7, b * 2},
-      {:lab, l * 1.3, a * 0.8, b * 1.6},
-      {:lab, l * 1.1, a * 0.9, b * 1.2},
-      color,
-      {:lab, l * 0.9, a * 1.3, b * 0.7},
-      {:lab, l * 0.8, a * 1.7, b * 0.5},
-    ])
+    gradient =
+      Styling.linear_gradient("150grad", [
+        {:lab, l * 1.5, a * 0.7, b * 2},
+        {:lab, l * 1.3, a * 0.8, b * 1.6},
+        {:lab, l * 1.1, a * 0.9, b * 1.2},
+        color,
+        {:lab, l * 0.9, a * 1.3, b * 0.7},
+        {:lab, l * 0.8, a * 1.7, b * 0.5}
+      ])
 
     "background-color: #{color |> Styling.to_css()}; background-image: #{gradient};"
   end

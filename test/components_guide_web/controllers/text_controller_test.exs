@@ -80,6 +80,7 @@ defmodule ComponentsGuideWeb.TextControllerTest do
     test "deletes chosen text", %{conn: conn, text: text} do
       conn = delete(conn, Routes.text_path(conn, :delete, text))
       assert redirected_to(conn) == Routes.text_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.text_path(conn, :show, text))
       end

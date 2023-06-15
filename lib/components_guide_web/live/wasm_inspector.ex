@@ -35,6 +35,7 @@ defmodule ComponentsGuideWeb.WasmInspectorLive do
   @impl true
   def render(assigns) do
     assigns = Map.put(assigns, :suggestions, @suggestions)
+
     ~H"""
     <.form
       for={@form}

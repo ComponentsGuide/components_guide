@@ -39,22 +39,31 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
       phx-submit="submitted"
       class="max-w-2xl mt-12 mx-auto space-y-2"
     >
-
       <fieldset y-y y-stretch class="gap-1">
         <label for="url">Enter URL to request:</label>
-        <input id="url" type="url" name="url_string" value={@state.url_string} class="text-black">
+        <input id="url" type="url" name="url_string" value={@state.url_string} class="text-black" />
       </fieldset>
 
       <div class="flex">
         <fieldset class="flex items-center gap-2">
           <label for="head-radio">
-            <input id="head-radio" type="radio" name="method" value="HEAD" checked={@state.request == nil || match?(%{method: "HEAD"}, @state.request)} />
-            HEAD
+            <input
+              id="head-radio"
+              type="radio"
+              name="method"
+              value="HEAD"
+              checked={@state.request == nil || match?(%{method: "HEAD"}, @state.request)}
+            /> HEAD
           </label>
 
           <label for="get-radio">
-            <input id="get-radio" type="radio" name="method" value="GET" checked={match?(%{method: "GET"}, @state.request)} />
-            GET
+            <input
+              id="get-radio"
+              type="radio"
+              name="method"
+              value="GET"
+              checked={match?(%{method: "GET"}, @state.request)}
+            /> GET
           </label>
         </fieldset>
 
@@ -64,72 +73,82 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
     </.form>
 
     <script type="module">
-    window.customElements.define('view-source-filter', class extends HTMLElement {
-      connectedCallback() {
-        this.aborter = new AbortController();
-        const signal = this.aborter.signal;
-        this.addEventListener('input', () => {
-          const listItems = this.parentNode.querySelectorAll('dl dt');
-          const values = new FormData(this.querySelector('form'));
-          const q = values.get('q').trim().toLowerCase();
-          for (const li of Array.from(listItems)) {
-            const matches = q === '' ? true : li.textContent.toLowerCase().includes(q);
-            li.hidden = !matches;
-          }
-        }, { signal });
+      window.customElements.define('view-source-filter', class extends HTMLElement {
+        connectedCallback() {
+          this.aborter = new AbortController();
+          const signal = this.aborter.signal;
+          this.addEventListener('input', () => {
+            const listItems = this.parentNode.querySelectorAll('dl dt');
+            const values = new FormData(this.querySelector('form'));
+            const q = values.get('q').trim().toLowerCase();
+            for (const li of Array.from(listItems)) {
+              const matches = q === '' ? true : li.textContent.toLowerCase().includes(q);
+              li.hidden = !matches;
+            }
+          }, { signal });
 
-        this.querySelector('input').focus();
-      }
+          this.querySelector('input').focus();
+        }
 
-      disconnectedCallback() {
-        this.aborter.abort();
-      }
-    })
+        disconnectedCallback() {
+          this.aborter.abort();
+        }
+      })
     </script>
 
     <output form="view_source_form" class="prose prose-invert block pt-4 max-w-none text-center">
       <%= if @state.response do %>
         <pre><%= @state.request.method %> <%= @state.response.url %></pre>
         <p>
-          Received <span class="px-2 py-1 bg-green-400 text-green-900 rounded"><%= @state.response.status %></span>
+          Received
+          <span class="px-2 py-1 bg-green-400 text-green-900 rounded">
+            <%= @state.response.status %>
+          </span>
           in <%= System.convert_time_unit(@state.response.timings.duration, :native, :millisecond) %>ms
         </p>
         <view-source-filter>
           <form role="search" id="filter-results">
-            <input name="q" type="search" placeholder="Filter results…" class="text-white bg-gray-800 border-gray-700 rounded">
+            <input
+              name="q"
+              type="search"
+              placeholder="Filter results…"
+              class="text-white bg-gray-800 border-gray-700 rounded"
+            />
           </form>
         </view-source-filter>
-        <.headers_preview headers={@state.response.headers}>
-        </.headers_preview>
+        <.headers_preview headers={@state.response.headers}></.headers_preview>
         <%= if (@state.response.body || "") != "" do %>
-          <.body_preview content_type={Fetch.Response.find_header(@state.response, "content-type")} data={@state.response.body}>
+          <.body_preview
+            content_type={Fetch.Response.find_header(@state.response, "content-type")}
+            data={@state.response.body}
+          >
           </.body_preview>
         <% end %>
       <% end %>
     </output>
     <style>
-    dt[hidden] + dd {
-      display: none;
-    }
+      dt[hidden] + dd {
+        display: none;
+      }
     </style>
     <script type="module">
-    const lazyPrismObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !entry.target.dataset.highlighted) {
-          entry.target.dataset.highlighted = '1';
-          window.Prism.highlightAllUnder(entry.target);
-        }
+      const lazyPrismObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !entry.target.dataset.highlighted) {
+            entry.target.dataset.highlighted = '1';
+            window.Prism.highlightAllUnder(entry.target);
+          }
+        });
       });
-    });
-    window.customElements.define('lazy-prism', class extends HTMLElement {
-      connectedCallback() {
-        lazyPrismObserver.observe(this);
-      }
+      window.customElements.define('lazy-prism', class extends HTMLElement {
+        connectedCallback() {
+          lazyPrismObserver.observe(this);
+        }
 
-      disconnectedCallback() {
-        lazyPrismObserver.unobserve(this);
-      }
-    })
+        disconnectedCallback() {
+          lazyPrismObserver.unobserve(this);
+        }
+      })
     </script>
     """
   end

@@ -10,6 +10,7 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URLForm do
 
     def read(%State{} = state, :query) do
       %URI{query: query} = to_url(state)
+
       case query do
         "" -> ""
         value -> "?" <> value

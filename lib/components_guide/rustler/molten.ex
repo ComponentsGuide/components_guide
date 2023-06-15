@@ -12,6 +12,7 @@ defmodule ComponentsGuide.Rustler.Molten do
 
   def add(a, b), do: Native.add(a, b)
   def js(source), do: Native.js(source)
+
   def typescript_module(source) do
     ref = make_ref()
     Native.typescript_module(source, self(), ref)

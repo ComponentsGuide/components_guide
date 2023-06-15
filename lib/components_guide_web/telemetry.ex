@@ -37,7 +37,7 @@ defmodule ComponentsGuideWeb.Telemetry do
       # Fetch
       summary("fetch.load!.done.duration", unit: {:native, :millisecond}),
       summary("fetch.load_many!.done.duration", unit: {:native, :millisecond}),
-      summary("fetch.load_many!.request.done.duration", unit: {:native, :millisecond}),
+      summary("fetch.load_many!.request.done.duration", unit: {:native, :millisecond})
     ]
   end
 

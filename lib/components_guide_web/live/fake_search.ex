@@ -31,7 +31,7 @@ defmodule ComponentsGuideWeb.FakeSearchLive do
   end
 
   def mount(_, _session, socket) do
-    #if connected?(socket), do: :timer.send_interval(5000, self(), :update)
+    # if connected?(socket), do: :timer.send_interval(5000, self(), :update)
 
     items = FakeSearch.list()
 
@@ -45,9 +45,10 @@ defmodule ComponentsGuideWeb.FakeSearchLive do
   def handle_event("suggest", %{"q" => query}, socket) when byte_size(query) <= 100 do
     items = socket.assigns.items
 
-    filtered_items = Enum.filter(items, fn (item) ->
-      String.contains?(item["body"], query)
-    end)
+    filtered_items =
+      Enum.filter(items, fn item ->
+        String.contains?(item["body"], query)
+      end)
 
     {:noreply, assign(socket, filtered_items: filtered_items)}
   end

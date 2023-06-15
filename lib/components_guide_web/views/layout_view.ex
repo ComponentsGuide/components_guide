@@ -6,7 +6,7 @@ defmodule ComponentsGuideWeb.LayoutView do
   # end
 
   @nav_links [
-    {:search},
+    {:search}
     # {"By Concept", to: "/concepts"},
     # {"By Technology", to: "/links"},
     # {"Patterns", to: "/patterns"},
@@ -17,7 +17,12 @@ defmodule ComponentsGuideWeb.LayoutView do
   def search_form(assigns) do
     ~H"""
     <form role="search" action="/research" class="flex h-full px-2 items-center">
-      <input type="search" name="q" placeholder="Search…" class="w-full py-1 px-4 text-sm bg-gray-900 text-white rounded-full border border-gray-500">
+      <input
+        type="search"
+        name="q"
+        placeholder="Search…"
+        class="w-full py-1 px-4 text-sm bg-gray-900 text-white rounded-full border border-gray-500"
+      />
     </form>
     """
   end

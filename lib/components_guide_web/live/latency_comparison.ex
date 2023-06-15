@@ -126,7 +126,7 @@ defmodule ComponentsGuideWeb.LatencyComparisonLive do
             <data class="text-yellow-200">
               <%= System.convert_time_unit(response.timings.connected, :native, :millisecond) %>ms
             </data>
-             <span>🤝</span>
+            <span>🤝</span>
             <span class="text-blue-200/75">+</span>
             <data class="text-green-200">
               <%= System.convert_time_unit(

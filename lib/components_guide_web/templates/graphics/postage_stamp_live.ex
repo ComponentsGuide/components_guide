@@ -2,9 +2,21 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
   use ComponentsGuideWeb, :live_view
 
   defmodule State do
-    defstruct primary: "Primary", secondary: "Secondary", width: 400, height: 400, center_y: false, center_x: true
+    defstruct primary: "Primary",
+              secondary: "Secondary",
+              width: 400,
+              height: 400,
+              center_y: false,
+              center_x: true
 
-    def to_url(%State{primary: primary, secondary: secondary, width: width, height: height, center_y: center_y, center_x: center_x}) do
+    def to_url(%State{
+          primary: primary,
+          secondary: secondary,
+          width: width,
+          height: height,
+          center_y: center_y,
+          center_x: center_x
+        }) do
       # url = URI.parse("https://postage-stamp.collected.workers.dev/1/poster")
       url = URI.parse("https://postage-stamp.fly.dev/1/poster")
       query = [primary: primary, secondary: secondary, width: width, height: height]
@@ -68,7 +80,7 @@ defmodule ComponentsGuideWeb.Graphics.Live.PostageStamp do
         },
         socket
       ) do
-        IO.inspect(changes)
+    IO.inspect(changes)
 
     state =
       socket.assigns.state

@@ -1,8 +1,6 @@
-<%
-heading = "Search packages, features & specs"
-search_url = fn (q) -> "?" <> URI.encode_query(q: q) end
-search_link = fn (q) -> link(q, to: search_url.(q)) end
-%>
+<% heading = "Search packages, features & specs"
+search_url = fn q -> "?" <> URI.encode_query(q: q) end
+search_link = fn q -> link(q, to: search_url.(q)) end %>
 
 <header class="text-white">
   <h2 class="max-w-4xl mx-auto pt-4 pb-4 text-xl text-center font-bold">
@@ -10,10 +8,18 @@ search_link = fn (q) -> link(q, to: search_url.(q)) end
   </h2>
   <section class="max-w-4xl mx-auto px-4">
     <form role="search" action="/research" class="flex h-full items-center">
-      <input type="text" name="q" placeholder="Search" class="w-full py-1 px-6 text-3xl bg-white text-black border rounded-full" value={@query}>
+      <input
+        type="text"
+        name="q"
+        placeholder="Search"
+        class="w-full py-1 px-6 text-3xl bg-white text-black border rounded-full"
+        value={@query}
+      />
     </form>
     <details open={assigns[:show_help]}>
-      <summary class="pt-2 pl-6 text-sm text-indigo-300 cursor-pointer"><%= "Expand for example searches. Search across NPM, Can I Use, BundlePhobia, RFCs & specifications." %></summary>
+      <summary class="pt-2 pl-6 text-sm text-indigo-300 cursor-pointer">
+        <%= "Expand for example searches. Search across NPM, Can I Use, BundlePhobia, RFCs & specifications." %>
+      </summary>
       <dl
         class="text-xl grid gap-2 items-center pt-4 px-6"
         data-links="underline-on-hover"

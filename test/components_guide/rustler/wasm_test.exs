@@ -538,7 +538,8 @@ defmodule ComponentsGuide.WasmTest do
 
     [count, result] =
       Wasm.steps(EscapeHTML, [
-        {:write_string_nul_terminated, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'], true},
+        {:write_string_nul_terminated, 1024, ~s[1 < 2 & 2 > 1 "double quotes" 'single quotes'],
+         true},
         {:call, "escape_html", []},
         {:read_memory, 2048, 100}
       ])

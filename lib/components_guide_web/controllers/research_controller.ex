@@ -248,7 +248,12 @@ defmodule ComponentsGuideWeb.ResearchHTML do
       ~H"""
       <article class="relative mb-4 flex flex-col gap-4 p-4 text-xl text-white bg-violet-900/25 border border-violet-900 rounded shadow-lg">
         <h3 class="pr-16 text-2xl"><%= render_slot(@title) %></h3>
-        <a href={@source_url} class="hover:underline absolute top-0 right-0 mt-4 mr-4 py-1 px-3 text-sm opacity-75 bg-white/10 rounded-full"><%= @source %></a>
+        <a
+          href={@source_url}
+          class="hover:underline absolute top-0 right-0 mt-4 mr-4 py-1 px-3 text-sm opacity-75 bg-white/10 rounded-full"
+        >
+          <%= @source %>
+        </a>
         <%= render_slot(@inner_block) %>
       </article>
       """
@@ -386,9 +391,13 @@ defmodule ComponentsGuideWeb.ResearchHTML do
       <%= caniuse_markdown(@description) %>
       <ul>
         <li>Status: <%= caniuse_status(@status) %></li>
-        <li><.link href={@spec}>Read the spec</.link></li>
+        <li>
+          <.link href={@spec}>Read the spec</.link>
+        </li>
         <%= for link <- @links do %>
-          <li><.link href={link["url"]}><%= link["title"] %></.link></li>
+          <li>
+            <.link href={link["url"]}><%= link["title"] %></.link>
+          </li>
         <% end %>
       </ul>
       <dl>
@@ -397,8 +406,11 @@ defmodule ComponentsGuideWeb.ResearchHTML do
           <dd><%= caniuse_markdown(@notes) %></dd>
         <% end %>
       </dl>
-      <details><summary>Browser support</summary><%= inspect(@stats) %></details>
-      </.card>
+      <details>
+        <summary>Browser support</summary>
+        <%= inspect(@stats) %>
+      </details>
+    </.card>
     """
   end
 
@@ -420,7 +432,10 @@ defmodule ComponentsGuideWeb.ResearchHTML do
     <.card source="RFC" source_url="https://www.rfc-editor.org">
       <:title><%= "#{@name} Spec" %></:title>
       <.description_list>
-        <:item title="Specs" data={for(spec <- @specs, do: link(spec, to: "https://tools.ietf.org/html/" <> spec))} />
+        <:item
+          title="Specs"
+          data={for(spec <- @specs, do: link(spec, to: "https://tools.ietf.org/html/" <> spec))}
+        />
         <:item title="Media (MIME) Type">
           <%= Keyword.get(@metadata, :media_type) %>
         </:item>
@@ -434,7 +449,7 @@ defmodule ComponentsGuideWeb.ResearchHTML do
     <.card source="Super Tiny Icons" source_url="https://www.supertinyicons.org/">
       <:title><%= "#{@name |> String.capitalize()} icon" %></:title>
       <div class="flex flex-row space-x-8">
-        <img src={@url} width={80} height={80}>
+        <img src={@url} width={80} height={80} />
         <.description_list>
           <:item title="URL" data={for(url <- @urls, do: link(url, to: url))} />
           <:item title="Size">
@@ -451,7 +466,13 @@ defmodule ComponentsGuideWeb.ResearchHTML do
     <.card source="Simple Icons" source_url="https://simpleicons.org">
       <:title><%= "#{@name |> String.capitalize()} icon" %></:title>
       <div class="flex flex-row items-center space-x-8">
-        <img src={@url} width={80} height={80} class="bg-fixed bg-repeat bg-center bg-gradient-to-br from-white via-sky-200 hover:via-white to-white max-h-max p-1" style="background-size: 17px 17px">
+        <img
+          src={@url}
+          width={80}
+          height={80}
+          class="bg-fixed bg-repeat bg-center bg-gradient-to-br from-white via-sky-200 hover:via-white to-white max-h-max p-1"
+          style="background-size: 17px 17px"
+        />
         <.description_list>
           <:item title="URL" data={for(url <- @urls, do: link(url, to: url))} />
           <:item title="Size">

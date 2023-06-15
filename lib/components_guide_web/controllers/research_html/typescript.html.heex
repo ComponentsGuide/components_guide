@@ -1,36 +1,45 @@
 <style>
-dt[hidden] + dd {
-  display: none;
-}
+  dt[hidden] + dd {
+    display: none;
+  }
 
-pre[class*="language-"] {
-  padding: 1em;
-  margin: .5em 0;
-  overflow: auto;
-}
-code[class*="language-"], pre[class*="language-"] {
-  font-family: Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;
-  line-height: 1.5;
-  tab-size: 4;
-}
+  pre[class*="language-"] {
+    padding: 1em;
+    margin: .5em 0;
+    overflow: auto;
+  }
+  code[class*="language-"], pre[class*="language-"] {
+    font-family: Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;
+    line-height: 1.5;
+    tab-size: 4;
+  }
 </style>
 
 <article class="max-w-5xl mx-auto text-xl text-white">
-
   <div class="prose prose-invert">
     <h1 class="mb-4"><%= @page_title %></h1>
   </div>
 
   <view-source-filter>
     <form role="search" id="filter-results" class="mb-8">
-      <input name="q" type="search" value={assigns[:query]} placeholder="Filter types" class="text-white bg-gray-800 border-gray-700 rounded">
+      <input
+        name="q"
+        type="search"
+        value={assigns[:query]}
+        placeholder="Filter types"
+        class="text-white bg-gray-800 border-gray-700 rounded"
+      />
     </form>
   </view-source-filter>
-  
+
   <dl>
     <%= for result <- @results do %>
       <details open>
-        <summary class="inline-flex cursor-default"><dt class="font-bold" data-body={result.doc || "" <> " " <>  result.source}><%= result.name %></dt></summary>
+        <summary class="inline-flex cursor-default">
+          <dt class="font-bold" data-body={result.doc || "" <> " " <> result.source}>
+            <%= result.name %>
+          </dt>
+        </summary>
         <dd>
           <lazy-prism class="">
             <pre class="language-ts"><code><%= result.source %></code></pre>
@@ -39,7 +48,6 @@ code[class*="language-"], pre[class*="language-"] {
       </details>
     <% end %>
   </dl>
-
 </article>
 
 <skip-syntax-highlighting></skip-syntax-highlighting>
@@ -78,24 +86,24 @@ code[class*="language-"], pre[class*="language-"] {
       }
     }
   })
-  </script>
+</script>
 
 <script type="module">
-const lazyPrismObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting && !entry.target.dataset.highlighted) {
-      entry.target.dataset.highlighted = '1';
-      window.Prism.highlightAllUnder(entry.target);
-    }
+  const lazyPrismObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.dataset.highlighted) {
+        entry.target.dataset.highlighted = '1';
+        window.Prism.highlightAllUnder(entry.target);
+      }
+    });
   });
-});
-window.customElements.define('lazy-prism', class extends HTMLElement {
-  connectedCallback() {
-    lazyPrismObserver.observe(this);
-  }
+  window.customElements.define('lazy-prism', class extends HTMLElement {
+    connectedCallback() {
+      lazyPrismObserver.observe(this);
+    }
 
-  disconnectedCallback() {
-    lazyPrismObserver.unobserve(this);
-  }
-})
+    disconnectedCallback() {
+      lazyPrismObserver.unobserve(this);
+    }
+  })
 </script>

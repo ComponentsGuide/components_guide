@@ -8,8 +8,8 @@ defmodule ComponentsGuide.Content.Text do
 
   def changeset(%ComponentsGuide.Content.Text{} = text, params \\ %{}) do
     text
-      |> cast(params, [:content])
-      |> validate_required([:content])
+    |> cast(params, [:content])
+    |> validate_required([:content])
   end
 
   def to_param(%ComponentsGuide.Content.Text{id: id}) do

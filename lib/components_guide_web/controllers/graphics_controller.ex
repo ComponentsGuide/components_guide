@@ -12,7 +12,8 @@ defmodule ComponentsGuideWeb.GraphicsController do
     render(conn, "index.html", article: article)
   end
 
-  def show(conn, _), do: raise Phoenix.Router.NoRouteError, conn: conn, router: ComponentsGuideWeb.Router
+  def show(conn, _),
+    do: raise(Phoenix.Router.NoRouteError, conn: conn, router: ComponentsGuideWeb.Router)
 end
 
 defmodule ComponentsGuideWeb.GraphicsView do

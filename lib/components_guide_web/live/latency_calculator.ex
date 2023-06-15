@@ -117,38 +117,80 @@ defmodule ComponentsGuideWeb.LatencyCalculatorLive do
   def render(assigns) do
     ~H"""
     <h1 class="text-4xl font-bold pt-8 pb-4"><%= "Wait & see your latency" %></h1>
-    <p class="italic pb-4">Your web request is important to us. Please hold while we serve it to your browser…</p>
-    <.form
-      for={:editor}
-      phx-change="changed"
-      class="space-y-4"
-    >
-
+    <p class="italic pb-4">
+      Your web request is important to us. Please hold while we serve it to your browser…
+    </p>
+    <.form for={:editor} phx-change="changed" class="space-y-4">
       <fieldset>
         <legend>Query from the database using…</legend>
-        <label><input type="radio" name="query_optimization" value="full_table_scan" checked={@state.query_optimization == :full_table_scan}> A Full Table Scan</label>
-        <label><input type="radio" name="query_optimization" value="indexed"  checked={@state.query_optimization == :indexed}> An Index</label>
+        <label>
+          <input
+            type="radio"
+            name="query_optimization"
+            value="full_table_scan"
+            checked={@state.query_optimization == :full_table_scan}
+          /> A Full Table Scan
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="query_optimization"
+            value="indexed"
+            checked={@state.query_optimization == :indexed}
+          /> An Index
+        </label>
       </fieldset>
 
       <fieldset>
         <legend>Load data on…</legend>
-        <label><input type="radio" name="render" value="server" checked={@state.render == :server}> USA Server</label>
-        <label><input type="radio" name="render" value="browser"  checked={@state.render == :browser}> Browser</label>
-        <label><input type="radio" name="render" value="server_with_browser_hydration" checked={@state.render == :server_with_browser_hydration}> USA Server with Browser Hydration</label>
+        <label>
+          <input type="radio" name="render" value="server" checked={@state.render == :server} />
+          USA Server
+        </label>
+        <label>
+          <input type="radio" name="render" value="browser" checked={@state.render == :browser} />
+          Browser
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="render"
+            value="server_with_browser_hydration"
+            checked={@state.render == :server_with_browser_hydration}
+          /> USA Server with Browser Hydration
+        </label>
       </fieldset>
 
       <fieldset>
         <legend>Our visitor is from…</legend>
-        <label><input type="radio" name="user_location" value="us" checked={@state.user_location == :us}> USA</label>
-        <label><input type="radio" name="user_location" value="au"  checked={@state.user_location == :au}> Australia</label>
+        <label>
+          <input type="radio" name="user_location" value="us" checked={@state.user_location == :us} />
+          USA
+        </label>
+        <label>
+          <input type="radio" name="user_location" value="au" checked={@state.user_location == :au} />
+          Australia
+        </label>
       </fieldset>
 
       <fieldset>
         <legend>Number of trackers and analytics tools…</legend>
-        <label><input type="radio" name="trackers_count" value="0" checked={@state.trackers_count == 0}> 0</label>
-        <label><input type="radio" name="trackers_count" value="2"  checked={@state.trackers_count == 2}> 2</label>
-        <label><input type="radio" name="trackers_count" value="10"  checked={@state.trackers_count == 10}> 10</label>
-        <label><input type="radio" name="trackers_count" value="20"  checked={@state.trackers_count == 20}> 20</label>
+        <label>
+          <input type="radio" name="trackers_count" value="0" checked={@state.trackers_count == 0} />
+          0
+        </label>
+        <label>
+          <input type="radio" name="trackers_count" value="2" checked={@state.trackers_count == 2} />
+          2
+        </label>
+        <label>
+          <input type="radio" name="trackers_count" value="10" checked={@state.trackers_count == 10} />
+          10
+        </label>
+        <label>
+          <input type="radio" name="trackers_count" value="20" checked={@state.trackers_count == 20} />
+          20
+        </label>
       </fieldset>
 
       <output class="block pt-2">
@@ -165,8 +207,8 @@ defmodule ComponentsGuideWeb.LatencyCalculatorLive do
             <%= "Load HTML" %>
           </li>
           <li>
-          <span class="inline-block w-3 h-3 bg-orange-300"></span>
-          <%= "Load & Execute Assets" %>
+            <span class="inline-block w-3 h-3 bg-orange-300"></span>
+            <%= "Load & Execute Assets" %>
           </li>
           <li>
             <span class="inline-block w-3 h-3 bg-blue-600"></span>
@@ -178,14 +220,13 @@ defmodule ComponentsGuideWeb.LatencyCalculatorLive do
           </li>
         </ul>
       </output>
-
     </.form>
     <style>
-    :root {
-      --fetch-html-color: green;
-    }
+      :root {
+        --fetch-html-color: green;
+      }
 
-    fieldset label + label { margin-left: 1rem; }
+      fieldset label + label { margin-left: 1rem; }
     </style>
     """
   end

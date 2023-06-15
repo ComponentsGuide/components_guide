@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <%= csrf_meta_tag() %>
     <.live_title suffix=" · Components.Guide">
       <%= assigns[:page_title] || "Guides to React, Accessibility, Modern CSS, TypeScript" %>
     </.live_title>
     <script>
-    window.startTime = Date.now();
-    window.importModule = (url) => import(url);
+      window.startTime = Date.now();
+      window.importModule = (url) => import(url);
     </script>
-    <script defer type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
-    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
+    <script defer type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}>
+    </script>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
 
     <script type="module">
       import githubDetailsMenuElement from 'https://cdn.skypack.dev/@github/details-menu-element';
@@ -21,55 +22,67 @@
     </script>
 
     <%= if @conn.path_info == [] do %>
-    <meta property="og:type" content="website">
+      <meta property="og:type" content="website" />
     <% else %>
-    <meta property="og:type" content="article">
+      <meta property="og:type" content="article" />
     <% end %>
-    <%
-      stamp_query = [
-        t1: "Components.Guide",
-        t2: assigns[:page_title] || "Learn accessibility, web standards, testing React & more",
-        website: "components.guide"
-      ]
-      main_image_url = "https://cdn.lilapi.com/1/github/ComponentsGuide?" <> URI.encode_query(stamp_query)
-      twitter_image_url = "https://cdn.lilapi.com/1/github/ComponentsGuide?" <> URI.encode_query(Keyword.merge(stamp_query, w: 600, h: 314))
-    %>
-    <meta property="og:image" content={main_image_url}>
-    <meta name="twitter:site" content="@ComponentsGuide">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content={twitter_image_url}>
+    <% stamp_query = [
+      t1: "Components.Guide",
+      t2: assigns[:page_title] || "Learn accessibility, web standards, testing React & more",
+      website: "components.guide"
+    ]
+
+    main_image_url =
+      "https://cdn.lilapi.com/1/github/ComponentsGuide?" <> URI.encode_query(stamp_query)
+
+    twitter_image_url =
+      "https://cdn.lilapi.com/1/github/ComponentsGuide?" <>
+        URI.encode_query(Keyword.merge(stamp_query, w: 600, h: 314)) %>
+    <meta property="og:image" content={main_image_url} />
+    <meta name="twitter:site" content="@ComponentsGuide" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={twitter_image_url} />
 
     <%= if Mix.env() == :prod do %>
-      <script src="https://cdn.usefathom.com/script.js" site="LYHMLVID" defer></script>
+      <script src="https://cdn.usefathom.com/script.js" site="LYHMLVID" defer>
+      </script>
     <% end %>
   </head>
   <body>
-    <%= render ComponentsGuideWeb.LayoutView, "_banner.html", path_info: @conn.path_info %>
+    <%= render(ComponentsGuideWeb.LayoutView, "_banner.html", path_info: @conn.path_info) %>
 
     <%= @inner_content %>
 
-    <%#= render ComponentsGuideWeb.LayoutView, "_contentinfo.html" %>
     <%= if function_exported?(view_module(@conn), :skip_contentinfo, 0) do %>
     <% else %>
-      <%= render "_contentinfo.html" %>
+      <%= render("_contentinfo.html") %>
     <% end %>
-
     <!-- Prism syntax highlighting -->
     <script>
-    window.Prism = window.Prism || {};
-    Prism.manual = true;
+      window.Prism = window.Prism || {};
+      Prism.manual = true;
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/components/prism-core.min.js" integrity="sha512-hqRrGU7ys5tkcqxx5FIZTBb7PkO2o3mU6U5+qB9b55kgMlBUT4J2wPwQfMCxeJW1fC8pBxuatxoH//z0FInhrA==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha512-ROhjG07IRaPZsryG77+MVyx3ZT5q3sGEGENoGItwc9xgvx+dl+s3D8Ob1zPdbl/iKklMKp7uFemLJFDRw0bvig==" crossorigin="anonymous"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/components/prism-core.min.js"
+      integrity="sha512-hqRrGU7ys5tkcqxx5FIZTBb7PkO2o3mU6U5+qB9b55kgMlBUT4J2wPwQfMCxeJW1fC8pBxuatxoH//z0FInhrA=="
+      crossorigin="anonymous"
+    >
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/plugins/autoloader/prism-autoloader.min.js"
+      integrity="sha512-ROhjG07IRaPZsryG77+MVyx3ZT5q3sGEGENoGItwc9xgvx+dl+s3D8Ob1zPdbl/iKklMKp7uFemLJFDRw0bvig=="
+      crossorigin="anonymous"
+    >
+    </script>
     <!--<link href="https://cdn.jsdelivr.net/gh/PrismJS/prism-themes@8a0b50bd5cef0c86154c22b8b17d97348323b343/themes/prism-a11y-dark.css" rel="stylesheet">-->
-    <link rel="stylesheet" href="https://unpkg.com/prism-theme-night-owl@1.4.0/build/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/prism-theme-night-owl@1.4.0/build/style.css" />
     <script>
-    const skipHighlightAll = document.querySelectorAll('skip-syntax-highlighting').length > 0;
-    //document.querySelectorAll('.post.category-javascript pre code').forEach(el => el.classList.add('language-jsx'));
-    if (!skipHighlightAll) {
-      console.log("Highlighting all with Prism")
-      window.Prism.highlightAll();
-    }
+      const skipHighlightAll = document.querySelectorAll('skip-syntax-highlighting').length > 0;
+      //document.querySelectorAll('.post.category-javascript pre code').forEach(el => el.classList.add('language-jsx'));
+      if (!skipHighlightAll) {
+        console.log("Highlighting all with Prism")
+        window.Prism.highlightAll();
+      }
     </script>
   </body>
 </html>

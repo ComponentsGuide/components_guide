@@ -10,7 +10,7 @@ defmodule ComponentsGuideWeb.ActivityLive do
   end
 
   defp new_uuid do
-    Ecto.UUID.generate
+    Ecto.UUID.generate()
   end
 
   @impl true

@@ -25,7 +25,9 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || System.get_env("RENDER_EXTERNAL_HOSTNAME") || "components.guide"
+  host =
+    System.get_env("PHX_HOST") || System.get_env("RENDER_EXTERNAL_HOSTNAME") || "components.guide"
+
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :components_guide, ComponentsGuideWeb.Endpoint,
@@ -69,5 +71,4 @@ if config_env() == :prod do
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end
 
-config :components_guide, :redis,
-  url: System.get_env("REDIS_URL", "")
+config :components_guide, :redis, url: System.get_env("REDIS_URL", "")

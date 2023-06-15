@@ -8,7 +8,7 @@ defmodule ComponentsGuide.Content.TextImport do
 
   def changeset(%ComponentsGuide.Content.TextImport{} = text_import, params \\ %{}) do
     text_import
-      |> cast(params, [:url])
-      |> validate_required([:url])
+    |> cast(params, [:url])
+    |> validate_required([:url])
   end
 end

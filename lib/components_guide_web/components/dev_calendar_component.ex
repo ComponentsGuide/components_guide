@@ -32,12 +32,19 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     <article>
       <h2>All releases</h2>
       <form id="filter-calendar" class="flex flex-wrap gap-6 -mt-8 mb-8 select-none">
-        <label><input type="checkbox" name="end_of_life" checked class="rounded text-sky-500"> End of life</label>
-        <label><input type="checkbox" name="released" checked class="rounded text-sky-500"> Released</label>
-        <label><input type="checkbox" name="lts_starts" checked class="rounded text-sky-500"> LTS</label>
+        <label>
+          <input type="checkbox" name="end_of_life" checked class="rounded text-sky-500" />
+          End of life
+        </label>
+        <label>
+          <input type="checkbox" name="released" checked class="rounded text-sky-500" /> Released
+        </label>
+        <label>
+          <input type="checkbox" name="lts_starts" checked class="rounded text-sky-500" /> LTS
+        </label>
       </form>
       <%= for item <- @list do %>
-      <%= present_item(item) %>
+        <%= present_item(item) %>
       <% end %>
     </article>
 
@@ -109,9 +116,9 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     ~H"""
     <div class="flex flex-col gap-2">
       <%= for id <- @ids do %>
-      <div>
-      <%= icon_link(id, Map.get(@links, id)) %>
-      </div>
+        <div>
+          <%= icon_link(id, Map.get(@links, id)) %>
+        </div>
       <% end %>
     </div>
     """
@@ -236,12 +243,11 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     <p data-type="released">
       <span class="text-3xl not-prose"><%= @icon || "🆕" %></span>
       <%= if assigns[:href] do %>
-      <a href={@href} class="font-bold"><%= @what %></a>
+        <a href={@href} class="font-bold"><%= @what %></a>
       <% else %>
-      <strong><%= @what %></strong>
+        <strong><%= @what %></strong>
       <% end %>
-      released
-      <%= render_when(assigns.date) %>
+      released <%= render_when(assigns.date) %>
     </p>
     """
   end
@@ -250,9 +256,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     ~H"""
     <p data-type="end_of_life">
       <span class="text-3xl">🧟</span>
-      <strong><%= @what %></strong>
-      end of life
-      <%= render_when(assigns.date, "text-red-400") %>
+      <strong><%= @what %></strong> end of life <%= render_when(assigns.date, "text-red-400") %>
     </p>
     """
   end
@@ -261,9 +265,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     ~H"""
     <p data-type="lts_starts">
       <span class="text-3xl">🦍</span>
-      <strong><%= @what %></strong>
-      starts LTS
-      <%= render_when(assigns.date) %>
+      <strong><%= @what %></strong> starts LTS <%= render_when(assigns.date) %>
     </p>
     """
   end
@@ -348,7 +350,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       deno1_29: %{release: {2022, 12, 14}},
       deno1_30: %{release: {2023, 1, 27}},
       deno1_31: %{release: {2023, 2, 24}},
-      deno1_32: %{release: {2023, 3, 23}},
+      deno1_32: %{release: {2023, 3, 23}}
     }
 
     react = %{
@@ -363,7 +365,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
 
     jest = %{
       jest28: %{release: {2022, 4, 25}},
-      jest29: %{release: {2022, 8, 25}},
+      jest29: %{release: {2022, 8, 25}}
     }
 
     postgres = %{
@@ -372,7 +374,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     }
 
     erlang = %{
-      elixir1_14: %{release: {2022, 9, 1}},
+      elixir1_14: %{release: {2022, 9, 1}}
     }
 
     swift = %{
@@ -383,7 +385,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     golang = %{
       go1_18: %{release: {2022, 3, 15}},
       go1_19: %{release: {2022, 8, 2}},
-      go1_20: %{release: {2023, 2, 1}},
+      go1_20: %{release: {2023, 2, 1}}
     }
 
     rust = %{
@@ -528,7 +530,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       jest28: "https://jestjs.io/blog/2022/04/25/jest-28",
       jest29: "https://jestjs.io/blog/2022/08/25/jest-29",
       ios16: "https://www.apple.com/newsroom/2022/09/ios-16-is-available-today/",
-      elixir1_14: "https://elixir-lang.org/blog/2022/09/01/elixir-v1-14-0-released/",
+      elixir1_14: "https://elixir-lang.org/blog/2022/09/01/elixir-v1-14-0-released/"
     }
 
     dates_to_items =

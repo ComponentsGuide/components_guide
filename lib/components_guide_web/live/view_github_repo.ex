@@ -42,15 +42,14 @@ defmodule ComponentsGuideWeb.ViewGithubRepoLive do
       phx-submit="submitted"
       class="max-w-2xl mt-12 mx-auto space-y-2"
     >
-
       <fieldset y-y y-stretch class="gap-1">
         <label for="owner">Owner:</label>
-        <input id="owner" type="text" name="owner" value={@state.owner} class="text-black">
+        <input id="owner" type="text" name="owner" value={@state.owner} class="text-black" />
       </fieldset>
 
       <fieldset y-y y-stretch class="gap-1">
         <label for="repo">Repo name:</label>
-        <input id="repo" type="text" name="repo" value={@state.repo} class="text-black">
+        <input id="repo" type="text" name="repo" value={@state.repo} class="text-black" />
       </fieldset>
 
       <div class="flex">
@@ -61,8 +60,7 @@ defmodule ComponentsGuideWeb.ViewGithubRepoLive do
           </label>
 
           <label for="get-radio">
-            <input id="get-radio" type="radio" name="method" value="GET" checked={false} />
-            Other
+            <input id="get-radio" type="radio" name="method" value="GET" checked={false} /> Other
           </label>
         </fieldset>
 
@@ -75,26 +73,32 @@ defmodule ComponentsGuideWeb.ViewGithubRepoLive do
       <%= if @state.response do %>
         <pre><%= @state.request.method %> <%= @state.response.url %></pre>
         <p>
-          Received <span class="px-2 py-1 bg-green-400 text-green-900 rounded"><%= @state.response.status %></span>
+          Received
+          <span class="px-2 py-1 bg-green-400 text-green-900 rounded">
+            <%= @state.response.status %>
+          </span>
           in <%= System.convert_time_unit(@state.response.timings.duration, :native, :millisecond) %>ms
         </p>
         <view-source-filter>
           <form role="search" id="filter-results">
-            <input name="q" type="search" placeholder="Filter results…" class="text-white bg-gray-800 border-gray-700 rounded">
+            <input
+              name="q"
+              type="search"
+              placeholder="Filter results…"
+              class="text-white bg-gray-800 border-gray-700 rounded"
+            />
           </form>
         </view-source-filter>
-        <.headers_preview headers={@state.response.headers}>
-        </.headers_preview>
+        <.headers_preview headers={@state.response.headers}></.headers_preview>
         <%= if (@state.response.body || "") != "" do %>
-          <.git_pkt_line_preview data={@state.response.body}>
-          </.git_pkt_line_preview>
+          <.git_pkt_line_preview data={@state.response.body}></.git_pkt_line_preview>
         <% end %>
       <% end %>
     </output>
     <style>
-    dt[hidden] + dd {
-      display: none;
-    }
+      dt[hidden] + dd {
+        display: none;
+      }
     </style>
     """
   end
@@ -162,7 +166,6 @@ defmodule ComponentsGuideWeb.ViewGithubRepoLive do
   end
 
   def git_pkt_line_preview(assigns) do
-
     ~H"""
     <ul>
       <%= for pkt_line <- ComponentsGuide.Git.PktLine.decode(@data) do %>

@@ -42,25 +42,28 @@
         <h2 id="stateful-counter-html">Stateful Counter that renders to HTML</h2>
         <h3>Server with initial HTML + Client side rendering:</h3>
         <wasm-html class="block">
-          <source src="/wasm/script/counter_html.js" type="text/javascript">
+          <source src="/wasm/script/counter_html.js" type="text/javascript" />
           <%= raw(CounterHTML.initial_html()) %>
         </wasm-html>
         <p class="italic">
-          The below HTML is rendered by the server. (Check with View Source). And then the <strong>same</strong> .wasm module is loaded in the browser for interactivity.
+          The below HTML is rendered by the server. (Check with View Source). And then the
+          <strong>same</strong>
+          .wasm module is loaded in the browser for interactivity.
         </p>
         <pre><code class="lang-html"><%= CounterHTML.initial_html() %></code></pre>
 
         <h3>Client-only rendering:</h3>
         <wasm-html class="block">
-          <source src="/wasm/module/counter_html.wasm" type="application/wasm">
+          <source src="/wasm/module/counter_html.wasm" type="application/wasm" />
           <div>Loading…</div>
         </wasm-html>
         <wasm-html src="/wasm/module/counter_html.wasm" class="block">
           <div>Loading…</div>
         </wasm-html>
-        <p class="italic">The initial HTML from the server is just a loader, with only the browser loading the wasm file:</p>
+        <p class="italic">
+          The initial HTML from the server is just a loader, with only the browser loading the wasm file:
+        </p>
         <pre><code class="lang-html"><%= "<div>Loading…</div>" %></code></pre>
-
         <!--
         <h3>Lazy client-only rendering:</h3>
         <wasm-html data-import-url="/wasm/script/counter_html.js" class="block">
@@ -69,9 +72,10 @@
         <p class="italic">Initial HTML:</p>
         <pre><code class="lang-html"><%= "<div>Loading…</div>" %></code></pre>
         -->
-        
         <details class="mt-8">
-          <summary class="cursor-pointer">View <code>CounterHTML</code> WebAssembly wat source</summary>
+          <summary class="cursor-pointer">
+            View <code>CounterHTML</code> WebAssembly wat source
+          </summary>
           <pre class="lang-wasm"><code><%= @counter_html_wat %></code></pre>
         </details>
       </article>
@@ -79,16 +83,21 @@
       <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
-        <h2 id="form-state">Cache-Control HTTP Header Builder</h2>
-        <wasm-string-builder data-url="/wasm/module/http_header_cache_control.wasm" class="flex justify-center">
+        <h2 id="form-state">Cache-Control HTTP Header</h2>
+        <wasm-string-builder
+          data-url="/wasm/module/http_header_cache_control.wasm"
+          class="flex justify-center"
+        >
           <form class="not-prose flex flex-col text-left gap-2">
             <output>
               <pre class="px-4 py-2 bg-black"><span slot="to_string"></span></pre>
             </output>
-            <label class="block"><input type="checkbox" name="set_private"> Private</label>
-            <label class="block"><input type="checkbox" name="set_public"> Public</label>
-            <label class="block"><input type="checkbox" name="set_immutable"> Immutable</label>
-            <label class="block">Max age <input type="number" name="set_max_age" value="0" class="text-black"></label>
+            <label class="block"><input type="checkbox" name="set_private" /> Private</label>
+            <label class="block"><input type="checkbox" name="set_public" /> Public</label>
+            <label class="block"><input type="checkbox" name="set_immutable" /> Immutable</label>
+            <label class="block">
+              Max age <input type="number" name="set_max_age" value="0" class="text-black" />
+            </label>
           </form>
         </wasm-string-builder>
         <details class="mt-8">
@@ -96,7 +105,7 @@
           <pre class="lang-wasm"><code><%= wat_module_source("http_header_cache_control.wasm") %></code></pre>
         </details>
       </article>
-      
+
       <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">

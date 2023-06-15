@@ -10,16 +10,19 @@ defmodule ComponentsGuide.Git.PktLine do
 
       [oid, ref_raw | attrs_raw] ->
         [ref | _] = ref_raw |> String.split("\u0000")
-        attrs = for attr_raw <- attrs_raw do
-          # case String.split(attr_raw, ":", parts: 2) do
-          case String.split(attr_raw, "=", parts: 2) do
-            [attr] ->
-              {attr, true}
+
+        attrs =
+          for attr_raw <- attrs_raw do
+            # case String.split(attr_raw, ":", parts: 2) do
+            case String.split(attr_raw, "=", parts: 2) do
+              [attr] ->
+                {attr, true}
+
               [key, value] ->
                 {key, value}
-
+            end
           end
-        end
+
         %__MODULE__{oid: oid, ref: ref, attrs: attrs, attrs_raw: attrs_raw}
 
       _ ->

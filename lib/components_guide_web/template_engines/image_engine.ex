@@ -14,9 +14,10 @@ defmodule ComponentsGuideWeb.TemplateEngines.ImageEngine do
     extension = MIME.extensions(media_type) |> List.first()
     static_path = Path.join(["collected", media_type, "#{hash_base64}.#{extension}"])
 
-    image_info_type = case media_type do
-      "image/png" -> :png
-    end
+    image_info_type =
+      case media_type do
+        "image/png" -> :png
+      end
 
     {_, width, height, _} = ExImageInfo.info(data, image_info_type)
 
@@ -24,7 +25,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.ImageEngine do
       source_path: path,
       static_path: static_path,
       width: width,
-      height: height,
+      height: height
     }
 
     Macro.escape(result)

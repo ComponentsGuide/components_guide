@@ -50,7 +50,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         s_max_age_seconds = age_seconds
       end
 
-      func to_string(), result: I32.String, locals: [start: I32, byte_count: I32, int_offset: I32] do
+      func to_string(),
+        result: I32.String,
+        locals: [len: I32, start: I32, byte_count: I32, int_offset: I32] do
+        len =
+          I32.add([
+            I32.when?(I32.ge_s(max_age_seconds, 0),
+              do: I32.add(byte_size("max-age="), IntToString.u32toa_count(max_age_seconds)),
+              else: 0
+            )
+          ])
+
         I32.when? private do
           const("private")
         else
@@ -94,7 +104,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
             I32.when? immutable do
               const("immutable")
             else
-              const("hello")
+              const("max-age=0")
             end
           end
         end

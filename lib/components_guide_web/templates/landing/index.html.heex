@@ -1,6 +1,4 @@
-<%
-
-header_links = [
+<% header_links = [
   {"/accessibility-first", "Accessibility"},
   {"/react+typescript", "TypeScript"},
   {"/react+typescript", "React"},
@@ -12,14 +10,13 @@ header_links = [
   {"#coming-soon", "Caching"},
   {"#coming-soon", "Performance"},
   {"#coming-soon", "Async"}
-]
-
-%>
+] %>
 
 <div class="border-t border-violet-900 bg-gray-900 text-blue-50">
   <section class="container px-6 pt-16 pb-8">
     <h1 class="mx-auto max-w-4xl px-2 text-3xl sm:text-4xl md:text-5xl text-center font-bold text-violet-100">
-      Want to learn how to improve the <br><span class="text-violet-400">UX &amp; DX</span> of your components?
+      Want to learn how to improve the <br /><span class="text-violet-400">UX &amp; DX</span>
+      of your components?
     </h1>
     <p class="pt-12 mb-8 mx-auto max-w-4xl text-2xl sm:text-3xl md:text-3xl text-center leading-snug text-violet-100 italic">
       Get better at accessibility, testing, naming, performance, and using built-in browser features — all for free.
@@ -27,29 +24,46 @@ header_links = [
     <p class="mx-auto py-2 max-w-4xl text-base md:text-xl text-center">
       <span class="font-bold text-blue-300">Topics include:</span>
       <%= for {{path, text}, index} <- Enum.with_index(header_links) do %>
-        <a href={path} class={"
+        <a
+          href={path}
+          class={"
           inline-block md:mx-1 mb-2 md:mb-3 px-3 md:px-4 py-1 md:py-2 font-bold bg-slate-800/50 border-t-2 border-t-white/5 border-l-2 border-l-white/5
           #{if index <= 5, do: "text-blue-300 hover:bg-blue-700 border-b-2 border-blue-900 shadow-lg hover:shadow-sm shadow-blue-900/50 bg-gradient-to-br from-blue-100/5 to-blue-900/25", else: "text-indigo-300 hover:bg-indigo-700 border-b-2 border-indigo-900 shadow-lg hover:shadow-sm shadow-indigo-900/50 bg-gradient-to-br from-indigo-100/5 to-indigo-900/25"}
           hover:text-white rounded-lg shadow-xl
-          "}><%= text %></a>
-      <% end  %>
+          "}
+        >
+          <%= text %>
+        </a>
+      <% end %>
     </p>
     <div hidden class="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row justify-around">
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
-          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white" width="92" height="92">
+          <img
+            src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/material/play-circle-outline.svg?defaultFill=white"
+            width="92"
+            height="92"
+          />
         </div>
         <figcaption class="text-lg md:text-xl font-bold">Watch video lessons</figcaption>
       </figure>
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
-          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/swift.svg?defaultFill=white" width="92" height="92">
+          <img
+            src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/swift.svg?defaultFill=white"
+            width="92"
+            height="92"
+          />
         </div>
         <figcaption class="text-lg md:text-xl font-bold">Learn SwiftUI & Combine</figcaption>
       </figure>
       <figure class="pb-4 flex flex-col items-center">
         <div style="height: 92px;">
-          <img src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/react.svg?defaultFill=white" width="92" height="92">
+          <img
+            src="https://collected.systems/1/github/leungwensen/svg-icon/b84b3f3a3da329b7c1d02346865f8e98beb05413/dist/svg/dev/react.svg?defaultFill=white"
+            width="92"
+            height="92"
+          />
         </div>
         <figcaption class="text-lg md:text-xl font-bold">Learn React</figcaption>
       </figure>
@@ -65,7 +79,10 @@ header_links = [
 <%= subject_banner(:robust_javascript_interactivity) %>
 
 <div class="pt-16 pb-16 bg-black">
-  <section class="prose md:prose-xl prose-invert max-w-6xl mx-auto px-3" aria-labelledby="developer-calendar">
+  <section
+    class="prose md:prose-xl prose-invert max-w-6xl mx-auto px-3"
+    aria-labelledby="developer-calendar"
+  >
     <h2 class="text-center" id="developer-calendar">Developer Calendar</h2>
     <ComponentsGuideWeb.DevCalendarComponent.calendar />
   </section>
@@ -79,13 +96,48 @@ header_links = [
       </h2>
     </header>
     <%= stack_list([
-      %{ title: "Landmarks", description: "Ensure your web pages have these familiar regions.", to: "/accessibility-first/landmarks", color: "purple" },
-      %{ title: "Labels and Descriptions", description: "Ensure every region of interest is labelled.", to: "/accessibility-first/properties-cheatsheet", color: "indigo" },
-      %{ title: "Properties", description: "Presenting selected state, current page, hiding, and more.", to: "/accessibility-first/properties-cheatsheet", color: "teal" },
-      %{ title: "Form controls", description: "Inputs, checkboxes, radio buttons, comboboxes, and more.", to: "/accessibility-first/properties-cheatsheet", color: "red" },
-      %{ title: "Widgets", description: "Buttons, links, tabs, comboboxes, and more.", to: "/accessibility-first/widgets-cheatsheet", color: "orange" },
-      %{ title: "Accessibility-First TDD", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first/roles-cheatsheet", color: "green" },
-      %{ title: "Keyboard Navigation Acceptance Tests", description: "Ensure your forms are keyboard accessibility.", to: "/accessibility-first/keyboard", color: "blue" },
+      %{
+        title: "Landmarks",
+        description: "Ensure your web pages have these familiar regions.",
+        to: "/accessibility-first/landmarks",
+        color: "purple"
+      },
+      %{
+        title: "Labels and Descriptions",
+        description: "Ensure every region of interest is labelled.",
+        to: "/accessibility-first/properties-cheatsheet",
+        color: "indigo"
+      },
+      %{
+        title: "Properties",
+        description: "Presenting selected state, current page, hiding, and more.",
+        to: "/accessibility-first/properties-cheatsheet",
+        color: "teal"
+      },
+      %{
+        title: "Form controls",
+        description: "Inputs, checkboxes, radio buttons, comboboxes, and more.",
+        to: "/accessibility-first/properties-cheatsheet",
+        color: "red"
+      },
+      %{
+        title: "Widgets",
+        description: "Buttons, links, tabs, comboboxes, and more.",
+        to: "/accessibility-first/widgets-cheatsheet",
+        color: "orange"
+      },
+      %{
+        title: "Accessibility-First TDD",
+        description: "Use accessibility affordances to write robust tests.",
+        to: "/accessibility-first/roles-cheatsheet",
+        color: "green"
+      },
+      %{
+        title: "Keyboard Navigation Acceptance Tests",
+        description: "Ensure your forms are keyboard accessibility.",
+        to: "/accessibility-first/keyboard",
+        color: "blue"
+      }
     ]) %>
   </section>
 
@@ -96,11 +148,30 @@ header_links = [
       </h2>
     </header>
     <%= stack_list([
-      %{ title: "Contexts", description: "Use accessibility affordances to write robust tests.", to: "/accessibility-first", color: "green" },
-      %{ title: "Atomic Component Unit Tests", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "blue" },
-      %{ title: "Scenarios", description: "Test your atom components in isolation.", to: "/accessibility-first", color: "indigo" },
-      %{ title: "Error Handling", description: "Cover unhappy paths too.", to: "/accessibility-first", color: "orange" },
-
+      %{
+        title: "Contexts",
+        description: "Use accessibility affordances to write robust tests.",
+        to: "/accessibility-first",
+        color: "green"
+      },
+      %{
+        title: "Atomic Component Unit Tests",
+        description: "Test your atom components in isolation.",
+        to: "/accessibility-first",
+        color: "blue"
+      },
+      %{
+        title: "Scenarios",
+        description: "Test your atom components in isolation.",
+        to: "/accessibility-first",
+        color: "indigo"
+      },
+      %{
+        title: "Error Handling",
+        description: "Cover unhappy paths too.",
+        to: "/accessibility-first",
+        color: "orange"
+      }
     ]) %>
   </section>
 
@@ -111,10 +182,24 @@ header_links = [
       </h2>
     </header>
     <%= stack_list([
-      %{ title: "Look up synonyms", description: "The right word can unlock everything.", to: "/accessibility-first", color: "green" },
-      %{ title: "What’s most popular?", description: "Compare open source systems.", to: "/accessibility-first", color: "blue" },
-      %{ title: "Domain driven", description: "Look to your user’s world first.", to: "/accessibility-first", color: "orange" },
-
+      %{
+        title: "Look up synonyms",
+        description: "The right word can unlock everything.",
+        to: "/accessibility-first",
+        color: "green"
+      },
+      %{
+        title: "What’s most popular?",
+        description: "Compare open source systems.",
+        to: "/accessibility-first",
+        color: "blue"
+      },
+      %{
+        title: "Domain driven",
+        description: "Look to your user’s world first.",
+        to: "/accessibility-first",
+        color: "orange"
+      }
     ]) %>
   </section>
 
@@ -125,11 +210,30 @@ header_links = [
       </h2>
     </header>
     <%= stack_list([
-      %{ title: "URL as source of truth", description: "The shareable, serializable, canonical standard.", to: "/accessibility-first", color: "green" },
-      %{ title: "Modelling with state machines", description: "Systems to reliably think about state.", to: "/accessibility-first", color: "blue" },
-      %{ title: "Connecting the pipes", description: "Use a library like Wonka to connect your app.", to: "/accessibility-first", color: "orange" },
-      %{ title: "Never puts secrets where JavaScript can read", description: "Use cookies over local storage for anything private.", to: "/accessibility-first", color: "yellow" },
-
+      %{
+        title: "URL as source of truth",
+        description: "The shareable, serializable, canonical standard.",
+        to: "/accessibility-first",
+        color: "green"
+      },
+      %{
+        title: "Modelling with state machines",
+        description: "Systems to reliably think about state.",
+        to: "/accessibility-first",
+        color: "blue"
+      },
+      %{
+        title: "Connecting the pipes",
+        description: "Use a library like Wonka to connect your app.",
+        to: "/accessibility-first",
+        color: "orange"
+      },
+      %{
+        title: "Never puts secrets where JavaScript can read",
+        description: "Use cookies over local storage for anything private.",
+        to: "/accessibility-first",
+        color: "yellow"
+      }
     ]) %>
   </section>
 
@@ -140,47 +244,60 @@ header_links = [
       </h2>
     </header>
     <div class="w-full max-w-md mx-auto rounded overflow-hidden shadow-lg">
-      <a href="/swiftui" class="block w-full px-8 py-4 font-bold bg-orange-100 text-orange-600 border-l-4 border-orange-500 hover:bg-orange-200 hover:text-orange-700 shadow-xl">
+      <a
+        href="/swiftui"
+        class="block w-full px-8 py-4 font-bold bg-orange-100 text-orange-600 border-l-4 border-orange-500 hover:bg-orange-200 hover:text-orange-700 shadow-xl"
+      >
         <span class="text-3xl"><%= "Learn SwiftUI" %></span>
-        <br>
-        The future of UI from Apple
+        <br /> The future of UI from Apple
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-red-100 text-red-600 border-t border-l-4 border-red-500 hover:bg-red-200 hover:text-red-700 shadow-xl">
+      <a
+        href="#"
+        class="block max-w-md w-full px-8 py-4 font-bold bg-red-100 text-red-600 border-t border-l-4 border-red-500 hover:bg-red-200 hover:text-red-700 shadow-xl"
+      >
         <span class="text-3xl"><%= "Learn Combine" %></span>
-        <br>
-        Swift async data flow refined
+        <br /> Swift async data flow refined
       </a>
     </div>
   </section>
 
   <section class="pt-20 pb-16" style={sections_styles(:warm)}>
     <header class="mb-8 mx-auto max-w-4xl px-4 text-center">
-      <h2 class="text-4xl font-bold">Learn to make modern web apps using components, hooks, async data flow.</h2>
+      <h2 class="text-4xl font-bold">
+        Learn to make modern web apps using components, hooks, async data flow.
+      </h2>
     </header>
     <div class="w-full max-w-md mx-auto rounded overflow-hidden shadow-lg">
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-blue-100 text-blue-600  border-l-4 border-blue-500 hover:bg-blue-200 hover:text-blue-700 shadow-xl hover:shadow-lg">
+      <a
+        href="#"
+        class="block max-w-md w-full px-8 py-4 font-bold bg-blue-100 text-blue-600  border-l-4 border-blue-500 hover:bg-blue-200 hover:text-blue-700 shadow-xl hover:shadow-lg"
+      >
         <span class="text-3xl"><%= "Learn React" %></span>
-        <br>
-        The venerable component-first library
+        <br /> The venerable component-first library
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-indigo-100 text-indigo-600 border-t border-l-4 border-indigo-500 hover:bg-indigo-200 hover:text-indigo-700 shadow-xl hover:shadow-lg">
+      <a
+        href="#"
+        class="block max-w-md w-full px-8 py-4 font-bold bg-indigo-100 text-indigo-600 border-t border-l-4 border-indigo-500 hover:bg-indigo-200 hover:text-indigo-700 shadow-xl hover:shadow-lg"
+      >
         <span class="text-3xl"><%= "Learn TypeScript" %></span>
-        <br>
-        Safer, more expressive code
+        <br /> Safer, more expressive code
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg">
+      <a
+        href="#"
+        class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg"
+      >
         <span class="text-3xl"><%= "Learn RxJS" %></span>
-        <br>
-        Reusable, testable data models
+        <br /> Reusable, testable data models
       </a>
-      <a href="#" class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg">
+      <a
+        href="#"
+        class="block max-w-md w-full px-8 py-4 font-bold bg-pink-100 text-pink-600 border-t border-l-4 border-pink-500 hover:bg-pink-200 hover:text-pink-700 shadow-xl hover:shadow-lg"
+      >
         <span class="text-3xl"><%= "Learn Wonka" %></span>
-        <br>
-        Reusable, testable data models
+        <br /> Reusable, testable data models
       </a>
     </div>
   </section>
-
 </div>
 
 <div class="text-white">

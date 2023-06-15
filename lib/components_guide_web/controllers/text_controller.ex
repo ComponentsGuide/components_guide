@@ -46,6 +46,7 @@ defmodule ComponentsGuideWeb.TextController do
 
   def show_text_format(conn, %{"id" => id, "format" => format}) do
     text = Content.get_text!(id)
+
     conn
     |> put_resp_content_type("text/" <> format)
     |> send_resp(200, text.content)

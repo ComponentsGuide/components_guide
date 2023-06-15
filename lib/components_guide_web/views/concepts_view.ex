@@ -11,7 +11,7 @@ defmodule ComponentsGuideWeb.ConceptsView do
       {:lab, 50, 90, 40},
       {:lab, 50, 90, 20},
       {:lab, 50, 90, 10},
-      {:lab, 60, 70, 60},
+      {:lab, 60, 70, 60}
     ])
   end
 
