@@ -36,7 +36,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
 
     wasm = SingleFunc.__wasm_module__()
 
-    assert wasm == %WasmBuilder.Module{
+    assert wasm == %WasmBuilder.ModuleDefinition{
              name: "SingleFunc",
              body: [
                %WasmBuilder.Memory{name: {:export, :mem}, min: 1},

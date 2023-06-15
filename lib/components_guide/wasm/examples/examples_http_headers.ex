@@ -12,7 +12,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     use BumpAllocator
 
-    # @wasm_global {:private, i32(0)}
+    dbg("set global")
+    @wasm_global {:private2, i32(0)}
     # @wasm_global private: i32(0)
     # global private: i32(0)
 
@@ -107,6 +108,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     use BumpAllocator
     import StringHelpers
+
+    # defmodule Constants do
+    #   @constant_values I32.enum([:secure, :http_only])
+
+    #   def get_len(value) do
+
+    #   end
+    # end
 
     defp write!(src, byte_count) do
       snippet writer: I32 do

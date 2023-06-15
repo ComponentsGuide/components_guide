@@ -50,7 +50,7 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defmodule Module do
+  defmodule ModuleDefinition do
     defstruct name: nil,
               imports: [],
               memory: nil,
@@ -299,11 +299,11 @@ defmodule ComponentsGuide.WasmBuilder do
   @primitive_types [:i32, :f32]
 
   def module(name, do: body) do
-    %Module{name: name, body: body}
+    %ModuleDefinition{name: name, body: body}
   end
 
   def module(name, body) do
-    %Module{name: name, body: body}
+    %ModuleDefinition{name: name, body: body}
   end
 
   defmodule Constants do
@@ -355,6 +355,11 @@ defmodule ComponentsGuide.WasmBuilder do
       end
 
     imports = List.flatten(imports)
+
+    if to_string(env.module) == to_string(ComponentsGuide.Wasm.Examples.HTTPHeaders.CacheControl) do
+      attr_globals = Elixir.Module.get_attribute(env.module, :wasm_global)
+      dbg(attr_globals)
+    end
 
     # TODO split into readonly_globals and mutable_globals?
     internal_global_types = Keyword.get(options, :globals, [])
@@ -440,7 +445,7 @@ defmodule ComponentsGuide.WasmBuilder do
       end
 
     quote do
-      %Module{
+      %ModuleDefinition{
         name: unquote(name),
         imports: unquote(imports),
         globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
@@ -485,7 +490,7 @@ defmodule ComponentsGuide.WasmBuilder do
       # TODO: what is the best way to pass this value along?
       # def __wasm_module__(), do: @wasm_module
 
-      def funcp(name), do: Module.fetch_funcp!(__wasm_module__(), name)
+      def funcp(name), do: ModuleDefinition.fetch_funcp!(__wasm_module__(), name)
 
       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
@@ -568,9 +573,9 @@ defmodule ComponentsGuide.WasmBuilder do
         other -> other
       end
 
-    if name == :i32_to_hex_lower do
-      dbg(args)
-    end
+    # if name == :i32_to_hex_lower do
+    #   dbg(args)
+    # end
 
     # {name, args} = Macro.decompose_call(call)
 
@@ -925,7 +930,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   def to_wat(
-        %Module{
+        %ModuleDefinition{
           name: name,
           imports: imports,
           exported_globals: exported_globals,
