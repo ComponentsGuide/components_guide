@@ -200,7 +200,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
         byte_count = I32.add([name_len, 1, value_len, extra_len])
 
-        # Add 1 for nul-byte
+        # Add 1 for nul-terminator
         str = alloc(I32.add(byte_count, 1))
         writer = str
 

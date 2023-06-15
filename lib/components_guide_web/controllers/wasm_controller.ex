@@ -4,6 +4,7 @@ defmodule ComponentsGuideWeb.WasmShared do
   alias ComponentsGuide.Wasm.Examples.HTML
   alias ComponentsGuide.Wasm.Examples.SVG
   alias ComponentsGuide.Wasm.Examples.State
+  alias ComponentsGuide.Wasm.Examples.HTTPHeaders
 
   @all_modules %{
     "escape_html.wasm" => HTML.EscapeHTML,
@@ -16,7 +17,9 @@ defmodule ComponentsGuideWeb.WasmShared do
     "offline_status.wasm" => State.OfflineStatus,
     "dialog_state.wasm" => State.Dialog,
     "promise_state.wasm" => State.Promise,
-    "form_state_machine.wasm" => State.Form
+    "form_state_machine.wasm" => State.Form,
+    "http_header_cache_control.wasm" => HTTPHeaders.CacheControl,
+    "http_header_set_cookie.wasm" => HTTPHeaders.SetCookie,
   }
 
   defmacro all_modules do
