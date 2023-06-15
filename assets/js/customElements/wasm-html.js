@@ -53,14 +53,12 @@ function initWasmHTML(el, wasmInstancePromise) {
     const utf8decoder = new TextDecoder();
 
     function update() {
-      console.log("update wasm-html", Object.entries(el.dataset))
-      rewind();
+      rewind?.call();
 
       const chunks = [];
       //const chunks = new Uint8Array(1000);
       while (true) {
         const ptr = next_body_chunk();
-        console.log("next_body_chunk", ptr)
         if (ptr === 0) {
           break;
         }
@@ -70,7 +68,6 @@ function initWasmHTML(el, wasmInstancePromise) {
         // Get subsection of memory between start and end, and decode it as UTF-8.
         //return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
         //chunks.concat(memoryToRead.subarray(0, count));
-        console.log(memoryBytes.subarray(ptr, 10))
         chunks.push(memoryBytes.subarray(ptr, endPtr));
         //chunks.set(memoryBytes.subarray(ptr, endPtr), chunks.length);
       }

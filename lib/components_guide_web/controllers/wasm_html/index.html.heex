@@ -38,31 +38,35 @@
     </header>
 
     <div>
-      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16">
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 px-4">
         <h2 id="stateful-counter-html">Stateful Counter that renders to HTML</h2>
         <h3>Server with initial HTML + Client side rendering:</h3>
-        <p class="text-base italic">
-          If you view source, you can see the server renders initial HTML. And then the exact same .wasm module is loaded in the browser for interactivity.
-        </p>
         <wasm-html data-import-url="/wasm/script/counter_html.js" class="block">
           <%= raw(CounterHTML.initial_html()) %>
         </wasm-html>
+        <p class="italic">
+          The below HTML is rendered by the server. (Check with View Source). And then the <strong>same</strong> .wasm module is loaded in the browser for interactivity.
+        </p>
         <pre><code class="lang-html"><%= CounterHTML.initial_html() %></code></pre>
 
-        <h3>Client side rendering only:</h3>
-        <p class="text-base italic">
-          The initial HTML from the server is just a loader, with only the browser loading the wasm file.
-        </p>
+        <h3>Client-only rendering:</h3>
         <wasm-html data-url="/wasm/module/counter_html.wasm" class="block">
-          Loading…
+          <div>Loading…</div>
         </wasm-html>
+        <p class="italic">The initial HTML from the server is just a loader, with only the browser loading the wasm file:</p>
+        <pre><code class="lang-html"><%= "<div>Loading…</div>" %></code></pre>
 
-        <h3>Lazy client-side rendering only:</h3>
+        <!--
+        <h3>Lazy client-only rendering:</h3>
         <wasm-html data-import-url="/wasm/script/counter_html.js" class="block">
-          Loading…
+          <div>Loading…</div>
         </wasm-html>
+        <p class="italic">Initial HTML:</p>
+        <pre><code class="lang-html"><%= "<div>Loading…</div>" %></code></pre>
+        -->
+        
         <details class="mt-8">
-          <summary class="cursor-pointer">View <code>$CounterHTML</code> Wasm source</summary>
+          <summary class="cursor-pointer">View <code>CounterHTML</code> WebAssembly wat source</summary>
           <pre class="lang-wasm"><code><%= @counter_html_wat %></code></pre>
         </details>
       </article>
