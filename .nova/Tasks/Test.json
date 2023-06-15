@@ -2,7 +2,7 @@
   "actions" : {
     "build" : {
       "enabled" : true,
-      "script" : "source .envrc\nmake test"
+      "script" : "source .envrc\nmix format\nmix test"
     }
   },
   "openLogOnRun" : "start"

@@ -37,6 +37,7 @@ defmodule ComponentsGuide.Wasm do
       end
 
       def start() do
+        # if Module.defines?(__MODULE__, {:to_wat, 0}, :def) do
         try do
           ComponentsGuide.Wasm.run_instance(__MODULE__)
         rescue
@@ -45,6 +46,8 @@ defmodule ComponentsGuide.Wasm do
             Logger.error(__MODULE__.to_wat())
             raise x
         end
+
+        # end
       end
 
       defoverridable start: 0

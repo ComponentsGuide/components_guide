@@ -40,6 +40,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "private"
     end
 
+    test "private, max-age=604800" do
+      inst = CacheControl.start()
+      Instance.call(inst, :set_private)
+      Instance.call(inst, :set_max_age, 604_800)
+      assert Instance.call_reading_string(inst, :to_string) == "private, max-age=604800"
+    end
+
     test "immutable" do
       inst = CacheControl.start()
       Instance.call(inst, :set_immutable)

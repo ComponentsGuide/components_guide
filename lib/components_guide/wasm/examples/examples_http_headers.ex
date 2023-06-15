@@ -5,12 +5,41 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm.Examples.Memory.StringHelpers
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
+  defmodule Writer do
+    use Wasm
+    import BumpAllocator
+
+    def write!(src, byte_count) do
+      snippet writer: I32 do
+        memcpy(writer, src, byte_count)
+        writer = I32.add(writer, byte_count)
+      end
+    end
+
+    def write!({:i32_const_string, src_ptr, string}) do
+      byte_count = byte_size(string)
+
+      snippet writer: I32 do
+        memcpy(writer, src_ptr, byte_count)
+        writer = I32.add(writer, byte_count)
+      end
+    end
+
+    def write!(char) do
+      snippet writer: I32 do
+        memory32_8![writer] = char
+        writer = I32.add(writer, 1)
+      end
+    end
+  end
+
   defmodule CacheControl do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 
     use Wasm
     use BumpAllocator
+    import Writer
 
     dbg("set global")
     @wasm_global {:private2, i32(0)}
@@ -51,63 +80,49 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       end
 
       func to_string(),
-        result: I32.String,
-        locals: [len: I32, start: I32, byte_count: I32, int_offset: I32] do
-        len =
-          I32.add([
-            I32.when?(I32.ge_s(max_age_seconds, 0),
-              do: I32.add(byte_size("max-age="), IntToString.u32toa_count(max_age_seconds)),
-              else: 0
-            )
-          ])
+           I32.String,
+           writer: I32,
+           max_age_len: I32,
+           start: I32,
+           byte_count: I32,
+           int_offset: I32 do
+        max_age_len = IntToString.u32toa_count(max_age_seconds)
 
-        I32.when? private do
-          const("private")
+        start = alloc(500)
+        writer = start
+
+        if public do
+          write!(const("public"))
         else
-          I32.when? public do
-            I32.when? I32.ge_s(max_age_seconds, 0) do
-              int_offset =
-                byte_size("public, max-age=")
-                |> I32.add(IntToString.u32toa_count(max_age_seconds))
-
-              if immutable do
-                byte_count = int_offset |> I32.add(byte_size(", immutable"))
-              end
-
-              # Add 1 for nul-byte
-              start = alloc(I32.add(byte_count, 1))
-              memcpy(start, const("public"), byte_size("public"))
-
-              memcpy(
-                I32.add(start, byte_size("public")),
-                const(", max-age="),
-                byte_size(", max-age=")
-              )
-
-              _ = IntToString.u32toa(max_age_seconds, I32.add(start, int_offset))
-
-              # assert!(I32.eq(int_offset, 22))
-
-              if immutable do
-                memcpy(
-                  start |> I32.add(int_offset),
-                  const(", immutable"),
-                  byte_size(", immutable")
-                )
-              end
-
-              start
-            else
-              const("public")
-            end
-          else
-            I32.when? immutable do
-              const("immutable")
-            else
-              const("max-age=0")
-            end
+          if private do
+            write!(const("private"))
           end
         end
+
+        if I32.ge_s(max_age_seconds, 0) do
+          if I32.gt_u(writer, start) do
+            write!(const(", "))
+          end
+
+          write!(const("max-age="))
+
+          _ = IntToString.u32toa(max_age_seconds, I32.add(writer, max_age_len))
+          writer = I32.add(writer, max_age_len)
+        end
+
+        if immutable do
+          if I32.gt_u(writer, start) do
+            write!(const(", "))
+          end
+
+          write!(const("immutable"))
+        end
+
+        if I32.eq(writer, start) do
+          write!(const("max-age=0"))
+        end
+
+        start
       end
     end
   end
@@ -118,6 +133,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     use BumpAllocator
     import StringHelpers
+    import Writer
 
     # defmodule Constants do
     #   @constant_values I32.enum([:secure, :http_only])
@@ -126,29 +142,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     #   end
     # end
-
-    defp write!(src, byte_count) do
-      snippet writer: I32 do
-        memcpy(writer, src, byte_count)
-        writer = I32.add(writer, byte_count)
-      end
-    end
-
-    defp write!({:i32_const_string, src_ptr, string}) do
-      byte_count = byte_size(string)
-
-      snippet writer: I32 do
-        memcpy(writer, src_ptr, byte_count)
-        writer = I32.add(writer, byte_count)
-      end
-    end
-
-    defp write!(char) do
-      snippet writer: I32 do
-        memory32_8![writer] = char
-        writer = I32.add(writer, 1)
-      end
-    end
 
     defwasm globals: [
               bump_offset: i32(BumpAllocator.bump_offset()),
