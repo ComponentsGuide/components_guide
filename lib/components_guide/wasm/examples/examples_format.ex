@@ -15,8 +15,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               bump_offset: i32(BumpAllocator.bump_offset())
             ] do
       func u32toa_count(value(I32)),
-        result: I32,
-        locals: [digit_count: I32, digit: I32] do
+           I32,
+           digit_count: I32,
+           digit: I32 do
         loop Digits do
           digit_count = I32.add(digit_count, 1)
 
@@ -30,8 +31,10 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
 
       func write_u32(value(I32), str_ptr(I32)),
-        result: I32,
-        locals: [working_offset: I32, last_offset: I32, digit: I32] do
+           I32,
+           working_offset: I32,
+           last_offset: I32,
+           digit: I32 do
         last_offset = I32.add(str_ptr, call(:u32toa_count, value))
         # We then start from the back, as we have to print the digits in reverse.
         working_offset = last_offset
@@ -50,8 +53,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
 
       func u32toa(value(I32), end_offset(I32)),
-        result: I32,
-        locals: [working_offset: I32, digit: I32] do
+           I32,
+           working_offset: I32,
+           digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
         # bump_offset = I32.add(bump_offset, 11)

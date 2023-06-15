@@ -25,10 +25,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       end
     end
 
-    def write!(char) do
+    def write!(ascii: char) do
       snippet writer: I32 do
         memory32_8![writer] = char
         writer = I32.add(writer, 1)
+      end
+    end
+
+    def write!(u32: int) do
+      snippet writer: I32 do
+        writer = IntToString.write_u32(int, writer)
       end
     end
   end
@@ -61,7 +67,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
-      IntToString.funcp(:u32toa)
       IntToString.funcp(:write_u32)
 
       func set_private() do
@@ -91,12 +96,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       func to_string(),
            I32.String,
            writer: I32,
-           max_age_len: I32,
-           start: I32,
-           byte_count: I32,
-           int_offset: I32 do
-        max_age_len = IntToString.u32toa_count(max_age_seconds)
-
+           start: I32 do
         start = alloc(500)
         writer = start
 
@@ -118,8 +118,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
           end
 
           write!(const("max-age="))
-
-          writer = IntToString.write_u32(max_age_seconds, writer)
+          write!(u32: max_age_seconds)
         end
 
         if I32.ge_s(s_max_age_seconds, 0) do
@@ -128,8 +127,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
           end
 
           write!(const("s-maxage="))
-
-          writer = IntToString.write_u32(s_max_age_seconds, writer)
+          write!(u32: s_max_age_seconds)
         end
 
         if immutable do
@@ -230,7 +228,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         writer = str
 
         write!(name, name_len)
-        write!(?=)
+        write!(ascii: ?=)
         write!(value, value_len)
 
         if domain_len do

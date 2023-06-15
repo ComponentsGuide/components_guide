@@ -92,11 +92,17 @@
             <output>
               <pre class="px-4 py-2 bg-black"><span slot="to_string"></span></pre>
             </output>
+            <label class="block"><input type="checkbox" name="set_no_store" /> No Store</label>
             <label class="block"><input type="checkbox" name="set_private" /> Private</label>
             <label class="block"><input type="checkbox" name="set_public" /> Public</label>
             <label class="block"><input type="checkbox" name="set_immutable" /> Immutable</label>
             <label class="block">
-              Max age <input type="number" name="set_max_age" value="0" class="text-black" />
+              Browser max age
+              <input type="number" name="set_max_age" value="-1" class="text-black" />
+            </label>
+            <label class="block">
+              CDN max age
+              <input type="number" name="set_shared_max_age" value="-1" class="text-black" />
             </label>
           </form>
         </wasm-string-builder>
