@@ -84,10 +84,8 @@
 
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
         <h2 id="form-state">Cache-Control HTTP Header</h2>
-        <wasm-string-builder
-          data-url="/wasm/module/http_header_cache_control.wasm"
-          class="flex justify-center"
-        >
+        <wasm-string-builder class="flex justify-center">
+          <source src="/wasm/module/http_header_cache_control.wasm" type="application/wasm" />
           <form class="not-prose flex flex-col text-left gap-2">
             <output>
               <pre class="px-4 py-2 bg-black"><span slot="to_string"></span></pre>
@@ -107,7 +105,12 @@
           </form>
         </wasm-string-builder>
         <details class="mt-8">
-          <summary class="cursor-pointer">View <code>CacheControl</code> Wat source</summary>
+          <summary class="cursor-pointer">
+            View <code>CacheControl</code>
+            Wat source (<%= Format.humanize_bytes(
+              wasm_module_size("http_header_cache_control.wasm")
+            ) %> wasm)
+          </summary>
           <pre class="lang-wasm"><code><%= wat_module_source("http_header_cache_control.wasm") %></code></pre>
         </details>
       </article>

@@ -102,6 +102,10 @@ defmodule ComponentsGuideWeb.WasmHTML do
     @modules[name].to_wat()
   end
 
+  def wasm_module_size(name) when is_map_key(@modules, name) do
+    byte_size(@modules[name].to_wasm())
+  end
+
   def blue_button(assigns) do
     ~H"""
     <button

@@ -15,6 +15,10 @@ defmodule ComponentsGuideWeb.FormattingHelpers do
     "#{count} B"
   end
 
+  # def humanize_bytes(bytes) when is_binary(bytes) do
+  #   humanize_bytes(byte_size(bytes))
+  # end
+
   def humanize_count(count) when is_integer(count) and count >= 1_000_000 do
     formatted = count / 1_000_000
     "#{float_to_string(formatted, decimals: 1)}M"
