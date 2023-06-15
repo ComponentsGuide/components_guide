@@ -146,6 +146,7 @@ defmodule ComponentsGuideWeb do
       import ComponentsGuideWeb.CoreComponents
       import ComponentsGuideWeb.Gettext
       alias ComponentsGuideWeb.Router.Helpers, as: Routes
+      alias ComponentsGuideWeb.Preload
 
       import Paredown
       import ComponentsGuideWeb.LinkHelpers
