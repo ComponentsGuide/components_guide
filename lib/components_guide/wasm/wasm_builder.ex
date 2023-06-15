@@ -11,10 +11,10 @@ defmodule ComponentsGuide.WasmBuilder do
 
       # @before_compile {unquote(__MODULE__), :register_attributes}
 
-      if Elixir.Module.open?(__MODULE__) do
-        # Elixir.Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
-        Elixir.Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
-        Elixir.Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
+      if Module.open?(__MODULE__) do
+        # Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
+        Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
+        Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
         # @wasm_memory 0
       end
     end
@@ -357,7 +357,7 @@ defmodule ComponentsGuide.WasmBuilder do
     imports = List.flatten(imports)
 
     if to_string(env.module) == to_string(ComponentsGuide.Wasm.Examples.HTTPHeaders.CacheControl) do
-      attr_globals = Elixir.Module.get_attribute(env.module, :wasm_global)
+      attr_globals = Module.get_attribute(env.module, :wasm_global)
       dbg(attr_globals)
     end
 
@@ -367,7 +367,7 @@ defmodule ComponentsGuide.WasmBuilder do
     exported_global_types = Keyword.get(options, :exported_globals, [])
     exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
 
-    # internal_global_types = internal_global_types ++ List.wrap(Elixir.Module.get_attribute(env.module, :wasm_global))
+    # internal_global_types = internal_global_types ++ List.wrap(Module.get_attribute(env.module, :wasm_global))
 
     memory =
       case Keyword.get(options, :exported_memory) do
@@ -436,7 +436,7 @@ defmodule ComponentsGuide.WasmBuilder do
     # block_items = List.flatten(block_items)
 
     constants = Enum.reverse(constants)
-    Elixir.Module.put_attribute(env.module, :wasm_constants, constants)
+    Module.put_attribute(env.module, :wasm_constants, constants)
 
     block_items =
       case constants do
@@ -458,7 +458,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defmacro defwasm(options \\ [], do: block) do
-    name = __CALLER__.module |> Elixir.Module.split() |> List.last()
+    name = __CALLER__.module |> Module.split() |> List.last()
 
     # options = Macro.expand(options, __CALLER__)
 
@@ -466,7 +466,7 @@ defmodule ComponentsGuide.WasmBuilder do
     definition = define_module(name, options, block, __CALLER__)
 
     quote do
-      # Elixir.Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
+      # Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
       defmacrop data_for_constant(value) do
         quote do
@@ -809,7 +809,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
     case identifier do
       "Elixir." <> _rest = string ->
-        string |> Elixir.Module.split() |> Enum.join(".")
+        string |> Module.split() |> Enum.join(".")
 
       other ->
         other
@@ -876,9 +876,9 @@ defmodule ComponentsGuide.WasmBuilder do
     # mod = __ENV__.module
 
     # quote do
-    #   var!(offset) = Elixir.Module.get_attribute(unquote(mod), :data_offset, 0x4)
+    #   var!(offset) = Module.get_attribute(unquote(mod), :data_offset, 0x4)
     #   var!(new_offset) = byte_size(unquote(value)) + 1
-    #   Elixir.Module.put_attribute(unquote(mod), :data_offset, var!(new_offset))
+    #   Module.put_attribute(unquote(mod), :data_offset, var!(new_offset))
     #   %Data{offset: var!(offset), value: unquote(value), nul_terminated: true}
     # end
   end
