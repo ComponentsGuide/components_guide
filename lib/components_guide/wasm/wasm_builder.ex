@@ -957,7 +957,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
             int ->
               [
-                ~S{(memory $memory (export "memory")},
+                ~S{(memory (export "memory")},
                 [" ", to_string(int)],
                 ~S{)}
               ]
@@ -965,7 +965,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
         %Memory{min: min} ->
           [
-            ~S{(memory $memory (export "memory")},
+            ~S{(memory (export "memory")},
             case min do
               nil -> []
               int -> [" ", to_string(int)]
