@@ -16,7 +16,7 @@ dev:
 
 .PHONY: test
 test:
-	iex -S mix test
+	mix test
 
 production_build:
 	MIX_ENV=prod mix production_build
