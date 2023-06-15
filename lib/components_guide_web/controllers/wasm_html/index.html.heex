@@ -6,7 +6,7 @@
     class="mx-auto grid-flow-col md:grid md:grid-cols-[20rem_minmax(0,var(--max-width))] xl:grid-cols-[20rem_minmax(0,var(--max-width))_18rem] gap-8"
     style="--max-width: 46em"
   >
-    <header class="md:sticky top-0 md:h-screen prose md:prose-lg prose-invert px-4 py-16">
+    <header class="md:sticky top-0 md:h-screen prose prose-invert px-4 py-16">
       <p class="px-2 pb-6 mb-6 text-4xl text-indigo-300 border-b-4 border-current">
         <%= "WebAssembly" %>
       </p>
@@ -18,7 +18,9 @@
         You can <a href="https://github.com/ComponentsGuide/components_guide/tree/master/lib/components_guide/wasm/examples">view the modules’ source on GitHub</a>.
       </p>
 
-      <p>Custom HTML elements are used to load and bootstrap the Wasm modules in the browser:</p>
+      <p>
+        Custom HTML elements are used to load and interact with the Wasm modules in the browser:
+      </p>
       <ul>
         <li>
           <a href="https://github.com/ComponentsGuide/components_guide/blob/master/assets/js/customElements/wasm-html.js">
@@ -31,6 +33,12 @@
             <code><%= "<wasm-state-machine>" %></code>
           </a>
           for Wasm modules that model state machines.
+        </li>
+        <li>
+          <a href="https://github.com/ComponentsGuide/components_guide/blob/master/assets/js/customElements/wasm-string-builder.js">
+            <code><%= "<wasm-string-builder>" %></code>
+          </a>
+          for Wasm modules that build strings.
         </li>
       </ul>
 
@@ -83,7 +91,7 @@
       <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
-        <h2 id="form-state">Cache-Control HTTP Header</h2>
+        <h2 id="cache-control">Cache-Control HTTP Header</h2>
         <wasm-string-builder class="flex justify-center">
           <source src="/wasm/module/http_header_cache_control.wasm" type="application/wasm" />
           <form class="not-prose flex flex-col text-left gap-2">
