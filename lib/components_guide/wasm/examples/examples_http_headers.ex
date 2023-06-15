@@ -36,6 +36,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   defmodule CacheControl do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+    # https://developers.cloudflare.com/cache/concepts/cache-control/
+    # https://bitsup.blogspot.com/2016/05/cache-control-immutable.html
+    # https://hacks.mozilla.org/2017/01/using-immutable-caching-to-speed-up-the-web/
 
     use Wasm
     use BumpAllocator
@@ -49,6 +52,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     defwasm globals: [
               private: i32_boolean(0),
               public: i32_boolean(0),
+              no_store: i32_boolean(0),
               immutable: i32_boolean(0),
               max_age_seconds: i32(-1),
               s_max_age_seconds: i32(-1),
@@ -58,6 +62,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
+      IntToString.funcp(:write_u32)
 
       func set_private() do
         private = 1
@@ -65,6 +70,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
       func set_public() do
         public = 1
+      end
+
+      func set_no_store() do
+        no_store = 1
       end
 
       func set_immutable() do
@@ -75,7 +84,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         max_age_seconds = age_seconds
       end
 
-      func set_s_max_age(age_seconds(I32)) do
+      func set_shared_max_age(age_seconds(I32)) do
         s_max_age_seconds = age_seconds
       end
 
@@ -96,6 +105,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         else
           if private do
             write!(const("private"))
+          else
+            if no_store do
+              write!(const("no-store"))
+            end
           end
         end
 
@@ -106,8 +119,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
           write!(const("max-age="))
 
-          _ = IntToString.u32toa(max_age_seconds, I32.add(writer, max_age_len))
-          writer = I32.add(writer, max_age_len)
+          writer = IntToString.write_u32(max_age_seconds, writer)
+        end
+
+        if I32.ge_s(s_max_age_seconds, 0) do
+          if I32.gt_u(writer, start) do
+            write!(const(", "))
+          end
+
+          write!(const("s-maxage="))
+
+          writer = IntToString.write_u32(s_max_age_seconds, writer)
         end
 
         if immutable do

@@ -29,6 +29,26 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         digit_count
       end
 
+      func write_u32(value(I32), str_ptr(I32)),
+        result: I32,
+        locals: [working_offset: I32, last_offset: I32, digit: I32] do
+        last_offset = I32.add(str_ptr, call(:u32toa_count, value))
+        # We then start from the back, as we have to print the digits in reverse.
+        working_offset = last_offset
+
+        loop Digits do
+          working_offset = I32.sub(working_offset, 1)
+
+          digit = I32.rem_u(value, 10)
+          value = I32.div_u(value, 10)
+          memory32_8![working_offset] = I32.add(?0, digit)
+
+          Digits.continue(if: I32.gt_u(value, 0))
+        end
+
+        last_offset
+      end
+
       func u32toa(value(I32), end_offset(I32)),
         result: I32,
         locals: [working_offset: I32, digit: I32] do
@@ -54,5 +74,6 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
     def u32toa_count(value), do: call(:u32toa_count, value)
     def u32toa(value, end_offset), do: call(:u32toa, value, end_offset)
+    def write_u32(value, str_ptr), do: call(:write_u32, value, str_ptr)
   end
 end
