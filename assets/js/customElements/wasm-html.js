@@ -76,9 +76,7 @@ function initWasmHTML(el, wasmInstancePromise) {
       // There surely must be a better way to do this.
       // See: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
       const bytes = new Uint8Array(chunks.map(chunk => [...chunk]).flat());
-      console.log(chunks[0])
       const html = utf8decoder.decode(bytes);
-      console.log("rendered html", html)
       el.innerHTML = html;
     }
 

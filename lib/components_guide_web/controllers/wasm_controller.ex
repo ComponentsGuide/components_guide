@@ -22,9 +22,7 @@ defmodule ComponentsGuideWeb.WasmShared do
     "http_header_set_cookie.wasm" => HTTPHeaders.SetCookie,
   }
 
-  defmacro all_modules do
-    Macro.escape(@all_modules)
-  end
+  defmacro all_modules(), do: Macro.escape(@all_modules)
 end
 
 defmodule ComponentsGuideWeb.WasmController do
@@ -96,6 +94,13 @@ defmodule ComponentsGuideWeb.WasmHTML do
   alias ComponentsGuide.Wasm.Examples.HTML.{CounterHTML}
 
   embed_templates("wasm_html/*")
+  
+  import ComponentsGuideWeb.WasmShared
+  @modules all_modules()
+  
+  def wat_module_source(name) when is_map_key(@modules, name) do
+    @modules[name].to_wat()
+  end
 
   def blue_button(assigns) do
     ~H"""

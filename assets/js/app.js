@@ -12,6 +12,7 @@ import topbar from "../vendor/topbar";
 import "./customElements/enhanced-navigation";
 import "./customElements/wasm-html";
 import "./customElements/wasm-state-machine";
+import "./customElements/wasm-string-builder";
 
 window.IMPORT = {
   DOMTesting: () => import("@testing-library/dom")

@@ -79,6 +79,27 @@
       <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
+        <h2 id="form-state">Cache-Control HTTP Header Builder</h2>
+        <wasm-string-builder data-url="/wasm/module/http_header_cache_control.wasm" class="flex justify-center">
+          <form class="text-left">
+            <output>
+              <pre><span slot="to_string"></span></pre>
+            </output>
+            <label class="block"><input type="checkbox" name="set_private"> Private</label>
+            <label class="block"><input type="checkbox" name="set_public"> Public</label>
+            <label class="block"><input type="checkbox" name="set_immutable"> Immutable</label>
+            <label class="block">Max age <input type="number" name="set_max_age" value="0" class="text-black"></label>
+          </form>
+        </wasm-string-builder>
+        <details class="mt-8">
+          <summary class="cursor-pointer">View <code>CacheControl</code> Wat source</summary>
+          <pre class="lang-wasm"><code><%= wat_module_source("http_header_cache_control.wasm") %></code></pre>
+        </details>
+      </article>
+      
+      <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
+
+      <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
         <h2 id="form-state">Form State Machine</h2>
         <wasm-state-machine data-url="/wasm/module/form_state_machine.wasm" class="block">
           <template data-template="button">
