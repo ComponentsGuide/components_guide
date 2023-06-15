@@ -168,6 +168,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
               name: i32_null_string(),
               value: i32_null_string(),
               domain: i32_null_string(),
+              path: i32_null_string(),
               secure: i32_boolean(0),
               http_only: i32_boolean(0)
             ] do
@@ -193,6 +194,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         domain = new_value
       end
 
+      func set_path(new_value(I32.String)) do
+        path = new_value
+      end
+
       func set_secure() do
         secure = 1
       end
@@ -209,14 +214,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
            name_len: I32,
            value_len: I32,
            domain_len: I32,
+           path_len: I32,
            extra_len: I32 do
         name_len = strlen(name)
         value_len = strlen(value)
         domain_len = strlen(domain)
+        path_len = strlen(path)
 
         extra_len =
           I32.add([
             I32.when?(domain_len, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
+            I32.when?(path_len, do: I32.add(path_len, byte_size("; Path=")), else: 0),
             I32.when?(secure, do: byte_size("; Secure"), else: 0),
             I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
           ])
@@ -234,6 +242,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         if domain_len do
           write!(const("; Domain="))
           write!(domain, domain_len)
+        end
+
+        if path_len do
+          write!(const("; Path="))
+          write!(path, path_len)
         end
 
         if secure do

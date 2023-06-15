@@ -122,7 +122,7 @@
           <pre class="lang-wasm"><code><%= wat_module_source("http_header_cache_control.wasm") %></code></pre>
         </details>
       </article>
-      
+
       <div class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16"><hr /></div>
 
       <article class="prose md:prose-xl prose-invert max-w-4xl mx-auto py-16 text-center">
@@ -145,16 +145,22 @@
               Domain
               <input type="text" name="set_domain" value="example.org" class="text-black" />
             </label>
-            <label class="block"><input type="checkbox" name="set_secure" checked /> Secure</label>
-            <label class="block"><input type="checkbox" name="set_http_only" checked /> HTTP-only</label>
+            <label class="block">
+              Path
+              <input type="text" name="set_path" value="/" class="text-black" />
+            </label>
+            <label class="block">
+              <input type="checkbox" name="set_secure" checked /> Secure
+            </label>
+            <label class="block">
+              <input type="checkbox" name="set_http_only" checked /> HTTP-only
+            </label>
           </form>
         </wasm-string-builder>
         <details class="mt-8">
           <summary class="cursor-pointer">
             View <code>CacheControl</code>
-            Wat source (<%= Format.humanize_bytes(
-              wasm_module_size("http_header_set_cookie.wasm")
-            ) %> wasm)
+            Wat source (<%= Format.humanize_bytes(wasm_module_size("http_header_set_cookie.wasm")) %> wasm)
           </summary>
           <pre class="lang-wasm"><code><%= wat_module_source("http_header_set_cookie.wasm") %></code></pre>
         </details>
