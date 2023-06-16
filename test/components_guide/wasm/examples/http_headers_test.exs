@@ -10,7 +10,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
     test "default" do
       inst = CacheControl.start()
 
-      assert Instance.call_reading_string(inst, :to_string) == "max-age=0"
+      assert to_string(inst) == "max-age=0"
     end
 
     test "public" do

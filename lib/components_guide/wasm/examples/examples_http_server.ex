@@ -12,6 +12,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
     def start(), do: Wasm.Instance.run(__MODULE__)
 
+    # @global bump_offset: i32(BumpAllocator.bump_offset()),
+    #         method: i32_null_string(),
+    #         path: i32_null_string()
+
     defwasm globals: [
               bump_offset: i32(BumpAllocator.bump_offset()),
               method: i32_null_string(),

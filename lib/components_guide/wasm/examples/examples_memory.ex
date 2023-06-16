@@ -115,7 +115,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @wasm_memory 1
 
     defwasm do
-      # TODO: move to Strings and rename streq
+      # TODO: move to I32.String and rename streq
       funcp mem_eql_8(address_a(I32), address_b(I32)),
         result: I32,
         locals: [i: I32, byte_a: I32, byte_b: I32] do
