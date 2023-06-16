@@ -50,6 +50,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use BumpAllocator
     import Writer
 
+    def start() do
+      # ComponentsGuide.Wasm.run_instance(__MODULE__)
+      Wasm.Instance.run(__MODULE__)
+    end
+
     dbg("set global")
     @wasm_global {:private2, i32(0)}
     # @wasm_global private: i32(0)

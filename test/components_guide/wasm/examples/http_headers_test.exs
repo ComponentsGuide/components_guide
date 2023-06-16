@@ -16,7 +16,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
     test "public" do
       inst = CacheControl.start()
       Instance.call(inst, :set_public)
-      assert Instance.call_reading_string(inst, :to_string) == "public"
+      # assert Instance.call_reading_string(inst, :to_string) == "public"
+      assert to_string(inst) == "public"
     end
 
     test "public, max-age=604800" do

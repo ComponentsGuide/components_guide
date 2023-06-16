@@ -82,4 +82,10 @@ defmodule ComponentsGuide.Wasm.Instance do
     IO.inspect(hex_pretty, limit: :infinite, label: "Wasm instance memory")
     # IO.inspect(bytes, base: :hex, label: "Wasm instance memory")
   end
+
+  defimpl String.Chars do
+    def to_string(instance) do
+      Wasm.Instance.call_reading_string(instance, :to_string)
+    end
+  end
 end
