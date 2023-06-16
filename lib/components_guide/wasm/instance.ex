@@ -1,6 +1,13 @@
 defmodule ComponentsGuide.Wasm.Instance do
   alias ComponentsGuide.Wasm
 
+  defstruct [:handle]
+
+  def run(mod) do
+    handle = ComponentsGuide.Wasm.run_instance(mod)
+    %__MODULE__{handle: handle}
+  end
+
   defdelegate get_global(instance, global_name), to: Wasm, as: :instance_get_global
   defdelegate set_global(instance, global_name, new_value), to: Wasm, as: :instance_set_global
 
@@ -19,6 +26,13 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   defdelegate call_reading_string(instance, f), to: Wasm, as: :instance_call_returning_string
   defdelegate call_reading_string(instance, f, a), to: Wasm, as: :instance_call_returning_string
+
+  # TODO: call Wasm.Native directly
+  def call_reading_string(%__MODULE__{handle: handle}, f),
+    do: Wasm.instance_call_returning_string(handle, f)
+
+  def call_reading_string(%__MODULE__{handle: handle}, f, a),
+    do: Wasm.instance_call_returning_string(handle, f, a)
 
   defdelegate call_reading_string(instance, f, a, b),
     to: Wasm,

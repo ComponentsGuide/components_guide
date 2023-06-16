@@ -191,6 +191,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       #   value = new_value
       # end
 
+      # I32.Boolean.attr_one_way(:secure, as: :set_secure)
+
       func set_secure() do
         secure = 1
       end

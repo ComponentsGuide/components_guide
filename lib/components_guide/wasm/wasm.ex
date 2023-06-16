@@ -263,16 +263,24 @@ defmodule ComponentsGuide.Wasm do
     instance
   end
 
+  defp get_instance_handle(%{handle: handle}), do: handle
+  defp get_instance_handle(instance), do: instance
+
   def instance_get_global(instance, global_name),
-    do: wasm_instance_get_global_i32(instance, to_string(global_name))
+    do: wasm_instance_get_global_i32(get_instance_handle(instance), to_string(global_name))
 
   def instance_set_global(instance, global_name, new_value),
-    do: wasm_instance_set_global_i32(instance, to_string(global_name), new_value)
+    do:
+      wasm_instance_set_global_i32(
+        get_instance_handle(instance),
+        to_string(global_name),
+        new_value
+      )
 
   defp do_instance_call(instance, f, args) do
     f = to_string(f)
     # wasm_instance_call_func(instance, f, args)
-    wasm_instance_call_func_i32(instance, f, args)
+    get_instance_handle(instance) |> wasm_instance_call_func_i32(f, args)
   end
 
   # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
@@ -283,7 +291,7 @@ defmodule ComponentsGuide.Wasm do
 
   defp do_instance_call_returning_string(instance, f, args) do
     f = to_string(f)
-    wasm_instance_call_func_i32_string(instance, f, args)
+    wasm_instance_call_func_i32_string(get_instance_handle(instance), f, args)
   end
 
   def instance_call_returning_string(instance, f),
@@ -313,28 +321,37 @@ defmodule ComponentsGuide.Wasm do
 
   def instance_write_i32(instance, memory_offset, value)
       when is_integer(memory_offset) and is_integer(value) do
-    wasm_instance_write_i32(instance, memory_offset, value)
+    wasm_instance_write_i32(get_instance_handle(instance), memory_offset, value)
   end
 
   def instance_write_i64(instance, memory_offset, value)
       when is_integer(memory_offset) and is_integer(value) do
-    wasm_instance_write_i64(instance, memory_offset, value)
+    wasm_instance_write_i64(get_instance_handle(instance), memory_offset, value)
   end
 
   def instance_write_string_nul_terminated(instance, memory_offset, string)
       when is_integer(memory_offset) do
-    wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
+    wasm_instance_write_string_nul_terminated(
+      get_instance_handle(instance),
+      memory_offset,
+      string
+    )
   end
 
   def instance_write_string_nul_terminated(instance, global_name, string)
       when is_atom(global_name) do
     memory_offset = wasm_instance_get_global_i32(instance, to_string(global_name))
-    wasm_instance_write_string_nul_terminated(instance, memory_offset, string)
+
+    wasm_instance_write_string_nul_terminated(
+      get_instance_handle(instance),
+      memory_offset,
+      string
+    )
   end
 
   def instance_read_memory(instance, start, length)
       when is_integer(start) and is_integer(length) do
-    wasm_instance_read_memory(instance, start, length)
+    wasm_instance_read_memory(get_instance_handle(instance), start, length)
     |> IO.iodata_to_binary()
   end
 
@@ -342,7 +359,7 @@ defmodule ComponentsGuide.Wasm do
       when is_atom(start_global_name) and is_integer(length) do
     start = wasm_instance_get_global_i32(instance, to_string(start_global_name))
 
-    wasm_instance_read_memory(instance, start, length)
+    wasm_instance_read_memory(get_instance_handle(instance), start, length)
     |> IO.iodata_to_binary()
   end
 

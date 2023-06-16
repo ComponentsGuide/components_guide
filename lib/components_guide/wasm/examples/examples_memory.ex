@@ -115,6 +115,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @wasm_memory 1
 
     defwasm do
+      # TODO: move to Strings and rename streq
       funcp mem_eql_8(address_a(I32), address_b(I32)),
         result: I32,
         locals: [i: I32, byte_a: I32, byte_b: I32] do
@@ -137,6 +138,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       raw_wat(~S[(export "_mem_eql_8" (func $mem_eql_8))])
+    end
+
+    def mem_eql_8(address_a, address_b) do
+      call(:mem_eql_8, address_a, address_b)
     end
   end
 
