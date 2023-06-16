@@ -1,5 +1,6 @@
 class WasmHTML extends HTMLElement {
   connectedCallback() {
+    console.log("WASM CONNECTED", this)
     const wasmURL = this.dataset.url ?? this.getAttribute("src") ?? this.querySelector("source[type='application/wasm']")?.src;
     if (wasmURL) {
       const memory = new WebAssembly.Memory({ initial: 2 });
@@ -77,6 +78,7 @@ function initWasmHTML(el, wasmInstancePromise) {
       // See: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
       const bytes = new Uint8Array(chunks.map(chunk => [...chunk]).flat());
       const html = utf8decoder.decode(bytes);
+      console.log("wasm-html render", html)
       el.innerHTML = html;
     }
 

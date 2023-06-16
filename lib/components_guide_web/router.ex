@@ -78,6 +78,7 @@ defmodule ComponentsGuideWeb.Router do
 
     get("/wasm", WasmController, :index)
     get("/wasm/module/:module", WasmController, :module)
+    live("/wasm/http-server", WasmHTTPServerLive)
 
     live("/view-source", ViewSourceLive)
     live("/view-github-repo", ViewGithubRepoLive)
