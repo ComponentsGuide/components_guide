@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.StringHelpers
@@ -9,6 +10,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     use Wasm
     use BumpAllocator
     import StringHelpers
+    import Writer
+
+    # @wasm_string_func :get_body
 
     def start(), do: Wasm.Instance.run(__MODULE__)
 
@@ -55,6 +59,35 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
         #   _ ->
         #     404
         # end
+      end
+
+      func get_body(), I32.String, start: I32.String, writer: I32.String do
+        I32.cond do
+          MemEql.mem_eql_8(path, const("/")) ->
+            start = alloc(1024)
+            writer = start
+
+            write!(
+              const(~S"""
+              <!doctype html>
+              <h1>Welcome</h1>
+              """)
+            )
+
+            start
+
+          MemEql.mem_eql_8(path, const("/about")) ->
+            const(~S"""
+            <!doctype html>
+            <h1>About</h1>
+            """)
+
+          true ->
+            const(~S"""
+            <!doctype html>
+            <h1>Not found</h1>
+            """)
+        end
       end
 
       #       func to_string(),

@@ -1092,28 +1092,15 @@ defmodule ComponentsGuide.WasmBuilder do
     ~s[#{indent}(func $#{name} (param i32) #{to_wat(result_type)})]
   end
 
-  def to_wat(%Data{offset: offset, value: value, nul_terminated: true}, indent) do
+  def to_wat(%Data{offset: offset, value: value, nul_terminated: nul_terminated}, indent) do
     [
       indent,
       "(data (i32.const ",
       to_string(offset),
       ") ",
       ?",
-      String.replace(value, ~S["], ~S[\"]),
-      ~S"\00",
-      ?",
-      ")"
-    ]
-  end
-
-  def to_wat(%Data{offset: offset, value: value, nul_terminated: false}, indent) do
-    [
-      indent,
-      "(data (i32.const ",
-      to_string(offset),
-      ") ",
-      ?",
-      String.replace(value, ~S["], ~S[\"]),
+      value |> String.replace(~S["], ~S[\"]) |> String.replace("\n", ~S"\n"),
+      if(nul_terminated, do: ~S"\00", else: []),
       ?",
       ")"
     ]
@@ -1128,7 +1115,7 @@ defmodule ComponentsGuide.WasmBuilder do
         to_string(offset),
         ") ",
         ?",
-        String.replace(string, ~S["], ~S[\"]),
+        string |> String.replace(~S["], ~S[\"]) |> String.replace("\n", ~S"\n"),
         ?",
         ")"
       ]

@@ -14,7 +14,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/"))
 
       assert Instance.call(inst, :get_status) == 200
-      # assert Instance.call_reading_string(inst, :to_string) == "foo=value"
+
+      assert Instance.call_reading_string(inst, :get_body) == ~S"""
+             <!doctype html>
+             <h1>Welcome</h1>
+             """
     end
 
     test "GET /about returns 200" do
@@ -24,6 +28,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/about"))
 
       assert Instance.call(inst, :get_status) == 200
+
+      assert Instance.call_reading_string(inst, :get_body) == ~S"""
+             <!doctype html>
+             <h1>About</h1>
+             """
     end
 
     test "GET /foo returns 404" do
@@ -33,6 +42,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/foo"))
 
       assert Instance.call(inst, :get_status) == 404
+
+      assert Instance.call_reading_string(inst, :get_body) == ~S"""
+             <!doctype html>
+             <h1>Not found</h1>
+             """
     end
   end
 end
