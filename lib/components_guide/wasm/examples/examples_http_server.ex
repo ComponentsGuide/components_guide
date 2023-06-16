@@ -33,11 +33,27 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       I32.attr_writer(:path, as: :set_path)
 
       func get_status(), I32 do
-        I32.when? MemEql.mem_eql_8(path, const("/")) do
-          200
-        else
-          404
+        I32.cond do
+          MemEql.mem_eql_8(path, const("/")) ->
+            200
+
+          MemEql.mem_eql_8(path, const("/about")) ->
+            200
+
+          true ->
+            404
         end
+
+        # I32.String.match path do
+        #   const("/") ->
+        #     200
+        #   
+        #   const("/about") ->
+        #     200
+        #   
+        #   _ ->
+        #     404
+        # end
       end
 
       #       func to_string(),

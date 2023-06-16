@@ -242,6 +242,8 @@ defmodule ComponentsGuide.WasmBuilder do
       statements =
         for {:->, _, [input, target]} <- transform do
           case input do
+            # _ ->
+            # like an else clause
             [{:_, _, _}] ->
               target
 
@@ -256,6 +258,41 @@ defmodule ComponentsGuide.WasmBuilder do
         end
 
       catchall = for {:->, _, [[{:_, _, _}], _]} <- transform, do: true
+
+      final_instruction =
+        case catchall do
+          [] -> :unreachable
+          [true] -> []
+        end
+
+      quote do
+        defblock :i32_map, result: I32 do
+          unquote(statements)
+          unquote(final_instruction)
+        end
+      end
+    end
+
+    defmacro cond(do: transform) do
+      statements =
+        for {:->, _, [input, target]} <- transform do
+          case input do
+            # true ->
+            # like an else clause
+            [true] ->
+              target
+
+            [match] ->
+              quote do
+                %ComponentsGuide.WasmBuilder.IfElse{
+                  condition: unquote(match),
+                  when_true: [unquote(get_block_items(target)), break(:i32_map)]
+                }
+              end
+          end
+        end
+
+      catchall = for {:->, _, [[true], _]} <- transform, do: true
 
       final_instruction =
         case catchall do
