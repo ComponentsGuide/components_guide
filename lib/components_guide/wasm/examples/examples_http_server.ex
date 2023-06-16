@@ -72,18 +72,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
       func get_body(), I32.String, start: I32.String, writer: I32.String do
         I32.cond do
-          MemEql.mem_eql_8(path, const("/")) ->
-            start = alloc(1024)
-            writer = start
-
-            write!(~S"""
+          MemEql.mem_eql_8(path, ~S"/") ->
+            ~S"""
             <!doctype html>
             <h1>Welcome</h1>
-            """)
+            """
 
-            start
-
-          MemEql.mem_eql_8(path, const("/about")) ->
+          MemEql.mem_eql_8(path, ~S"/about") ->
             ~S"""
             <!doctype html>
             <h1>About</h1>
