@@ -14,7 +14,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
     # @wasm_string_func :get_body
 
-    def start(), do: Wasm.Instance.run(__MODULE__)
+    def start() do
+      try do
+        Wasm.Instance.run(__MODULE__)
+      rescue
+        x in [RuntimeError] ->
+          # IO.puts(__MODULE__.to_wat())
+          Logger.error(__MODULE__.to_wat())
+          raise x
+      end
+    end
 
     # @global bump_offset: i32(BumpAllocator.bump_offset()),
     #         method: i32_null_string(),
@@ -83,10 +92,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
             """)
 
           true ->
-            const(~S"""
-            <!doctype html>
-            <h1>Not found</h1>
-            """)
+            write!([
+              const(~S"""
+              <!doctype html>
+              """),
+              const("<h1>Not found: "),
+              path,
+              const(~S"</h1>\n")
+            ])
         end
       end
 

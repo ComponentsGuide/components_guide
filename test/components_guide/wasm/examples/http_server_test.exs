@@ -24,6 +24,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
     test "GET /about returns 200" do
       inst = PortfolioSite.start()
 
+      # Instance.HTTPServer.set_method(inst, "GET")
+
       Instance.call(inst, :set_method, Instance.alloc_string(inst, "GET"))
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/about"))
 
@@ -45,7 +47,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
 
       assert Instance.call_reading_string(inst, :get_body) == ~S"""
              <!doctype html>
-             <h1>Not found</h1>
+             <h1>Not found: /foo</h1>
              """
     end
   end
