@@ -780,7 +780,7 @@ defmodule ComponentsGuide.WasmBuilder do
     end)
   end
 
-  defmacro snippet(locals, do: block) do
+  defmacro snippet(locals \\ [], do: block) do
     block_items =
       case block do
         {:__block__, _meta, items} -> items

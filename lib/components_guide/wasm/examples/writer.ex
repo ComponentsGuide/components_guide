@@ -35,8 +35,9 @@ defmodule ComponentsGuide.Wasm.Examples.Writer do
   end
 
   def write!(list) when is_list(list) do
-    snippet writer: I32 do
-      writer = global_get(:bump_offset)
+    snippet do
+      global_get(:bump_offset)
+      global_set(:bump_mark)
 
       inline for item! <- list do
         case item! do
@@ -56,7 +57,7 @@ defmodule ComponentsGuide.Wasm.Examples.Writer do
         end
       end
 
-      writer
+      global_get(:bump_mark)
     end
   end
 

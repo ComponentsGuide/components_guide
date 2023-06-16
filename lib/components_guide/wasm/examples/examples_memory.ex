@@ -23,7 +23,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     defwasm exported_memory: 2,
             globals: [
-              bump_offset: i32(@bump_start)
+              bump_offset: i32(@bump_start),
+              bump_mark: i32(0)
             ] do
       funcp bump_alloc(size(I32)), I32, address: I32 do
         # TODO: check if we have allocated too much

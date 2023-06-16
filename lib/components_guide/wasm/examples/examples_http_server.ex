@@ -32,6 +32,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
     defwasm globals: [
               bump_offset: i32(BumpAllocator.bump_offset()),
+              bump_mark: i32(0),
               method: i32_null_string(),
               path: i32_null_string()
             ] do
@@ -61,7 +62,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
         end
       end
 
-      func get_body(), I32.String, start: I32.String, writer: I32.String do
+      func get_body(), I32.String do
         I32.String.match path do
           ~S"/" ->
             ~S"""
