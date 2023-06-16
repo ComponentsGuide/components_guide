@@ -28,4 +28,39 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
   def streq(address_a, address_b) do
     call(:streq, address_a, address_b)
   end
+
+  defmacro match(value, do: transform) do
+    statements =
+      for {:->, _, [input, target]} <- transform do
+        case input do
+          # _ ->
+          # like an else clause
+          [{:_, _, _}] ->
+            target
+
+          [match] ->
+            quote do
+              %ComponentsGuide.WasmBuilder.IfElse{
+                condition: streq(unquote(value), unquote(match)),
+                when_true: [unquote(get_block_items(target)), break(:i32_string_match)]
+              }
+            end
+        end
+      end
+
+    catchall = for {:->, _, [[{:_, _, _}], _]} <- transform, do: true
+
+    final_instruction =
+      case catchall do
+        [] -> :unreachable
+        [true] -> []
+      end
+
+    quote do
+      defblock :i32_string_match, result: I32 do
+        unquote(statements)
+        unquote(final_instruction)
+      end
+    end
+  end
 end

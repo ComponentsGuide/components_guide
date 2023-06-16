@@ -251,7 +251,7 @@ defmodule ComponentsGuide.WasmBuilder do
               quote do
                 %ComponentsGuide.WasmBuilder.IfElse{
                   condition: I32.eq(unquote(value), unquote(match)),
-                  when_true: [unquote(get_block_items(target)), break(:i32_map)]
+                  when_true: [unquote(get_block_items(target)), break(:i32_match)]
                 }
               end
           end
@@ -266,7 +266,7 @@ defmodule ComponentsGuide.WasmBuilder do
         end
 
       quote do
-        defblock :i32_map, result: I32 do
+        defblock :i32_match, result: I32 do
           unquote(statements)
           unquote(final_instruction)
         end

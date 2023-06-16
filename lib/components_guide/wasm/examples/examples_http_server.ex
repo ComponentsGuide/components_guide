@@ -49,44 +49,33 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       I32.attr_writer(:path, as: :set_path)
 
       func get_status(), I32 do
-        I32.cond do
-          streq(path, ~S"/") ->
+        I32.String.match path do
+          ~S"/" ->
             200
 
-          streq(path, ~S"/about") ->
+          ~S"/about" ->
             200
 
-          true ->
+          _ ->
             404
         end
-
-        # I32.String.match path do
-        #   const("/") ->
-        #     200
-        #
-        #   const("/about") ->
-        #     200
-        #
-        #   _ ->
-        #     404
-        # end
       end
 
       func get_body(), I32.String, start: I32.String, writer: I32.String do
-        I32.cond do
-          streq(path, ~S"/") ->
+        I32.String.match path do
+          ~S"/" ->
             ~S"""
             <!doctype html>
             <h1>Welcome</h1>
             """
 
-          streq(path, ~S"/about") ->
+          ~S"/about" ->
             ~S"""
             <!doctype html>
             <h1>About</h1>
             """
 
-          true ->
+          _ ->
             write!([
               ~S"""
               <!doctype html>
