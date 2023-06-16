@@ -26,10 +26,10 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
       func next_body_chunk, result: I32 do
         I32.match body_chunk_index do
           0 ->
-            const(~S[<svg width="64" height="64">])
+            ~S[<svg width="64" height="64">]
 
           1 ->
-            const(~S[<rect width="64" height="64" fill="])
+            ~S[<rect width="64" height="64" fill="]
 
           2 ->
             memory32_8![0x10000] = ?#
@@ -37,10 +37,10 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
             push(0x10000)
 
           3 ->
-            const(~S[" />])
+            ~S[" />]
 
           4 ->
-            const(~S[</svg>\n])
+            ~S[</svg>\n]
 
           _ ->
             0x0

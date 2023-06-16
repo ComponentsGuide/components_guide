@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
         x in [RuntimeError] ->
           # IO.puts(__MODULE__.to_wat())
           Logger.error(__MODULE__.to_wat())
-          raise x
+          reraise x, __STACKTRACE__
       end
     end
 
@@ -76,29 +76,27 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
             start = alloc(1024)
             writer = start
 
-            write!(
-              const(~S"""
-              <!doctype html>
-              <h1>Welcome</h1>
-              """)
-            )
+            write!(~S"""
+            <!doctype html>
+            <h1>Welcome</h1>
+            """)
 
             start
 
           MemEql.mem_eql_8(path, const("/about")) ->
-            const(~S"""
+            ~S"""
             <!doctype html>
             <h1>About</h1>
-            """)
+            """
 
           true ->
             write!([
-              const(~S"""
+              ~S"""
               <!doctype html>
-              """),
-              const("<h1>Not found: "),
+              """,
+              ~S"<h1>Not found: ",
               path,
-              const(~S"</h1>\n")
+              ~S"</h1>\n"
             ])
 
             # ~s"""

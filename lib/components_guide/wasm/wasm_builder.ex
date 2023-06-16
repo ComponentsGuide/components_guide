@@ -364,7 +364,8 @@ defmodule ComponentsGuide.WasmBuilder do
   defmodule Constants do
     defstruct offset: 0xFF, items: []
 
-    def from(items) do
+    def new(items) do
+      items = Enum.uniq(items)
       %__MODULE__{items: items}
     end
 
@@ -380,6 +381,14 @@ defmodule ComponentsGuide.WasmBuilder do
 
     def to_map(%__MODULE__{} = receiver) do
       receiver |> to_keylist() |> Map.new()
+    end
+
+    def resolve(constants, {:i32_const_string, _strptr, _string} = value) do
+      value
+    end
+
+    def resolve(constants, value) do
+      {:i32_const_string, Map.fetch!(constants, value), value}
     end
   end
 
@@ -484,6 +493,12 @@ defmodule ComponentsGuide.WasmBuilder do
         {:const, _, [str]}, constants ->
           {quote(do: data_for_constant(unquote(str))), [str | constants]}
 
+        {:sigil_S, _, [{:<<>>, _, [str]}, _] = args}, constants ->
+          {
+            quote(do: data_for_constant(unquote(str))),
+            [str | constants]
+          }
+
         {:sigil_s, _, [{:<<>>, _, pieces}, _] = args}, constants ->
           dbg(args)
 
@@ -510,7 +525,7 @@ defmodule ComponentsGuide.WasmBuilder do
     block_items =
       case constants do
         [] -> block_items
-        _ -> [quote(do: Constants.from(unquote(constants))) | block_items]
+        _ -> [quote(do: Constants.new(unquote(constants))) | block_items]
       end
 
     quote do
@@ -539,10 +554,10 @@ defmodule ComponentsGuide.WasmBuilder do
 
       defmacrop data_for_constant(value) do
         quote do
-          constants = Constants.from(unquote(@wasm_constants))
+          constants = Constants.new(unquote(@wasm_constants))
           # dbg(Constants.to_keylist(constants))
           constants = Constants.to_map(constants)
-          {:i32_const_string, Map.fetch!(constants, unquote(value)), unquote(value)}
+          Constants.resolve(constants, unquote(value))
         end
 
         # %Data{offset: 0xff, value: value, nul_terminated: true}
@@ -992,6 +1007,7 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   def raw_wat(source), do: {:raw_wat, String.trim(source)}
+  def sigil_A(source, _modifiers), do: {:raw_wat, String.trim(source)}
 
   ####
 

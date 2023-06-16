@@ -137,7 +137,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         end
       end
 
-      raw_wat(~S[(export "_mem_eql_8" (func $mem_eql_8))])
+      # raw_wat(~S[(export "_mem_eql_8" (func $mem_eql_8))])
+      ~A[(export "_mem_eql_8" (func $mem_eql_8))]
     end
 
     def mem_eql_8(address_a, address_b) do
@@ -242,13 +243,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       # export_test_func :bump_alloc
-      raw_wat(~S[(export "_test_alloc" (func $bump_alloc))])
-      raw_wat(~S[(export "_test_cons" (func $cons))])
-      raw_wat(~S[(export "_test_hd" (func $hd))])
-      raw_wat(~S[(export "_test_tl" (func $tl))])
-      raw_wat(~S[(export "_test_reverse" (func $reverse))])
-      raw_wat(~S[(export "_test_list_count" (func $list_count))])
-      raw_wat(~S[(export "_test_list32_sum" (func $list32_sum))])
+      ~A[(export "_test_alloc" (func $bump_alloc))]
+      ~A[(export "_test_cons" (func $cons))]
+      ~A[(export "_test_hd" (func $hd))]
+      ~A[(export "_test_tl" (func $tl))]
+      ~A[(export "_test_reverse" (func $reverse))]
+      ~A[(export "_test_list_count" (func $list_count))]
+      ~A[(export "_test_list32_sum" (func $list32_sum))]
     end
 
     def start() do
