@@ -484,6 +484,20 @@ defmodule ComponentsGuide.WasmBuilder do
         {:const, _, [str]}, constants ->
           {quote(do: data_for_constant(unquote(str))), [str | constants]}
 
+        {:sigil_s, _, [{:<<>>, _, pieces}, _] = args}, constants ->
+          dbg(args)
+
+          {
+            for piece when is_binary(piece) <- pieces do
+              quote(do: data_for_constant(unquote(piece)))
+            end,
+            for piece <- pieces do
+              piece
+            end ++ constants
+          }
+
+        # {quote(do: data_for_constant(unquote(str))), [str | constants]}
+
         other, constants ->
           {other, constants}
       end)
@@ -535,7 +549,7 @@ defmodule ComponentsGuide.WasmBuilder do
       end
 
       def __wasm_module__() do
-        import Kernel, except: [if: 2]
+        import Kernel, except: [if: 2, sigil_s: 2]
         import ComponentsGuide.WasmBuilderUsing
 
         # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)

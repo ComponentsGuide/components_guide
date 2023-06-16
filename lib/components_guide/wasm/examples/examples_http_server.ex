@@ -100,6 +100,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
               path,
               const(~S"</h1>\n")
             ])
+
+            # ~s"""
+            # <!doctype html>
+            # <h1>Not found: <%= path %></h1>
+            # """
         end
       end
 

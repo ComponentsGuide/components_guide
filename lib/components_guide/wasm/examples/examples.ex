@@ -175,7 +175,7 @@ defmodule ComponentsGuide.Wasm.Examples do
       func test_home_page, result: I32.String do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
-        const(~s[<button class="text-lg">Click me</button>])
+        const(~S[<button class="text-lg">Click me</button>])
         # _css = const_set_insert(:css, ~s[.text-lg{font-size: 125%}])
         # css = const_list_append(:css, ~s[.text-lg{font-size: 125%}])
 

@@ -59,4 +59,19 @@ defmodule ComponentsGuide.Wasm.Examples.Writer do
       writer
     end
   end
+
+  defmacro sigil_s({:<<>>, line, pieces}, []) do
+    dbg(pieces)
+
+    pieces =
+      for piece <- pieces do
+        piece
+      end
+
+    # {:<<>>, line, pieces}
+    # dbg({line, pieces})
+    quote do
+      write!(unquote(pieces))
+    end
+  end
 end
