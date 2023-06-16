@@ -11,6 +11,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     use BumpAllocator
     import StringHelpers
     import Writer
+    import I32.String
 
     # @wasm_string_func :get_body
 
@@ -40,6 +41,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
       MemEql.funcp(:mem_eql_8)
+      I32.String.funcp(:streq)
 
       func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
 
@@ -48,10 +50,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
       func get_status(), I32 do
         I32.cond do
-          MemEql.mem_eql_8(path, const("/")) ->
+          streq(path, ~S"/") ->
             200
 
-          MemEql.mem_eql_8(path, const("/about")) ->
+          streq(path, ~S"/about") ->
             200
 
           true ->
@@ -72,13 +74,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
       func get_body(), I32.String, start: I32.String, writer: I32.String do
         I32.cond do
-          MemEql.mem_eql_8(path, ~S"/") ->
+          streq(path, ~S"/") ->
             ~S"""
             <!doctype html>
             <h1>Welcome</h1>
             """
 
-          MemEql.mem_eql_8(path, ~S"/about") ->
+          streq(path, ~S"/about") ->
             ~S"""
             <!doctype html>
             <h1>About</h1>
@@ -94,7 +96,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
               ~S"</h1>\n"
             ])
 
-            # ~s"""
+            # ~E"""
             # <!doctype html>
             # <h1>Not found: <%= path %></h1>
             # """

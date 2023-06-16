@@ -499,16 +499,10 @@ defmodule ComponentsGuide.WasmBuilder do
             [str | constants]
           }
 
-        {:sigil_s, _, [{:<<>>, _, pieces}, _] = args}, constants ->
-          dbg(args)
-
+        {:sigil_s, _, [{:<<>>, _, [str]}, _] = args}, constants ->
           {
-            for piece when is_binary(piece) <- pieces do
-              quote(do: data_for_constant(unquote(piece)))
-            end,
-            for piece <- pieces do
-              piece
-            end ++ constants
+            quote(do: data_for_constant(unquote(str))),
+            [str | constants]
           }
 
         # {quote(do: data_for_constant(unquote(str))), [str | constants]}
