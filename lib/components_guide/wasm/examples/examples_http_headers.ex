@@ -182,21 +182,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         call(:bump_alloc, byte_count)
       end
 
-      func set_cookie_name(new_name(I32.String)) do
-        name = new_name
-      end
+      I32.attr_writer(:name, as: :set_cookie_name)
+      I32.attr_writer(:value, as: :set_cookie_value)
+      I32.attr_writer(:domain, as: :set_domain)
+      I32.attr_writer(:path, as: :set_path)
 
-      func set_cookie_value(new_value(I32.String)) do
-        value = new_value
-      end
-
-      func set_domain(new_value(I32.String)) do
-        domain = new_value
-      end
-
-      func set_path(new_value(I32.String)) do
-        path = new_value
-      end
+      # func set_cookie_value(new_value(I32.String)) do
+      #   value = new_value
+      # end
 
       func set_secure() do
         secure = 1

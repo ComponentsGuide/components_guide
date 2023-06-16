@@ -75,8 +75,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
 
     test "name and value" do
       inst = SetCookie.start()
+      # put_in(inst[:name], "foo")
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
+      # Instance.call(inst, :"name=", Instance.alloc_string(inst, "foo"))
       Instance.call(inst, :set_cookie_value, Instance.alloc_string(inst, "value"))
+
+      # inst[{String, :to_string}]
       assert Instance.call_reading_string(inst, :to_string) == "foo=value"
     end
 

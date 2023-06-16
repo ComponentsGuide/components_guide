@@ -92,6 +92,10 @@ function initWasmHTML(el, wasmInstancePromise) {
     el.addEventListener("change", (event) => {
       update();
     });
+    // Update on every key-stroke
+    el.addEventListener("input", (event) => {
+      update();
+    });
 
     queueMicrotask(update);
   });

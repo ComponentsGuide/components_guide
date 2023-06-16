@@ -271,6 +271,24 @@ defmodule ComponentsGuide.WasmBuilder do
       end
     end
 
+    defmacro attr_writer(global_name) do
+      quote do
+        func unquote(String.to_atom("#{global_name}="))(new_value(I32)) do
+          local_get(:new_value)
+          global_set(unquote(global_name))
+        end
+      end
+    end
+
+    defmacro attr_writer(global_name, as: func_name) do
+      quote do
+        func unquote(func_name)(new_value(I32)) do
+          local_get(:new_value)
+          global_set(unquote(global_name))
+        end
+      end
+    end
+
     defp get_block_items(block) do
       case block do
         nil -> nil
@@ -525,6 +543,10 @@ defmodule ComponentsGuide.WasmBuilder do
     define_func(call, :public, [result: result_type], block)
   end
 
+  defmacro func(call, nil, locals, do: block) when is_list(locals) do
+    define_func(call, :public, [locals: locals], block)
+  end
+
   defmacro func(call, result_type, locals, do: block) when is_list(locals) do
     define_func(call, :public, [result: result_type, locals: locals], block)
   end
@@ -534,6 +556,10 @@ defmodule ComponentsGuide.WasmBuilder do
   # Also incentivises making funcp pure by having all inputs be parameters.
   defmacro funcp(call, options \\ [], do: block) do
     define_func(call, :private, options, block)
+  end
+
+  defmacro funcp(call, result_type, locals, do: block) when is_list(locals) do
+    define_func(call, :private, [result: result_type, locals: locals], block)
   end
 
   defmacro cpfuncp(call, options) do

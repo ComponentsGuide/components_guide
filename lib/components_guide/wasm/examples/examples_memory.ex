@@ -19,15 +19,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
-    defmacro bump_offset() do
-      Macro.escape(@bump_start)
-    end
+    defmacro bump_offset(), do: Macro.escape(@bump_start)
 
     defwasm exported_memory: 2,
             globals: [
               bump_offset: i32(@bump_start)
             ] do
-      funcp bump_alloc(size(I32)), result: I32, locals: [address: I32] do
+      funcp bump_alloc(size(I32)), I32, address: I32 do
         # TODO: check if we have allocated too much
         # and if so, either err or increase the available memory.
         address = bump_offset
@@ -40,7 +38,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       funcp bump_memcpy(dest(I32), src(I32), byte_count(I32)),
-        locals: [i: I32] do
+            nil,
+            i: I32 do
         loop EachByte do
           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
 
@@ -49,6 +48,39 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
             EachByte.continue()
           end
         end
+
+        #         loop :each_byte do
+        #           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
+        # 
+        #           if I32.lt_u(i, byte_count) do
+        #             i = I32.add(i, 1)
+        #             :each_byte
+        #           end
+        #         end
+
+        #         loop :i do
+        #           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
+        # 
+        #           if I32.lt_u(i, byte_count) do
+        #             i = I32.add(i, 1)
+        #             {:br, :i}
+        #           end
+        #         end
+
+        #       loop i, 0..byte_count do
+        #         memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
+        #       end
+
+        #       loop i, I32.lt_u(byte_count), I32.add(1) do
+        #         memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
+        #       end
+
+        #       loop i, I32.add do
+        #         i ->
+        #           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
+        # 
+        #           I32.lt_u(i, byte_count)
+        #       end
       end
 
       func alloc(size(I32)), result: I32 do
