@@ -13,6 +13,7 @@ import "./customElements/enhanced-navigation";
 import "./customElements/wasm-html";
 import "./customElements/wasm-state-machine";
 import "./customElements/wasm-string-builder";
+import "./customElements/wasm-http-server";
 
 window.IMPORT = {
   DOMTesting: () => import("@testing-library/dom")

@@ -50,5 +50,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
              <h1>Not found: /foo</h1>
              """
     end
+
+    test "POST / returns 405" do
+      inst = PortfolioSite.start()
+      # put_in(inst[:method], "GET")
+      Instance.call(inst, :set_method, Instance.alloc_string(inst, "POST"))
+      Instance.call(inst, :set_path, Instance.alloc_string(inst, "/"))
+
+      assert Instance.call(inst, :get_status) == 405
+
+      assert Instance.call_reading_string(inst, :get_body) == ~S"""
+             <!doctype html>
+             <h1>Method not allowed</h1>
+             """
+    end
   end
 end

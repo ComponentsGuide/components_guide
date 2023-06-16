@@ -50,6 +50,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       I32.attr_writer(:path, as: :set_path)
 
       func get_status(), I32 do
+        if I32.String.streq(method, ~S"GET") |> I32.eqz() do
+          return(405)
+        end
+
         I32.String.match path do
           ~S"/" ->
             200
@@ -63,6 +67,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       end
 
       func get_body(), I32.String do
+        if I32.String.streq(method, ~S"GET") |> I32.eqz() do
+          return(~S"""
+          <!doctype html>
+          <h1>Method not allowed</h1>
+          """)
+        end
+
         I32.String.match path do
           ~S"/" ->
             ~S"""
