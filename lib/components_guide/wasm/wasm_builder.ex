@@ -3,18 +3,44 @@ defmodule ComponentsGuide.WasmBuilder do
   alias ComponentsGuide.Wasm.Ops
   require Ops
 
-  defmacro __using__(_) do
+  defmacro __using__(opts) do
+    inline? = Keyword.get(opts, :inline, false)
+
+    attrs =
+      case inline? do
+        true ->
+          nil
+
+        false ->
+          quote do
+            @before_compile unquote(__MODULE__).BeforeCompile
+          end
+      end
+
     quote do
       import ComponentsGuide.WasmBuilder
       alias ComponentsGuide.WasmBuilder.{I32, F32}
       require ComponentsGuide.WasmBuilder.I32
 
+      # @wasm_name __MODULE__ |> Module.split() |> List.last()
       # @before_compile {unquote(__MODULE__), :register_attributes}
 
+      # unless unquote(inline?) do
+      #   @before_compile unquote(__MODULE__).BeforeCompile
+      # end
+
+      unquote(attrs)
+
       if Module.open?(__MODULE__) do
+        # @before_compile unquote(__MODULE__).BeforeCompile
+        # Module.put_attribute(__MODULE__, :before_compile, unquote(__MODULE__).BeforeCompile)
+
+        Module.put_attribute(__MODULE__, :wasm_name, __MODULE__ |> Module.split() |> List.last())
+
         # Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
+        # Module.register_attribute(__MODULE__, :wasm_imports, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_body, accumulate: true)
         # @wasm_memory 0
       end
@@ -73,6 +99,8 @@ defmodule ComponentsGuide.WasmBuilder do
       body = func_refs ++ other
 
       options = Keyword.put(options, :body, body)
+
+      options = Keyword.update(options, :imports, [], &List.wrap/1)
 
       struct!(__MODULE__, options)
     end
@@ -517,14 +545,19 @@ defmodule ComponentsGuide.WasmBuilder do
           ModuleDefinition.new(
             # name: unquote(name),
             name: @wasm_name,
-            imports: @wasm_imports,
+            imports: List.wrap(@wasm_imports),
             globals: List.wrap(@wasm_internal_globals) ++ List.wrap(@wasm_global),
-            exported_globals: @wasm_exported_global_types,
-            exported_mutable_global_types: @wasm_exported_mutable_global_types,
+            exported_globals: List.wrap(@wasm_exported_global_types),
+            exported_mutable_global_types: List.wrap(@wasm_exported_mutable_global_types),
             memory: @wasm_memory2 || Memory.from(@wasm_memory),
             body: List.flatten(@wasm_body)
           )
         end
+
+        def funcp(name),
+          do: ComponentsGuide.WasmBuilder.ModuleDefinition.funcp_ref!(__MODULE__, name)
+
+        def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
       end
     end
   end
@@ -591,11 +624,11 @@ defmodule ComponentsGuide.WasmBuilder do
 
     %{body: block_items, constants: constants} = do_module_body(block, options, env.module)
     Module.put_attribute(env.module, :wasm_constants, constants)
-    
+
     Module.put_attribute(env.module, :wasm_name, name)
 
     quote do
-      @before_compile unquote(__MODULE__).BeforeCompile
+      # @before_compile unquote(__MODULE__).BeforeCompile
 
       import Kernel, except: [if: 2, sigil_s: 2]
       import ComponentsGuide.WasmBuilderUsing
@@ -624,12 +657,24 @@ defmodule ComponentsGuide.WasmBuilder do
     definition = define_module(name, options, block, __CALLER__)
 
     quote do
-      def funcp(name), do: ModuleDefinition.funcp_ref!(__MODULE__, name)
-
-      def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
+      #       def funcp(name), do: ModuleDefinition.funcp_ref!(__MODULE__, name)
+      # 
+      #       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
       # import Kernel
       unquote(definition)
+    end
+  end
+
+  defmacro wasm(do: block) do
+    %{body: body, constants: constants} = do_module_body(block, [], __CALLER__.module)
+    Module.put_attribute(__CALLER__.module, :wasm_constants, constants)
+
+    quote do
+      import Kernel, except: [if: 2, sigil_s: 2]
+      import ComponentsGuide.WasmBuilderUsing
+
+      @wasm_body unquote(body)
     end
   end
 

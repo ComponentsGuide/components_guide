@@ -40,12 +40,14 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     use BumpAllocator
     import I32.String
 
-    defwasm do
+    wasm do
       MemEql.funcp(:mem_eql_8)
       BumpAllocator.funcp(:bump_alloc)
       I32.String.funcp(:streq)
       I32.String.funcp(:streq)
+    end
 
+    wasm do
       func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
 
       func lookup_domain_name(value(I32.String)), I32 do
