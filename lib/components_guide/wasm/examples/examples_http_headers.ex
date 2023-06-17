@@ -134,23 +134,22 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     #   end
     # end
 
-    defwasm globals: [
-              # bump_offset: i32(BumpAllocator.bump_offset()),
-              name: i32_null_string(),
-              value: i32_null_string(),
-              domain: i32_null_string(),
-              path: i32_null_string(),
-              secure: i32_boolean(0),
-              http_only: i32_boolean(0)
-            ] do
+    global(
+      name: i32_null_string(),
+      value: i32_null_string(),
+      domain: i32_null_string(),
+      path: i32_null_string(),
+      secure: i32_boolean(0),
+      http_only: i32_boolean(0)
+    )
+
+    wasm do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
 
-      func alloc(byte_count(I32)), I32 do
-        call(:bump_alloc, byte_count)
-      end
+      func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
 
       I32.attr_writer(:name, as: :set_cookie_name)
       I32.attr_writer(:value, as: :set_cookie_value)
@@ -164,11 +163,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       # I32.Boolean.attr_one_way(:secure, as: :set_secure)
 
       func set_secure() do
-        secure = 1
+        @secure = 1
       end
 
       func set_http_only() do
-        http_only = 1
+        @http_only = 1
       end
 
       func to_string(),
@@ -181,17 +180,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
            domain_len: I32,
            path_len: I32,
            extra_len: I32 do
-        name_len = strlen(name)
-        value_len = strlen(value)
-        domain_len = strlen(domain)
-        path_len = strlen(path)
+        name_len = strlen(@name)
+        value_len = strlen(@value)
+        domain_len = strlen(@domain)
+        path_len = strlen(@path)
 
         extra_len =
           I32.add([
             I32.when?(domain_len, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
             I32.when?(path_len, do: I32.add(path_len, byte_size("; Path=")), else: 0),
-            I32.when?(secure, do: byte_size("; Secure"), else: 0),
-            I32.when?(http_only, do: byte_size("; HttpOnly"), else: 0)
+            I32.when?(@secure, do: byte_size("; Secure"), else: 0),
+            I32.when?(@http_only, do: byte_size("; HttpOnly"), else: 0)
           ])
 
         byte_count = I32.add([name_len, 1, value_len, extra_len])
@@ -200,25 +199,25 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         str = alloc(I32.add(byte_count, 1))
         writer = str
 
-        write!(name, name_len)
+        write!(@name, name_len)
         write!(ascii: ?=)
-        write!(value, value_len)
+        write!(@value, value_len)
 
         if domain_len do
           write!(const("; Domain="))
-          write!(domain, domain_len)
+          write!(@domain, domain_len)
         end
 
         if path_len do
           write!(const("; Path="))
-          write!(path, path_len)
+          write!(@path, path_len)
         end
 
-        if secure do
+        if @secure do
           write!(const("; Secure"))
         end
 
-        if http_only do
+        if @http_only do
           write!(const("; HttpOnly"))
         end
 
