@@ -40,6 +40,7 @@ defmodule ComponentsGuide.WasmBuilder do
         # Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
+        Module.register_attribute(__MODULE__, :wasm_global_exported_readonly, accumulate: true)
         # Module.register_attribute(__MODULE__, :wasm_imports, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_body, accumulate: true)
         # @wasm_memory 0
@@ -547,7 +548,9 @@ defmodule ComponentsGuide.WasmBuilder do
             name: @wasm_name,
             imports: List.wrap(@wasm_imports),
             globals: List.wrap(@wasm_internal_globals) ++ List.flatten(List.wrap(@wasm_global)),
-            exported_globals: List.wrap(@wasm_exported_global_types),
+            exported_globals:
+              List.wrap(@wasm_exported_global_types) ++
+                List.flatten(List.wrap(@wasm_global_exported_readonly)),
             exported_mutable_global_types: List.wrap(@wasm_exported_mutable_global_types),
             memory: @wasm_memory2 || Memory.from(@wasm_memory),
             body: List.flatten(@wasm_body)
@@ -690,6 +693,12 @@ defmodule ComponentsGuide.WasmBuilder do
   defmacro global(list) do
     quote do
       @wasm_global unquote(list)
+    end
+  end
+
+  defmacro global(:export_readonly, list) do
+    quote do
+      @wasm_global_exported_readonly unquote(list)
     end
   end
 

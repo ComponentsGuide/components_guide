@@ -351,7 +351,11 @@ defmodule ComponentsGuide.Wasm do
 
   def instance_write_string_nul_terminated(instance, global_name, string)
       when is_atom(global_name) do
-    memory_offset = WasmNative.wasm_instance_get_global_i32(instance, to_string(global_name))
+    memory_offset =
+      WasmNative.wasm_instance_get_global_i32(
+        get_instance_handle(instance),
+        to_string(global_name)
+      )
 
     WasmNative.wasm_instance_write_string_nul_terminated(
       get_instance_handle(instance),

@@ -286,46 +286,39 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule SitemapBuilder do
     use Wasm
+    use BumpAllocator
 
     @wasm_memory 3
 
     @page_size 64 * 1024
-    @readonly_start 0xFFF
     @_bump_start 1 * @page_size
     @input_offset 1 * @page_size
-    @output_offset 2 * @page_size
-    # @output_offset 2 * 64 * 1024
+    @_output_offset 2 * @page_size
+    # @_output_offset 2 * 64 * 1024
 
-    defwasm exported_globals: [
-              input_offset: i32(@_bump_start)
-            ],
-            globals: [
-              body_chunk_index: i32(0),
-              bump_offset: i32(@_bump_start),
-              output_offset: i32(@output_offset)
-            ] do
+    global(:export_readonly,
+      input_offset: i32(@_bump_start)
+    )
+
+    global(
+      body_chunk_index: i32(0),
+      output_offset: i32(@_output_offset)
+    )
+
+    wasm do
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
-      # cpfuncp EscapeHTML, escape
-      # cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
-      # EscapeHTML.cpfuncp(escape, result: I32)
-      # EscapeHTML.cpfuncp escape(read_offset(I32), write_offset(I32)),from: EscapeHTML, result: I32)
-      cpfuncp(escape, from: EscapeHTML, result: I32)
-
-      cpfuncp(bump_alloc, from: BumpAllocator, result: I32)
-      cpfuncp(bump_free_all, from: BumpAllocator, result: I32)
-
-      func alloc_bytes(byte_size(I32)), result: I32 do
-        # Need better maths than this
-        call(:bump_alloc, byte_size)
-      end
+      # EscapeHTML.funcp(escape, I32)
+      # EscapeHTML.funcp escape(read_offset(I32), write_offset(I32)), I32
+      # cpfuncp(escape, from: EscapeHTML, result: I32)
+      EscapeHTML.funcp(:escape)
 
       func rewind do
-        body_chunk_index = 0
+        @body_chunk_index = 0
       end
 
       func free, locals: [i: I32] do
-        bump_offset = @_bump_start
+        @bump_offset = BumpAllocator.Constants.bump_init_offset()
 
         # for (i = 64, i >= 0; i--)
         i = 64
@@ -337,7 +330,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         # while I32.ge_u(i, 0) do
         # loop Clear, while: I32.ge_u(i, 0) do
         loop Clear do
-          memory32![I32.add(i, @_bump_start)] = 0x0
+          memory32![I32.add(i, BumpAllocator.Constants.bump_init_offset())] = 0x0
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)
@@ -358,8 +351,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       # </urlset>
       # """
 
-      func next_body_chunk, result: I32 do
-        I32.match body_chunk_index do
+      func next_body_chunk(), I32 do
+        I32.match @body_chunk_index do
           0 ->
             ~S[<?xml version="1.0" encoding="UTF-8"?>\n]
 
@@ -373,8 +366,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S[<loc>]
 
           4 ->
-            call(:escape, input_offset, output_offset)
-            push(output_offset)
+            call(:escape, @input_offset, @output_offset)
+            push(@output_offset)
 
           5 ->
             ~S[</loc>\n]
@@ -389,21 +382,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        body_chunk_index = I32.add(body_chunk_index, 1)
+        @body_chunk_index = I32.add(@body_chunk_index, 1)
       end
     end
 
     def write_input(instance, string) do
-      # address = Wasm.instance_call(instance, :alloc, byte_size(string))
-      # Wasm.instance_write_string_nul_terminated(instance, address, string)
+      # Instance.alloc_string(instance, string)
 
-      Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
+      Instance.write_string_nul_terminated(instance, :input_offset, string)
     end
 
     def read_body(instance) do
-      Wasm.instance_call(instance, "rewind")
-      Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
-      # Wasm.instance_call_returning_string(instance, "next_body_chunk")
+      Instance.call(instance, "rewind")
+      Instance.call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
     end
   end
 

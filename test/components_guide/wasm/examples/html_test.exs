@@ -236,7 +236,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
 
   describe "SitemapBuilder" do
     test "works" do
-      instance = SitemapBuilder.start()
+      instance = Instance.run(SitemapBuilder)
 
       SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2&c=3")
 
