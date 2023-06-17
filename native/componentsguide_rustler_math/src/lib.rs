@@ -240,7 +240,7 @@ fn wasm_list_imports(source: WasmModuleDefinition) -> Result<Vec<WasmImport>, Er
     imports.map_err(string_error)
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_call_i32(wat_source: String, f: String, args: Vec<u32>) -> Result<Vec<u32>, Error> {
     let source = WasmModuleDefinition::Wat(wat_source);
     RunningInstance::new(source)
@@ -248,7 +248,7 @@ fn wasm_call_i32(wat_source: String, f: String, args: Vec<u32>) -> Result<Vec<u3
         .map_err(string_error)
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_call(
     wat_source: String,
     f: String,
@@ -643,6 +643,7 @@ impl RunningInstance {
         receiver: T,
     ) -> Result<Self, anyhow::Error> {
         let engine = Engine::default();
+        // let engine = Engine::new(Config::new().async_support(true))?;
         let module = Module::new(&engine, &wat_source)?;
 
         // A `Store` is what will own instances, functions, globals, etc. All wasm
@@ -793,6 +794,36 @@ impl RunningInstance {
         let s = wasm_extract_string(&mut self.store, &self.memory, result)?;
         Ok(s)
     }
+    
+    // fn cast(
+    //     &mut self,
+    //     env: Env,
+    //     f: String,
+    //     args: Vec<WasmSupportedValue>,
+    // ) -> Result<(), anyhow::Error> {
+    //     env.send_and_clear(&pid, |thread_env| {
+    //         let func = self
+    //             .instance
+    //             .get_func(&mut self.store, &f)
+    //             .expect(&format!("{} was not an exported function", f));
+    //         
+    //         let func_type = func.ty(&self.store);
+    //         let args: Vec<Val> = args.into_iter().map(|v| v.into()).collect();
+    //         
+    //         let mut result: Vec<Val> = Vec::with_capacity(16);
+    //         let result_length = func_type.results().len();
+    //         result.resize(result_length, Val::I32(0));
+    //         
+    //         func.call(&mut self.store, &args, &mut result)?;
+    //         
+    //         let result: Result<Vec<WasmSupportedValue>> = result.iter().map(|v| v.try_into()).collect();
+    //         let result = result?;
+    //         
+    //         (atom::reply_to_func_cast(), f, result).encode(thread_env)
+    //     });
+    //     
+    //     Ok(())
+    // }
 
     fn write_i32(&mut self, memory_offset: u32, value: u32) -> Result<(), anyhow::Error> {
         let offset: usize = memory_offset.try_into().unwrap();
@@ -889,7 +920,7 @@ fn wasm_instance_set_global_i32(
     return Ok(result);
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_instance_call_func(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -901,7 +932,7 @@ fn wasm_instance_call_func(
     return Ok(result);
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_instance_call_func_i32(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -913,7 +944,7 @@ fn wasm_instance_call_func_i32(
     return Ok(map_return_values_i32(env, result));
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_instance_call_func_i32_string(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,
@@ -923,6 +954,18 @@ fn wasm_instance_call_func_i32_string(
     let mut instance = resource.lock.write().map_err(string_error)?;
     return instance.call_i32_string(f, args).map_err(string_error);
 }
+
+// #[nif]
+// fn wasm_instance_cast_func_i32(
+//     env: Env,
+//     resource: ResourceArc<RunningInstanceResource>,
+//     f: String,
+//     args: Vec<u32>,
+// ) -> Result<Term, Error> {
+//     let mut instance = resource.lock.write().map_err(string_error)?;
+//     let result = instance.call_i32(f, args).map_err(string_error)?;
+//     return Ok(map_return_values_i32(env, result));
+// }
 
 #[nif]
 fn wasm_instance_write_i32(
@@ -977,7 +1020,7 @@ fn wasm_instance_read_memory(
     return Ok(result);
 }
 
-#[nif]
+#[nif(schedule = "DirtyCpu")]
 fn wasm_instance_read_string_nul_terminated(
     env: Env,
     resource: ResourceArc<RunningInstanceResource>,

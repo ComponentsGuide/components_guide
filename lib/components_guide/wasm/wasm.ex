@@ -122,7 +122,7 @@ defmodule ComponentsGuide.Wasm do
     call_apply_raw(source, f, args)
   end
 
-  def call_apply_raw(source, f, args) do
+  defp call_apply_raw(source, f, args) do
     f = to_string(f)
     process_source(source) |> WasmNative.wasm_call(f, args) |> process_result2()
   end
@@ -130,6 +130,28 @@ defmodule ComponentsGuide.Wasm do
   # defp transform32(a)
   defp transform32(a) when is_integer(a), do: {:i32, a}
   defp transform32(a) when is_float(a), do: {:f32, a}
+
+  def cast(source, f) do
+    cast_apply(source, f, [])
+  end
+
+  def cast(source, f, a) do
+    cast_apply(source, f, [a])
+  end
+
+  def cast(source, f, a, b) do
+    cast_apply(source, f, [a, b])
+  end
+
+  def cast(source, f, a, b, c) do
+    cast_apply(source, f, [a, b, c])
+  end
+
+  def cast_apply(source, f, args) do
+    f = to_string(f)
+    args = Enum.map(args, &transform32/1)
+    process_source(source) |> WasmNative.wasm_cast(f, args)
+  end
 
   def call_string(source, f), do: process_source(source) |> WasmNative.wasm_call_i32_string(f, [])
 

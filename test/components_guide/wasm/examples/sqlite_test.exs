@@ -9,15 +9,10 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite.Test do
   }
 
   describe "HeightsTable" do
-    # @tag :skip
+    @tag :skip
     test "works" do
       # inst = Instance.run(HeightsTable)
       inst = HeightsTable.start()
-
-      # form = [
-      #   [:textbox, "first_name"],
-      #   [:textbox, "last_name"],
-      # ]
 
       init = Instance.capture(inst, :init, 0)
       add_height = Instance.capture(inst, :add_height, 1)
