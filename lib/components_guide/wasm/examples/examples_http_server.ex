@@ -24,13 +24,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       end
     end
 
-    # global method: I32.String.null(),
-    # path: I32.String.null()
+    global(
+      method: I32.String.null(),
+      path: I32.String.null()
+    )
 
-    defwasm globals: [
-              method: I32.String.null(),
-              path: I32.String.null()
-            ] do
+    wasm do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
@@ -43,11 +42,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       I32.attr_writer(:path, as: :set_path)
 
       func get_status(), I32 do
-        if I32.String.streq(method, ~S"GET") |> I32.eqz() do
+        if I32.String.streq(@method, ~S"GET") |> I32.eqz() do
           return(405)
         end
 
-        I32.String.match path do
+        I32.String.match @path do
           ~S"/" ->
             200
 
@@ -60,14 +59,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       end
 
       func get_body(), I32.String do
-        if I32.String.streq(method, ~S"GET") |> I32.eqz() do
+        if I32.String.streq(@method, ~S"GET") |> I32.eqz() do
           return(~S"""
           <!doctype html>
           <h1>Method not allowed</h1>
           """)
         end
 
-        I32.String.match path do
+        I32.String.match @path do
           ~S"/" ->
             ~S"""
             <!doctype html>
@@ -86,7 +85,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
               <!doctype html>
               """,
               ~S"<h1>Not found: ",
-              path,
+              @path,
               ~S"</h1>\n"
             ])
 
