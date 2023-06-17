@@ -185,7 +185,7 @@ defmodule ComponentsGuideWeb.ViewSourceLive do
         socket = socket |> assign_state(state)
         {:noreply, socket}
 
-      {:error, reason} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end

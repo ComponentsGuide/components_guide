@@ -4,8 +4,6 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
        container:
          {:div, class: "max-w-6xl mx-auto px-3 prose prose-invert text-lg text-white pb-24"}}
 
-  alias ComponentsGuide.Fetch
-  alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.HTTPServer.PortfolioSite
 
   @suggestions [
@@ -15,8 +13,9 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
   ]
 
   defmodule State do
-    alias ComponentsGuide.Wasm
     defstruct status: nil, body: nil
+
+    alias ComponentsGuide.Wasm.Instance
 
     def default() do
       %__MODULE__{}

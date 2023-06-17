@@ -87,7 +87,7 @@ defmodule ComponentsGuide.WasmBuilder do
         0 ->
           nil
 
-        min ->
+        _min ->
           %__MODULE__{min: Enum.sum(list)}
       end
     end
@@ -425,13 +425,13 @@ defmodule ComponentsGuide.WasmBuilder do
         {:const, _, [str]}, constants ->
           {quote(do: data_for_constant(unquote(str))), [str | constants]}
 
-        {:sigil_S, _, [{:<<>>, _, [str]}, _] = args}, constants ->
+        {:sigil_S, _, [{:<<>>, _, [str]}, _]}, constants ->
           {
             quote(do: data_for_constant(unquote(str))),
             [str | constants]
           }
 
-        {:sigil_s, _, [{:<<>>, _, [str]}, _] = args}, constants ->
+        {:sigil_s, _, [{:<<>>, _, [str]}, _]}, constants ->
           {
             quote(do: data_for_constant(unquote(str))),
             [str | constants]
@@ -449,6 +449,28 @@ defmodule ComponentsGuide.WasmBuilder do
       body: block_items,
       constants: constants
     }
+  end
+
+  defmodule BeforeCompile do
+    defmacro __before_compile__(_env) do
+      quote do
+        def __wasm_module__() do
+          import Kernel, except: [if: 2, sigil_s: 2]
+          import ComponentsGuide.WasmBuilderUsing
+
+          # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
+          %ModuleDefinition{
+            name: @wasm_name,
+            imports: @wasm_imports,
+            globals: List.wrap(@wasm_internal_global_types) ++ List.wrap(@wasm_global),
+            exported_globals: @wasm_exported_global_types,
+            exported_mutable_global_types: @wasm_exported_mutable_global_types,
+            memory: @wasm_memory2 || Memory.from(@wasm_memory),
+            body: @wasm_body
+          }
+        end
+      end
+    end
   end
 
   defp define_module(name, options, block, env) do
@@ -525,17 +547,62 @@ defmodule ComponentsGuide.WasmBuilder do
         _ -> [quote(do: Constants.new(unquote(constants))) | block_items]
       end
 
+    Module.put_attribute(env.module, :wasm_memory2, memory)
+    Module.put_attribute(env.module, :wasm_name, name)
+    Module.put_attribute(env.module, :wasm_imports, imports)
+    Module.put_attribute(env.module, :wasm_body, block_items)
+    # Module.put_attribute(env.module, :wasm_imports, quote(do: unquote(imports)))
+    # Module.put_attribute(env.module, :wasm_imports, Macro.escape(imports, unquote: true))
+    # Module.put_attribute(env.module, :wasm_body, Macro.expand_once(block_items, env))
+    Module.put_attribute(env.module, :wasm_internal_globals, internal_global_types)
+    Module.put_attribute(env.module, :wasm_exported_global_types, exported_global_types)
+
+    Module.put_attribute(
+      env.module,
+      :wasm_exported_mutable_global_types,
+      exported_mutable_global_types
+    )
+
     quote do
-      %ModuleDefinition{
-        name: unquote(name),
-        imports: unquote(imports),
-        globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
-        exported_globals: unquote(exported_global_types),
-        exported_mutable_global_types: unquote(exported_mutable_global_types),
-        memory: unquote(memory) || Memory.from(@wasm_memory),
-        body: unquote(block_items)
-      }
+      # @before_compile unquote(__MODULE__).BeforeCompile
+
+      # %ModuleDefinition{
+      #   name: unquote(name),
+      #   imports: unquote(imports),
+      #   globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
+      #   exported_globals: unquote(exported_global_types),
+      #   exported_mutable_global_types: unquote(exported_mutable_global_types),
+      #   memory: unquote(memory) || Memory.from(@wasm_memory),
+      #   body: unquote(block_items)
+      # }
+
+      def __wasm_module__() do
+        import Kernel, except: [if: 2, sigil_s: 2]
+        import ComponentsGuide.WasmBuilderUsing
+
+        %ModuleDefinition{
+          name: unquote(name),
+          imports: unquote(imports),
+          globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
+          exported_globals: unquote(exported_global_types),
+          exported_mutable_global_types: unquote(exported_mutable_global_types),
+          memory: unquote(memory) || Memory.from(@wasm_memory),
+          body: unquote(block_items)
+        }
+      end
     end
+
+    # quote do
+    #   %ModuleDefinition{
+    #     name: unquote(name),
+    #     imports: unquote(imports),
+    #     globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
+    #     exported_globals: unquote(exported_global_types),
+    #     exported_mutable_global_types: unquote(exported_mutable_global_types),
+    #     memory: unquote(memory) || Memory.from(@wasm_memory),
+    #     body: unquote(block_items)
+    #   }
+    # end
   end
 
   defmacro defwasm(options \\ [], do: block) do
@@ -560,13 +627,13 @@ defmodule ComponentsGuide.WasmBuilder do
         # %Data{offset: 0xff, value: value, nul_terminated: true}
       end
 
-      def __wasm_module__() do
-        import Kernel, except: [if: 2, sigil_s: 2]
-        import ComponentsGuide.WasmBuilderUsing
-
-        # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
-        unquote(definition)
-      end
+      #       def __wasm_module__() do
+      #         import Kernel, except: [if: 2, sigil_s: 2]
+      #         import ComponentsGuide.WasmBuilderUsing
+      # 
+      #         # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
+      #         unquote(definition)
+      #       end
 
       # TODO: what is the best way to pass this value along?
       # def __wasm_module__(), do: @wasm_module
@@ -576,6 +643,7 @@ defmodule ComponentsGuide.WasmBuilder do
       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
       # import Kernel
+      unquote(definition)
     end
   end
 
