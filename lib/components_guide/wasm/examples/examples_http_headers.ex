@@ -3,7 +3,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-  alias ComponentsGuide.Wasm.Examples.Memory.StringHelpers
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule CacheControl do
@@ -131,7 +130,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     use Wasm
     use BumpAllocator
-    import StringHelpers
+    use I32.String
     import Writer
 
     # defmodule Constants do
@@ -153,7 +152,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
             ] do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
-      StringHelpers.funcp(:strlen)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
 

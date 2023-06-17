@@ -23,23 +23,39 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
         return(0x0)
       end
     end
+
+    func strlen(string_ptr(I32)), result: I32, locals: [count: I32] do
+      # while (string_ptr[count] != 0) {
+      #   count++;
+      # }
+
+      # loop EachChar, while: memory32_8![count] do
+      loop EachChar do
+        if memory32_8![I32.add(string_ptr, count)].unsigned do
+          count = I32.add(count, 1)
+          EachChar.continue()
+        end
+      end
+
+      count
+    end
   end
 
   defmacro __using__(_opts) do
     quote do
-      import unquote(__MODULE__)
+      import unquote(__MODULE__), only: [streq: 2, strlen: 1]
 
       import ComponentsGuide.WasmBuilder
 
       ComponentsGuide.WasmBuilder.wasm do
         unquote(__MODULE__).funcp(:streq)
+        unquote(__MODULE__).funcp(:strlen)
       end
     end
   end
 
-  def streq(address_a, address_b) do
-    call(:streq, address_a, address_b)
-  end
+  def streq(address_a, address_b), do: call(:streq, address_a, address_b)
+  def strlen(string_ptr), do: call(:strlen, string_ptr)
 
   defmacro match(value, do: transform) do
     statements =

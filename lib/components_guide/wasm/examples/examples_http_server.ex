@@ -3,15 +3,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-  alias ComponentsGuide.Wasm.Examples.Memory.StringHelpers
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule PortfolioSite do
     use Wasm
     use BumpAllocator
-    import StringHelpers
+    use I32.String
     import Writer
-    import I32.String
 
     # @wasm_string_func :get_body
 
@@ -38,11 +36,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
             ] do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
-      StringHelpers.funcp(:strlen)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
       MemEql.funcp(:mem_eql_8)
-      I32.String.funcp(:streq)
 
       func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
 
