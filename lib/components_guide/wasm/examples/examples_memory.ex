@@ -188,23 +188,23 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @wasm_memory 2
 
     defwasm do
-      funcp cons(hd(I32), tl(I32)), result: I32, locals: [ptr: I32] do
+      func cons(hd(I32), tl(I32)), result: I32, locals: [ptr: I32] do
         ptr = call(:bump_alloc, 8)
         memory32![ptr] = hd
         memory32![I32.add(ptr, 4)] = tl
         ptr
       end
 
-      funcp hd(ptr(I32)), result: I32 do
+      func hd(ptr(I32)), result: I32 do
         I32.if_eqz(ptr, do: 0x0, else: memory32![ptr])
         # I32.eqz(ptr) |> I32.if_else(do: 0x0, else: memory32![ptr])
       end
 
-      funcp tl(ptr(I32)), result: I32 do
+      func tl(ptr(I32)), result: I32 do
         I32.if_eqz(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
       end
 
-      funcp reverse(node(I32)), result: I32, locals: [prev: I32, current: I32, next: I32] do
+      func reverse(node(I32)), result: I32, locals: [prev: I32, current: I32, next: I32] do
         current = node
 
         loop Iterate, result: I32 do
@@ -218,7 +218,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         end
       end
 
-      funcp list_count(ptr(I32)), result: I32, locals: [count: I32] do
+      func list_count(ptr(I32)), result: I32, locals: [count: I32] do
         loop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(count)
           # if I32.eqz(ptr), return: count
@@ -231,7 +231,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         end
       end
 
-      funcp list32_sum(ptr(I32)), result: I32, locals: [sum: I32] do
+      func list32_sum(ptr(I32)), result: I32, locals: [sum: I32] do
         loop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(sum)
 
@@ -241,15 +241,6 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           Iterate.continue()
         end
       end
-
-      # export_test_func :bump_alloc
-      ~A[(export "_test_alloc" (func $bump_alloc))]
-      ~A[(export "_test_cons" (func $cons))]
-      ~A[(export "_test_hd" (func $hd))]
-      ~A[(export "_test_tl" (func $tl))]
-      ~A[(export "_test_reverse" (func $reverse))]
-      ~A[(export "_test_list_count" (func $list_count))]
-      ~A[(export "_test_list32_sum" (func $list32_sum))]
     end
 
     def start() do

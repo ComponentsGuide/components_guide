@@ -51,23 +51,18 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
   describe "LinkedLists" do
     alias Memory.LinkedLists
 
-    # test "single allocation" do
-    #   IO.puts(LinkedLists.to_wat())
-    #   assert Wasm.call(LinkedLists, :_test_cons, 0x0, 0x0) == 0x10000
-    # end
-
     test "multiple allocations" do
       inst = LinkedLists.start()
       # alloc = Instance.capture(inst, :_test_alloc, 1)
-      cons = Instance.capture(inst, :_test_cons, 2)
-      count = Instance.capture(inst, :_test_list_count, 1)
-      sum = Instance.capture(inst, :_test_list32_sum, 1)
+      cons = Instance.capture(inst, :cons, 2)
+      count = Instance.capture(inst, :list_count, 1)
+      sum = Instance.capture(inst, :list32_sum, 1)
 
       enum = fn node ->
         Stream.unfold(node, fn node ->
-          case Instance.call(inst, :_test_hd, node) do
+          case Instance.call(inst, :hd, node) do
             0x0 -> nil
-            value -> {value, Instance.call(inst, :_test_tl, node)}
+            value -> {value, Instance.call(inst, :tl, node)}
           end
         end)
       end
@@ -98,7 +93,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       assert sum.(l2) == 7
       assert sum.(l3) == 12
 
-      Instance.call(inst, :_test_reverse, l3)
+      Instance.call(inst, :reverse, l3)
       Instance.log_memory(inst, 0x10000, 32)
       assert Enum.to_list(enum.(l1)) == [3, 4, 5]
     end
