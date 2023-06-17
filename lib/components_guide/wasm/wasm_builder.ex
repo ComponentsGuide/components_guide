@@ -67,7 +67,7 @@ defmodule ComponentsGuide.WasmBuilder do
     defmodule FetchFuncError do
       defexception [:func_name, :module_definition]
 
-      @impl
+      @impl true
       def message(%{func_name: func_name, module_definition: module_definition}) do
         "func #{func_name} not found in #{module_definition.name} #{inspect(module_definition.body)}"
       end
@@ -406,12 +406,19 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defp do_module_body(block, options, env) do
+  def do_module_body(block, options, env_module) do
     # TODO split into readonly_globals and mutable_globals?
     internal_global_types = Keyword.get(options, :globals, [])
     # TODO rename to export_readonly_globals?
     exported_global_types = Keyword.get(options, :exported_globals, [])
     exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
+
+    internal_global_types =
+      internal_global_types ++
+        List.flatten(List.wrap(Module.get_attribute(env_module, :wasm_global)))
+
+    # dbg(env_module)
+    # dbg(Module.get_attribute(env_module, :wasm_global))
 
     globals =
       (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
@@ -459,10 +466,24 @@ defmodule ComponentsGuide.WasmBuilder do
 
     constants = Enum.reverse(constants)
 
+    block_items =
+      case constants do
+        [] -> block_items
+        _ -> [quote(do: Constants.new(unquote(constants))) | block_items]
+      end
+
     %{
       body: block_items,
       constants: constants
     }
+  end
+
+  defmacro do_module_body2(block, options, env_module) do
+    result = do_module_body(block, options, env_module)[:body]
+
+    quote do
+      unquote(result)
+    end
   end
 
   defmodule BeforeCompile do
@@ -471,6 +492,12 @@ defmodule ComponentsGuide.WasmBuilder do
         def __wasm_module__() do
           import Kernel, except: [if: 2, sigil_s: 2]
           import ComponentsGuide.WasmBuilderUsing
+
+          if to_string(__MODULE__) ==
+               to_string(ComponentsGuide.Wasm.Examples.Parser.DomainNames) do
+            IO.puts("DomainNames!")
+            dbg(@wasm_global)
+          end
 
           ModuleDefinition.new(
             # name: unquote(name),
@@ -551,15 +578,14 @@ defmodule ComponentsGuide.WasmBuilder do
       |> Keyword.new(fn {key, _} -> {key, nil} end)
       |> Map.new()
 
-    %{body: block_items, constants: constants} = do_module_body(block, options, env)
-
+    %{body: block_items, constants: constants} = do_module_body(block, options, env.module)
     Module.put_attribute(env.module, :wasm_constants, constants)
 
-    block_items =
-      case constants do
-        [] -> block_items
-        _ -> [quote(do: Constants.new(unquote(constants))) | block_items]
-      end
+    # block_items =
+    #   case constants do
+    #     [] -> block_items
+    #     _ -> [quote(do: Constants.new(unquote(constants))) | block_items]
+    #   end
 
     # IO.inspect(block_items)
 
@@ -609,7 +635,15 @@ defmodule ComponentsGuide.WasmBuilder do
       @wasm_internal_globals unquote(internal_global_types)
       @wasm_exported_global_types unquote(exported_global_types)
       @wasm_exported_mutable_global_types unquote(exported_mutable_global_types)
-      @wasm_body unquote(block_items)
+      # @wasm_body unquote(block_items)
+
+      if Module.has_attribute?(__MODULE__, :wasm_at_runtime) do
+        # @wasm_body do_module_body(unquote(block), unquote(options), unquote(env.module))[:body]
+      else
+        @wasm_body unquote(block_items)
+        # @wasm_body unquote(do_module_body(block, options, env.module)[:body])
+        # @wasm_body do_module_body2(unquote(block), unquote(options), unquote(env.module))
+      end
 
       #       def __wasm_module__() do
       #         import Kernel, except: [if: 2, sigil_s: 2]

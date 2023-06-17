@@ -23,9 +23,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     end
 
     dbg("set global")
-    @wasm_global {:private2, i32(0)}
+    # @wasm_global {:private2, i32(0)}
     # @wasm_global private: i32(0)
     # global private: i32(0)
+
+    # globals do
+    #   private = i32(0)
+    # end
 
     defwasm globals: [
               private: i32_boolean(0),
@@ -42,7 +46,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       IntToString.funcp(:write_u32)
 
       func set_private() do
-        private = 1
+        # private = 1
+        1
+        global_set(:private)
       end
 
       func set_public() do
@@ -67,6 +73,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
       func to_string(),
            I32.String,
+           # globals: [public: I32],
            writer: I32,
            start: I32 do
         start = alloc(500)
@@ -75,7 +82,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         if public do
           write!(const("public"))
         else
-          if private do
+          # if private do
+          if global_get(:private) do
             write!(const("private"))
           else
             if no_store do

@@ -48,9 +48,12 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     @page_size 64 * 1024
     @bump_start 1 * @page_size
 
+    # @wasm_global bump_offset: i32(@bump_start)
+    @wasm_global {:bump_offset, i32(@bump_start)}
+
     defwasm exported_memory: 1,
             globals: [
-              bump_offset: i32(@bump_start)
+              # bump_offset: i32(@bump_start)
             ] do
       MemEql.funcp(:mem_eql_8)
       BumpAllocator.funcp(:bump_alloc)
