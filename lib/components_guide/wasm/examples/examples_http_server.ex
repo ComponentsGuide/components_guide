@@ -31,7 +31,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     #         path: i32_null_string()
 
     defwasm globals: [
-              bump_offset: i32(BumpAllocator.bump_offset()),
+              # bump_offset: i32(BumpAllocator.bump_offset()),
               bump_mark: i32(0),
               method: i32_null_string(),
               path: i32_null_string()
