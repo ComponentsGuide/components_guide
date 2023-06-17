@@ -115,6 +115,38 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
+    def join!(list!) when is_list(list!) do
+      snippet do
+        global_get(:bump_offset)
+        global_set(:bump_mark)
+
+        inline for item! <- list! do
+          case item! do
+            {:i32_const_string, strptr, string} ->
+              [
+                memcpy(global_get(:bump_offset), strptr, byte_size(string)),
+                I32.add(global_get(:bump_offset), byte_size(string)),
+                global_set(:bump_offset)
+              ]
+
+            strptr ->
+              [
+                memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr)),
+                I32.add(global_get(:bump_offset), call(:strlen, strptr)),
+                global_set(:bump_offset)
+              ]
+          end
+        end
+
+        # Add nul-terminator
+        I32.add(global_get(:bump_offset), 1)
+        global_set(:bump_offset)
+        # @bump_offset = I32.add(@bump_offset, 1)
+
+        global_get(:bump_mark)
+      end
+    end
+
     def alloc(byte_count) do
       call(:bump_alloc, byte_count)
     end

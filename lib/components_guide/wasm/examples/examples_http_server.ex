@@ -69,7 +69,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
             """
 
           _ ->
-            write!([
+            join!([
               ~S"""
               <!doctype html>
               """,
