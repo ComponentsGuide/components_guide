@@ -63,20 +63,22 @@ defmodule ComponentsGuide.WasmBuilder do
     def new(options) do
       {body, options} = Keyword.pop(options, :body)
 
-      body =
-        for item <- body do
-          case item do
-            {:mod_funcp_ref, mod, name} ->
-              fetch_funcp!(mod.__wasm_module__(), name)
+      {func_refs, other} = Enum.split_with(body, &match?({:mod_funcp_ref, _, _}, &1))
 
-            other ->
-              other
-          end
-        end
+      func_refs =
+        func_refs
+        |> Enum.uniq()
+        |> Enum.map(&resolve_func_ref/1)
+
+      body = func_refs ++ other
 
       options = Keyword.put(options, :body, body)
 
       struct!(__MODULE__, options)
+    end
+
+    defp resolve_func_ref({:mod_funcp_ref, mod, name}) do
+      fetch_funcp!(mod.__wasm_module__(), name)
     end
 
     defmodule FetchFuncError do
