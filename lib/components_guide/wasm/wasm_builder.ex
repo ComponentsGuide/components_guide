@@ -59,7 +59,21 @@ defmodule ComponentsGuide.WasmBuilder do
               globals: [],
               body: []
 
-    def fetch_funcp!(%__MODULE__{body: body}, name) do
+    def new(options) do
+      # dbg(options[:body])
+      struct!(__MODULE__, options)
+    end
+
+    defmodule FetchFuncError do
+      defexception [:func_name, :module_definition]
+
+      @impl
+      def message(%{func_name: func_name, module_definition: module_definition}) do
+        "func #{func_name} not found in #{module_definition.name} #{inspect(module_definition.body)}"
+      end
+    end
+
+    def fetch_funcp!(%__MODULE__{body: body} = module_definition, name) do
       body = List.flatten(body)
 
       # func = Enum.find(body, &match?(%Func{name: ^name}, &1))
@@ -69,7 +83,7 @@ defmodule ComponentsGuide.WasmBuilder do
           _ -> false
         end)
 
-      func || raise KeyError, key: name, term: body
+      func || raise FetchFuncError, func_name: name, module_definition: module_definition
     end
   end
 
@@ -392,7 +406,7 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defp do_module_body(block, options) do
+  defp do_module_body(block, options, env) do
     # TODO split into readonly_globals and mutable_globals?
     internal_global_types = Keyword.get(options, :globals, [])
     # TODO rename to export_readonly_globals?
@@ -422,7 +436,7 @@ defmodule ComponentsGuide.WasmBuilder do
         {atom, meta, nil}, constants when is_atom(atom) and is_map_key(globals, atom) ->
           {{:global_get, meta, [atom]}, constants}
 
-        {:const, _, [str]}, constants ->
+        {:const, _, [str]}, constants when is_binary(str) ->
           {quote(do: data_for_constant(unquote(str))), [str | constants]}
 
         {:sigil_S, _, [{:<<>>, _, [str]}, _]}, constants ->
@@ -459,7 +473,7 @@ defmodule ComponentsGuide.WasmBuilder do
           import ComponentsGuide.WasmBuilderUsing
 
           # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
-          %ModuleDefinition{
+          ModuleDefinition.new(
             name: @wasm_name,
             imports: @wasm_imports,
             globals: List.wrap(@wasm_internal_global_types) ++ List.wrap(@wasm_global),
@@ -467,7 +481,7 @@ defmodule ComponentsGuide.WasmBuilder do
             exported_mutable_global_types: @wasm_exported_mutable_global_types,
             memory: @wasm_memory2 || Memory.from(@wasm_memory),
             body: @wasm_body
-          }
+          )
         end
       end
     end
@@ -537,7 +551,7 @@ defmodule ComponentsGuide.WasmBuilder do
       |> Keyword.new(fn {key, _} -> {key, nil} end)
       |> Map.new()
 
-    %{body: block_items, constants: constants} = do_module_body(block, options)
+    %{body: block_items, constants: constants} = do_module_body(block, options, env)
 
     Module.put_attribute(env.module, :wasm_constants, constants)
 
@@ -547,21 +561,23 @@ defmodule ComponentsGuide.WasmBuilder do
         _ -> [quote(do: Constants.new(unquote(constants))) | block_items]
       end
 
-    Module.put_attribute(env.module, :wasm_memory2, memory)
+    # IO.inspect(block_items)
+
+    # Module.put_attribute(env.module, :wasm_memory2, memory)
     Module.put_attribute(env.module, :wasm_name, name)
-    Module.put_attribute(env.module, :wasm_imports, imports)
-    Module.put_attribute(env.module, :wasm_body, block_items)
+    # Module.put_attribute(env.module, :wasm_imports, imports)
+    # Module.put_attribute(env.module, :wasm_body, block_items)
     # Module.put_attribute(env.module, :wasm_imports, quote(do: unquote(imports)))
     # Module.put_attribute(env.module, :wasm_imports, Macro.escape(imports, unquote: true))
     # Module.put_attribute(env.module, :wasm_body, Macro.expand_once(block_items, env))
-    Module.put_attribute(env.module, :wasm_internal_globals, internal_global_types)
-    Module.put_attribute(env.module, :wasm_exported_global_types, exported_global_types)
+    # Module.put_attribute(env.module, :wasm_internal_globals, internal_global_types)
+    # Module.put_attribute(env.module, :wasm_exported_global_types, exported_global_types)
 
-    Module.put_attribute(
-      env.module,
-      :wasm_exported_mutable_global_types,
-      exported_mutable_global_types
-    )
+    # Module.put_attribute(
+    #   env.module,
+    #   :wasm_exported_mutable_global_types,
+    #   exported_mutable_global_types
+    # )
 
     quote do
       # @before_compile unquote(__MODULE__).BeforeCompile
@@ -576,19 +592,47 @@ defmodule ComponentsGuide.WasmBuilder do
       #   body: unquote(block_items)
       # }
 
+      #       def data_for_constant(value) do
+      #         constants = Constants.new(@wasm_constants)
+      #         # dbg(Constants.to_keylist(constants))
+      #         constants = Constants.to_map(constants)
+      #         Constants.resolve(constants, value)
+      # 
+      #         # %Data{offset: 0xff, value: value, nul_terminated: true}
+      #       end
+
+      import Kernel, except: [if: 2, sigil_s: 2]
+      import ComponentsGuide.WasmBuilderUsing
+
+      @wasm_imports unquote(imports)
+      @wasm_memory2 unquote(memory)
+      @wasm_internal_globals unquote(internal_global_types)
+      @wasm_exported_global_types unquote(exported_global_types)
+      @wasm_exported_mutable_global_types unquote(exported_mutable_global_types)
+      # @wasm_body Macro.expand(unquote(block_items), __ENV__)
+      # @wasm_body unquote(block_items)
+
+      def __wasm_body__() do
+        unquote(block_items)
+      end
+
       def __wasm_module__() do
         import Kernel, except: [if: 2, sigil_s: 2]
         import ComponentsGuide.WasmBuilderUsing
 
-        %ModuleDefinition{
-          name: unquote(name),
-          imports: unquote(imports),
-          globals: unquote(internal_global_types) ++ List.wrap(@wasm_global),
-          exported_globals: unquote(exported_global_types),
-          exported_mutable_global_types: unquote(exported_mutable_global_types),
-          memory: unquote(memory) || Memory.from(@wasm_memory),
-          body: unquote(block_items)
-        }
+        ModuleDefinition.new(
+          # name: unquote(name),
+          name: @wasm_name,
+          imports: @wasm_imports,
+          globals: List.wrap(@wasm_internal_globals) ++ List.wrap(@wasm_global),
+          # exported_globals: unquote(exported_global_types),
+          exported_globals: @wasm_exported_global_types,
+          exported_mutable_global_types: @wasm_exported_mutable_global_types,
+          memory: @wasm_memory2 || Memory.from(@wasm_memory),
+          # body: unquote(block_items)
+          # body: @wasm_body
+          body: __wasm_body__()
+        )
       end
     end
 
@@ -605,6 +649,16 @@ defmodule ComponentsGuide.WasmBuilder do
     # end
   end
 
+  defmacro data_for_constant(value) do
+    quote do
+      Constants.new(@wasm_constants)
+      |> Constants.to_map()
+      |> Constants.resolve(unquote(value))
+    end
+
+    # %Data{offset: 0xff, value: value, nul_terminated: true}
+  end
+
   defmacro defwasm(options \\ [], do: block) do
     name = __CALLER__.module |> Module.split() |> List.last()
 
@@ -616,16 +670,25 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       # Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
 
-      defmacrop data_for_constant(value) do
-        quote do
-          constants = Constants.new(unquote(@wasm_constants))
-          # dbg(Constants.to_keylist(constants))
-          constants = Constants.to_map(constants)
-          Constants.resolve(constants, unquote(value))
-        end
+      #       defmacrop data_for_constant(value) do
+      #         quote do
+      #           constants = Constants.new(unquote(@wasm_constants))
+      #           # dbg(Constants.to_keylist(constants))
+      #           constants = Constants.to_map(constants)
+      #           Constants.resolve(constants, unquote(value))
+      #         end
+      # 
+      #         # %Data{offset: 0xff, value: value, nul_terminated: true}
+      #       end
 
-        # %Data{offset: 0xff, value: value, nul_terminated: true}
-      end
+      #       def data_for_constant(value) do
+      #         constants = Constants.new(@wasm_constants)
+      #         # dbg(Constants.to_keylist(constants))
+      #         constants = Constants.to_map(constants)
+      #         Constants.resolve(constants, value)
+      # 
+      #         # %Data{offset: 0xff, value: value, nul_terminated: true}
+      #       end
 
       #       def __wasm_module__() do
       #         import Kernel, except: [if: 2, sigil_s: 2]
@@ -1076,6 +1139,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
   ####
 
+  # TODO: make this a separate function to the underlying say do_wat()
   def to_wat(term) when is_atom(term),
     do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
 

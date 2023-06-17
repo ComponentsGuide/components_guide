@@ -103,7 +103,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, result: I32 do
         I32.match body_chunk_index do
           0 ->
-            const(~S"<!doctype html>")
+            ~S"<!doctype html>"
 
           1 ->
             if call(:get_is_valid), result: I32 do
@@ -244,18 +244,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, result: I32 do
         I32.match body_chunk_index do
           0 ->
-            const(~S[<output class="flex p-4 bg-gray-800">])
+            ~S[<output class="flex p-4 bg-gray-800">]
 
           1 ->
             call(:i32toa, count)
 
           2 ->
-            const(~S[</output>])
+            ~S[</output>]
 
           3 ->
-            const(
-              ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
-            )
+            ~S[\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
 
           _ ->
             0x0
@@ -364,29 +362,29 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, result: I32 do
         I32.match body_chunk_index do
           0 ->
-            const(~S[<?xml version="1.0" encoding="UTF-8"?>\n])
+            ~S[<?xml version="1.0" encoding="UTF-8"?>\n]
 
           1 ->
-            const(~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n])
+            ~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n]
 
           2 ->
-            const(~S[<url>\n])
+            ~S[<url>\n]
 
           3 ->
-            const(~S[<loc>])
+            ~S[<loc>]
 
           4 ->
             call(:escape, input_offset, output_offset)
             push(output_offset)
 
           5 ->
-            const(~S[</loc>\n])
+            ~S[</loc>\n]
 
           6 ->
-            const(~S[</url>\n])
+            ~S[</url>\n]
 
           7 ->
-            const(~S[</urlset>\n])
+            ~S[</urlset>\n]
 
           _ ->
             0x0
@@ -469,17 +467,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             form_element_list = call(:reverse, form_element_list)
             body_chunk_index = form_element_list |> I32.if_eqz(do: 6, else: 1)
 
-            const(~S[<form>\n])
+            ~S[<form>\n]
             return()
 
           1 ->
-            const(~S[<label for="])
+            ~S[<label for="]
 
           2 ->
             call(:hd, form_element_list)
 
           3 ->
-            const(~S[">\n  <input type="text" name="])
+            ~S[">\n  <input type="text" name="]
 
           4 ->
             call(:hd, form_element_list)
@@ -488,11 +486,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             form_element_list = call(:tl, form_element_list)
             body_chunk_index = form_element_list |> I32.if_eqz(do: 6, else: 1)
 
-            const(~S[">\n</label>\n])
+            ~S[">\n</label>\n]
             return()
 
           6 ->
-            const(~S[</form>\n])
+            ~S[</form>\n]
 
           _ ->
             0x0
