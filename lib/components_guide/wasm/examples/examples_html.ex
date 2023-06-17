@@ -400,6 +400,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule HTMLFormBuilder do
     use Wasm
+    use BumpAllocator
 
     @wasm_memory 3
 
@@ -416,45 +417,44 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 
+    global(
+      body_chunk_index: i32(0),
+      form_element_list: i32(0x0)
+    )
+
+    # wasm_import(
+    #   log: [
+    #     int32: func(name: :log32, params: I32, result: I32)
+    #   ]
+    # )
+
     defwasm imports: [
               log: [
                 int32: func(name: :log32, params: I32, result: I32)
               ]
-            ],
-            exported_globals: [],
-            globals: [
-              body_chunk_index: i32(0),
-              bump_offset: i32(@_bump_start),
-              form_element_list: i32(0x0)
             ] do
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
       EscapeHTML.funcp(:escape)
-      BumpAllocator.funcp(:bump_alloc)
-      BumpAllocator.funcp(:bump_free_all)
       LinkedLists.funcp(:cons)
       LinkedLists.funcp(:hd)
       LinkedLists.funcp(:tl)
       LinkedLists.funcp(:reverse)
 
-      func alloc(byte_size(I32)), result: I32 do
-        # Need better maths than this to round up to aligned memory?
-        call(:bump_alloc, byte_size)
-      end
+      func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
 
       func add_textbox(name_ptr(I32)) do
-        form_element_list = call(:cons, name_ptr, form_element_list)
-        # :nop
+        @form_element_list = call(:cons, name_ptr, @form_element_list)
       end
 
-      func rewind do
-        body_chunk_index = 0
+      func rewind() do
+        @body_chunk_index = 0
       end
 
-      func next_body_chunk, result: I32 do
-        I32.match body_chunk_index do
+      func next_body_chunk, I32 do
+        I32.match @body_chunk_index do
           0 ->
-            form_element_list = call(:reverse, form_element_list)
-            body_chunk_index = form_element_list |> I32.if_eqz(do: 6, else: 1)
+            @form_element_list = call(:reverse, @form_element_list)
+            @body_chunk_index = @form_element_list |> I32.if_eqz(do: 6, else: 1)
 
             ~S[<form>\n]
             return()
@@ -463,17 +463,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S[<label for="]
 
           2 ->
-            call(:hd, form_element_list)
+            call(:hd, @form_element_list)
 
           3 ->
             ~S[">\n  <input type="text" name="]
 
           4 ->
-            call(:hd, form_element_list)
+            call(:hd, @form_element_list)
 
           5 ->
-            form_element_list = call(:tl, form_element_list)
-            body_chunk_index = form_element_list |> I32.if_eqz(do: 6, else: 1)
+            @form_element_list = call(:tl, @form_element_list)
+            @body_chunk_index = @form_element_list |> I32.if_eqz(do: 6, else: 1)
 
             ~S[">\n</label>\n]
             return()
@@ -485,7 +485,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        body_chunk_index = I32.add(body_chunk_index, 1)
+        @body_chunk_index = I32.add(@body_chunk_index, 1)
       end
     end
 

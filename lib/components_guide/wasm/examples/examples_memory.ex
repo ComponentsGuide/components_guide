@@ -121,6 +121,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       funcp bump_alloc(size(I32)), I32, address: I32 do
         # TODO: check if we have allocated too much
         # and if so, either err or increase the available memory.
+        # TODO: Need better maths than this to round up to aligned memory?
         address = @bump_offset
         @bump_offset = I32.add(@bump_offset, size)
         address
