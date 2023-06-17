@@ -1,64 +1,30 @@
 defmodule ComponentsGuide.Wasm.Examples.Memory do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.WasmBuilder
 
-  defmodule BumpAllocator do
-    @page_size 64 * 1024
-    @bump_start 1 * @page_size
-    defmacro bump_offset(), do: Macro.escape(@bump_start)
-
-    defmodule Constants do
-      @page_size 64 * 1024
-      @bump_start 1 * @page_size
-      # defmacro bump_init_offset(), do: Macro.escape(@bump_start)
-      def bump_init_offset(), do: @bump_start
-    end
-
-    # require Constants
-
-    use Wasm
-
-    # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
+  defmodule Copying do
+    use WasmBuilder
 
     defmacro __using__(_opts) do
       quote do
-        @wasm_memory 2
-        # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
+        # @wasm_memory 1
 
-        import ComponentsGuide.WasmBuilder
+        import WasmBuilder
 
-        global(
-          bump_offset: i32(BumpAllocator.bump_offset()),
-          bump_mark: i32(0)
-        )
-
-        ComponentsGuide.WasmBuilder.wasm do
-          unquote(__MODULE__).funcp(:bump_alloc)
+        wasm do
+          unquote(__MODULE__).funcp(:memcpy)
         end
 
         import unquote(__MODULE__)
       end
     end
 
-    defwasm exported_memory: 2,
-            globals: [
-              bump_offset: i32(64 * 1024),
-              bump_mark: i32(0)
-            ] do
-      funcp bump_alloc(size(I32)), I32, address: I32 do
-        # TODO: check if we have allocated too much
-        # and if so, either err or increase the available memory.
-        address = bump_offset
-        bump_offset = I32.add(bump_offset, size)
-        address
-      end
+    @wasm_memory 2
 
-      funcp bump_free_all() do
-        bump_offset = Constants.bump_init_offset()
-      end
-
-      funcp bump_memcpy(dest(I32), src(I32), byte_count(I32)),
-            nil,
-            i: I32 do
+    wasm do
+      func memcpy(dest(I32), src(I32), byte_count(I32)),
+           nil,
+           i: I32 do
         loop EachByte do
           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
 
@@ -101,6 +67,70 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         #           I32.lt_u(i, byte_count)
         #       end
       end
+    end
+
+    def memcpy(dest, src, byte_count) do
+      call(:memcpy, dest, src, byte_count)
+    end
+  end
+
+  defmodule BumpAllocator do
+    @page_size 64 * 1024
+    @bump_start 1 * @page_size
+    defmacro bump_offset(), do: Macro.escape(@bump_start)
+
+    defmodule Constants do
+      @page_size 64 * 1024
+      @bump_start 1 * @page_size
+      # defmacro bump_init_offset(), do: Macro.escape(@bump_start)
+      def bump_init_offset(), do: @bump_start
+    end
+
+    # require Constants
+
+    use Wasm
+    import ComponentsGuide.Wasm.Examples.Memory.Copying
+
+    # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
+
+    defmacro __using__(_opts) do
+      quote do
+        @wasm_memory 2
+        # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
+
+        import ComponentsGuide.WasmBuilder
+
+        global(
+          bump_offset: i32(BumpAllocator.bump_offset()),
+          bump_mark: i32(0)
+        )
+
+        use ComponentsGuide.Wasm.Examples.Memory.Copying
+
+        ComponentsGuide.WasmBuilder.wasm do
+          unquote(__MODULE__).funcp(:bump_alloc)
+        end
+
+        import unquote(__MODULE__)
+      end
+    end
+
+    defwasm exported_memory: 2,
+            globals: [
+              bump_offset: i32(64 * 1024),
+              bump_mark: i32(0)
+            ] do
+      funcp bump_alloc(size(I32)), I32, address: I32 do
+        # TODO: check if we have allocated too much
+        # and if so, either err or increase the available memory.
+        address = bump_offset
+        bump_offset = I32.add(bump_offset, size)
+        address
+      end
+
+      funcp bump_free_all() do
+        bump_offset = Constants.bump_init_offset()
+      end
 
       func alloc(size(I32)), result: I32 do
         call(:bump_alloc, size)
@@ -109,13 +139,11 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       func free_all() do
         call(:bump_free_all)
       end
-
-      func memcpy(dest(I32), src(I32), byte_count(I32)) do
-        call(:bump_memcpy, dest, src, byte_count)
-      end
     end
 
     def join!(list!) when is_list(list!) do
+      alias ComponentsGuide.Wasm.Examples.Memory.Copying
+
       snippet do
         global_get(:bump_offset)
         global_set(:bump_mark)
@@ -124,14 +152,14 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           case item! do
             {:i32_const_string, strptr, string} ->
               [
-                memcpy(global_get(:bump_offset), strptr, byte_size(string)),
+                Copying.memcpy(global_get(:bump_offset), strptr, byte_size(string)),
                 I32.add(global_get(:bump_offset), byte_size(string)),
                 global_set(:bump_offset)
               ]
 
             strptr ->
               [
-                memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr)),
+                Copying.memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr)),
                 I32.add(global_get(:bump_offset), call(:strlen, strptr)),
                 global_set(:bump_offset)
               ]
@@ -149,10 +177,6 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     def alloc(byte_count) do
       call(:bump_alloc, byte_count)
-    end
-
-    def memcpy(dest, src, byte_count) do
-      call(:bump_memcpy, dest, src, byte_count)
     end
 
     # def memcpy(dest, {:const_string, string}) do

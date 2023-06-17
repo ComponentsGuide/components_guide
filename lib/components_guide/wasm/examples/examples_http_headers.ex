@@ -27,8 +27,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     )
 
     wasm do
-      BumpAllocator.funcp(:bump_alloc)
-      BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:write_u32)
 
@@ -139,7 +137,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     )
 
     wasm do
-      BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
 

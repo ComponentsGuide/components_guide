@@ -1,12 +1,12 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
   alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Examples.Writer
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule PortfolioSite do
     use WasmBuilder
-    use BumpAllocator
+    use Memory.BumpAllocator
     use I32.String
     use IntToString
     import Writer
@@ -17,8 +17,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     )
 
     wasm do
-      BumpAllocator.funcp(:bump_memcpy)
-
       func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
 
       I32.attr_writer(:method, as: :set_method)

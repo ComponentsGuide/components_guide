@@ -5,6 +5,25 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory
 
+  describe "Copying" do
+    alias Memory.Copying
+
+    # setup do: %{inst: Instance.run(Copying)}
+
+    test "memcpy" do
+      # inst = context[:inst]
+      inst = Instance.run(Copying)
+      memcpy = Instance.capture(inst, :memcpy, 3)
+
+      p1 = 0xE00
+      p2 = 0xF00
+      Instance.write_i32(inst, p1, 0x12345678)
+      memcpy.(p2, p1, 4)
+      assert Instance.read_memory(inst, p1, 4) == <<0x78, 0x56, 0x34, 0x12>>
+      assert Instance.read_memory(inst, p2, 4) == <<0x78, 0x56, 0x34, 0x12>>
+    end
+  end
+
   describe "BumpAllocator" do
     alias Memory.BumpAllocator
 
@@ -33,19 +52,6 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       assert alloc.(0x10) == 0x10000
       assert alloc.(0x10) == 0x10010
       assert alloc.(0x10) == 0x10020
-    end
-
-    test "memcpy" do
-      inst = BumpAllocator.start()
-      alloc = Instance.capture(inst, :alloc, 1)
-      memcpy = Instance.capture(inst, :memcpy, 3)
-
-      p1 = alloc.(6)
-      p2 = alloc.(6)
-      Instance.write_i32(inst, p1, 0x12345678)
-      memcpy.(p2, p1, 4)
-      assert Instance.read_memory(inst, p1, 4) == <<0x78, 0x56, 0x34, 0x12>>
-      assert Instance.read_memory(inst, p2, 4) == <<0x78, 0x56, 0x34, 0x12>>
     end
   end
 

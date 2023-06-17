@@ -1,6 +1,8 @@
 defmodule ComponentsGuide.Wasm.Instance do
   alias ComponentsGuide.Wasm
 
+  require Logger
+
   defstruct [:handle]
 
   def run(mod) do
@@ -8,8 +10,7 @@ defmodule ComponentsGuide.Wasm.Instance do
     %__MODULE__{handle: handle}
   rescue
     x in [RuntimeError] ->
-      # IO.puts(__MODULE__.to_wat())
-      Logger.error(__MODULE__.to_wat())
+      Logger.error(mod.to_wat())
       reraise x, __STACKTRACE__
   end
 
