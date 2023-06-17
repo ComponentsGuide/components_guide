@@ -24,7 +24,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
-      MemEql.funcp(:mem_eql_8)
 
       func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
 

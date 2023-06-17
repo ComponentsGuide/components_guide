@@ -15,13 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use BumpAllocator
     import Writer
 
-    def start() do
-      Wasm.Instance.run(__MODULE__)
-    rescue
-      x in [RuntimeError] ->
-        Logger.error(__MODULE__.to_wat())
-        raise x
-    end
+    def start(), do: Wasm.Instance.run(__MODULE__)
 
     global(
       private: i32_boolean(0),
