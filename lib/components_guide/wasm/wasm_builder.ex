@@ -472,11 +472,11 @@ defmodule ComponentsGuide.WasmBuilder do
           import Kernel, except: [if: 2, sigil_s: 2]
           import ComponentsGuide.WasmBuilderUsing
 
-          # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
           ModuleDefinition.new(
+            # name: unquote(name),
             name: @wasm_name,
             imports: @wasm_imports,
-            globals: List.wrap(@wasm_internal_global_types) ++ List.wrap(@wasm_global),
+            globals: List.wrap(@wasm_internal_globals) ++ List.wrap(@wasm_global),
             exported_globals: @wasm_exported_global_types,
             exported_mutable_global_types: @wasm_exported_mutable_global_types,
             memory: @wasm_memory2 || Memory.from(@wasm_memory),
@@ -580,7 +580,7 @@ defmodule ComponentsGuide.WasmBuilder do
     # )
 
     quote do
-      # @before_compile unquote(__MODULE__).BeforeCompile
+      @before_compile unquote(__MODULE__).BeforeCompile
 
       # %ModuleDefinition{
       #   name: unquote(name),
@@ -609,31 +609,26 @@ defmodule ComponentsGuide.WasmBuilder do
       @wasm_internal_globals unquote(internal_global_types)
       @wasm_exported_global_types unquote(exported_global_types)
       @wasm_exported_mutable_global_types unquote(exported_mutable_global_types)
-      # @wasm_body Macro.expand(unquote(block_items), __ENV__)
-      # @wasm_body unquote(block_items)
+      @wasm_body unquote(block_items)
 
-      def __wasm_body__() do
-        unquote(block_items)
-      end
-
-      def __wasm_module__() do
-        import Kernel, except: [if: 2, sigil_s: 2]
-        import ComponentsGuide.WasmBuilderUsing
-
-        ModuleDefinition.new(
-          # name: unquote(name),
-          name: @wasm_name,
-          imports: @wasm_imports,
-          globals: List.wrap(@wasm_internal_globals) ++ List.wrap(@wasm_global),
-          # exported_globals: unquote(exported_global_types),
-          exported_globals: @wasm_exported_global_types,
-          exported_mutable_global_types: @wasm_exported_mutable_global_types,
-          memory: @wasm_memory2 || Memory.from(@wasm_memory),
-          # body: unquote(block_items)
-          # body: @wasm_body
-          body: __wasm_body__()
-        )
-      end
+      #       def __wasm_module__() do
+      #         import Kernel, except: [if: 2, sigil_s: 2]
+      #         import ComponentsGuide.WasmBuilderUsing
+      # 
+      #         ModuleDefinition.new(
+      #           # name: unquote(name),
+      #           name: @wasm_name,
+      #           imports: @wasm_imports,
+      #           globals: List.wrap(@wasm_internal_globals) ++ List.wrap(@wasm_global),
+      #           # exported_globals: unquote(exported_global_types),
+      #           exported_globals: @wasm_exported_global_types,
+      #           exported_mutable_global_types: @wasm_exported_mutable_global_types,
+      #           memory: @wasm_memory2 || Memory.from(@wasm_memory),
+      #           # body: unquote(block_items)
+      #           body: @wasm_body
+      #           # body: __wasm_body__()
+      #         )
+      #       end
     end
 
     # quote do
