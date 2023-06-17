@@ -75,20 +75,15 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
   end
 
   defmodule BumpAllocator do
-    @page_size 64 * 1024
-    @bump_start 1 * @page_size
-    defmacro bump_offset(), do: Macro.escape(@bump_start)
-
     defmodule Constants do
       @page_size 64 * 1024
       @bump_start 1 * @page_size
-      # defmacro bump_init_offset(), do: Macro.escape(@bump_start)
       def bump_init_offset(), do: @bump_start
     end
 
     # require Constants
 
-    use Wasm
+    use WasmBuilder
     import ComponentsGuide.Wasm.Examples.Memory.Copying
 
     # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
@@ -101,7 +96,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         import ComponentsGuide.WasmBuilder
 
         global(
-          bump_offset: i32(BumpAllocator.bump_offset()),
+          bump_offset: i32(Constants.bump_init_offset()),
           bump_mark: i32(0)
         )
 
@@ -115,21 +110,22 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
-    defwasm exported_memory: 2,
-            globals: [
-              bump_offset: i32(64 * 1024),
-              bump_mark: i32(0)
-            ] do
+    global(
+      bump_offset: i32(Constants.bump_init_offset()),
+      bump_mark: i32(0)
+    )
+
+    defwasm exported_memory: 2 do
       funcp bump_alloc(size(I32)), I32, address: I32 do
         # TODO: check if we have allocated too much
         # and if so, either err or increase the available memory.
-        address = bump_offset
-        bump_offset = I32.add(bump_offset, size)
+        address = @bump_offset
+        @bump_offset = I32.add(@bump_offset, size)
         address
       end
 
       funcp bump_free_all() do
-        bump_offset = Constants.bump_init_offset()
+        @bump_offset = Constants.bump_init_offset()
       end
 
       func alloc(size(I32)), result: I32 do
@@ -248,21 +244,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
   defmodule LinkedLists do
     use Wasm
+    use BumpAllocator
 
-    @page_size 64 * 1024
-    @bump_start 1 * @page_size
+    # increase_memory pages: 2
+    @wasm_memory 2
 
-    defwasm imports: [
-              env: [buffer: memory(1)]
-              # log: [
-              #   int32: func(name: :log32, params: I32, result: I32)
-              # ]
-            ],
-            globals: [
-              bump_offset: i32(@bump_start)
-            ] do
-      cpfuncp(bump_alloc, from: BumpAllocator, result: I32)
-
+    defwasm do
       funcp cons(hd(I32), tl(I32)), result: I32, locals: [ptr: I32] do
         ptr = call(:bump_alloc, 8)
         memory32![ptr] = hd

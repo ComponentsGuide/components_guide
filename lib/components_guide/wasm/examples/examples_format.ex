@@ -5,7 +5,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
   defmodule IntToString do
     use Wasm
-    require BumpAllocator
+    use BumpAllocator
 
     defmacro __using__(_) do
       quote do
@@ -18,14 +18,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
     end
 
-    @bump_start 1024
-
-    # I32.global bump_offset, BumpAllocator.bump_offset()
-
-    defwasm exported_memory: 2,
-            globals: [
-              bump_offset: i32(BumpAllocator.bump_offset())
-            ] do
+    defwasm exported_memory: 2 do
       func u32toa_count(value(I32)),
            I32,
            digit_count: I32,

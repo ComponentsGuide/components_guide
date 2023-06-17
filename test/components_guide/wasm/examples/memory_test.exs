@@ -8,11 +8,9 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
   describe "Copying" do
     alias Memory.Copying
 
-    # setup do: %{inst: Instance.run(Copying)}
+    setup do: %{inst: Instance.run(Copying)}
 
-    test "memcpy" do
-      # inst = context[:inst]
-      inst = Instance.run(Copying)
+    test "memcpy", %{inst: inst} do
       memcpy = Instance.capture(inst, :memcpy, 3)
 
       p1 = 0xE00
@@ -28,12 +26,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
     alias Memory.BumpAllocator
 
     test "compiles" do
-      try do
-        BumpAllocator.start()
-      rescue
-        RuntimeError ->
-          IO.puts(BumpAllocator.to_wat())
-      end
+      Instance.run(BumpAllocator)
     end
 
     test "single allocation" do
@@ -41,7 +34,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
     end
 
     test "multiple allocations" do
-      inst = BumpAllocator.start()
+      inst = Instance.run(BumpAllocator)
       alloc = Instance.capture(inst, :alloc, 1)
       free_all = Instance.capture(inst, :free_all, 0)
 

@@ -304,7 +304,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               bump_offset: i32(@_bump_start),
               output_offset: i32(@output_offset)
             ] do
-      # func escape_html, result: I32, from: StringHelpers
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
       # cpfuncp EscapeHTML, escape
@@ -437,7 +436,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               bump_offset: i32(@_bump_start),
               form_element_list: i32(0x0)
             ] do
-      # func escape_html, result: I32, from: StringHelpers
       # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
       EscapeHTML.funcp(:escape)
       BumpAllocator.funcp(:bump_alloc)
