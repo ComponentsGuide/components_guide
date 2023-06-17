@@ -187,6 +187,23 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     use Wasm
     use BumpAllocator
 
+    defmacro __using__(_opts) do
+      quote do
+        # @wasm_memory 1
+
+        import WasmBuilder
+
+        wasm do
+          unquote(__MODULE__).funcp(:cons)
+          unquote(__MODULE__).funcp(:hd)
+          unquote(__MODULE__).funcp(:tl)
+          unquote(__MODULE__).funcp(:reverse)
+        end
+
+        import unquote(__MODULE__)
+      end
+    end
+
     # increase_memory pages: 2
     @wasm_memory 2
 

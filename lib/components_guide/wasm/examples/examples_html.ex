@@ -287,6 +287,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule SitemapBuilder do
     use Wasm
     use BumpAllocator
+    use LinkedLists
 
     @wasm_memory 3
 
@@ -302,7 +303,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     global(
       body_chunk_index: i32(0),
-      output_offset: i32(@_output_offset)
+      output_offset: i32(@_output_offset),
+      url_list: i32(0x0)
     )
 
     wasm do
@@ -312,6 +314,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       # EscapeHTML.funcp escape(read_offset(I32), write_offset(I32)), I32
       # cpfuncp(escape, from: EscapeHTML, result: I32)
       EscapeHTML.funcp(:escape)
+
+      func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
 
       func rewind do
         @body_chunk_index = 0
@@ -339,19 +343,59 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         end
       end
 
-      # func next_body_chunk, ~E"""
-      # <?xml version="1.0" encoding="UTF-8"?>
-      # <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      # <url>
-      # <loc>
-      #   <% call(:escape, input_offset, output_offset) %>
-      #   <%= output_offset %>
-      # </loc>
-      # </url>
-      # </urlset>
-      # """
+      func add_url(str_ptr(I32)) do
+        @url_list = call(:cons, str_ptr, @url_list)
+      end
 
-      func next_body_chunk(), I32 do
+      func next_body_chunk, I32 do
+        I32.match @body_chunk_index do
+          0 ->
+            @url_list = call(:reverse, @url_list)
+            @body_chunk_index = @url_list |> I32.if_eqz(do: 4, else: 1)
+
+            ~S"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+            """
+
+            return()
+
+          1 ->
+            ~S"<url>\n<loc>"
+
+          2 ->
+            call(:escape, call(:hd, @url_list), @output_offset)
+            push(@output_offset)
+
+          3 ->
+            @url_list = call(:tl, @url_list)
+            @body_chunk_index = @url_list |> I32.if_eqz(do: 4, else: 1)
+
+            ~S"""
+            </loc>
+            </url>
+            """
+
+            # if @url_list do
+            #   @body_chunk_index = 1
+            #   return()
+            # end
+
+            return()
+
+          4 ->
+            ~S"""
+            </urlset>
+            """
+
+          _ ->
+            0x0
+        end
+
+        @body_chunk_index = I32.add(@body_chunk_index, 1)
+      end
+
+      func next_body_chunk2(), I32 do
         I32.match @body_chunk_index do
           0 ->
             ~S[<?xml version="1.0" encoding="UTF-8"?>\n]
@@ -401,6 +445,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule HTMLFormBuilder do
     use Wasm
     use BumpAllocator
+    use LinkedLists
 
     @wasm_memory 3
 
@@ -473,6 +518,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             @body_chunk_index = @form_element_list |> I32.if_eqz(do: 6, else: 1)
 
             ~S[">\n</label>\n]
+
+            # if @form_element_list do
+            #   @body_chunk_index = 1
+            #   return()
+            # end
+
             return()
 
           6 ->
