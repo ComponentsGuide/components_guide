@@ -34,12 +34,12 @@ defmodule ComponentsGuide.Wasm.Examples.Writer do
     end
   end
 
-  def write!(list) when is_list(list) do
+  def write!(list!) when is_list(list!) do
     snippet do
       global_get(:bump_offset)
       global_set(:bump_mark)
 
-      inline for item! <- list do
+      inline for item! <- list! do
         case item! do
           {:i32_const_string, strptr, string} ->
             [
@@ -56,6 +56,11 @@ defmodule ComponentsGuide.Wasm.Examples.Writer do
             ]
         end
       end
+
+      # Add nul-terminator
+      I32.add(global_get(:bump_offset), 1)
+      global_set(:bump_offset)
+      # @bump_offset = I32.add(@bump_offset, 1)
 
       global_get(:bump_mark)
     end
