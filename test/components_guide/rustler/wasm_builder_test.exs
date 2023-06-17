@@ -107,7 +107,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   defmodule HTTPStatusLookup do
     use ComponentsGuide.WasmBuilder
 
-    @statuses [
+    @_statuses [
       {200, "OK"},
       {201, "Created"},
       {204, "No Content"},
@@ -132,7 +132,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
     defwasm do
       wasm_import(:env, :buffer, memory(1))
 
-      for {status, message} <- @statuses do
+      for {status, message} <- @_statuses do
         data(status * 24, "#{message}\\00")
       end
 

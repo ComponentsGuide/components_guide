@@ -2,11 +2,22 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
   alias ComponentsGuide.Wasm
 
   defmodule BumpAllocator do
-    use Wasm
-
     @page_size 64 * 1024
     @bump_start 1 * @page_size
     defmacro bump_offset(), do: Macro.escape(@bump_start)
+
+    defmodule Constants do
+      @page_size 64 * 1024
+      @bump_start 1 * @page_size
+      # defmacro bump_init_offset(), do: Macro.escape(@bump_start)
+      def bump_init_offset(), do: @bump_start
+    end
+
+    # require Constants
+
+    use Wasm
+
+    # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
 
     defmacro __using__(_opts) do
       quote do
@@ -25,7 +36,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     defwasm exported_memory: 2,
             globals: [
-              bump_offset: i32(@bump_start),
+              bump_offset: i32(64 * 1024),
               bump_mark: i32(0)
             ] do
       funcp bump_alloc(size(I32)), I32, address: I32 do
@@ -37,7 +48,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       funcp bump_free_all() do
-        bump_offset = @bump_start
+        bump_offset = Constants.bump_init_offset()
       end
 
       funcp bump_memcpy(dest(I32), src(I32), byte_count(I32)),

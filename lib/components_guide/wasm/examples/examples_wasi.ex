@@ -26,6 +26,10 @@ defmodule ComponentsGuide.Wasm.Examples.WASI do
             ] do
     end
 
+    import ComponentsGuide.WasmBuilderUsing, only: []
+    import ComponentsGuide.WasmBuilderUsing2, only: []
+    import Kernel
+
     # Write 64-bit number in little-endian format
     def clock_res_get(instance, _clockid, address) do
       Instance.write_i64(instance, address, 0)

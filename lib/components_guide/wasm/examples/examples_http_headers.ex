@@ -19,23 +19,43 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     def start() do
       # ComponentsGuide.Wasm.run_instance(__MODULE__)
       Wasm.Instance.run(__MODULE__)
+    rescue
+      x in [RuntimeError] ->
+        # IO.puts(__MODULE__.to_wat())
+        Logger.error(__MODULE__.to_wat())
+        raise x
     end
 
-    # @wasm_global {:private2, i32(0)}
+    @wasm_global private: i32_boolean(0),
+                 public: i32_boolean(0),
+                 no_store: i32_boolean(0),
+                 immutable: i32_boolean(0),
+                 max_age_seconds: i32(-1),
+                 s_max_age_seconds: i32(-1)
     # @wasm_global private: i32(0)
     # global private: i32(0)
+    # I32.global private: 0
 
     # globals do
     #   private = i32(0)
     # end
 
+    globals = [
+      public: global_get(:public)
+    ]
+
+    # no_store = global_get(:no_store)
+    # immutable = global_get(:immutable)
+    # max_age_seconds = global_get(:max_age_seconds)
+    # s_max_age_seconds = global_get(:s_max_age_seconds)
+
     defwasm globals: [
-              private: i32_boolean(0),
-              public: i32_boolean(0),
-              no_store: i32_boolean(0),
-              immutable: i32_boolean(0),
-              max_age_seconds: i32(-1),
-              s_max_age_seconds: i32(-1)
+              # private: i32_boolean(0),
+              # public: i32_boolean(0),
+              # no_store: i32_boolean(0),
+              # immutable: i32_boolean(0),
+              # max_age_seconds: i32(-1),
+              # s_max_age_seconds: i32(-1)
               # bump_offset: i32(BumpAllocator.bump_offset())
             ] do
       BumpAllocator.funcp(:bump_alloc)
@@ -44,29 +64,27 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       IntToString.funcp(:write_u32)
 
       func set_private() do
-        # private = 1
-        1
-        global_set(:private)
+        @private = 1
       end
 
       func set_public() do
-        public = 1
+        @public = 1
       end
 
       func set_no_store() do
-        no_store = 1
+        @no_store = 1
       end
 
       func set_immutable() do
-        immutable = 1
+        @immutable = 1
       end
 
       func set_max_age(age_seconds(I32)) do
-        max_age_seconds = age_seconds
+        @max_age_seconds = age_seconds
       end
 
       func set_shared_max_age(age_seconds(I32)) do
-        s_max_age_seconds = age_seconds
+        @s_max_age_seconds = age_seconds
       end
 
       func to_string(),
@@ -77,38 +95,38 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         start = alloc(500)
         writer = start
 
-        if public do
+        if @public do
           write!(const("public"))
         else
           # if private do
           if global_get(:private) do
             write!(const("private"))
           else
-            if no_store do
+            if @no_store do
               write!(const("no-store"))
             end
           end
         end
 
-        if I32.ge_s(max_age_seconds, 0) do
+        if I32.ge_s(@max_age_seconds, 0) do
           if I32.gt_u(writer, start) do
             write!(const(", "))
           end
 
           write!(const("max-age="))
-          write!(u32: max_age_seconds)
+          write!(u32: @max_age_seconds)
         end
 
-        if I32.ge_s(s_max_age_seconds, 0) do
+        if I32.ge_s(@s_max_age_seconds, 0) do
           if I32.gt_u(writer, start) do
             write!(const(", "))
           end
 
           write!(const("s-maxage="))
-          write!(u32: s_max_age_seconds)
+          write!(u32: @s_max_age_seconds)
         end
 
-        if immutable do
+        if @immutable do
           if I32.gt_u(writer, start) do
             write!(const(", "))
           end

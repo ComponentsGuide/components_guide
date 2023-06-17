@@ -539,14 +539,14 @@ defmodule ComponentsGuide.WasmBuilder do
     defmacro __before_compile__(_env) do
       quote do
         def __wasm_module__() do
-          import Kernel, except: [if: 2, sigil_s: 2]
-          import ComponentsGuide.WasmBuilderUsing
+          # import Kernel, except: [if: 2, @: 1]
+          # import ComponentsGuide.WasmBuilderUsing2
 
           ModuleDefinition.new(
             # name: unquote(name),
             name: @wasm_name,
             imports: List.wrap(@wasm_imports),
-            globals: List.wrap(@wasm_internal_globals) ++ List.wrap(@wasm_global),
+            globals: List.wrap(@wasm_internal_globals) ++ List.flatten(List.wrap(@wasm_global)),
             exported_globals: List.wrap(@wasm_exported_global_types),
             exported_mutable_global_types: List.wrap(@wasm_exported_mutable_global_types),
             memory: @wasm_memory2 || Memory.from(@wasm_memory),
@@ -590,11 +590,6 @@ defmodule ComponentsGuide.WasmBuilder do
 
     imports = List.flatten(imports)
 
-    if to_string(env.module) == to_string(ComponentsGuide.Wasm.Examples.HTTPHeaders.CacheControl) do
-      attr_globals = Module.get_attribute(env.module, :wasm_global)
-      dbg(attr_globals)
-    end
-
     # TODO split into readonly_globals and mutable_globals?
     internal_global_types = Keyword.get(options, :globals, [])
     # TODO rename to export_readonly_globals?
@@ -630,16 +625,23 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       # @before_compile unquote(__MODULE__).BeforeCompile
 
-      import Kernel, except: [if: 2, sigil_s: 2]
-      import ComponentsGuide.WasmBuilderUsing
-
       @wasm_imports unquote(imports)
       @wasm_memory2 unquote(memory)
       @wasm_internal_globals unquote(internal_global_types)
       @wasm_exported_global_types unquote(exported_global_types)
       @wasm_exported_mutable_global_types unquote(exported_mutable_global_types)
 
+      import Kernel, except: [if: 2, @: 1]
+      import ComponentsGuide.WasmBuilderUsing
+      import ComponentsGuide.WasmBuilderUsing2
+
       @wasm_body unquote(block_items)
+      # @wasm_body do_module_body(unquote(block), unquote(options), unquote(env.module))
+      # @wasm_body unquote(do_module_body(block, options, env.module)[:body])
+
+      import Kernel
+      import ComponentsGuide.WasmBuilderUsing, only: []
+      import ComponentsGuide.WasmBuilderUsing2, only: []
     end
   end
 
@@ -663,6 +665,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
       # import Kernel
       unquote(definition)
+
+      import Kernel
     end
   end
 
@@ -694,34 +698,34 @@ defmodule ComponentsGuide.WasmBuilder do
 
   defmacro func(call, options) when is_list(options) do
     {block, options} = Keyword.pop!(options, :do)
-    define_func(call, :public, options, block)
+    define_func(call, :public, options, block, __CALLER__)
   end
 
   defmacro func(call, options, do: block) when is_list(options) do
-    define_func(call, :public, options, block)
+    define_func(call, :public, options, block, __CALLER__)
   end
 
   defmacro func(call, result_type, do: block) do
-    define_func(call, :public, [result: result_type], block)
+    define_func(call, :public, [result: result_type], block, __CALLER__)
   end
 
   defmacro func(call, nil, locals, do: block) when is_list(locals) do
-    define_func(call, :public, [locals: locals], block)
+    define_func(call, :public, [locals: locals], block, __CALLER__)
   end
 
   defmacro func(call, result_type, locals, do: block) when is_list(locals) do
-    define_func(call, :public, [result: result_type, locals: locals], block)
+    define_func(call, :public, [result: result_type, locals: locals], block, __CALLER__)
   end
 
   # TODO: require `globals` option be passed to explicitly list global used.
   # Would be useful for sharing funcp between wasm modules too.
   # Also incentivises making funcp pure by having all inputs be parameters.
   defmacro funcp(call, options \\ [], do: block) do
-    define_func(call, :private, options, block)
+    define_func(call, :private, options, block, __CALLER__)
   end
 
   defmacro funcp(call, result_type, locals, do: block) when is_list(locals) do
-    define_func(call, :private, [result: result_type, locals: locals], block)
+    define_func(call, :private, [result: result_type, locals: locals], block, __CALLER__)
   end
 
   defmacro cpfuncp(call, options) do
@@ -731,28 +735,10 @@ defmodule ComponentsGuide.WasmBuilder do
     source = Macro.expand(source, __CALLER__)
     func = source.funcp(name)
 
-    # local_def = Macro.expand_literals(define_func(call, :private, options, nil), __CALLER__)
-
-    # local_def = Macro.expand(define_func(call, :private, options, nil), __CALLER__)
-    # local_def = define_func(call, :private, options, nil)
-    # IO.inspect(local_def)
-    # IO.inspect(name)
-    # quote bind_quoted: [name: name] do
-    #   case unquote(local_def) do
-    #     %{name: ^name} -> unquote(func)
-    #     _ -> raise "Function options must match source"
-    #   end
-    # end
-
-    # case local_def do
-    #   %{name: ^name} -> Macro.escape(func)
-    #   _ -> raise "Function options must match source"
-    # end
-
     Macro.escape(func)
   end
 
-  defp define_func(call, visibility, options, block) do
+  defp define_func(call, visibility, options, block, env) do
     call = Macro.expand_once(call, __ENV__)
 
     {name, args} =
@@ -794,48 +780,16 @@ defmodule ComponentsGuide.WasmBuilder do
 
     locals = Map.new(arg_types ++ local_types)
 
+    # block = Macro.expand_once(block, __ENV__)
+
     block_items =
       case block do
         {:__block__, _meta, block_items} -> block_items
         single -> [single]
       end
 
+    block_items = Macro.expand(block_items, env)
     block_items = do_snippet(locals, block_items)
-    # block_items =
-    #   Macro.prewalk(block_items, fn
-    #     {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
-    #       quote do: {:i32, :store8, unquote(offset), unquote(value)}
-
-    #     {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _,
-    #      _} ->
-    #       quote do: {:i32, :load8_u, unquote(offset)}
-
-    #     {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
-    #       quote do: {:i32, :store, unquote(offset), unquote(value)}
-
-    #     {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
-    #       quote do: {:i32, :load, unquote(offset)}
-
-    #     {:=, _, [{local, _, nil}, input]}
-    #     when is_atom(local) and is_map_key(locals, local) ->
-    #       [input, quote(do: {:local_set, unquote(local)})]
-
-    #     {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
-    #       {:local_get, meta, [atom]}
-
-    #     {:=, _, [{:_, _, nil}, value]} ->
-    #       quote do: [unquote(value), :drop]
-
-    #     other ->
-    #       other
-    #   end)
-
-    # constants = for {:const, _, [str]} when is_binary(str) <- Macro.prewalker(block_items) do
-    #   str
-    # end
-    # {data_els, _} = Enum.map_reduce(constants, 0x4, fn string, offset ->
-    #   {data_nul_terminated(offset, string), offset + byte_size(string) + 1}
-    # end)
 
     quote do
       # List.flatten([
@@ -873,6 +827,19 @@ defmodule ComponentsGuide.WasmBuilder do
 
       {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
         {:local_get, meta, [atom]}
+
+      # @some_global = input
+      {:=, _, [{:@, _, [{global, _, nil}]}, input]} = term when is_atom(global) ->
+        [input, global_set(global)]
+
+      # @some_global
+      #       node = {:@, meta, [{global, _, nil}]} when is_atom(global) ->
+      #         if global == :weekdays_i32 do
+      #           dbg(meta)
+      #           dbg(node)
+      #         end
+      # 
+      #         {:global_get, meta, [global]}
 
       {:=, _, [{:_, _, nil}, value]} ->
         quote do: [unquote(value), :drop]
@@ -1049,11 +1016,14 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
+  # import Kernel
+
   defmacro inline(do: block) do
     get_block_items(block)
   end
 
   defmacro inline({:for, meta, [for_arg]}, do: block) do
+    # import Kernel
     {:for, meta, [for_arg, [do: get_block_items(block)]]}
     # {:for, meta, [for_arg, [do: quote do: inline(do: unquote(block))]]}
   end
@@ -1510,4 +1480,49 @@ defmodule ComponentsGuide.WasmBuilderUsing do
   end
 
   # defdelegate if(condition, cases), to: ComponentsGuide.WasmBuilder, as: :if_
+end
+
+defmodule ComponentsGuide.WasmBuilderUsing2 do
+  import Kernel, except: [if: 2, @: 1]
+  import ComponentsGuide.WasmBuilderUsing
+
+  defmacro @{name, meta, args} do
+    IO.inspect({name, meta, args})
+
+    dbg(
+      {__CALLER__.module, name, Module.attributes_in(__CALLER__.module),
+       Module.has_attribute?(__CALLER__.module, name)}
+    )
+
+    Kernel.if Module.has_attribute?(__CALLER__.module, name) ||
+                String.starts_with?(to_string(name), "_") do
+      # Kernel.@({name, meta, args}) || :foo
+      term = {name, meta, args}
+
+      quote do
+        Kernel.@(unquote(term))
+      end
+
+      # nil
+    else
+      {:global_get, meta, [name]}
+    end
+  end
+
+  #   defmacro @{name, meta, args} do
+  #     IO.inspect({name, meta, args})
+  #     # dbg(
+  #     #   {__CALLER__.module, name, Module.attributes_in(__CALLER__.module),
+  #     #    Module.has_attribute?(__CALLER__.module, name)}
+  #     # )
+  # 
+  #     Kernel.if Module.has_attribute?(__CALLER__.module, name) ||
+  #                 String.starts_with?(to_string(name), "_") do
+  #       # Kernel.@({name, meta, args}) || :foo
+  #       Kernel.@(name) || :foo
+  #       # nil
+  #     else
+  #       {:global_get, meta, [name]}
+  #     end
+  #   end
 end

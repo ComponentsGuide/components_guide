@@ -39,6 +39,7 @@ defmodule ComponentsGuide.Wasm do
       def start() do
         # if Module.defines?(__MODULE__, {:to_wat, 0}, :def) do
         try do
+          # ComponentsGuide.Wasm.Instance.run(__MODULE__)
           ComponentsGuide.Wasm.run_instance(__MODULE__)
         rescue
           x in [RuntimeError] ->

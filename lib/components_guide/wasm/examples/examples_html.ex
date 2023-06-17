@@ -9,7 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @wasm_memory 2
 
-    @escaped_html_table [
+    @_escaped_html_table [
       {?&, ~C"&amp;"},
       {?<, ~C"&lt;"},
       {?>, ~C"&gt;"},
@@ -27,7 +27,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
 
-            inline for {char_to_match!, chars_out!} <- @escaped_html_table do
+            inline for {char_to_match!, chars_out!} <- @_escaped_html_table do
               if I32.eq(char, char_to_match!) do
                 inline for char_out! <- chars_out! do
                   memory32_8![I32.add(write_offset, bytes_written)] = char_out!
@@ -191,12 +191,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #       """)
 
     @wasm_memory 1
-    @bump_start 1024
+    @_bump_start 1024
 
     defwasm globals: [
               count: i32(0),
               body_chunk_index: i32(0),
-              bump_offset: i32(@bump_start)
+              bump_offset: i32(@_bump_start)
             ] do
       func(get_current, result: I32, do: count)
 
@@ -207,12 +207,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
       func rewind, locals: [i: I32] do
         body_chunk_index = 0
-        bump_offset = @bump_start
+        bump_offset = @_bump_start
 
         i = 64
 
         loop Clear do
-          memory32![I32.add(i, @bump_start)] = 0x0
+          memory32![I32.add(i, @_bump_start)] = 0x0
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)
@@ -291,17 +291,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @page_size 64 * 1024
     @readonly_start 0xFFF
-    @bump_start 1 * @page_size
+    @_bump_start 1 * @page_size
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
     # @output_offset 2 * 64 * 1024
 
     defwasm exported_globals: [
-              input_offset: i32(@bump_start)
+              input_offset: i32(@_bump_start)
             ],
             globals: [
               body_chunk_index: i32(0),
-              bump_offset: i32(@bump_start),
+              bump_offset: i32(@_bump_start),
               output_offset: i32(@output_offset)
             ] do
       # func escape_html, result: I32, from: StringHelpers
@@ -326,7 +326,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func free, locals: [i: I32] do
-        bump_offset = @bump_start
+        bump_offset = @_bump_start
 
         # for (i = 64, i >= 0; i--)
         i = 64
@@ -338,7 +338,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         # while I32.ge_u(i, 0) do
         # loop Clear, while: I32.ge_u(i, 0) do
         loop Clear do
-          memory32![I32.add(i, @bump_start)] = 0x0
+          memory32![I32.add(i, @_bump_start)] = 0x0
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)
@@ -414,7 +414,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     @wasm_memory 3
 
     @page_size 64 * 1024
-    @bump_start 1 * @page_size
+    @_bump_start 1 * @page_size
 
     @field_types I32.enum([
                    :textbox,
@@ -434,7 +434,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             exported_globals: [],
             globals: [
               body_chunk_index: i32(0),
-              bump_offset: i32(@bump_start),
+              bump_offset: i32(@_bump_start),
               form_element_list: i32(0x0)
             ] do
       # func escape_html, result: I32, from: StringHelpers
