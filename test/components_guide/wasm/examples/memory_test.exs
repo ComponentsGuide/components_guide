@@ -48,61 +48,6 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
     end
   end
 
-  describe "StringHelpers" do
-    alias Memory.StringHelpers
-
-    test "strlen" do
-      inst = StringHelpers.start()
-      strlen = Instance.capture(inst, :strlen, 1)
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "hello")
-      Instance.write_string_nul_terminated(inst, 0x00200, "me")
-      assert strlen.(0x00100) == 5
-      assert strlen.(0x00200) == 2
-    end
-  end
-
-  describe "MemEql" do
-    alias Memory.MemEql
-
-    test "mem_eql_8" do
-      inst = MemEql.start()
-      mem_eql_8 = Instance.capture(inst, :_mem_eql_8, 2)
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "hello")
-      Instance.write_string_nul_terminated(inst, 0x00200, "world")
-      assert mem_eql_8.(0x00100, 0x00200) == 0
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "hello")
-      Instance.write_string_nul_terminated(inst, 0x00200, "hello")
-      assert mem_eql_8.(0x00100, 0x00200) == 1
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "hellp")
-      Instance.write_string_nul_terminated(inst, 0x00200, "hello")
-      assert mem_eql_8.(0x00100, 0x00200) == 0
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "hi\0\0\0")
-      Instance.write_string_nul_terminated(inst, 0x00200, "hip\0\0")
-      assert mem_eql_8.(0x00100, 0x00200) == 0
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "hip\0\0")
-      Instance.write_string_nul_terminated(inst, 0x00200, "hi\0\0\0")
-      assert mem_eql_8.(0x00100, 0x00200) == 0
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "\0\0\0\0\0")
-      Instance.write_string_nul_terminated(inst, 0x00200, "\0\0\0\0\0")
-      assert mem_eql_8.(0x00100, 0x00200) == 1
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "h\0\0\0\0")
-      Instance.write_string_nul_terminated(inst, 0x00200, "\0\0\0\0\0")
-      assert mem_eql_8.(0x00100, 0x00200) == 0
-
-      Instance.write_string_nul_terminated(inst, 0x00100, "\0\0\0\0\0")
-      Instance.write_string_nul_terminated(inst, 0x00200, "h\0\0\0\0")
-      assert mem_eql_8.(0x00100, 0x00200) == 0
-    end
-  end
-
   describe "LinkedLists" do
     alias Memory.LinkedLists
 

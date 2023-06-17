@@ -180,68 +180,6 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     # end
   end
 
-  defmodule MemEql do
-    use Wasm
-
-    @wasm_memory 1
-
-    defwasm do
-      # TODO: move to I32.String and rename streq
-      funcp mem_eql_8(address_a(I32), address_b(I32)),
-        result: I32,
-        locals: [i: I32, byte_a: I32, byte_b: I32] do
-        loop EachByte, result: I32 do
-          byte_a = memory32_8![I32.add(address_a, i)].unsigned
-          byte_b = memory32_8![I32.add(address_b, i)].unsigned
-
-          if I32.eqz(byte_a) do
-            return(I32.eqz(byte_b))
-          end
-
-          if I32.eq(byte_a, byte_b) do
-            i = I32.add(i, 1)
-            EachByte.continue()
-            # return(0x1)
-          end
-
-          return(0x0)
-        end
-      end
-
-      # raw_wat(~S[(export "_mem_eql_8" (func $mem_eql_8))])
-      ~A[(export "_mem_eql_8" (func $mem_eql_8))]
-    end
-
-    def mem_eql_8(address_a, address_b) do
-      call(:mem_eql_8, address_a, address_b)
-    end
-  end
-
-  defmodule StringHelpers do
-    use Wasm
-    use BumpAllocator
-
-    defwasm do
-      func strlen(string_ptr(I32)), result: I32, locals: [count: I32] do
-        # while (string_ptr[count] != 0) {
-        #   count++;
-        # }
-
-        # loop EachChar, while: memory32_8![count] do
-        loop EachChar do
-          if memory32_8![I32.add(string_ptr, count)].unsigned do
-            count = I32.add(count, 1)
-            EachChar.continue()
-          end
-        end
-
-        count
-      end
-    end
-
-    def strlen(string_ptr), do: call(:strlen, string_ptr)
-  end
-
   defmodule LinkedLists do
     use Wasm
     use BumpAllocator
