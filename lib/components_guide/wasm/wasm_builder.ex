@@ -392,6 +392,65 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
+  defp do_module_body(block, options) do
+    # TODO split into readonly_globals and mutable_globals?
+    internal_global_types = Keyword.get(options, :globals, [])
+    # TODO rename to export_readonly_globals?
+    exported_global_types = Keyword.get(options, :exported_globals, [])
+    exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
+
+    globals =
+      (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
+      |> Keyword.new(fn {key, _} -> {key, nil} end)
+      |> Map.new()
+
+    block_items =
+      case block do
+        {:__block__, _meta, block_items} -> block_items
+        single -> List.wrap(single)
+      end
+
+    # block_items = Macro.expand(block_items, env)
+    # block_items = block_items
+
+    {block_items, constants} =
+      Macro.prewalk(block_items, [], fn
+        {:=, _meta1, [{global, _meta2, nil}, input]}, constants
+        when is_atom(global) and is_map_key(globals, global) ->
+          {[input, global_set(global)], constants}
+
+        {atom, meta, nil}, constants when is_atom(atom) and is_map_key(globals, atom) ->
+          {{:global_get, meta, [atom]}, constants}
+
+        {:const, _, [str]}, constants ->
+          {quote(do: data_for_constant(unquote(str))), [str | constants]}
+
+        {:sigil_S, _, [{:<<>>, _, [str]}, _] = args}, constants ->
+          {
+            quote(do: data_for_constant(unquote(str))),
+            [str | constants]
+          }
+
+        {:sigil_s, _, [{:<<>>, _, [str]}, _] = args}, constants ->
+          {
+            quote(do: data_for_constant(unquote(str))),
+            [str | constants]
+          }
+
+        # {quote(do: data_for_constant(unquote(str))), [str | constants]}
+
+        other, constants ->
+          {other, constants}
+      end)
+
+    constants = Enum.reverse(constants)
+
+    %{
+      body: block_items,
+      constants: constants
+    }
+  end
+
   defp define_module(name, options, block, env) do
     options = Macro.expand(options, env)
 
@@ -451,69 +510,13 @@ defmodule ComponentsGuide.WasmBuilder do
           })
       end
 
-    # internal_global_types =
-    #   for {name, value} <- internal_global_types do
-    #     quote do
-    #       {unquote(name), Global.new(unquote(name), :internal, unquote(value))}
-    #     end
-    #   end
-
-    # exported_global_types =
-    #   for {name, value} <- exported_global_types do
-    #     {name, Global.new(name, :exported, value)}
-    #     # quote do
-    #     #   {unquote(name), Global.new(unquote(name), :exported, unquote(value))}
-    #     # end
-    #   end
-
     globals =
       (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
       |> Keyword.new(fn {key, _} -> {key, nil} end)
       |> Map.new()
 
-    # block = Macro.expand(block, env)
-    block_items =
-      case block do
-        {:__block__, _meta, block_items} -> block_items
-        single -> List.wrap(single)
-      end
+    %{body: block_items, constants: constants} = do_module_body(block, options)
 
-    # block_items = Macro.expand(block_items, env)
-    # block_items = block_items
-
-    {block_items, constants} =
-      Macro.prewalk(block_items, [], fn
-        {:=, _meta1, [{global, _meta2, nil}, input]}, constants
-        when is_atom(global) and is_map_key(globals, global) ->
-          {[input, global_set(global)], constants}
-
-        {atom, meta, nil}, constants when is_atom(atom) and is_map_key(globals, atom) ->
-          {{:global_get, meta, [atom]}, constants}
-
-        {:const, _, [str]}, constants ->
-          {quote(do: data_for_constant(unquote(str))), [str | constants]}
-
-        {:sigil_S, _, [{:<<>>, _, [str]}, _] = args}, constants ->
-          {
-            quote(do: data_for_constant(unquote(str))),
-            [str | constants]
-          }
-
-        {:sigil_s, _, [{:<<>>, _, [str]}, _] = args}, constants ->
-          {
-            quote(do: data_for_constant(unquote(str))),
-            [str | constants]
-          }
-
-        # {quote(do: data_for_constant(unquote(str))), [str | constants]}
-
-        other, constants ->
-          {other, constants}
-      end)
-
-    # block_items = List.flatten(block_items)
-
-    constants = Enum.reverse(constants)
     Module.put_attribute(env.module, :wasm_constants, constants)
 
     block_items =

@@ -113,7 +113,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
         </output>
       </form>
     </wasm-http-server>
-    
+
     <p>Wasm Bytes: <%= byte_size(PortfolioSite.to_wasm()) %></p>
     """
   end
@@ -134,7 +134,11 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
   end
 
   @impl true
-  def handle_event("submitted", form_values = %{"user_method" => user_method, "user_path" => user_path}, socket) do
+  def handle_event(
+        "submitted",
+        form_values = %{"user_method" => user_method, "user_path" => user_path},
+        socket
+      ) do
     state =
       socket.assigns.state
       |> State.apply_input(user_method, user_path)
