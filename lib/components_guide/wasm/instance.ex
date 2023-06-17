@@ -57,21 +57,43 @@ defmodule ComponentsGuide.Wasm.Instance do
     as: :instance_call_joining_string_chunks
 
   def capture(inst, f, arity) do
+    wrap = &alloc_if_needed(inst, &1)
+
     # call = Function.capture(__MODULE__, :call, arity + 2)
     case arity do
-      0 -> fn -> call(inst, f) end
-      1 -> fn a -> call(inst, f, a) end
-      2 -> fn a, b -> call(inst, f, a, b) end
-      3 -> fn a, b, c -> call(inst, f, a, b, c) end
+      0 ->
+        fn -> call(inst, f) end
+
+      1 ->
+        fn a -> call(inst, f, wrap.(a)) end
+
+      2 ->
+        fn a, b -> call(inst, f, wrap.(a), wrap.(b)) end
+
+      3 ->
+        fn a, b, c ->
+          call(inst, f, wrap.(a), wrap.(b), wrap.(c))
+        end
     end
   end
 
   def capture_reading_string(inst, f, arity) do
+    wrap = &alloc_if_needed(inst, &1)
+
     case arity do
-      0 -> fn -> call_reading_string(inst, f) end
-      1 -> fn a -> call_reading_string(inst, f, a) end
-      2 -> fn a, b -> call_reading_string(inst, f, a, b) end
-      3 -> fn a, b, c -> call_reading_string(inst, f, a, b, c) end
+      0 ->
+        fn -> call_reading_string(inst, f) end
+
+      1 ->
+        fn a -> call_reading_string(inst, f, wrap.(a)) end
+
+      2 ->
+        fn a, b -> call_reading_string(inst, f, wrap.(a), wrap.(b)) end
+
+      3 ->
+        fn a, b, c ->
+          call_reading_string(inst, f, wrap.(a), wrap.(b), wrap.(c))
+        end
     end
   end
 
@@ -80,6 +102,9 @@ defmodule ComponentsGuide.Wasm.Instance do
     write_string_nul_terminated(instance, offset, string)
     offset
   end
+
+  defp alloc_if_needed(inst, value) when is_binary(value), do: alloc_string(inst, value)
+  defp alloc_if_needed(_inst, value), do: value
 
   def log_memory(instance, start, length) do
     bytes = read_memory(instance, start, length)

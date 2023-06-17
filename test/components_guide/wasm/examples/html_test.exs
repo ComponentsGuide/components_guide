@@ -241,12 +241,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       alloc_string = &Instance.alloc_string(instance, &1)
       add_url = Instance.capture(instance, :add_url, 1)
 
-      # SitemapBuilder.write_input(instance, "https://example.org/a=1&b=2&c=3")
-      url = alloc_string.("https://example.org/a=1&b=2&c=3")
-      add_url.(url)
-
-      url2 = alloc_string.("https://example.com/")
-      add_url.(url2)
+      add_url.("https://example.org/a=1&b=2&c=3")
+      add_url.("https://example.com/")
 
       body = SitemapBuilder.read_body(instance)
 
