@@ -2,7 +2,6 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-  alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Parser.HexConversion
 
   defmodule Square do

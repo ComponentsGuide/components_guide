@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.Parser do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule HexConversion do
@@ -39,10 +38,6 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     use Wasm
     use BumpAllocator
     use I32.String
-
-    wasm do
-      MemEql.funcp(:mem_eql_8)
-    end
 
     wasm do
       func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))

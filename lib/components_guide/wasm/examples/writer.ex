@@ -1,8 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.Writer do
   use ComponentsGuide.Wasm
   import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-  alias ComponentsGuide.Wasm.Examples.Memory.MemEql
-  alias ComponentsGuide.Wasm.Examples.Memory.StringHelpers
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   def write!(src, byte_count) do

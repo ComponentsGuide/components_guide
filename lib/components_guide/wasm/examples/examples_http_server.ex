@@ -1,7 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Writer
-  alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
