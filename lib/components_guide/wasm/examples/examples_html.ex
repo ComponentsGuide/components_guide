@@ -404,16 +404,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @wasm_memory 3
 
-    @page_size 64 * 1024
-    @_bump_start 1 * @page_size
-
-    @field_types I32.enum([
-                   :textbox,
-                   :url,
-                   :email,
-                   :checkbox,
-                   :hidden
-                 ])
+    @_field_types I32.enum([
+                    :textbox,
+                    :url,
+                    :email,
+                    :checkbox,
+                    :hidden
+                  ])
 
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 
