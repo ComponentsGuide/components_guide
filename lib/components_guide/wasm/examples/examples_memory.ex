@@ -22,7 +22,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     defmacro __using__(_opts) do
       quote do
         @wasm_memory 2
-        @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
+        # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
+
+        global(
+          bump_offset: i32(BumpAllocator.bump_offset()),
+          bump_mark: i32(0)
+        )
 
         import unquote(__MODULE__)
 

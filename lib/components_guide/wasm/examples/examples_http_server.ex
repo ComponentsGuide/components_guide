@@ -24,12 +24,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       end
     end
 
-    # @global bump_offset: i32(BumpAllocator.bump_offset()),
-    #         method: I32.String.null(),
-    #         path: I32.String.null()
+    # global method: I32.String.null(),
+    # path: I32.String.null()
 
     defwasm globals: [
-              bump_mark: i32(0),
               method: I32.String.null(),
               path: I32.String.null()
             ] do
