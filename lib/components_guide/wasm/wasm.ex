@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Wasm do
-  import ComponentsGuide.Wasm.WasmNative
+  alias ComponentsGuide.Wasm.WasmNative
 
   defmacro __using__(_) do
     quote location: :keep do
@@ -62,7 +62,7 @@ defmodule ComponentsGuide.Wasm do
         other -> {:wat, other}
       end
 
-    wasm_list_exports(source)
+    WasmNative.wasm_list_exports(source)
   end
 
   def list_import_types(source) do
@@ -72,13 +72,15 @@ defmodule ComponentsGuide.Wasm do
         other -> {:wat, other}
       end
 
-    case wasm_list_imports(source) do
+    case WasmNative.wasm_list_imports(source) do
       {:error, reason} -> raise reason
       other -> other
     end
   end
 
   def wat2wasm(source), do: process_source(source) |> ComponentsGuide.Wasm.WasmNative.wat2wasm()
+
+  def to_wasm(source), do: wat2wasm(source)
 
   def validate_definition!(source) do
     source = {:wat, source}
@@ -122,26 +124,30 @@ defmodule ComponentsGuide.Wasm do
 
   def call_apply_raw(source, f, args) do
     f = to_string(f)
-    process_source(source) |> wasm_call(f, args) |> process_result2()
+    process_source(source) |> WasmNative.wasm_call(f, args) |> process_result2()
   end
 
   # defp transform32(a)
   defp transform32(a) when is_integer(a), do: {:i32, a}
   defp transform32(a) when is_float(a), do: {:f32, a}
 
-  def call_string(source, f), do: process_source(source) |> wasm_call_i32_string(f, [])
-  def call_string(source, f, a), do: process_source(source) |> wasm_call_i32_string(f, [a])
-  def call_string(source, f, a, b), do: process_source(source) |> wasm_call_i32_string(f, [a, b])
+  def call_string(source, f), do: process_source(source) |> WasmNative.wasm_call_i32_string(f, [])
+
+  def call_string(source, f, a),
+    do: process_source(source) |> WasmNative.wasm_call_i32_string(f, [a])
+
+  def call_string(source, f, a, b),
+    do: process_source(source) |> WasmNative.wasm_call_i32_string(f, [a, b])
 
   def bulk_call(source, calls) do
-    for result <- process_source(source) |> wasm_call_bulk(calls) do
+    for result <- process_source(source) |> WasmNative.wasm_call_bulk(calls) do
       process_result(result)
     end
   end
 
   def steps(source, steps) do
     wat = process_source(source)
-    results = wat |> wasm_steps(steps)
+    results = wat |> WasmNative.wasm_steps(steps)
 
     case results do
       {:error, reason} ->
@@ -251,7 +257,7 @@ defmodule ComponentsGuide.Wasm do
 
     {:ok, pid} = ReplyServer.start_link(imports)
     source = {:wat, process_source(source)}
-    instance = wasm_run_instance(source, imports, pid)
+    instance = WasmNative.wasm_run_instance(source, imports, pid)
 
     # receive do
     #   :run_instance_start ->
@@ -268,11 +274,15 @@ defmodule ComponentsGuide.Wasm do
   defp get_instance_handle(instance), do: instance
 
   def instance_get_global(instance, global_name),
-    do: wasm_instance_get_global_i32(get_instance_handle(instance), to_string(global_name))
+    do:
+      WasmNative.wasm_instance_get_global_i32(
+        get_instance_handle(instance),
+        to_string(global_name)
+      )
 
   def instance_set_global(instance, global_name, new_value),
     do:
-      wasm_instance_set_global_i32(
+      WasmNative.wasm_instance_set_global_i32(
         get_instance_handle(instance),
         to_string(global_name),
         new_value
@@ -280,11 +290,11 @@ defmodule ComponentsGuide.Wasm do
 
   defp do_instance_call(instance, f, args) do
     f = to_string(f)
-    # wasm_instance_call_func(instance, f, args)
-    get_instance_handle(instance) |> wasm_instance_call_func_i32(f, args)
+    # WasmNative.wasm_instance_call_func(instance, f, args)
+    get_instance_handle(instance) |> WasmNative.wasm_instance_call_func_i32(f, args)
   end
 
-  # def instance_call(instance, f), do: wasm_instance_call_func(instance, f)
+  # def instance_call(instance, f), do: WasmNative.wasm_instance_call_func(instance, f)
   def instance_call(instance, f), do: do_instance_call(instance, f, [])
   def instance_call(instance, f, a), do: do_instance_call(instance, f, [a])
   def instance_call(instance, f, a, b), do: do_instance_call(instance, f, [a, b])
@@ -292,7 +302,7 @@ defmodule ComponentsGuide.Wasm do
 
   defp do_instance_call_returning_string(instance, f, args) do
     f = to_string(f)
-    wasm_instance_call_func_i32_string(get_instance_handle(instance), f, args)
+    WasmNative.wasm_instance_call_func_i32_string(get_instance_handle(instance), f, args)
   end
 
   def instance_call_returning_string(instance, f),
@@ -322,17 +332,17 @@ defmodule ComponentsGuide.Wasm do
 
   def instance_write_i32(instance, memory_offset, value)
       when is_integer(memory_offset) and is_integer(value) do
-    wasm_instance_write_i32(get_instance_handle(instance), memory_offset, value)
+    WasmNative.wasm_instance_write_i32(get_instance_handle(instance), memory_offset, value)
   end
 
   def instance_write_i64(instance, memory_offset, value)
       when is_integer(memory_offset) and is_integer(value) do
-    wasm_instance_write_i64(get_instance_handle(instance), memory_offset, value)
+    WasmNative.wasm_instance_write_i64(get_instance_handle(instance), memory_offset, value)
   end
 
   def instance_write_string_nul_terminated(instance, memory_offset, string)
       when is_integer(memory_offset) do
-    wasm_instance_write_string_nul_terminated(
+    WasmNative.wasm_instance_write_string_nul_terminated(
       get_instance_handle(instance),
       memory_offset,
       string
@@ -341,9 +351,9 @@ defmodule ComponentsGuide.Wasm do
 
   def instance_write_string_nul_terminated(instance, global_name, string)
       when is_atom(global_name) do
-    memory_offset = wasm_instance_get_global_i32(instance, to_string(global_name))
+    memory_offset = WasmNative.wasm_instance_get_global_i32(instance, to_string(global_name))
 
-    wasm_instance_write_string_nul_terminated(
+    WasmNative.wasm_instance_write_string_nul_terminated(
       get_instance_handle(instance),
       memory_offset,
       string
@@ -352,15 +362,15 @@ defmodule ComponentsGuide.Wasm do
 
   def instance_read_memory(instance, start, length)
       when is_integer(start) and is_integer(length) do
-    wasm_instance_read_memory(get_instance_handle(instance), start, length)
+    WasmNative.wasm_instance_read_memory(get_instance_handle(instance), start, length)
     |> IO.iodata_to_binary()
   end
 
   def instance_read_memory(instance, start_global_name, length)
       when is_atom(start_global_name) and is_integer(length) do
-    start = wasm_instance_get_global_i32(instance, to_string(start_global_name))
+    start = WasmNative.wasm_instance_get_global_i32(instance, to_string(start_global_name))
 
-    wasm_instance_read_memory(get_instance_handle(instance), start, length)
+    WasmNative.wasm_instance_read_memory(get_instance_handle(instance), start, length)
     |> IO.iodata_to_binary()
   end
 

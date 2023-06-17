@@ -7,8 +7,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
   describe "PortfolioSite" do
     alias HTTPServer.PortfolioSite
 
-    test "GET / returns 200" do
-      inst = PortfolioSite.start()
+    # def subject(), do: Instance.run(PortfolioSite)
+    setup do: %{inst: Instance.run(PortfolioSite)}
+
+    test "GET / returns 200", context do
+      inst = context[:inst]
       # put_in(inst[:method], "GET")
       Instance.call(inst, :set_method, Instance.alloc_string(inst, "GET"))
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/"))
@@ -21,8 +24,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
              """
     end
 
-    test "GET /about returns 200" do
-      inst = PortfolioSite.start()
+    test "GET /about returns 200", context do
+      inst = context[:inst]
 
       # Instance.HTTPServer.set_method(inst, "GET")
 
@@ -37,8 +40,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
              """
     end
 
-    test "GET /foo returns 404" do
-      inst = PortfolioSite.start()
+    test "GET /foo returns 404", context do
+      inst = context[:inst]
 
       Instance.call(inst, :set_method, Instance.alloc_string(inst, "GET"))
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/foo"))
@@ -51,8 +54,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
              """
     end
 
-    test "POST / returns 405" do
-      inst = PortfolioSite.start()
+    test "POST / returns 405", context do
+      inst = context[:inst]
+
       # put_in(inst[:method], "GET")
       Instance.call(inst, :set_method, Instance.alloc_string(inst, "POST"))
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/"))

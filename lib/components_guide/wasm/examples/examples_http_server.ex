@@ -1,18 +1,14 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
-  alias ComponentsGuide.Wasm
+  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule PortfolioSite do
-    use Wasm
+    use WasmBuilder
     use BumpAllocator
     use I32.String
     import Writer
-
-    # @wasm_string_func :get_body
-
-    def start(), do: Wasm.Instance.run(__MODULE__)
 
     global(
       method: I32.String.null(),

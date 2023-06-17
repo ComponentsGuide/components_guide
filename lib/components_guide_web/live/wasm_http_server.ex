@@ -4,6 +4,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
        container:
          {:div, class: "max-w-6xl mx-auto px-3 prose prose-invert text-lg text-white pb-24"}}
 
+  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.HTTPServer.PortfolioSite
 
   @suggestions [
@@ -15,7 +16,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
   defmodule State do
     defstruct status: nil, body: nil
 
-    alias ComponentsGuide.Wasm.Instance
+    alias Wasm.Instance
 
     def default() do
       %__MODULE__{}
@@ -30,7 +31,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
     end
 
     def apply_input(%__MODULE__{} = state, method, path) do
-      inst = PortfolioSite.start()
+      inst = Wasm.Instance.run(PortfolioSite)
 
       Instance.call(inst, :set_method, Instance.alloc_string(inst, method))
       Instance.call(inst, :set_path, Instance.alloc_string(inst, path))
@@ -113,7 +114,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
       </form>
     </wasm-http-server>
 
-    <p>Wasm Bytes: <%= byte_size(PortfolioSite.to_wasm()) %></p>
+    <p>Wasm Bytes: <%= byte_size(Wasm.to_wasm(PortfolioSite)) %></p>
     """
   end
 

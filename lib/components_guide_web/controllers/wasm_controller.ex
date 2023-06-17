@@ -31,6 +31,7 @@ defmodule ComponentsGuideWeb.WasmController do
   use ComponentsGuideWeb, :controller
   plug(:put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON)
 
+  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.HTML
   alias ComponentsGuide.Wasm.Examples.State
 
@@ -59,7 +60,7 @@ defmodule ComponentsGuideWeb.WasmController do
   end
 
   def module(conn, %{"module" => name}) when is_map_key(@modules, name) do
-    wasm = @modules[name].to_wasm()
+    wasm = Wasm.to_wasm(@modules[name])
 
     conn
     |> put_resp_content_type("application/wasm", nil)
@@ -93,6 +94,7 @@ end
 defmodule ComponentsGuideWeb.WasmHTML do
   use ComponentsGuideWeb, :html
 
+  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.HTML.{CounterHTML}
 
   embed_templates("wasm_html/*")
@@ -105,7 +107,7 @@ defmodule ComponentsGuideWeb.WasmHTML do
   end
 
   def wasm_module_size(name) when is_map_key(@modules, name) do
-    byte_size(@modules[name].to_wasm())
+    byte_size(Wasm.to_wasm(@modules[name]))
   end
 
   def blue_button(assigns) do
