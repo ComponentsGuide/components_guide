@@ -154,7 +154,7 @@ enum WasmExport {
     // Baz{ a: i32, b: i32 },
 }
 
-#[derive(NifTaggedEnum)]
+#[derive(NifTaggedEnum, Debug, Copy, Clone)]
 enum WasmSupportedValue {
     I32(i32),
     I64(i64),
@@ -489,11 +489,12 @@ struct CallOutToFuncReply {
     // lock: RwLock<Term>,
     func_id: i64,
     lock: RwLock<Option<OwnedBinary>>,
-    sender: crossbeam_channel::Sender<OwnedBinary>,
+    // sender: crossbeam_channel::Sender<OwnedBinary>,
+    sender: crossbeam_channel::Sender<u32>,
 }
 
 impl CallOutToFuncReply {
-    fn new(func_id: i64, sender: crossbeam_channel::Sender<OwnedBinary>) -> Self {
+    fn new(func_id: i64, sender: crossbeam_channel::Sender<u32>) -> Self {
         // Self { func_id: func_id, lock: RwLock::new(OwnedBinary::new(0)) }
         Self {
             func_id: func_id,
@@ -536,16 +537,23 @@ impl ImportsTable {
                     }
                     let mut owned_env = OwnedEnv::new();
 
-                    let (sender, recv) = bounded::<OwnedBinary>(1);
+                    // let (sender, recv) = bounded::<OwnedBinary>(1);
+                    let (sender, recv) = bounded::<u32>(1);
+                    
+                    // let params2 = params.clone();
+                    let params2: Result<Vec<WasmSupportedValue>> = params.iter().map(|v| v.try_into()).collect();
+                    let params2 = params2.expect("Params could not be converted into supported values");
 
                     // let mut owned_env2 = owned_env.clone();
                     thread::spawn(move || {
                         let mut owned_env = OwnedEnv::new();
+                        
                         let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
                         owned_env.run(|env| {
+                            eprintln!("Sending :reply_to_func_call_out {func_id}");
                             env.send(
                                 &pid,
-                                (atom::reply_to_func_call_out(), func_id, reply).encode(env),
+                                (atom::reply_to_func_call_out(), func_id, reply, params2).encode(env),
                             );
                         });
                         // let reply_binary = recv.recv().expect("Did not write back reply value 1");
@@ -574,17 +582,19 @@ impl ImportsTable {
                     // let reply_binary2 = reply_binary
                     //     .as_ref()
                     //     .expect("Did not write back reply value 2");
-                    eprintln!("Got reply");
+                    eprintln!("Got reply {reply_binary}");
                     // reply_binary2.to_vec()
 
-                    let number = owned_env.run(|env| {
-                        let (term, _size) = env
-                            .binary_to_term(reply_binary.as_ref())
-                            .expect("Could not decode term");
-                        let number: u32 = term.decode().expect("Not a u32");
-                        number
-                    });
-                    // number
+                    let number = reply_binary;
+                    
+                    // let number = owned_env.run(|env| {
+                    //     let (term, _size) = env
+                    //         .binary_to_term(reply_binary.as_ref())
+                    //         .expect("Could not decode term");
+                    //     let number: u32 = term.decode().expect("Not a u32");
+                    //     number
+                    // });
+                    
 
                     // let number = reply_value.join().expect("Thread failed.");
 
@@ -816,6 +826,11 @@ impl RunningInstance {
     fn read_memory(&self, start: u32, length: u32) -> Result<Vec<u8>, anyhow::Error> {
         wasm_read_memory(&self.store, &self.memory, start, length)
     }
+    
+    fn read_string_nul_terminated(&mut self, start: u32) -> Result<String, anyhow::Error> {
+        let s = wasm_extract_string(&mut self.store, &self.memory, vec![start])?;
+        Ok(s)
+    }
 }
 
 #[nif]
@@ -963,17 +978,34 @@ fn wasm_instance_read_memory(
 }
 
 #[nif]
+fn wasm_instance_read_string_nul_terminated(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    memory_offset: u32
+) -> Result<String, Error> {
+    let mut instance = resource.lock.write().map_err(string_error)?;
+    let result = instance
+        .read_string_nul_terminated(memory_offset)
+        .map_err(string_error)?;
+
+    return Ok(result);
+}
+
+#[nif]
 fn wasm_call_out_reply(
     env: Env,
     resource: ResourceArc<CallOutToFuncReply>,
-    reply: Term,
+    reply: u32,
+    // reply: Term,
 ) -> Result<(), Error> {
     // let mut binary = resource.lock.write().map_err(string_error)?;
     // *binary = Some(reply.to_binary());
+    
+    eprintln!("Received reply in Rust! {reply}");
 
     resource
         .sender
-        .send(reply.to_binary())
+        .send(reply)
         .map_err(string_error)?;
 
     return Ok(());
@@ -1054,6 +1086,7 @@ rustler::init!(
         wasm_instance_write_i64,
         wasm_instance_write_string_nul_terminated,
         wasm_instance_read_memory,
+        wasm_instance_read_string_nul_terminated,
         wasm_call_out_reply,
         wat2wasm,
         validate_module_definition

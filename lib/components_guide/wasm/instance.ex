@@ -5,8 +5,8 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   defstruct [:elixir_mod, :handle]
 
-  def run(mod) do
-    handle = ComponentsGuide.Wasm.run_instance(mod)
+  def run(mod, imports \\ []) do
+    handle = ComponentsGuide.Wasm.run_instance(mod, imports)
     %__MODULE__{elixir_mod: mod, handle: handle}
   rescue
     x in [RuntimeError] ->
@@ -21,6 +21,10 @@ defmodule ComponentsGuide.Wasm.Instance do
   defdelegate write_i32(instance, memory_offset, value), to: Wasm, as: :instance_write_i32
   defdelegate write_i64(instance, memory_offset, value), to: Wasm, as: :instance_write_i64
 
+  defdelegate read_string_nul_terminated(instance, memory_offset),
+    to: Wasm,
+    as: :instance_read_string_nul_terminated
+
   defdelegate write_string_nul_terminated(instance, memory_offset, string),
     to: Wasm,
     as: :instance_write_string_nul_terminated
@@ -34,11 +38,11 @@ defmodule ComponentsGuide.Wasm.Instance do
   defdelegate call_reading_string(instance, f, a), to: Wasm, as: :instance_call_returning_string
 
   # TODO: call Wasm.Native directly
-  def call_reading_string(%__MODULE__{handle: handle}, f),
-    do: Wasm.instance_call_returning_string(handle, f)
-
-  def call_reading_string(%__MODULE__{handle: handle}, f, a),
-    do: Wasm.instance_call_returning_string(handle, f, a)
+  #   def call_reading_string(%__MODULE__{handle: handle}, f),
+  #     do: Wasm.instance_call_returning_string(handle, f)
+  # 
+  #   def call_reading_string(%__MODULE__{handle: handle}, f, a),
+  #     do: Wasm.instance_call_returning_string(handle, f, a)
 
   defdelegate call_reading_string(instance, f, a, b),
     to: Wasm,

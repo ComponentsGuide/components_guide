@@ -178,11 +178,25 @@ defmodule ComponentsGuide.Wasm do
     use GenServer
 
     def start_link(imports) when is_list(imports) do
-      GenServer.start_link(__MODULE__, imports)
+      case imports do
+        [] ->
+          # pid = :erlang.alias()
+          # :erlang.unalias(pid)
+          # pid
+
+          # Process.spawn(fn -> nil end, [])
+
+          GenServer.start_link(__MODULE__, imports)
+
+        imports ->
+          GenServer.start_link(__MODULE__, imports)
+      end
     end
 
     @impl true
     def init(imports) do
+      IO.puts("Starting ReplyServer")
+      IO.inspect(imports)
       {:ok, imports}
     end
 
@@ -192,8 +206,8 @@ defmodule ComponentsGuide.Wasm do
     # end
 
     @impl true
-    def handle_info({:reply_to_func_call_out, func_id, resource}, imports) do
-      # IO.inspect(func_id, label: "reply_to_func_call_out func_id")
+    def handle_info({:reply_to_func_call_out, func_id, resource, term}, imports) do
+      IO.inspect(func_id, label: "reply_to_func_call_out func_id")
       # IO.inspect(resource, label: "reply_to_func_call_out resource")
 
       handler =
@@ -203,14 +217,22 @@ defmodule ComponentsGuide.Wasm do
           _ -> nil
         end)
 
+      IO.inspect(handler, label: "reply_to_func_call_out found handler")
+      IO.inspect(term, label: "reply_to_func_call_out term")
+
       # IO.inspect(handler, label: "reply_to_func_call_out found func")
 
       # TODO: wrap in try/catch
       # and call wasm_call_out_reply_failure when it fails.
       # TODO: pass correct params
       # TODO: pass instance to func, so it can read memory
-      value = handler.(0)
-      ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, value)
+
+      input = Wasm.Process.process_result(term)
+
+      # output = handler.(0)
+      output = handler.(input)
+      IO.inspect(output, label: "reply_to_func_call_out output")
+      ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, output)
 
       {:noreply, imports}
     end
@@ -378,6 +400,14 @@ defmodule ComponentsGuide.Wasm do
     |> IO.iodata_to_binary()
   end
 
+  def instance_read_string_nul_terminated(instance, memory_offset)
+      when is_integer(memory_offset) do
+    WasmNative.wasm_instance_read_string_nul_terminated(
+      get_instance_handle(instance),
+      memory_offset
+    )
+  end
+
   defp process_source(string) when is_binary(string), do: string
   defp process_source({:wat, string} = value) when is_binary(string), do: value
 
@@ -405,4 +435,18 @@ defmodule ComponentsGuide.Wasm do
 
   defp process_result2({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
   defp process_result2({:error, s}), do: {:error, s}
+end
+
+defmodule Wasm.Process do
+  defp process_value({:i32, a}), do: a
+  defp process_value({:f32, a}), do: a
+
+  def process_result([]), do: nil
+  def process_result([a]), do: process_value(a)
+
+  def process_result(multiple_items) when is_list(multiple_items),
+    do: List.to_tuple(multiple_items |> Enum.map(&process_value/1))
+
+  def process_result({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
+  def process_result({:error, s}), do: {:error, s}
 end
