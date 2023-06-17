@@ -1,7 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Writer
-  alias ComponentsGuide.Wasm.Examples.Memory.MemEql
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
@@ -17,11 +16,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     import Writer
 
     def start() do
-      # ComponentsGuide.Wasm.run_instance(__MODULE__)
       Wasm.Instance.run(__MODULE__)
     rescue
       x in [RuntimeError] ->
-        # IO.puts(__MODULE__.to_wat())
         Logger.error(__MODULE__.to_wat())
         raise x
     end
