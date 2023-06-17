@@ -35,7 +35,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       s_max_age_seconds: i32(-1)
     )
 
-    defwasm do
+    wasm do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)

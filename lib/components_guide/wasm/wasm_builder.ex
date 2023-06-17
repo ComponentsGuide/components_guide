@@ -675,10 +675,15 @@ defmodule ComponentsGuide.WasmBuilder do
     Module.put_attribute(__CALLER__.module, :wasm_constants, constants)
 
     quote do
-      import Kernel, except: [if: 2, sigil_s: 2]
+      import Kernel, except: [if: 2, @: 1]
       import ComponentsGuide.WasmBuilderUsing
+      import ComponentsGuide.WasmBuilderUsing2
 
       @wasm_body unquote(body)
+
+      import Kernel
+      import ComponentsGuide.WasmBuilderUsing, only: []
+      import ComponentsGuide.WasmBuilderUsing2, only: []
     end
   end
 
@@ -1290,6 +1295,15 @@ defmodule ComponentsGuide.WasmBuilder do
         },
         indent
       ) do
+    if condition == nil do
+      dbg(%IfElse{
+        result: result,
+        condition: condition,
+        when_true: when_true,
+        when_false: when_false
+      })
+    end
+
     [
       [
         indent,
