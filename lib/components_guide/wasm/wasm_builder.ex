@@ -103,7 +103,7 @@ defmodule ComponentsGuide.WasmBuilder do
       func || raise FetchFuncError, func_name: name, module_definition: module_definition
     end
 
-    def fetch_funcp_ref!(mod, name) when is_atom(mod) do
+    def funcp_ref!(mod, name) when is_atom(mod) do
       {:mod_funcp_ref, mod, name}
     end
   end
@@ -706,47 +706,10 @@ defmodule ComponentsGuide.WasmBuilder do
   defmacro defwasm(options \\ [], do: block) do
     name = __CALLER__.module |> Module.split() |> List.last()
 
-    # options = Macro.expand(options, __CALLER__)
-
-    # block = quote context: __CALLER__.module, do: unquote(block)
     definition = define_module(name, options, block, __CALLER__)
 
     quote do
-      # Module.put_attribute(__MODULE__, :wasm_module, unquote(definition))
-
-      #       defmacrop data_for_constant(value) do
-      #         quote do
-      #           constants = Constants.new(unquote(@wasm_constants))
-      #           # dbg(Constants.to_keylist(constants))
-      #           constants = Constants.to_map(constants)
-      #           Constants.resolve(constants, unquote(value))
-      #         end
-      # 
-      #         # %Data{offset: 0xff, value: value, nul_terminated: true}
-      #       end
-
-      #       def data_for_constant(value) do
-      #         constants = Constants.new(@wasm_constants)
-      #         # dbg(Constants.to_keylist(constants))
-      #         constants = Constants.to_map(constants)
-      #         Constants.resolve(constants, value)
-      # 
-      #         # %Data{offset: 0xff, value: value, nul_terminated: true}
-      #       end
-
-      #       def __wasm_module__() do
-      #         import Kernel, except: [if: 2, sigil_s: 2]
-      #         import ComponentsGuide.WasmBuilderUsing
-      # 
-      #         # ComponentsGuide.WasmBuilder.define_module(unquote(name), unquote(options), unquote(block), __ENV__)
-      #         unquote(definition)
-      #       end
-
-      # TODO: what is the best way to pass this value along?
-      # def __wasm_module__(), do: @wasm_module
-
-      # def funcp(name), do: ModuleDefinition.fetch_funcp!(__wasm_module__(), name)
-      def funcp(name), do: ModuleDefinition.fetch_funcp_ref!(__MODULE__, name)
+      def funcp(name), do: ModuleDefinition.funcp_ref!(__MODULE__, name)
 
       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
