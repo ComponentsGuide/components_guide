@@ -236,6 +236,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
 
   describe "SitemapBuilder" do
     test "works" do
+      # assert SitemapBuilder.exports() == []
+
       instance = Instance.run(SitemapBuilder)
 
       add_url = Instance.capture(instance, :add_url, 1)
@@ -243,9 +245,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       add_url.("https://example.org/a=1&b=2&c=3")
       add_url.("https://example.com/")
 
-      body = SitemapBuilder.read_body(instance)
+      # body = SitemapBuilder.read_body(instance)
 
-      assert body == """
+      assert to_string(instance) == """
              <?xml version="1.0" encoding="UTF-8"?>
              <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
              <url>

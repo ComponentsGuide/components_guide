@@ -394,40 +394,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
         @body_chunk_index = I32.add(@body_chunk_index, 1)
       end
-
-      func next_body_chunk2(), I32 do
-        I32.match @body_chunk_index do
-          0 ->
-            ~S[<?xml version="1.0" encoding="UTF-8"?>\n]
-
-          1 ->
-            ~S[<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n]
-
-          2 ->
-            ~S[<url>\n]
-
-          3 ->
-            ~S[<loc>]
-
-          4 ->
-            call(:escape, @input_offset, @output_offset)
-            push(@output_offset)
-
-          5 ->
-            ~S[</loc>\n]
-
-          6 ->
-            ~S[</url>\n]
-
-          7 ->
-            ~S[</urlset>\n]
-
-          _ ->
-            0x0
-        end
-
-        @body_chunk_index = I32.add(@body_chunk_index, 1)
-      end
     end
 
     def write_input(instance, string) do

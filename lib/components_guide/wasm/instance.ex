@@ -3,11 +3,11 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   require Logger
 
-  defstruct [:handle]
+  defstruct [:elixir_mod, :handle]
 
   def run(mod) do
     handle = ComponentsGuide.Wasm.run_instance(mod)
-    %__MODULE__{handle: handle}
+    %__MODULE__{elixir_mod: mod, handle: handle}
   rescue
     x in [RuntimeError] ->
       Logger.error(mod.to_wat())
@@ -116,7 +116,21 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   defimpl String.Chars do
     def to_string(instance) do
-      Wasm.Instance.call_reading_string(instance, :to_string)
+      exports = Wasm.list_exports(instance.elixir_mod)
+
+      to_string = List.keyfind(exports, "to_string", 1)
+      next_body_chunk = List.keyfind(exports, "next_body_chunk", 1)
+
+      cond do
+        match?({:func, _}, to_string) ->
+          Wasm.Instance.call_reading_string(instance, :to_string)
+
+        match?({:func, _}, next_body_chunk) ->
+          Wasm.Instance.call_stream_string_chunks(instance, :next_body_chunk) |> Enum.join()
+
+        true ->
+          nil
+      end
     end
   end
 end
