@@ -54,6 +54,9 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
     end
   end
 
+  # TODO: is it safe to call this empty() ?
+  def null(), do: {:i32_const, 0}
+
   def streq(address_a, address_b), do: call(:streq, address_a, address_b)
   def strlen(string_ptr), do: call(:strlen, string_ptr)
 

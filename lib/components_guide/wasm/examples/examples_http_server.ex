@@ -25,14 +25,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     end
 
     # @global bump_offset: i32(BumpAllocator.bump_offset()),
-    #         method: i32_null_string(),
-    #         path: i32_null_string()
+    #         method: I32.String.null(),
+    #         path: I32.String.null()
 
     defwasm globals: [
-              # bump_offset: i32(BumpAllocator.bump_offset()),
               bump_mark: i32(0),
-              method: i32_null_string(),
-              path: i32_null_string()
+              method: I32.String.null(),
+              path: I32.String.null()
             ] do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)

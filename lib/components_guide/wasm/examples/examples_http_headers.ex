@@ -122,6 +122,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 
     use Wasm
+    # use Memory, allocator: :bump
     use BumpAllocator
     use I32.String
     import Writer
@@ -135,16 +136,15 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # end
 
     global(
-      name: i32_null_string(),
-      value: i32_null_string(),
-      domain: i32_null_string(),
-      path: i32_null_string(),
+      name: I32.String.null(),
+      value: I32.String.null(),
+      domain: I32.String.null(),
+      path: I32.String.null(),
       secure: i32_boolean(0),
       http_only: i32_boolean(0)
     )
 
     wasm do
-      BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
