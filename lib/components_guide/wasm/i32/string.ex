@@ -25,6 +25,18 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
     end
   end
 
+  defmacro __using__(_opts) do
+    quote do
+      import unquote(__MODULE__)
+
+      import ComponentsGuide.WasmBuilder
+
+      ComponentsGuide.WasmBuilder.wasm do
+        unquote(__MODULE__).funcp(:streq)
+      end
+    end
+  end
+
   def streq(address_a, address_b) do
     call(:streq, address_a, address_b)
   end

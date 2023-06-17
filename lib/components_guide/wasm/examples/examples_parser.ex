@@ -38,13 +38,10 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
   defmodule DomainNames do
     use Wasm
     use BumpAllocator
-    import I32.String
+    use I32.String
 
     wasm do
       MemEql.funcp(:mem_eql_8)
-      BumpAllocator.funcp(:bump_alloc)
-      I32.String.funcp(:streq)
-      I32.String.funcp(:streq)
     end
 
     wasm do

@@ -8,16 +8,18 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @bump_start 1 * @page_size
     defmacro bump_offset(), do: Macro.escape(@bump_start)
 
-    # defmacro globals() do
-    #   unquote(Macro.escape([bump_offset: i32(@bump_start)]))
-    # end
-
     defmacro __using__(_opts) do
       quote do
         @wasm_memory 2
         @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
 
         import unquote(__MODULE__)
+
+        import ComponentsGuide.WasmBuilder
+
+        ComponentsGuide.WasmBuilder.wasm do
+          unquote(__MODULE__).funcp(:bump_alloc)
+        end
       end
     end
 
