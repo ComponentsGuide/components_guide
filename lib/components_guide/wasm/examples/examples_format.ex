@@ -1,10 +1,22 @@
 defmodule ComponentsGuide.Wasm.Examples.Format do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule IntToString do
     use Wasm
     require BumpAllocator
+
+    defmacro __using__(_) do
+      quote do
+        import WasmBuilder
+
+        wasm do
+          IntToString.funcp(:u32toa_count)
+          IntToString.funcp(:u32toa)
+        end
+      end
+    end
 
     @bump_start 1024
 

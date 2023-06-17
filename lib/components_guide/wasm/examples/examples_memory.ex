@@ -24,18 +24,18 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         @wasm_memory 2
         # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
 
+        import ComponentsGuide.WasmBuilder
+
         global(
           bump_offset: i32(BumpAllocator.bump_offset()),
           bump_mark: i32(0)
         )
 
-        import unquote(__MODULE__)
-
-        import ComponentsGuide.WasmBuilder
-
         ComponentsGuide.WasmBuilder.wasm do
           unquote(__MODULE__).funcp(:bump_alloc)
         end
+
+        import unquote(__MODULE__)
       end
     end
 
