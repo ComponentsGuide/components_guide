@@ -41,8 +41,8 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
       lookup_domain_name = Instance.capture(inst, :lookup_domain_name, 1)
       alloc_string = &Instance.alloc_string(inst, &1)
 
-      assert lookup_domain_name.(alloc_string.("com")) == 0
-      assert lookup_domain_name.(alloc_string.("org")) == 0
+      assert lookup_domain_name.(alloc_string.("com")) == 1
+      assert lookup_domain_name.(alloc_string.("org")) == 1
       assert lookup_domain_name.(alloc_string.("foo")) == 0
     end
   end

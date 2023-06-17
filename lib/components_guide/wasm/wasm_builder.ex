@@ -494,12 +494,6 @@ defmodule ComponentsGuide.WasmBuilder do
           import Kernel, except: [if: 2, sigil_s: 2]
           import ComponentsGuide.WasmBuilderUsing
 
-          if to_string(__MODULE__) ==
-               to_string(ComponentsGuide.Wasm.Examples.Parser.DomainNames) do
-            IO.puts("DomainNames!")
-            dbg(@wasm_global)
-          end
-
           ModuleDefinition.new(
             # name: unquote(name),
             name: @wasm_name,

@@ -8,10 +8,6 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
 
     @wasm_memory 2
 
-    # memory :export, min: 1
-    # @wasm_memory export?: true, min: 1
-
-    # defwasm exported_memory: 1 do
     defwasm do
       func i32_to_hex_lower(value(I32), write_to_address(I32)), locals: [i: I32, digit: I32] do
         # func i32_to_hex_lower(value: I32, write_to_address: I32), locals: [i: I32, digit: I32] do
@@ -42,21 +38,21 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
   defmodule DomainNames do
     use Wasm
     use BumpAllocator
+    import I32.String
 
     defwasm do
       MemEql.funcp(:mem_eql_8)
       BumpAllocator.funcp(:bump_alloc)
+      I32.String.funcp(:streq)
 
-      func alloc(byte_size(I32)), I32 do
-        # Need better maths than this to round up to aligned memory?
-        # BumpAllocator.call(:bump_alloc, byte_size)
-        call(:bump_alloc, byte_size)
-      end
+      func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
 
-      func lookup_domain_name(value(I32)), I32 do
-        # MemEql.call(:mem_eql_8, value, const("com"))
-        # call(:mem_eql_8, value, const("com"))
-        0x0
+      func lookup_domain_name(value(I32.String)), I32 do
+        I32.String.match value do
+          ~S"com" -> 1
+          ~S"org" -> 1
+          _ -> 0
+        end
       end
     end
   end
