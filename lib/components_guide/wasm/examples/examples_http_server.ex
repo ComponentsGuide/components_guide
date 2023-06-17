@@ -13,16 +13,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
 
     # @wasm_string_func :get_body
 
-    def start() do
-      try do
-        Wasm.Instance.run(__MODULE__)
-      rescue
-        x in [RuntimeError] ->
-          # IO.puts(__MODULE__.to_wat())
-          Logger.error(__MODULE__.to_wat())
-          reraise x, __STACKTRACE__
-      end
-    end
+    def start(), do: Wasm.Instance.run(__MODULE__)
 
     global(
       method: I32.String.null(),
@@ -30,7 +21,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     )
 
     wasm do
-      BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)

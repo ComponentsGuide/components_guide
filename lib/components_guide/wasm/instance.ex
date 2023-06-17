@@ -6,6 +6,11 @@ defmodule ComponentsGuide.Wasm.Instance do
   def run(mod) do
     handle = ComponentsGuide.Wasm.run_instance(mod)
     %__MODULE__{handle: handle}
+  rescue
+    x in [RuntimeError] ->
+      # IO.puts(__MODULE__.to_wat())
+      Logger.error(__MODULE__.to_wat())
+      reraise x, __STACKTRACE__
   end
 
   defdelegate get_global(instance, global_name), to: Wasm, as: :instance_get_global
