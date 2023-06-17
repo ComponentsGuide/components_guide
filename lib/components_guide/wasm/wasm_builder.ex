@@ -15,6 +15,7 @@ defmodule ComponentsGuide.WasmBuilder do
         # Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
+        Module.register_attribute(__MODULE__, :wasm_body, accumulate: true)
         # @wasm_memory 0
       end
     end
@@ -507,7 +508,7 @@ defmodule ComponentsGuide.WasmBuilder do
             exported_globals: @wasm_exported_global_types,
             exported_mutable_global_types: @wasm_exported_mutable_global_types,
             memory: @wasm_memory2 || Memory.from(@wasm_memory),
-            body: @wasm_body
+            body: List.flatten(@wasm_body)
           )
         end
       end

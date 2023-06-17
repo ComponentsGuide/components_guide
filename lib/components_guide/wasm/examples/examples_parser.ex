@@ -58,13 +58,13 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
       MemEql.funcp(:mem_eql_8)
       BumpAllocator.funcp(:bump_alloc)
 
-      func alloc(byte_size(I32)), result: I32 do
+      func alloc(byte_size(I32)), I32 do
         # Need better maths than this to round up to aligned memory?
         # BumpAllocator.call(:bump_alloc, byte_size)
         call(:bump_alloc, byte_size)
       end
 
-      func lookup_domain_name(value(I32)), result: I32 do
+      func lookup_domain_name(value(I32)), I32 do
         # MemEql.call(:mem_eql_8, value, const("com"))
         # call(:mem_eql_8, value, const("com"))
         0x0
