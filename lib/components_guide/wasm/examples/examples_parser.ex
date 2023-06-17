@@ -41,17 +41,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
 
   defmodule DomainNames do
     use Wasm
-
-    # memory :export, min: 1
-    # @wasm_memory export?: true, min: 1
-
-    @page_size 64 * 1024
-    @bump_start 1 * @page_size
-
-    @wasm_memory 1
-
-    # @wasm_global bump_offset: i32(@bump_start)
-    @wasm_global {:bump_offset, i32(@bump_start)}
+    use BumpAllocator
 
     defwasm do
       MemEql.funcp(:mem_eql_8)
