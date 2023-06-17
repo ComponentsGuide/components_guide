@@ -12,11 +12,11 @@ test_watch:
 	watchexec -e ex,exs mix test
 
 dev:
-	iex -S mix phx.server
+	RUST_BACKTRACE=1 iex -S mix phx.server
 
 .PHONY: test
 test:
-	mix test
+	RUST_BACKTRACE=1 mix test --max-failures 1
 
 production_build:
 	MIX_ENV=prod mix production_build
