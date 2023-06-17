@@ -682,6 +682,12 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
+  defmacro global(list) do
+    quote do
+      @wasm_global unquote(list)
+    end
+  end
+
   def expand_type(type) do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
@@ -1487,12 +1493,12 @@ defmodule ComponentsGuide.WasmBuilderUsing2 do
   import ComponentsGuide.WasmBuilderUsing
 
   defmacro @{name, meta, args} do
-    IO.inspect({name, meta, args})
+    # IO.inspect({name, meta, args})
 
-    dbg(
-      {__CALLER__.module, name, Module.attributes_in(__CALLER__.module),
-       Module.has_attribute?(__CALLER__.module, name)}
-    )
+    # dbg(
+    #   {__CALLER__.module, name, Module.attributes_in(__CALLER__.module),
+    #    Module.has_attribute?(__CALLER__.module, name)}
+    # )
 
     Kernel.if Module.has_attribute?(__CALLER__.module, name) ||
                 String.starts_with?(to_string(name), "_") do

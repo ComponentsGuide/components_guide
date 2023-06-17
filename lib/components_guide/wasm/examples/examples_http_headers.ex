@@ -26,38 +26,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         raise x
     end
 
-    @wasm_global private: i32_boolean(0),
-                 public: i32_boolean(0),
-                 no_store: i32_boolean(0),
-                 immutable: i32_boolean(0),
-                 max_age_seconds: i32(-1),
-                 s_max_age_seconds: i32(-1)
-    # @wasm_global private: i32(0)
-    # global private: i32(0)
-    # I32.global private: 0
+    global(
+      private: i32_boolean(0),
+      public: i32_boolean(0),
+      no_store: i32_boolean(0),
+      immutable: i32_boolean(0),
+      max_age_seconds: i32(-1),
+      s_max_age_seconds: i32(-1)
+    )
 
-    # globals do
-    #   private = i32(0)
-    # end
-
-    globals = [
-      public: global_get(:public)
-    ]
-
-    # no_store = global_get(:no_store)
-    # immutable = global_get(:immutable)
-    # max_age_seconds = global_get(:max_age_seconds)
-    # s_max_age_seconds = global_get(:s_max_age_seconds)
-
-    defwasm globals: [
-              # private: i32_boolean(0),
-              # public: i32_boolean(0),
-              # no_store: i32_boolean(0),
-              # immutable: i32_boolean(0),
-              # max_age_seconds: i32(-1),
-              # s_max_age_seconds: i32(-1)
-              # bump_offset: i32(BumpAllocator.bump_offset())
-            ] do
+    defwasm do
       BumpAllocator.funcp(:bump_alloc)
       BumpAllocator.funcp(:bump_memcpy)
       IntToString.funcp(:u32toa_count)
