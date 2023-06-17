@@ -238,7 +238,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
     test "works" do
       instance = Instance.run(SitemapBuilder)
 
-      alloc_string = &Instance.alloc_string(instance, &1)
       add_url = Instance.capture(instance, :add_url, 1)
 
       add_url.("https://example.org/a=1&b=2&c=3")
@@ -270,17 +269,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       #   [:textbox, "last_name"],
       # ]
 
-      alloc_string = &Instance.alloc_string(instance, &1)
       add_textbox = Instance.capture(instance, :add_textbox, 1)
 
-      name = alloc_string.("name")
-      add_textbox.(name)
-
-      bio = alloc_string.("bio")
-      add_textbox.(bio)
-
-      website = alloc_string.("website")
-      add_textbox.(website)
+      add_textbox.("name")
+      add_textbox.("bio")
+      add_textbox.("website")
 
       # Instance.log_memory(instance, 64 * 1024, 100)
 
