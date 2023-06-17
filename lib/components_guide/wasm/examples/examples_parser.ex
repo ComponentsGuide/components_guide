@@ -44,6 +44,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
       MemEql.funcp(:mem_eql_8)
       BumpAllocator.funcp(:bump_alloc)
       I32.String.funcp(:streq)
+      # I32.String.funcp(:streq)
 
       func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
 

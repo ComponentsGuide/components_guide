@@ -61,7 +61,21 @@ defmodule ComponentsGuide.WasmBuilder do
               body: []
 
     def new(options) do
-      # dbg(options[:body])
+      {body, options} = Keyword.pop(options, :body)
+
+      body =
+        for item <- body do
+          case item do
+            {:mod_funcp_ref, mod, name} ->
+              fetch_funcp!(mod.__wasm_module__(), name)
+
+            other ->
+              other
+          end
+        end
+
+      options = Keyword.put(options, :body, body)
+
       struct!(__MODULE__, options)
     end
 
@@ -85,6 +99,10 @@ defmodule ComponentsGuide.WasmBuilder do
         end)
 
       func || raise FetchFuncError, func_name: name, module_definition: module_definition
+    end
+
+    def fetch_funcp_ref!(mod, name) when is_atom(mod) do
+      {:mod_funcp_ref, mod, name}
     end
   end
 
@@ -725,7 +743,8 @@ defmodule ComponentsGuide.WasmBuilder do
       # TODO: what is the best way to pass this value along?
       # def __wasm_module__(), do: @wasm_module
 
-      def funcp(name), do: ModuleDefinition.fetch_funcp!(__wasm_module__(), name)
+      # def funcp(name), do: ModuleDefinition.fetch_funcp!(__wasm_module__(), name)
+      def funcp(name), do: ModuleDefinition.fetch_funcp_ref!(__MODULE__, name)
 
       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
