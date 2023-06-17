@@ -51,6 +51,11 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
   describe "LinkedLists" do
     alias Memory.LinkedLists
 
+    test "wasm size" do
+      wasm = Wasm.to_wasm(LinkedLists)
+      assert byte_size(wasm) == 380
+    end
+
     test "multiple allocations" do
       inst = LinkedLists.start()
       # alloc = Instance.capture(inst, :_test_alloc, 1)

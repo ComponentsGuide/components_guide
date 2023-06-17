@@ -110,12 +110,14 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
+    @wasm_memory 2
+
     global(
       bump_offset: i32(Constants.bump_init_offset()),
       bump_mark: i32(0)
     )
 
-    defwasm exported_memory: 2 do
+    wasm do
       funcp bump_alloc(size(I32)), I32, address: I32 do
         # TODO: check if we have allocated too much
         # and if so, either err or increase the available memory.
@@ -220,10 +222,23 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
       func list_count(ptr(I32)), result: I32, locals: [count: I32] do
         loop Iterate, result: I32 do
+          #           I32.match ptr do
+          #             0 ->
+          #               return(count)
+          # 
+          #             _ ->
+          #               ptr = call(:tl, ptr)
+          #               count = I32.add(count, 1)
+          #               Iterate.continue()
+          #           end
+
           if I32.eqz(ptr), do: return(count)
           # if I32.eqz(ptr), return: count
           # return(count, if: I32.eqz(ptr))
           # guard ptr, else_return: count
+          # I32.unless ptr, return: count
+          # I32.when? ptr, else_return: count
+          # I32.when? ptr, else: return(count)
 
           ptr = call(:tl, ptr)
           count = I32.add(count, 1)
