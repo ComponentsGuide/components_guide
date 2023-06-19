@@ -88,7 +88,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
 
-    defmacro __using__(_opts) do
+    defmacro __using__(opts \\ []) do
       quote do
         @wasm_memory 2
         # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
@@ -104,6 +104,14 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         ComponentsGuide.WasmBuilder.wasm do
           unquote(__MODULE__).funcp(:bump_alloc)
+        end
+        
+        if unquote(opts[:export]) do
+          ComponentsGuide.WasmBuilder.wasm do
+            func alloc(size(I32)), I32 do
+              call(:bump_alloc, local_get(:size))
+            end
+          end
         end
 
         import unquote(__MODULE__)
@@ -137,6 +145,18 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
       func free_all() do
         call(:bump_free_all)
+      end
+    end
+    
+    def write_ascii!(char) do
+      # use WasmBuilder, inline: true
+      # import Kernel, except: [if: 2, @: 1]
+      # import ComponentsGuide.WasmBuilderUsing
+      # import ComponentsGuide.WasmBuilderUsing2
+      
+      snippet do
+        memory32_8![@bump_offset] = char
+        @bump_offset = I32.add(@bump_offset, 1)
       end
     end
 

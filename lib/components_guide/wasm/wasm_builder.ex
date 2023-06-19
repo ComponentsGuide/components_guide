@@ -877,11 +877,15 @@ defmodule ComponentsGuide.WasmBuilder do
       end
 
     locals = Map.new(locals)
-    do_snippet(locals, block_items)
+    # do_snippet(locals, block_items)
 
-    # quote do
-    #   unquote(result)
-    # end
+    quote do
+      import Kernel, except: [if: 2, @: 1]
+      import ComponentsGuide.WasmBuilderUsing
+      import ComponentsGuide.WasmBuilderUsing2
+      
+      unquote(do_snippet(locals, block_items))
+    end
   end
 
   def memory(name \\ nil, min) do

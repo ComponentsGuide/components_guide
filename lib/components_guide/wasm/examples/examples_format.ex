@@ -85,4 +85,60 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     def u32toa(value, end_offset), do: call(:u32toa, value, end_offset)
     def write_u32(value, str_ptr), do: call(:write_u32, value, str_ptr)
   end
+  
+  defmodule URLEncoding do
+    use WasmBuilder
+    use BumpAllocator, export: true
+
+    defmacro __using__(_) do
+      quote do
+        import WasmBuilder
+
+        wasm do
+          URLEncoding.funcp(:encode_url)
+        end
+      end
+    end
+
+    wasm do
+      func url_encode(str_ptr(I32.String)),
+           I32.String,
+           i: I32,
+           char: I32 do
+        @bump_mark = @bump_offset
+        
+        # write_ascii!(?g)
+        # memory32_8![@bump_offset] = ?g
+        # @bump_offset = I32.add(@bump_offset, 1)
+        
+        # I32.String.each_char str_ptr do
+        #   char, i ->
+        #     write_ascii!(char)
+        # end
+
+        loop EachByte do
+          char = memory32_8![I32.add(str_ptr, i)].unsigned
+        
+          if char do
+            if I32.eq(char, 0x20) do
+              write_ascii!(?%)
+              write_ascii!(?2)
+              write_ascii!(?0)
+            else
+              write_ascii!(char)
+            end
+            
+            i = I32.add(i, 1)
+            EachByte.continue()
+          end
+        end
+        
+        write_ascii!(0x0)
+
+        @bump_mark
+      end
+    end
+
+    def url_encode(str_ptr), do: call(:url_encode, str_ptr)
+  end
 end
