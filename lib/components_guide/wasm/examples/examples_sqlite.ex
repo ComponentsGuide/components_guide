@@ -33,6 +33,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
     defwasm imports: [
               sqlite3: [
                 exec: func(name: :sqlite3_exec, params: I32, result: I32),
+                # exec: func sqlite3_exec(strptr(I32)), I32,
                 prepare: func(name: :sqlite3_prepare, params: I32, result: I32)
               ]
             ] do
@@ -43,8 +44,10 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
       func add_height(height(I32)),
            nil,
            i: I32 do
-        # _ sqlite3_prepare(~S"INSERT INTO heights(feet) values(99)")
         _ = sqlite3_exec(~S"INSERT INTO heights(feet) VALUES (99)")
+        
+        # i = json!([i32: height])
+        # _ sqlite3_mutate(~S"INSERT INTO heights(feet) values(?)", i)
       end
 
       func get_count(),
