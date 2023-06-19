@@ -170,6 +170,15 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
 
     def bump_write!(hex_upper: hex) do
+      # This might be a bit over the top…
+      {initial, following} = case hex do
+        [value, {:local_tee, identifier}] ->
+          {hex, {:local_get, identifier}}
+          
+        _ ->
+          {hex, hex}
+      end
+      
       snippet do
         # push(hex)
         # 
@@ -204,7 +213,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         
         # FIXME: we are evaluating hex multiple times. Do we have to stash it in a variable?
         memory32_8![@bump_offset] =
-          I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+          I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
+        
+        # memory32_8![@bump_offset] =
+        #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
+        
+        # memory32_8![@bump_offset] =
+        #   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
 
         @bump_offset = I32.add(@bump_offset, 1)
       end

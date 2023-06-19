@@ -39,7 +39,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("😀") == "%F0%9F%98%80"
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
 
-      assert byte_size(Wasm.to_wasm(URLEncoding)) == 513
+      assert byte_size(Wasm.to_wasm(URLEncoding)) == 509
     end
   end
 

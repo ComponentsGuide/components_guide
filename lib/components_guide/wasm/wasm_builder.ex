@@ -971,6 +971,7 @@ defmodule ComponentsGuide.WasmBuilder do
   def local_get(identifier), do: {:local_get, identifier}
   def local_set(identifier), do: {:local_set, identifier}
   def local_tee(identifier), do: {:local_tee, identifier}
+  def local_tee(identifier, value), do: [value, {:local_tee, identifier}]
 
   defmacro if_(condition, do: when_true, else: when_false) do
     quote do
