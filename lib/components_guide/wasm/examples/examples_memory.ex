@@ -148,7 +148,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
     
-    def write_ascii!(char) do
+    def bump_write!(ascii: char) do
       # use WasmBuilder, inline: true
       # import Kernel, except: [if: 2, @: 1]
       # import ComponentsGuide.WasmBuilderUsing

@@ -121,11 +121,11 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         
           if char do
             if I32.eq(char, 0x20) do
-              write_ascii!(?%)
-              write_ascii!(?2)
-              write_ascii!(?0)
+              bump_write!(ascii: ?%)
+              bump_write!(ascii: ?2)
+              bump_write!(ascii: ?0)
             else
-              write_ascii!(char)
+              bump_write!(ascii: char)
             end
             
             i = I32.add(i, 1)
@@ -133,7 +133,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           end
         end
         
-        write_ascii!(0x0)
+        bump_write!(ascii: 0x0)
 
         @bump_mark
       end
