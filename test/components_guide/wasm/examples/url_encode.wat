@@ -233,6 +233,5 @@
   (global (;0;) (mut i32) (i32.const 65536))
   (global (;1;) (mut i32) (i32.const 0))
   (export "memory" (memory 0))
-  (export "memcpy" (func 1))
   (export "url_encode" (func 2))
   (export "alloc" (func 3)))

@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
@@ -183,7 +184,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   # end
 
   defmodule CounterHTML do
-    use Wasm
+    use WasmBuilder
+    use BumpAllocator
 
     # @body deftemplate(~E"""
     #       <output class="flex p-4 bg-gray-800"><%= call(:i32toa, count) %></output>
@@ -191,28 +193,28 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #       """)
 
     @wasm_memory 1
-    @_bump_start 1024
 
-    defwasm globals: [
-              count: i32(0),
-              body_chunk_index: i32(0),
-              bump_offset: i32(@_bump_start)
-            ] do
-      func(get_current, result: I32, do: count)
+    global(
+      count: i32(0),
+      body_chunk_index: i32(0)
+    )
+
+    wasm do
+      func(get_current, result: I32, do: @count)
 
       func increment, I32 do
-        count = I32.add(count, 1)
-        count
+        @count = I32.add(@count, 1)
+        @count
       end
 
       func rewind, nil, i: I32 do
-        body_chunk_index = 0
-        bump_offset = @_bump_start
+        @body_chunk_index = 0
+        @bump_offset = BumpAllocator.Constants.bump_init_offset()
 
         i = 64
 
         loop Clear do
-          memory32![I32.add(i, @_bump_start)] = 0x0
+          memory32![I32.add(i, BumpAllocator.Constants.bump_init_offset())] = 0x0
 
           if I32.gt_u(i, 0) do
             i = I32.sub(i, 1)
@@ -224,9 +226,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       funcp i32toa(value(I32)), I32, working_offset: I32, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
-        bump_offset = I32.u!(bump_offset + 11)
+        @bump_offset = I32.u!(@bump_offset + 11)
         # We then start from the back, as we have to print the digits in reverse.
-        working_offset = bump_offset
+        working_offset = @bump_offset
 
         loop Digits do
           working_offset = I32.u!(working_offset - 1)
@@ -242,12 +244,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func next_body_chunk, I32 do
-        I32.match body_chunk_index do
+        I32.match @body_chunk_index do
           0 ->
             ~S[<output class="flex p-4 bg-gray-800">]
 
           1 ->
-            call(:i32toa, count)
+            call(:i32toa, @count)
 
           2 ->
             ~S[</output>]
@@ -259,7 +261,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        body_chunk_index = I32.u!(body_chunk_index + 1)
+        @body_chunk_index = I32.u!(@body_chunk_index + 1)
       end
     end
 
@@ -277,6 +279,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       Wasm.instance_call(instance, "rewind")
       Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
     end
+
+    def start(), do: Instance.run(__MODULE__)
+    def exports(), do: Wasm.list_exports(__MODULE__)
 
     def initial_html() do
       instance = start()

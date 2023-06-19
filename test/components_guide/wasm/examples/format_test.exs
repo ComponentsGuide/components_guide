@@ -39,20 +39,26 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("😀") == "%F0%9F%98%80"
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
 
-      assert byte_size(Wasm.to_wasm(URLEncoding)) == 488
-      # assert byte_size(Wasm.to_wasm(URLEncoding)) == 499
+      assert byte_size(Wasm.to_wasm(URLEncoding)) == 479
     end
 
     # @tag :skip
     test "opt" do
-      path_in = Path.join(__DIR__, "url_encode.wasm")
-      path_out = Path.join(__DIR__, "url_encode_OPT.wasm")
+      path_wasm = Path.join(__DIR__, "url_encode.wasm")
+      path_wat = Path.join(__DIR__, "url_encode.wat")
+      path_opt_wasm = Path.join(__DIR__, "url_encode_OPT.wasm")
+      path_opt_wat = Path.join(__DIR__, "url_encode_OPT.wat")
       wasm = Wasm.to_wasm(URLEncoding)
-      File.write!(path_in, wasm)
-      System.cmd("wasm-opt", [path_in, "-o", path_out, "-O"])
+      File.write!(path_wasm, wasm)
+      System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
 
-      %{size: size} = File.stat!(path_out)
-      assert size == 465
+      %{size: size} = File.stat!(path_opt_wasm)
+      assert size == 408
+      
+      {wat, 0} = System.cmd("wasm2wat", [path_wasm])
+      File.write!(path_wat, wat)
+      {opt_wat, 0} = System.cmd("wasm2wat", [path_opt_wasm])
+      File.write!(path_opt_wat, opt_wat)
     end
   end
 

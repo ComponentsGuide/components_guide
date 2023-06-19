@@ -124,8 +124,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
       # func = Enum.find(body, &match?(%Func{name: ^name}, &1))
       func =
-        Enum.find(body, fn
-          %Func{name: ^name} -> true
+        Enum.find_value(body, fn
+          %Func{name: ^name} = func -> %{func | exported?: false}
           _ -> false
         end)
 
