@@ -134,6 +134,11 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         push(@bump_offset) do
           @bump_offset = I32.add(@bump_offset, size)
         end
+
+        # Better syntax?
+        # pop(push: @bump_offset) do
+        #   @bump_offset = I32.add(@bump_offset, size)
+        # end
       end
 
       funcp bump_free_all() do

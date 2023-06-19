@@ -300,6 +300,19 @@ defmodule ComponentsGuide.WasmBuilder do
       |> Enum.reduce(&_or/2)
     end
 
+    defmacro u!(expression) do
+      Macro.prewalk(expression, fn
+        {:>>>, meta, [a, b]} ->
+          {:{}, meta, [:i32, :shr_u, {a, b}]}
+          
+        {:&&&, meta, [a, b]} ->
+          {:{}, meta, [:i32, :and, {a, b}]}
+
+        other ->
+          other
+      end)
+    end
+
     defmacro when?(condition, do: when_true, else: when_false) do
       quote do
         IfElse.new(

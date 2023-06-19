@@ -105,7 +105,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
            I32.String,
            i: I32,
            char: I32,
-           temp_write_32: I32 do
+           abc: I32,
+           __dup_32: I32 do
         write_start!()
 
         loop EachByte do
@@ -131,16 +132,18 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               # )
 
               bump_write!(ascii: ?%)
+              bump_write!(hex_upper: I32.u!(char >>> 4))
+              bump_write!(hex_upper: I32.u!(char &&& 15))
               # bump_write!(hex_upper: I32.div_u(char, 16))
               # bump_write!(hex_upper: I32.rem_u(char, 16))
 
-              # temp_write_32 = I32.div_u(char, 16)
-              # bump_write!(hex_upper: temp_write_32)
-              # temp_write_32 = I32.rem_u(char, 16)
-              # bump_write!(hex_upper: temp_write_32)
+              # __dup_32 = I32.div_u(char, 16)
+              # bump_write!(hex_upper: __dup_32)
+              # __dup_32 = I32.rem_u(char, 16)
+              # bump_write!(hex_upper: __dup_32)
 
-              bump_write!(hex_upper: local_tee(:temp_write_32, I32.div_u(char, 16)))
-              bump_write!(hex_upper: local_tee(:temp_write_32, I32.rem_u(char, 16)))
+              # bump_write!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
+              # bump_write!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
             end
 
             i = I32.add(i, 1)
