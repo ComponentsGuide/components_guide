@@ -211,13 +211,16 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         # end
         # memory32_8![:pop] = :pop
         
-        # FIXME: we are evaluating hex multiple times. Do we have to stash it in a variable?
-        memory32_8![@bump_offset] =
-          I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
+        memory32_8![@bump_offset] = I32.when?(I32.le_u(initial, 9)) do 
+          I32.add(following, ?0)
+        else
+          following |> I32.add(inline do: ?A - 10)
+        end
         
         # memory32_8![@bump_offset] =
         #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
         
+        # FIXME: we are evaluating hex multiple times. Do we have to stash it in a variable?
         # memory32_8![@bump_offset] =
         #   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
 
