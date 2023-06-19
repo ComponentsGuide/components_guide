@@ -118,18 +118,6 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
                |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*+,;=~_-.})) do
               bump_write!(ascii: char)
             else
-              # bump_write!([])
-
-              # bump_write!(
-              #   ascii: ?%,
-              #   hex_upper: I32.div_u(char, 16),
-              # )
-              # bump_write!(
-              #   ascii: ?%,
-              #   hex_upper: I32.div_u(char, 16),
-              #   hex_upper: I32.rem_u(char, 16)
-              # )
-
               bump_write!(ascii: ?%)
               bump_write!(hex_upper: I32.u!(char >>> 4))
               bump_write!(hex_upper: I32.u!(char &&& 15))

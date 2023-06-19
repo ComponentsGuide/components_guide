@@ -222,6 +222,8 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   defmodule I32 do
+    import Kernel, except: [and: 2, or: 2]
+
     require Ops
 
     # TODO: add math macro?
@@ -234,7 +236,7 @@ defmodule ComponentsGuide.WasmBuilder do
     def div_s(a, divisor)
     def rem_u(a, divisor)
     def rem_s(a, divisor)
-    def unquote(:and)(a, b)
+    def unquote(:and_)(a, b)
     def unquote(:or)(a, b)
     def xor(a, b)
     def shl(a, b)
@@ -250,8 +252,16 @@ defmodule ComponentsGuide.WasmBuilder do
     end
 
     for op <- Ops.i32(2) do
-      def unquote(op)(a, b) do
-        {:i32, unquote(op), {a, b}}
+      case op do
+        :and ->
+          def and_(a, b) do
+            {:i32, unquote(op), {a, b}}
+          end
+
+        _ ->
+          def unquote(op)(a, b) do
+            {:i32, unquote(op), {a, b}}
+          end
       end
     end
 
@@ -292,29 +302,56 @@ defmodule ComponentsGuide.WasmBuilder do
     end
 
     def in_inclusive_range?(value, lower, upper) do
-      __MODULE__.and(I32.ge_u(value, lower), I32.le_u(value, upper))
+      __MODULE__.and_(I32.ge_u(value, lower), I32.le_u(value, upper))
     end
 
     def in?(value, list) when is_list(list) do
       # FIXME: this is pushing everything onto the stack, and then doing a massive
       # sequence of `or` to flatten them down.
       # Try to do the `or` after each value.
-      
+
       for(item <- list, do: eq(value, item))
       |> Enum.reduce(&_or/2)
     end
 
     defmacro u!(expression) do
+      import Kernel
+
       Macro.prewalk(expression, fn
+        # Allow values known at compile time to be executed by Elixir
+        node = {:+, _, [a, b]} when is_integer(a) and is_integer(b) ->
+          node
+
         {:+, meta, [a, b]} ->
           {:{}, meta, [:i32, :add, {a, b}]}
-        
+
+        node = {:-, _, [a, b]} when is_integer(a) and is_integer(b) ->
+          node
+
         {:-, meta, [a, b]} ->
           {:{}, meta, [:i32, :sub, {a, b}]}
-        
+
+        node = {:/, _, [a, b]} when is_integer(a) and is_integer(b) ->
+          node
+
+        {:/, meta, [a, b]} ->
+          {:{}, meta, [:i32, :div_u, {a, b}]}
+
+        {:<=, meta, [a, b]} ->
+          {:{}, meta, [:i32, :le_u, {a, b}]}
+
+        {:>=, meta, [a, b]} ->
+          {:{}, meta, [:i32, :ge_u, {a, b}]}
+
+        {:<, meta, [a, b]} ->
+          {:{}, meta, [:i32, :lt_u, {a, b}]}
+
+        {:>, meta, [a, b]} ->
+          {:{}, meta, [:i32, :gt_u, {a, b}]}
+
         {:>>>, meta, [a, b]} ->
           {:{}, meta, [:i32, :shr_u, {a, b}]}
-          
+
         {:&&&, meta, [a, b]} ->
           {:{}, meta, [:i32, :and, {a, b}]}
 

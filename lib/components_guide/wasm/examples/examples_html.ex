@@ -224,18 +224,18 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       funcp i32toa(value(I32)), result: I32, locals: [working_offset: I32, digit: I32] do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
-        bump_offset = I32.add(bump_offset, 11)
+        bump_offset = I32.u!(bump_offset + 11)
         # We then start from the back, as we have to print the digits in reverse.
         working_offset = bump_offset
 
         loop Digits do
-          working_offset = I32.sub(working_offset, 1)
+          working_offset = I32.u!(working_offset - 1)
 
           digit = I32.rem_u(value, 10)
-          value = I32.div_u(value, 10)
-          memory32_8![working_offset] = I32.add(?0, digit)
+          value = I32.u!(value / 10)
+          memory32_8![working_offset] = I32.u!(?0 + digit)
 
-          Digits.continue(if: I32.gt_u(value, 0))
+          Digits.continue(if: I32.u!(value > 0))
         end
 
         working_offset
@@ -259,7 +259,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        body_chunk_index = I32.add(body_chunk_index, 1)
+        body_chunk_index = I32.u!(body_chunk_index + 1)
       end
     end
 
