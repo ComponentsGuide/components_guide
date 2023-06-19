@@ -1,6 +1,7 @@
 defmodule ComponentsGuideWeb.WasmShared do
   alias ComponentsGuide.Wasm.Examples
   alias ComponentsGuide.Wasm.Examples.Numeric
+  alias ComponentsGuide.Wasm.Examples.Format
   alias ComponentsGuide.Wasm.Examples.HTML
   alias ComponentsGuide.Wasm.Examples.SVG
   alias ComponentsGuide.Wasm.Examples.State
@@ -9,6 +10,7 @@ defmodule ComponentsGuideWeb.WasmShared do
 
   @all_modules %{
     "escape_html.wasm" => HTML.EscapeHTML,
+    "url_encode.wasm" => HTML.URLEncoding,
     "html_page.wasm" => HTML.HTMLPage,
     "counter_html.wasm" => HTML.CounterHTML,
     "svg_square.wasm" => SVG.Square,
