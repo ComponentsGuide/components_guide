@@ -65,16 +65,17 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
            0
          end},
         {:sqlite3, :exec,
-         fn sql_ptr ->
+         fn caller, sql_ptr ->
            IO.puts("!!!!!!!!!!")
-           IO.inspect(sql_ptr, label: "sqlite3 exec")
+           IO.inspect(sql_ptr, label: "sqlite3 exec sql_ptr")
            IO.inspect(ref, label: "sqlite3 exec ref")
            # inst = Process.get(ref) || raise "We need a Wasm.Instance process"
            inst = :persistent_term.get(ref) || raise "We need a Wasm.Instance process"
            IO.inspect(inst, label: "sqlite3 exec inst")
            # sql = Wasm.Instance.read_string_nul_terminated(inst, sql_ptr)
-           # IO.inspect(sql, label: "sqlite3 exec sql")
-           IO.inspect(0, label: "sqlite3 exec about to return")
+           sql = Wasm.Instance.Caller.read_string_nul_terminated(caller, sql_ptr)
+           IO.inspect(sql, label: "sqlite3 exec sql")
+           # IO.inspect(0, label: "sqlite3 exec about to return")
            0
          end},
         {:sqlite3, :prepare,

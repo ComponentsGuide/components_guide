@@ -237,7 +237,14 @@ defmodule ComponentsGuide.Wasm do
       input = Wasm.Process.process_result(term)
 
       # output = handler.(0)
-      output = handler.(input)
+      output = case Function.info(handler, :arity) do
+        {:arity, 1} ->
+            handler.(input)
+        
+        {:arity, 2} ->
+            handler.(resource, input)
+      end
+      
       IO.inspect(output, label: "reply_to_func_call_out output")
       ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, output)
 
@@ -257,15 +264,17 @@ defmodule ComponentsGuide.Wasm do
       %{params: params, results: results} = func_type
       func = Map.fetch!(imports, {mod, name})
 
-      {:arity, arity} = Function.info(func, :arity)
+      {:arity, callback_arity} = Function.info(func, :arity)
       params_count = Enum.count(params)
 
-      if params_count != arity do
+      if (params_count != callback_arity) and (params_count + 1) != callback_arity do
         IO.inspect(IEx.Info.info(params_count))
-        IO.inspect(IEx.Info.info(arity))
-        IO.inspect(arity == params_count)
+        IO.inspect(IEx.Info.info(callback_arity))
+        IO.inspect(callback_arity, label: "callback arity")
+        IO.inspect(params_count, label: "params count")
+        IO.inspect(callback_arity == params_count)
 
-        raise "Function arity #{inspect(arity)} must match WebAssembly params count #{inspect(params_count)}."
+        raise "Function arity #{inspect(callback_arity)} must match WebAssembly params count #{inspect(params_count)}."
       end
 
       %FuncImport{

@@ -291,8 +291,9 @@ fn wasm_read_memory<T>(
     return Ok(string_buffer);
 }
 
-fn wasm_extract_string<T>(
-    store: &mut Store<T>,
+fn wasm_extract_string(
+    // store: &Store<T>,
+    store: impl AsContext,
     memory: &Memory,
     result: Vec<u32>,
 ) -> Result<String, anyhow::Error> {
@@ -503,15 +504,25 @@ struct CallOutToFuncReply {
     lock: RwLock<Option<OwnedBinary>>,
     // sender: crossbeam_channel::Sender<OwnedBinary>,
     sender: crossbeam_channel::Sender<u32>,
+    // caller: Caller<'a, ()>,
+    // caller: Arc<Caller<'_, ()>>,
+    // caller: RwLock<Box<dyn AsContext<Data = ()>>>,
+    // memory: Memory,
+    // memory_ptr: Arc<*const u8>,
+    memory_ptr: std::sync::atomic::AtomicPtr<u8>,
+    memory_size: usize,
 }
+unsafe impl Send for CallOutToFuncReply {}
 
 impl CallOutToFuncReply {
-    fn new(func_id: i64, sender: crossbeam_channel::Sender<u32>) -> Self {
+    fn new(func_id: i64, sender: crossbeam_channel::Sender<u32>, caller: Caller<()>, memory: Memory) -> Self {
         // Self { func_id: func_id, lock: RwLock::new(OwnedBinary::new(0)) }
         Self {
             func_id: func_id,
             lock: RwLock::new(None),
             sender: sender,
+            memory_ptr: memory.data_ptr(&caller).into(),
+            memory_size: memory.data_size(&caller)
         }
     }
 }
@@ -545,7 +556,7 @@ impl ImportsTable {
                 &fi.module_name,
                 &fi.name,
                 ft,
-                move |_caller, params, results| {
+                move |mut caller, params, results| {
                     // results[0] = Val::I32(42);
                     // eprintln!("Error: Could not complete task");
 
@@ -562,12 +573,16 @@ impl ImportsTable {
                     // let params2 = params.clone();
                     let params2: Result<Vec<WasmSupportedValue>> = params.iter().map(|v| v.try_into()).collect();
                     let params2 = params2.expect("Params could not be converted into supported values");
+                    
+                    // TODO: what if memory wasn’t exported? We shouldn’t *required* memory to use imports.
+                    let memory = caller.get_export("memory").unwrap().into_memory().unwrap();
+                    let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender, caller, memory));
 
                     // let mut owned_env2 = owned_env.clone();
                     thread::spawn(move || {
                         let mut owned_env = OwnedEnv::new();
                         
-                        let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
+                        // let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender, caller, memory));
                         owned_env.run(|env| {
                             let func_module_name2 = "";
                             let func_name2 = "";
@@ -814,7 +829,7 @@ impl RunningInstance {
         func.call(&mut self.store, &args, &mut result)?;
 
         let result: Vec<u32> = result.iter().map(|v| v.unwrap_i32() as u32).collect();
-        let s = wasm_extract_string(&mut self.store, &self.memory, result)?;
+        let s = wasm_extract_string(&self.store, &self.memory, result)?;
         Ok(s)
     }
     
@@ -881,8 +896,8 @@ impl RunningInstance {
         wasm_read_memory(&self.store, &self.memory, start, length)
     }
     
-    fn read_string_nul_terminated(&mut self, start: u32) -> Result<String, anyhow::Error> {
-        let s = wasm_extract_string(&mut self.store, &self.memory, vec![start])?;
+    fn read_string_nul_terminated(&self, start: u32) -> Result<String, anyhow::Error> {
+        let s = wasm_extract_string(&self.store, &self.memory, vec![start])?;
         Ok(s)
     }
 }
@@ -1047,7 +1062,9 @@ fn wasm_instance_read_memory(
     start: u32,
     length: u32,
 ) -> Result<Vec<u8>, Error> {
-    let instance = resource.lock.read().map_err(string_error)?;
+    eprintln!("wasm_instance_read_memory");
+    // let instance = resource.lock.read().map_err(string_error)?;
+    let instance = resource.lock.try_read().map_err(string_error)?;
     let result = instance.read_memory(start, length).map_err(string_error)?;
 
     return Ok(result);
@@ -1059,7 +1076,10 @@ fn wasm_instance_read_string_nul_terminated(
     resource: ResourceArc<RunningInstanceResource>,
     memory_offset: u32
 ) -> Result<String, Error> {
-    let mut instance = resource.lock.write().map_err(string_error)?;
+    eprintln!("wasm_instance_read_string_nul_terminated");
+    // drop(resource.lock.try_read().map_err(string_error)?);
+    
+    let mut instance = resource.lock.try_write().map_err(string_error)?;
     let result = instance
         .read_string_nul_terminated(memory_offset)
         .map_err(string_error)?;
@@ -1085,6 +1105,35 @@ fn wasm_call_out_reply(
         .map_err(string_error)?;
 
     return Ok(());
+}
+
+#[nif]
+fn wasm_caller_read_string_nul_terminated(
+    env: Env,
+    resource: ResourceArc<CallOutToFuncReply>,
+    memory_offset: u32
+    // reply: Term,
+) -> Result<String, Error> {
+    let memory_ptr = &resource.memory_ptr;
+    let memory_size = resource.memory_size;
+    eprintln!("wasm_caller_read_string_nul_terminated {memory_size}");
+    
+    let memory_ptr = memory_ptr.load(std::sync::atomic::Ordering::Relaxed);
+    // let data = &memory.data(&store)[start..];
+    let data: &[i8] =
+        unsafe { slice::from_raw_parts(memory_ptr as *const i8, memory_size) };
+    
+    let memory_offset: usize = memory_offset.try_into().unwrap();
+    let data = &data[memory_offset..];
+    
+    let cstr = unsafe { CStr::from_ptr(data.as_ptr()) };
+    let string = String::from_utf8_lossy(cstr.to_bytes()).to_string();
+    
+    eprintln!("wasm_caller_read_string_nul_terminated {string}");
+    
+    // let s = wasm_extract_string(&caller, &memory, vec![memory_offset])?;
+
+    return Ok(string);
 }
 
 // The `'a` in this function definition is something called a lifetime.
@@ -1165,6 +1214,7 @@ rustler::init!(
         wasm_instance_read_memory,
         wasm_instance_read_string_nul_terminated,
         wasm_call_out_reply,
+        wasm_caller_read_string_nul_terminated,
         wat2wasm,
         validate_module_definition
     ],
