@@ -101,6 +101,11 @@ defmodule ComponentsGuide.Wasm.Instance do
     end
   end
 
+  defdelegate cast(instance, f), to: Wasm, as: :instance_cast
+  defdelegate cast(instance, f, a), to: Wasm, as: :instance_cast
+  defdelegate cast(instance, f, a, b), to: Wasm, as: :instance_cast
+  defdelegate cast(instance, f, a, b, c), to: Wasm, as: :instance_cast
+
   def alloc_string(instance, string) do
     offset = call(instance, :alloc, byte_size(string) + 1)
     write_string_nul_terminated(instance, offset, string)

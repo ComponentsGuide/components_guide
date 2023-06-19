@@ -403,7 +403,19 @@ fn wasm_call_bulk_internal(
 }
 
 struct RunningInstanceResource {
-    lock: RwLock<RunningInstance>,
+    identifier: String,
+    // lock: RwLock<RunningInstance>,
+    lock: Arc<RwLock<RunningInstance>>,
+}
+
+impl RunningInstanceResource {
+    fn new(identifier: String, running_instance: RunningInstance) -> Self {
+        Self {
+            identifier: identifier,
+            // lock: RwLock::new(running_instance),
+            lock: Arc::new(RwLock::new(running_instance)),
+        }
+    }
 }
 
 struct RunningInstance {
@@ -521,6 +533,13 @@ impl ImportsTable {
             // let r = rc.clone();
             let r = Arc::downgrade(&rc);
             let pid = callback_receiver.pid().unwrap();
+            
+            let func_module_name = Arc::new(fi.module_name.clone());
+            let func_name = Arc::new(fi.name.clone());
+            let func_module_name2 = Arc::new(fi.module_name.clone());
+            let func_name2 = Arc::new(fi.name.clone());
+            // let func_module_name = Arc::new(fi.module_name.as_str());
+            // let func_name = Arc::new(fi.name.as_str());
 
             linker.func_new(
                 &fi.module_name,
@@ -550,7 +569,9 @@ impl ImportsTable {
                         
                         let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender));
                         owned_env.run(|env| {
-                            eprintln!("Sending :reply_to_func_call_out {func_id}");
+                            let func_module_name2 = "";
+                            let func_name2 = "";
+                            eprintln!("Sending :reply_to_func_call_out func#{func_id} {func_module_name2} {func_name2}");
                             env.send(
                                 &pid,
                                 (atom::reply_to_func_call_out(), func_id, reply, params2).encode(env),
@@ -577,7 +598,8 @@ impl ImportsTable {
 
                     let reply_binary = recv
                         .recv_timeout(Duration::from_secs(5))
-                        .expect("Did not recv reply value in time");
+                        .unwrap_or_else(|error| panic!("Did not recv reply value in time calling imported func {}.{}: {error:?}", func_module_name, func_name));
+                        // .expect("Did not recv reply value in time");
 
                     // let reply_binary2 = reply_binary
                     //     .as_ref()
@@ -868,6 +890,7 @@ impl RunningInstance {
 fn wasm_run_instance(
     env: Env,
     source: WasmModuleDefinition,
+    identifier: String,
     func_imports: Vec<FuncImport>,
     gen_pid: LocalPid,
 ) -> Result<ResourceArc<RunningInstanceResource>, Error> {
@@ -884,11 +907,9 @@ fn wasm_run_instance(
 
     // info!("running_instance: {}", running_instance);
 
-    let resource = ResourceArc::new(RunningInstanceResource {
-        lock: RwLock::new(running_instance),
-    });
+    let resource = ResourceArc::new(RunningInstanceResource::new(identifier, running_instance));
 
-    return Ok(resource);
+    Ok(resource)
 }
 
 #[nif]
@@ -902,7 +923,7 @@ fn wasm_instance_get_global_i32(
         .get_global_value_i32(global_name)
         .map_err(string_error)?;
 
-    return Ok(result);
+    Ok(result)
 }
 
 #[nif]
@@ -955,17 +976,28 @@ fn wasm_instance_call_func_i32_string(
     return instance.call_i32_string(f, args).map_err(string_error);
 }
 
-// #[nif]
-// fn wasm_instance_cast_func_i32(
-//     env: Env,
-//     resource: ResourceArc<RunningInstanceResource>,
-//     f: String,
-//     args: Vec<u32>,
-// ) -> Result<Term, Error> {
-//     let mut instance = resource.lock.write().map_err(string_error)?;
-//     let result = instance.call_i32(f, args).map_err(string_error)?;
-//     return Ok(map_return_values_i32(env, result));
-// }
+#[nif]
+fn wasm_instance_cast_func_i32(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    f: String,
+    args: Vec<u32>,
+) -> Result<(), Error> {
+    eprintln!("CAST! {f}");
+    // let c_lock = Arc::clone(&resource.lock);
+    
+    thread::spawn(move || {
+        eprintln!("CAST in thread!");
+        let mut instance = resource.lock.write().expect("Could not get a hold of resource.");
+        eprintln!("Got instance");
+        // let mut instance = c_lock.write().expect("Could not get a hold of resource.");
+        let result = instance.call_i32(f, args).expect("WebAssembly call failed.");
+        eprintln!("CAST call done!");
+        // return Ok(map_return_values_i32(env, result));
+    });
+    
+    Ok(())
+}
 
 #[nif]
 fn wasm_instance_write_i32(
@@ -1125,6 +1157,7 @@ rustler::init!(
         wasm_instance_call_func,
         wasm_instance_call_func_i32,
         wasm_instance_call_func_i32_string,
+        wasm_instance_cast_func_i32,
         wasm_instance_write_i32,
         wasm_instance_write_i64,
         wasm_instance_write_string_nul_terminated,

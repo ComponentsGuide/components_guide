@@ -131,28 +131,6 @@ defmodule ComponentsGuide.Wasm do
   defp transform32(a) when is_integer(a), do: {:i32, a}
   defp transform32(a) when is_float(a), do: {:f32, a}
 
-  def cast(source, f) do
-    cast_apply(source, f, [])
-  end
-
-  def cast(source, f, a) do
-    cast_apply(source, f, [a])
-  end
-
-  def cast(source, f, a, b) do
-    cast_apply(source, f, [a, b])
-  end
-
-  def cast(source, f, a, b, c) do
-    cast_apply(source, f, [a, b, c])
-  end
-
-  def cast_apply(source, f, args) do
-    f = to_string(f)
-    args = Enum.map(args, &transform32/1)
-    process_source(source) |> WasmNative.wasm_cast(f, args)
-  end
-
   def call_string(source, f), do: process_source(source) |> WasmNative.wasm_call_i32_string(f, [])
 
   def call_string(source, f, a),
@@ -219,16 +197,23 @@ defmodule ComponentsGuide.Wasm do
     def init(imports) do
       IO.puts("Starting ReplyServer")
       IO.inspect(imports)
-      {:ok, imports}
+      {:ok, %{imports: imports}}
     end
 
     # @impl true
     # def handle_info({:set_instance, instance}, imports) do
     #   {:noreply, %{state | instance: instance}}
     # end
+    
+    @impl true
+    def handle_call({:started_instance, instance}, _from, state) do
+      # %{state | instance: instance}
+      state = put_in(state[:instance], instance)
+      {:reply, :ok, state}
+    end
 
     @impl true
-    def handle_info({:reply_to_func_call_out, func_id, resource, term}, imports) do
+    def handle_info({:reply_to_func_call_out, func_id, resource, term}, state = %{imports: imports}) do
       IO.inspect(func_id, label: "reply_to_func_call_out func_id")
       # IO.inspect(resource, label: "reply_to_func_call_out resource")
 
@@ -256,7 +241,7 @@ defmodule ComponentsGuide.Wasm do
       IO.inspect(output, label: "reply_to_func_call_out output")
       ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, output)
 
-      {:noreply, imports}
+      {:noreply, state}
     end
   end
 
@@ -300,8 +285,11 @@ defmodule ComponentsGuide.Wasm do
     imports = process_imports(import_types, imports)
 
     {:ok, pid} = ReplyServer.start_link(imports)
-    source = {:wat, process_source(source)}
-    instance = WasmNative.wasm_run_instance(source, imports, pid)
+    {identifier, source} = process_source2(source)
+    instance = WasmNative.wasm_run_instance(source, identifier, imports, pid)
+    
+    GenServer.call(pid, {:started_instance, instance})
+    |> dbg()
 
     # receive do
     #   :run_instance_start ->
@@ -374,6 +362,28 @@ defmodule ComponentsGuide.Wasm do
     instance_call_stream_string_chunks(instance, f) |> Enum.join()
   end
 
+  def instance_cast(instance, f) do
+    instance_cast_apply(instance, f, [])
+  end
+
+  def instance_cast(instance, f, a) do
+    instance_cast_apply(instance, f, [a])
+  end
+
+  def instance_cast(instance, f, a, b) do
+    instance_cast_apply(instance, f, [a, b])
+  end
+
+  def instance_cast(instance, f, a, b, c) do
+    instance_cast_apply(instance, f, [a, b, c])
+  end
+
+  def instance_cast_apply(instance, f, args) do
+    f = to_string(f)
+    # args = Enum.map(args, &transform32/1)
+    get_instance_handle(instance) |> WasmNative.wasm_instance_cast_func_i32(f, args)
+  end
+
   def instance_write_i32(instance, memory_offset, value)
       when is_integer(memory_offset) and is_integer(value) do
     WasmNative.wasm_instance_write_i32(get_instance_handle(instance), memory_offset, value)
@@ -430,10 +440,14 @@ defmodule ComponentsGuide.Wasm do
     )
   end
 
-  defp process_source(string) when is_binary(string), do: string
-  defp process_source({:wat, string} = value) when is_binary(string), do: value
+  defp process_source2(string) when is_binary(string), do: {"unknown", {:wat, string}}
+  defp process_source2({:wat, string} = value) when is_binary(string), do: {"unknown", value}
+  defp process_source2(atom) when is_atom(atom), do: {to_string(atom), {:wat, atom.to_wat()}}
 
-  defp process_source(atom) when is_atom(atom), do: atom.to_wat()
+  defp process_source(source) do
+    {_identifier, {:wat, source}} = process_source2(source)
+    source
+  end
 
   # do: ComponentsGuide.WasmBuilder.to_wat(atom)
 
