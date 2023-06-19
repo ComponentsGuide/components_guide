@@ -12,23 +12,17 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
   defmodule HeightsTable do
     use WasmBuilder
 
-    defmacro __using__(_opts) do
-      quote do
-        # @wasm_memory 1
-
-        import WasmBuilder
-
-        wasm do
-          unquote(__MODULE__).funcp(:memcpy)
-        end
-
-        import unquote(__MODULE__)
-      end
-    end
-
     @wasm_memory 2
 
     import Helpers
+
+    # wasm_import(
+    #   sqlite3: [
+    #     exec: func(name: :sqlite3_exec, params: I32, result: I32),
+    #     # exec: func sqlite3_exec(strptr(I32)), I32,
+    #     prepare: func(name: :sqlite3_prepare, params: I32, result: I32)
+    #   ]
+    # )
 
     defwasm imports: [
               sqlite3: [
