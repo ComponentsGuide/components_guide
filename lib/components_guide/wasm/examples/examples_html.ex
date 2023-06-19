@@ -200,12 +200,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ] do
       func(get_current, result: I32, do: count)
 
-      func increment, result: I32 do
+      func increment, I32 do
         count = I32.add(count, 1)
         count
       end
 
-      func rewind, locals: [i: I32] do
+      func rewind, nil, i: I32 do
         body_chunk_index = 0
         bump_offset = @_bump_start
 
@@ -221,7 +221,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         end
       end
 
-      funcp i32toa(value(I32)), result: I32, locals: [working_offset: I32, digit: I32] do
+      funcp i32toa(value(I32)), I32, working_offset: I32, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
         bump_offset = I32.u!(bump_offset + 11)
@@ -241,7 +241,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         working_offset
       end
 
-      func next_body_chunk, result: I32 do
+      func next_body_chunk, I32 do
         I32.match body_chunk_index do
           0 ->
             ~S[<output class="flex p-4 bg-gray-800">]
