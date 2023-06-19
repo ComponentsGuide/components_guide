@@ -56,6 +56,8 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
     end
 
     def start() do
+      {:ok, db} = Exqlite.Sqlite3.open(":memory:")
+
       imports = [
         {:log, :int32,
          fn value ->
@@ -68,16 +70,17 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
            IO.inspect(sql_ptr, label: "sqlite3 exec sql_ptr")
            sql = Wasm.Instance.Caller.read_string_nul_terminated(caller, sql_ptr)
            IO.inspect(sql, label: "sqlite3 exec sql")
-           # IO.inspect(0, label: "sqlite3 exec about to return")
+           :ok = Exqlite.Sqlite3.execute(db, sql)
            0
          end},
         {:sqlite3, :prepare,
-         fn sql_ptr ->
+         fn caller, sql_ptr ->
            0
          end}
       ]
 
-      Wasm.Instance.run(__MODULE__, imports)
+      inst = Wasm.Instance.run(__MODULE__, imports)
+      {inst, db}
     end
 
     def demo() do

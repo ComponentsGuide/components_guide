@@ -204,7 +204,7 @@ defmodule ComponentsGuide.Wasm do
     # def handle_info({:set_instance, instance}, imports) do
     #   {:noreply, %{state | instance: instance}}
     # end
-    
+
     @impl true
     def handle_call({:started_instance, instance}, _from, state) do
       # %{state | instance: instance}
@@ -213,7 +213,10 @@ defmodule ComponentsGuide.Wasm do
     end
 
     @impl true
-    def handle_info({:reply_to_func_call_out, func_id, resource, term}, state = %{imports: imports}) do
+    def handle_info(
+          {:reply_to_func_call_out, func_id, resource, term},
+          state = %{imports: imports}
+        ) do
       IO.inspect(func_id, label: "reply_to_func_call_out func_id")
       # IO.inspect(resource, label: "reply_to_func_call_out resource")
 
@@ -237,14 +240,15 @@ defmodule ComponentsGuide.Wasm do
       input = Wasm.Process.process_result(term)
 
       # output = handler.(0)
-      output = case Function.info(handler, :arity) do
-        {:arity, 1} ->
+      output =
+        case Function.info(handler, :arity) do
+          {:arity, 1} ->
             handler.(input)
-        
-        {:arity, 2} ->
+
+          {:arity, 2} ->
             handler.(resource, input)
-      end
-      
+        end
+
       IO.inspect(output, label: "reply_to_func_call_out output")
       ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, output)
 
@@ -267,7 +271,7 @@ defmodule ComponentsGuide.Wasm do
       {:arity, callback_arity} = Function.info(func, :arity)
       params_count = Enum.count(params)
 
-      if (params_count != callback_arity) and (params_count + 1) != callback_arity do
+      if params_count != callback_arity and params_count + 1 != callback_arity do
         IO.inspect(IEx.Info.info(params_count))
         IO.inspect(IEx.Info.info(callback_arity))
         IO.inspect(callback_arity, label: "callback arity")
@@ -296,7 +300,7 @@ defmodule ComponentsGuide.Wasm do
     {:ok, pid} = ReplyServer.start_link(imports)
     {identifier, source} = process_source2(source)
     instance = WasmNative.wasm_run_instance(source, identifier, imports, pid)
-    
+
     GenServer.call(pid, {:started_instance, instance})
     |> dbg()
 

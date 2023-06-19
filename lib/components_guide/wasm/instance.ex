@@ -142,10 +142,10 @@ defmodule ComponentsGuide.Wasm.Instance do
       end
     end
   end
-  
+
   defmodule Caller do
     defdelegate read_string_nul_terminated(caller, memory_offset),
-    to: Wasm.WasmNative,
-    as: :wasm_caller_read_string_nul_terminated
+      to: Wasm.WasmNative,
+      as: :wasm_caller_read_string_nul_terminated
   end
 end
