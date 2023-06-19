@@ -296,6 +296,10 @@ defmodule ComponentsGuide.WasmBuilder do
     end
 
     def in?(value, list) when is_list(list) do
+      # FIXME: this is pushing everything onto the stack, and then doing a massive
+      # sequence of `or` to flatten them down.
+      # Try to do the `or` after each value.
+      
       for(item <- list, do: eq(value, item))
       |> Enum.reduce(&_or/2)
     end
