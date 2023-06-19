@@ -178,6 +178,24 @@ defmodule ComponentsGuide.WasmBuilder do
   defmodule IfElse do
     defstruct [:result, :condition, :when_true, :when_false]
 
+    # def new(:i32, condition, {:i32_const, a}, {:i32_const, b}) do
+    #   [
+    #     a,
+    #     b,
+    #     condition,
+    #     :select!
+    #   ]
+    # end
+
+    def new(result, condition, when_true, when_false) do
+      %__MODULE__{
+        result: result,
+        condition: condition,
+        when_true: when_true,
+        when_false: when_false
+      }
+    end
+
     def detecting_result_type(condition, when_true, when_false) do
       result =
         case when_true do
@@ -284,13 +302,24 @@ defmodule ComponentsGuide.WasmBuilder do
 
     defmacro when?(condition, do: when_true, else: when_false) do
       quote do
-        %IfElse{
-          result: :i32,
-          condition: unquote(condition),
-          when_true: unquote(get_block_items(when_true)),
-          when_false: unquote(get_block_items(when_false))
-        }
+        IfElse.new(
+          :i32,
+          unquote(condition),
+          unquote(get_block_items(when_true)),
+          unquote(get_block_items(when_false))
+        )
       end
+    end
+
+    # This only works with WebAssembly 1.1
+    # Sadly wat2wasm doesn’t like it
+    def select(condition, do: when_true, else: when_false) do
+      [
+        when_true,
+        when_false,
+        condition,
+        :select
+      ]
     end
 
     def if_else(condition, do: when_true, else: when_false) do
@@ -676,7 +705,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
     quote do
       #       def funcp(name), do: ModuleDefinition.funcp_ref!(__MODULE__, name)
-      # 
+      #
       #       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
 
       # import Kernel
@@ -871,7 +900,7 @@ defmodule ComponentsGuide.WasmBuilder do
       #           dbg(meta)
       #           dbg(node)
       #         end
-      # 
+      #
       #         {:global_get, meta, [global]}
 
       {:=, _, [{:_, _, nil}, value]} ->
@@ -963,6 +992,16 @@ defmodule ComponentsGuide.WasmBuilder do
       do: tuple
 
   def push(n) when is_integer(n), do: {:i32_const, n}
+
+  defmacro push(value, do: block) do
+    quote do
+      [
+        unquote(value),
+        unquote(get_block_items(block)),
+        :pop
+      ]
+    end
+  end
 
   def global_get(identifier), do: {:global_get, identifier}
   def global_set(identifier), do: {:global_set, identifier}
@@ -1119,7 +1158,7 @@ defmodule ComponentsGuide.WasmBuilder do
     do: do_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
 
   def to_wat(term), do: do_wat(term, "") |> IO.chardata_to_string()
-  
+
   def do_wat(term), do: do_wat(term, "")
 
   def do_wat(term, indent)
@@ -1415,7 +1454,7 @@ defmodule ComponentsGuide.WasmBuilder do
   def do_wat(:nop, indent), do: [indent, "nop"]
   def do_wat(:pop, indent), do: []
   def do_wat(:drop, indent), do: [indent, "drop"]
-  
+
   def do_wat({:export, name}, _indent), do: "(export \"#{name}\")"
   def do_wat({:result, value}, _indent), do: "(result #{value})"
   def do_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
@@ -1471,6 +1510,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
   def do_wat({:br_if, identifier}, indent),
     do: [indent, "br_if $", to_string(identifier)]
+
+  def do_wat(:select, indent), do: [indent, "select"]
 
   def do_wat(:return, indent), do: [indent, "return"]
   def do_wat({:return, value}, indent), do: [indent, "(return ", do_wat(value), ?)]
@@ -1565,7 +1606,7 @@ defmodule ComponentsGuide.WasmBuilderUsing2 do
   #     #   {__CALLER__.module, name, Module.attributes_in(__CALLER__.module),
   #     #    Module.has_attribute?(__CALLER__.module, name)}
   #     # )
-  # 
+  #
   #     Kernel.if Module.has_attribute?(__CALLER__.module, name) ||
   #                 String.starts_with?(to_string(name), "_") do
   #       # Kernel.@({name, meta, args}) || :foo

@@ -119,7 +119,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               bump_write!(ascii: char)
             else
               # bump_write!([])
-              
+
               # bump_write!(
               #   ascii: ?%,
               #   hex_upper: I32.div_u(char, 16),
@@ -131,6 +131,14 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               # )
 
               bump_write!(ascii: ?%)
+              # bump_write!(hex_upper: I32.div_u(char, 16))
+              # bump_write!(hex_upper: I32.rem_u(char, 16))
+
+              # temp_write_32 = I32.div_u(char, 16)
+              # bump_write!(hex_upper: temp_write_32)
+              # temp_write_32 = I32.rem_u(char, 16)
+              # bump_write!(hex_upper: temp_write_32)
+
               bump_write!(hex_upper: local_tee(:temp_write_32, I32.div_u(char, 16)))
               bump_write!(hex_upper: local_tee(:temp_write_32, I32.rem_u(char, 16)))
             end
