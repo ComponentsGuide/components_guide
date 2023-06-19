@@ -28,13 +28,11 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         loop EachByte do
           I32.u! do
             memory32_8![dest + i] = memory32_8![src + i]
-          end
-
-          # memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
-
-          if I32.u!(i < byte_count) do
-            i = I32.u!(i + 1)
-            EachByte.continue()
+            
+            if i < byte_count do
+              i = i + 1
+              EachByte.continue()
+            end
           end
         end
 
