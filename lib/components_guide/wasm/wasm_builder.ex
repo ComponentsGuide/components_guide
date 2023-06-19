@@ -302,6 +302,12 @@ defmodule ComponentsGuide.WasmBuilder do
 
     defmacro u!(expression) do
       Macro.prewalk(expression, fn
+        {:+, meta, [a, b]} ->
+          {:{}, meta, [:i32, :add, {a, b}]}
+        
+        {:-, meta, [a, b]} ->
+          {:{}, meta, [:i32, :sub, {a, b}]}
+        
         {:>>>, meta, [a, b]} ->
           {:{}, meta, [:i32, :shr_u, {a, b}]}
           

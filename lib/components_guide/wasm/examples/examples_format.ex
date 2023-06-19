@@ -110,7 +110,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         write_start!()
 
         loop EachByte do
-          char = memory32_8![I32.add(str_ptr, i)].unsigned
+          # char = memory32_8![I32.add(str_ptr, i)].unsigned
+          char = memory32_8![I32.u!(str_ptr + i)].unsigned
 
           if char do
             if I32.in_inclusive_range?(char, ?a, ?z)
@@ -147,6 +148,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
             end
 
             i = I32.add(i, 1)
+            # i = I32.u!(i + 1)
+            # I32.increment!(i)
             EachByte.continue()
           end
         end
