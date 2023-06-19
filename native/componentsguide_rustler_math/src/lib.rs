@@ -504,25 +504,21 @@ struct CallOutToFuncReply {
     lock: RwLock<Option<OwnedBinary>>,
     // sender: crossbeam_channel::Sender<OwnedBinary>,
     sender: crossbeam_channel::Sender<u32>,
-    // caller: Caller<'a, ()>,
-    // caller: Arc<Caller<'_, ()>>,
-    // caller: RwLock<Box<dyn AsContext<Data = ()>>>,
-    // memory: Memory,
-    // memory_ptr: Arc<*const u8>,
-    memory_ptr: std::sync::atomic::AtomicPtr<u8>,
-    memory_size: usize,
+    
+    memory_ptr_and_size: Option<(std::sync::atomic::AtomicPtr<u8>, usize)>,
 }
 unsafe impl Send for CallOutToFuncReply {}
 
 impl CallOutToFuncReply {
-    fn new(func_id: i64, sender: crossbeam_channel::Sender<u32>, caller: Caller<()>, memory: Memory) -> Self {
+    fn new(func_id: i64, sender: crossbeam_channel::Sender<u32>, caller: Caller<()>, memory: Option<Memory>) -> Self {
         // Self { func_id: func_id, lock: RwLock::new(OwnedBinary::new(0)) }
         Self {
             func_id: func_id,
             lock: RwLock::new(None),
             sender: sender,
-            memory_ptr: memory.data_ptr(&caller).into(),
-            memory_size: memory.data_size(&caller)
+            memory_ptr_and_size: memory.map(|memory|
+                (memory.data_ptr(&caller).into(), memory.data_size(&caller))
+            ),
         }
     }
 }
@@ -574,8 +570,7 @@ impl ImportsTable {
                     let params2: Result<Vec<WasmSupportedValue>> = params.iter().map(|v| v.try_into()).collect();
                     let params2 = params2.expect("Params could not be converted into supported values");
                     
-                    // TODO: what if memory wasn’t exported? We shouldn’t *required* memory to use imports.
-                    let memory = caller.get_export("memory").unwrap().into_memory().unwrap();
+                    let memory = caller.get_export("memory").and_then(|export| export.into_memory());
                     let reply = ResourceArc::new(CallOutToFuncReply::new(func_id, sender, caller, memory));
 
                     // let mut owned_env2 = owned_env.clone();
@@ -1114,8 +1109,10 @@ fn wasm_caller_read_string_nul_terminated(
     memory_offset: u32
     // reply: Term,
 ) -> Result<String, Error> {
-    let memory_ptr = &resource.memory_ptr;
-    let memory_size = resource.memory_size;
+    let memory_ptr_and_size = resource.memory_ptr_and_size.as_ref().expect("Must have memory in order to read string.");
+    
+    let memory_ptr = &memory_ptr_and_size.0;
+    let memory_size = memory_ptr_and_size.1;
     eprintln!("wasm_caller_read_string_nul_terminated {memory_size}");
     
     let memory_ptr = memory_ptr.load(std::sync::atomic::Ordering::Relaxed);
