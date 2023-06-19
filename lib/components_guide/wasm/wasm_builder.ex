@@ -265,8 +265,21 @@ defmodule ComponentsGuide.WasmBuilder do
     # def unquote(:or)(a, b, c, d), do: _or(a, _or(b, _or(c, d)))
     def unquote(:or)(a, b, c, d), do: a |> _or(b |> _or(c |> _or(d)))
 
+    # def unquote(:or)(items) when is_list(items) do
+    #   Enum.reduce(items, &_or/2)
+    # end
+
     def add(items) when is_list(items) do
       Enum.reduce(items, &add/2)
+    end
+
+    def in_inclusive_range?(value, lower, upper) do
+      __MODULE__.and(I32.ge_u(value, lower), I32.le_u(value, upper))
+    end
+
+    def in?(value, list) when is_list(list) do
+      for(item <- list, do: eq(value, item))
+      |> Enum.reduce(&_or/2)
     end
 
     defmacro when?(condition, do: when_true, else: when_false) do
@@ -883,7 +896,7 @@ defmodule ComponentsGuide.WasmBuilder do
       import Kernel, except: [if: 2, @: 1]
       import ComponentsGuide.WasmBuilderUsing
       import ComponentsGuide.WasmBuilderUsing2
-      
+
       unquote(do_snippet(locals, block_items))
     end
   end

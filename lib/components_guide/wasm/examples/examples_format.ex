@@ -85,7 +85,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     def u32toa(value, end_offset), do: call(:u32toa, value, end_offset)
     def write_u32(value, str_ptr), do: call(:write_u32, value, str_ptr)
   end
-  
+
   defmodule URLEncoding do
     use WasmBuilder
     use BumpAllocator, export: true
@@ -106,33 +106,28 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
            i: I32,
            char: I32 do
         @bump_mark = @bump_offset
-        
-        # write_ascii!(?g)
-        # memory32_8![@bump_offset] = ?g
-        # @bump_offset = I32.add(@bump_offset, 1)
-        
-        # I32.String.each_char str_ptr do
-        #   char, i ->
-        #     write_ascii!(char)
-        # end
 
         loop EachByte do
           char = memory32_8![I32.add(str_ptr, i)].unsigned
-        
+
           if char do
-            if I32.eq(char, 0x20) do
-              bump_write!(ascii: ?%)
-              bump_write!(ascii: ?2)
-              bump_write!(ascii: ?0)
-            else
+            if I32.in_inclusive_range?(char, ?a, ?z)
+               |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
+               |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
+               |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*+,;=~_-.})) do
               bump_write!(ascii: char)
+            else
+              bump_write!(ascii: ?%)
+              # bump_write!(u8_hex_upper: char)
+              bump_write!(hex_upper: I32.div_u(char, 16))
+              bump_write!(hex_upper: I32.rem_u(char, 16))
             end
-            
+
             i = I32.add(i, 1)
             EachByte.continue()
           end
         end
-        
+
         bump_write!(ascii: 0x0)
 
         @bump_mark

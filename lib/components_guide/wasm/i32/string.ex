@@ -1,4 +1,6 @@
 defmodule ComponentsGuide.WasmBuilder.I32.String do
+  # TODO: should this be called I32.ASCII?
+
   use ComponentsGuide.WasmBuilder
 
   @wasm_memory 1

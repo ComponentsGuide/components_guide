@@ -80,7 +80,7 @@ defmodule ComponentsGuide.Wasm.Instance do
         end
     end
   end
-  
+
   def capture(inst, String, f, arity) do
     capture_reading_string(inst, f, arity)
   end

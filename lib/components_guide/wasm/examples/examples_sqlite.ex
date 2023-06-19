@@ -45,7 +45,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
            nil,
            i: I32 do
         _ = sqlite3_exec(~S"INSERT INTO heights(feet) VALUES (99)")
-        
+
         # i = json!([i32: height])
         # _ sqlite3_mutate(~S"INSERT INTO heights(feet) values(?)", i)
       end

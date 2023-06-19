@@ -105,7 +105,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         ComponentsGuide.WasmBuilder.wasm do
           unquote(__MODULE__).funcp(:bump_alloc)
         end
-        
+
         if unquote(opts[:export]) do
           ComponentsGuide.WasmBuilder.wasm do
             func alloc(size(I32)), I32 do
@@ -147,15 +147,19 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         call(:bump_free_all)
       end
     end
-    
+
     def bump_write!(ascii: char) do
-      # use WasmBuilder, inline: true
-      # import Kernel, except: [if: 2, @: 1]
-      # import ComponentsGuide.WasmBuilderUsing
-      # import ComponentsGuide.WasmBuilderUsing2
-      
       snippet do
         memory32_8![@bump_offset] = char
+        @bump_offset = I32.add(@bump_offset, 1)
+      end
+    end
+
+    def bump_write!(hex_upper: hex) do
+      snippet do
+        memory32_8![@bump_offset] =
+          I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+
         @bump_offset = I32.add(@bump_offset, 1)
       end
     end
