@@ -130,7 +130,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         # TODO: check if we have allocated too much
         # and if so, either err or increase the available memory.
         # TODO: Need better maths than this to round up to aligned memory?
-        
+
         push(@bump_offset) do
           @bump_offset = I32.add(@bump_offset, size)
         end
@@ -212,7 +212,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         #   I32.sub(:pop, 10) |> I32.add(?A)
         # end
         # memory32_8![:pop] = :pop
-          
+
         memory32_8![@bump_offset] =
           initial |> I32.add(I32.when?(I32.le_u(following, 9), do: ?0, else: inline(do: ?A - 10)))
 
