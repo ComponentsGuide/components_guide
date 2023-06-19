@@ -56,8 +56,6 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
     end
 
     def start() do
-      ref = make_ref()
-
       imports = [
         {:log, :int32,
          fn value ->
@@ -68,11 +66,6 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
          fn caller, sql_ptr ->
            IO.puts("!!!!!!!!!!")
            IO.inspect(sql_ptr, label: "sqlite3 exec sql_ptr")
-           IO.inspect(ref, label: "sqlite3 exec ref")
-           # inst = Process.get(ref) || raise "We need a Wasm.Instance process"
-           inst = :persistent_term.get(ref) || raise "We need a Wasm.Instance process"
-           IO.inspect(inst, label: "sqlite3 exec inst")
-           # sql = Wasm.Instance.read_string_nul_terminated(inst, sql_ptr)
            sql = Wasm.Instance.Caller.read_string_nul_terminated(caller, sql_ptr)
            IO.inspect(sql, label: "sqlite3 exec sql")
            # IO.inspect(0, label: "sqlite3 exec about to return")
@@ -84,11 +77,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
          end}
       ]
 
-      # Wasm.run_instance(__MODULE__, imports)
-      inst = Wasm.Instance.run(__MODULE__, imports)
-      # Process.put(ref, inst)
-      :persistent_term.put(ref, inst)
-      inst
+      Wasm.Instance.run(__MODULE__, imports)
     end
 
     def demo() do
