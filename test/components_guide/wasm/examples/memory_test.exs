@@ -10,6 +10,11 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     setup do: %{inst: Instance.run(Copying)}
 
+    test "wasm size" do
+      wasm = Wasm.to_wasm(Copying)
+      assert byte_size(wasm) == 91
+    end
+
     test "memcpy", %{inst: inst} do
       memcpy = Instance.capture(inst, :memcpy, 3)
 
@@ -27,6 +32,11 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     test "compiles" do
       Instance.run(BumpAllocator)
+    end
+
+    test "wasm size" do
+      wasm = Wasm.to_wasm(BumpAllocator)
+      assert byte_size(wasm) == 113
     end
 
     test "single allocation" do

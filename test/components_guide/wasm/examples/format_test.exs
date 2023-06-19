@@ -54,7 +54,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
 
       %{size: size} = File.stat!(path_opt_wasm)
       assert size == 408
-      
+
       {wat, 0} = System.cmd("wasm2wat", [path_wasm])
       File.write!(path_wat, wat)
       {opt_wat, 0} = System.cmd("wasm2wat", [path_opt_wasm])

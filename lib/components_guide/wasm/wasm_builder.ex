@@ -314,10 +314,10 @@ defmodule ComponentsGuide.WasmBuilder do
       |> Enum.reduce(&_or/2)
     end
 
-    defmacro u!(expression) do
+    def do_u(items) do
       import Kernel
 
-      Macro.prewalk(expression, fn
+      Macro.prewalk(items, fn
         # Allow values known at compile time to be executed by Elixir
         node = {:+, _, [a, b]} when is_integer(a) and is_integer(b) ->
           node
@@ -355,9 +355,20 @@ defmodule ComponentsGuide.WasmBuilder do
         {:&&&, meta, [a, b]} ->
           {:{}, meta, [:i32, :and, {a, b}]}
 
+        {{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]} ->
+          quote do: {:i32, :load8_u, unquote(offset)}
+
         other ->
           other
       end)
+    end
+
+    defmacro u!(do: expression) do
+      do_u(get_block_items(expression))
+    end
+
+    defmacro u!(expression) do
+      do_u(expression)
     end
 
     defmacro when?(condition, do: when_true, else: when_false) do
