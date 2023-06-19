@@ -1115,17 +1115,19 @@ defmodule ComponentsGuide.WasmBuilder do
 
   # TODO: make this a separate function to the underlying say do_wat()
   def to_wat(term) when is_atom(term),
-    do: to_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
+    do: do_wat(term.__wasm_module__(), "") |> IO.chardata_to_string()
 
-  def to_wat(term), do: to_wat(term, "") |> IO.chardata_to_string()
+  def to_wat(term), do: do_wat(term, "") |> IO.chardata_to_string()
+  
+  def do_wat(term), do: do_wat(term, "")
 
-  def to_wat(term, indent)
+  def do_wat(term, indent)
 
-  def to_wat(list, indent) when is_list(list) do
-    Enum.map(list, &to_wat(&1, indent)) |> Enum.intersperse("\n")
+  def do_wat(list, indent) when is_list(list) do
+    Enum.map(list, &do_wat(&1, indent)) |> Enum.intersperse("\n")
   end
 
-  def to_wat(
+  def do_wat(
         %ModuleDefinition{
           name: name,
           imports: imports,
@@ -1139,7 +1141,7 @@ defmodule ComponentsGuide.WasmBuilder do
       ) do
     [
       [indent, "(module $#{name}", "\n"],
-      [for(import_def <- imports, do: [to_wat(import_def, "  " <> indent), "\n"])],
+      [for(import_def <- imports, do: [do_wat(import_def, "  " <> indent), "\n"])],
       case memory do
         nil ->
           []
@@ -1199,33 +1201,33 @@ defmodule ComponentsGuide.WasmBuilder do
           ""
 
         body ->
-          [indent, to_wat(body, "  " <> indent), "\n"]
+          [indent, do_wat(body, "  " <> indent), "\n"]
       end,
       [indent, ")", "\n"]
     ]
   end
 
-  def to_wat(%Import{module: nil, name: name, type: type}, indent) do
-    ~s[#{indent}(import "#{name}" #{to_wat(type)})]
+  def do_wat(%Import{module: nil, name: name, type: type}, indent) do
+    ~s[#{indent}(import "#{name}" #{do_wat(type)})]
   end
 
-  def to_wat(%Import{module: module, name: name, type: type}, indent) do
-    ~s[#{indent}(import "#{module}" "#{name}" #{to_wat(type)})]
+  def do_wat(%Import{module: module, name: name, type: type}, indent) do
+    ~s[#{indent}(import "#{module}" "#{name}" #{do_wat(type)})]
   end
 
-  def to_wat(%Memory{name: nil, min: min}, indent) do
+  def do_wat(%Memory{name: nil, min: min}, indent) do
     ~s[#{indent}(memory #{min})]
   end
 
-  def to_wat(%Memory{name: name, min: min}, indent) do
-    ~s"#{indent}(memory #{to_wat(name)} #{min})"
+  def do_wat(%Memory{name: name, min: min}, indent) do
+    ~s"#{indent}(memory #{do_wat(name)} #{min})"
   end
 
-  def to_wat(%FuncType{name: name, param_types: :i32, result_type: result_type}, indent) do
-    ~s[#{indent}(func $#{name} (param i32) #{to_wat(result_type)})]
+  def do_wat(%FuncType{name: name, param_types: :i32, result_type: result_type}, indent) do
+    ~s[#{indent}(func $#{name} (param i32) #{do_wat(result_type)})]
   end
 
-  def to_wat(%Data{offset: offset, value: value, nul_terminated: nul_terminated}, indent) do
+  def do_wat(%Data{offset: offset, value: value, nul_terminated: nul_terminated}, indent) do
     [
       indent,
       "(data (i32.const ",
@@ -1239,7 +1241,7 @@ defmodule ComponentsGuide.WasmBuilder do
     ]
   end
 
-  def to_wat(%Constants{} = constants, indent) do
+  def do_wat(%Constants{} = constants, indent) do
     # dbg(Constants.to_keylist(constants))
     for {string, offset} <- Constants.to_keylist(constants) do
       [
@@ -1256,7 +1258,7 @@ defmodule ComponentsGuide.WasmBuilder do
     |> Enum.intersperse("\n")
   end
 
-  def to_wat(
+  def do_wat(
         %Global{name: name, type: type, initial_value: initial_value, exported: exported},
         indent
       ) do
@@ -1276,7 +1278,7 @@ defmodule ComponentsGuide.WasmBuilder do
     ]
   end
 
-  def to_wat(
+  def do_wat(
         %Func{
           name: name,
           params: params,
@@ -1295,23 +1297,23 @@ defmodule ComponentsGuide.WasmBuilder do
           true -> ~s[(func $#{name} (export "#{name}") ]
         end,
         Enum.intersperse(
-          for(param <- params, do: to_wat(param)) ++ if(result, do: [to_wat(result)], else: []),
+          for(param <- params, do: do_wat(param)) ++ if(result, do: [do_wat(result)], else: []),
           " "
         ),
         "\n"
       ],
       for({id, type} <- local_types, do: ["  " <> indent, "(local $#{id} #{type})", "\n"]),
-      to_wat(body, "  " <> indent),
+      do_wat(body, "  " <> indent),
       "\n",
       [indent, ")"]
     ]
   end
 
-  def to_wat(%Param{name: name, type: type}, indent) do
+  def do_wat(%Param{name: name, type: type}, indent) do
     ~s"#{indent}(param $#{name} #{type})"
   end
 
-  def to_wat(
+  def do_wat(
         %IfElse{
           result: result,
           condition: condition,
@@ -1334,16 +1336,16 @@ defmodule ComponentsGuide.WasmBuilder do
         indent,
         "(if ",
         if(result, do: ["(result ", to_string(expand_type(result)), ") "], else: ""),
-        to_wat(condition, ""),
+        do_wat(condition, ""),
         ?\n
       ],
       ["  ", indent, "(then", ?\n],
-      [to_wat(when_true, "    " <> indent), ?\n],
+      [do_wat(when_true, "    " <> indent), ?\n],
       ["  ", indent, ")", ?\n],
       if when_false do
         [
           ["  ", indent, "(else", ?\n],
-          [to_wat(when_false, "    " <> indent), ?\n],
+          [do_wat(when_false, "    " <> indent), ?\n],
           ["  ", indent, ")", ?\n]
         ]
       else
@@ -1354,16 +1356,16 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   # TODO: remove
-  def to_wat({:if, condition, when_true, when_false}, indent) do
+  def do_wat({:if, condition, when_true, when_false}, indent) do
     [
-      [indent, "(if ", to_wat(condition, ""), ?\n],
+      [indent, "(if ", do_wat(condition, ""), ?\n],
       ["  ", indent, "(then", ?\n],
-      ["    ", indent, to_wat(when_true, ""), ?\n],
+      ["    ", indent, do_wat(when_true, ""), ?\n],
       ["  ", indent, ")", ?\n],
       if when_false do
         [
           ["  ", indent, "(else", ?\n],
-          ["    ", indent, to_wat(when_false, ""), ?\n],
+          ["    ", indent, do_wat(when_false, ""), ?\n],
           ["  ", indent, ")", ?\n]
         ]
       else
@@ -1373,7 +1375,7 @@ defmodule ComponentsGuide.WasmBuilder do
     ]
   end
 
-  def to_wat(
+  def do_wat(
         %Loop{identifier: identifier, result: result, body: body},
         indent
       ) do
@@ -1385,13 +1387,13 @@ defmodule ComponentsGuide.WasmBuilder do
         if(result, do: " (result #{result})", else: []),
         "\n"
       ],
-      to_wat(body, "  " <> indent),
+      do_wat(body, "  " <> indent),
       "\n",
       [indent, ")"]
     ]
   end
 
-  def to_wat(
+  def do_wat(
         %Block{identifier: identifier, result: result, body: body},
         indent
       ) do
@@ -1403,77 +1405,79 @@ defmodule ComponentsGuide.WasmBuilder do
         if(result, do: " (result #{result})", else: []),
         "\n"
       ],
-      to_wat(body, "  " <> indent),
+      do_wat(body, "  " <> indent),
       "\n",
       [indent, ")"]
     ]
   end
 
-  def to_wat(:nop, indent), do: [indent, "nop"]
-  def to_wat(:drop, indent), do: [indent, "drop"]
-  def to_wat({:export, name}, _indent), do: "(export \"#{name}\")"
-  def to_wat({:result, value}, _indent), do: "(result #{value})"
-  def to_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
-  def to_wat({:i32_const_string, value, _string}, indent), do: "#{indent}(i32.const #{value})"
-  def to_wat({:global_get, identifier}, indent), do: "#{indent}(global.get $#{identifier})"
-  def to_wat({:global_set, identifier}, indent), do: "#{indent}(global.set $#{identifier})"
-  def to_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"
-  def to_wat({:local_get, identifier}, indent), do: "#{indent}(local.get $#{identifier})"
-  def to_wat({:local_set, identifier}, indent), do: "#{indent}(local.set $#{identifier})"
-  def to_wat({:local_tee, identifier}, indent), do: "#{indent}(local.tee $#{identifier})"
-  def to_wat(value, indent) when is_integer(value), do: "#{indent}(i32.const #{value})"
-  def to_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
-  def to_wat({:i32, op}, indent) when op in Ops.i32(:all), do: "#{indent}(i32.#{op})"
+  def do_wat(:nop, indent), do: [indent, "nop"]
+  def do_wat(:pop, indent), do: []
+  def do_wat(:drop, indent), do: [indent, "drop"]
+  
+  def do_wat({:export, name}, _indent), do: "(export \"#{name}\")"
+  def do_wat({:result, value}, _indent), do: "(result #{value})"
+  def do_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
+  def do_wat({:i32_const_string, value, _string}, indent), do: "#{indent}(i32.const #{value})"
+  def do_wat({:global_get, identifier}, indent), do: "#{indent}(global.get $#{identifier})"
+  def do_wat({:global_set, identifier}, indent), do: "#{indent}(global.set $#{identifier})"
+  def do_wat({:local, identifier, type}, indent), do: "#{indent}(local $#{identifier} #{type})"
+  def do_wat({:local_get, identifier}, indent), do: "#{indent}(local.get $#{identifier})"
+  def do_wat({:local_set, identifier}, indent), do: "#{indent}(local.set $#{identifier})"
+  def do_wat({:local_tee, identifier}, indent), do: "#{indent}(local.tee $#{identifier})"
+  def do_wat(value, indent) when is_integer(value), do: "#{indent}(i32.const #{value})"
+  def do_wat(value, indent) when is_float(value), do: "#{indent}(f32.const #{value})"
+  def do_wat({:i32, op}, indent) when op in Ops.i32(:all), do: "#{indent}(i32.#{op})"
 
-  def to_wat({:i32, op, offset}, indent) when op in Ops.i32(:load) or op in Ops.i32(:store) do
-    [indent, "(i32.", to_string(op), " ", to_wat(offset), ?)]
+  def do_wat({:i32, op, offset}, indent) when op in Ops.i32(:load) or op in Ops.i32(:store) do
+    [indent, "(i32.", to_string(op), " ", do_wat(offset), ?)]
   end
 
-  def to_wat({:i32, op, offset, value}, indent) when op in Ops.i32(:store) do
-    [indent, "(i32.", to_string(op), " ", to_wat(offset), " ", to_wat(value), ?)]
+  def do_wat({:i32, op, offset, value}, indent) when op in Ops.i32(:store) do
+    [indent, "(i32.", to_string(op), " ", do_wat(offset), " ", do_wat(value), ?)]
   end
 
-  def to_wat({:i32, op, a}, indent) when op in Ops.i32(1) do
-    [indent, "(i32.", to_string(op), " ", to_wat(a), ?)]
+  def do_wat({:i32, op, a}, indent) when op in Ops.i32(1) do
+    [indent, "(i32.", to_string(op), " ", do_wat(a), ?)]
   end
 
-  def to_wat({:i32, op, {a, b}}, indent) when op in Ops.i32(2) do
-    [indent, "(i32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
+  def do_wat({:i32, op, {a, b}}, indent) when op in Ops.i32(2) do
+    [indent, "(i32.", to_string(op), " ", do_wat(a), " ", do_wat(b), ?)]
   end
 
-  def to_wat({:f32, op, a}, indent) when op in Ops.f32(1) do
-    [indent, "(f32.", to_string(op), " ", to_wat(a), ?)]
+  def do_wat({:f32, op, a}, indent) when op in Ops.f32(1) do
+    [indent, "(f32.", to_string(op), " ", do_wat(a), ?)]
   end
 
-  def to_wat({:f32, op, {a, b}}, indent) when op in Ops.f32(2) do
-    [indent, "(f32.", to_string(op), " ", to_wat(a), " ", to_wat(b), ?)]
+  def do_wat({:f32, op, {a, b}}, indent) when op in Ops.f32(2) do
+    [indent, "(f32.", to_string(op), " ", do_wat(a), " ", do_wat(b), ?)]
   end
 
-  def to_wat({:call, f, args}, indent) do
+  def do_wat({:call, f, args}, indent) do
     [
       indent,
       "(call $",
       to_string(f),
-      for(arg <- args, do: [" ", to_wat(arg)]),
+      for(arg <- args, do: [" ", do_wat(arg)]),
       ")"
     ]
   end
 
-  def to_wat({:br, identifier}, indent), do: [indent, "br $", to_string(identifier)]
+  def do_wat({:br, identifier}, indent), do: [indent, "br $", to_string(identifier)]
 
-  def to_wat({:br_if, identifier, condition}, indent),
-    do: [indent, to_wat(condition), "\n", indent, "br_if $", to_string(identifier)]
+  def do_wat({:br_if, identifier, condition}, indent),
+    do: [indent, do_wat(condition), "\n", indent, "br_if $", to_string(identifier)]
 
-  def to_wat({:br_if, identifier}, indent),
+  def do_wat({:br_if, identifier}, indent),
     do: [indent, "br_if $", to_string(identifier)]
 
-  def to_wat(:return, indent), do: [indent, "return"]
-  def to_wat({:return, value}, indent), do: [indent, "(return ", to_wat(value), ?)]
+  def do_wat(:return, indent), do: [indent, "return"]
+  def do_wat({:return, value}, indent), do: [indent, "(return ", do_wat(value), ?)]
 
-  def to_wat(:unreachable, indent), do: [indent, "unreachable"]
+  def do_wat(:unreachable, indent), do: [indent, "unreachable"]
 
-  # def to_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
-  def to_wat({:raw_wat, source}, indent) do
+  # def do_wat({:raw_wat, source}, indent), do: "#{indent}#{source}"
+  def do_wat({:raw_wat, source}, indent) do
     lines = String.split(source, "\n")
 
     Enum.intersperse(

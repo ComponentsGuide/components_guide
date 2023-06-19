@@ -36,7 +36,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         #         loop :each_byte do
         #           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
-        # 
+        #
         #           if I32.lt_u(i, byte_count) do
         #             i = I32.add(i, 1)
         #             :each_byte
@@ -45,7 +45,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         #         loop :i do
         #           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
-        # 
+        #
         #           if I32.lt_u(i, byte_count) do
         #             i = I32.add(i, 1)
         #             {:br, :i}
@@ -63,7 +63,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         #       loop i, I32.add do
         #         i ->
         #           memory32_8![I32.add(dest, i)] = memory32_8![I32.add(src, i)].unsigned
-        # 
+        #
         #           I32.lt_u(i, byte_count)
         #       end
       end
@@ -148,6 +148,20 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
+    def write_start!() do
+      snippet do
+        @bump_mark = @bump_offset
+      end
+    end
+
+    def write_done!() do
+      snippet do
+        bump_write!(ascii: 0x0)
+
+        @bump_mark
+      end
+    end
+
     def bump_write!(ascii: char) do
       snippet do
         memory32_8![@bump_offset] = char
@@ -157,12 +171,66 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     def bump_write!(hex_upper: hex) do
       snippet do
+        # push(hex)
+        # 
+        # push(I32.le_u(hex, 9))
+        # 
+        # :drop
+        # 
+        # :pop
+        
+        # memory32_8![@bump_offset] = I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+        
+        # I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+        
+        # push(@bump_offset)
+        # push(@bump_offset)
+        
+        # memory32_8![0x0] = hex
+        # if I32.le_u(memory32_8![0x0].unsigned, 9) do
+        #   memory32_8![@bump_offset] = I32.add(memory32_8![0x0].unsigned, ?0)
+        # else
+        #   memory32_8![@bump_offset] = I32.sub(memory32_8![0x0].unsigned, 10) |> I32.add(?A)
+        # end
+        
+        # I32.when? I32.le_u(:pop, 9) do
+        #   push(hex)
+        #   I32.add(:pop, ?0)
+        # else
+        #   push(hex)
+        #   I32.sub(:pop, 10) |> I32.add(?A)
+        # end
+        # memory32_8![:pop] = :pop
+        
+        # FIXME: we are evaluating hex multiple times. Do we have to stash it in a variable?
         memory32_8![@bump_offset] =
           I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
 
         @bump_offset = I32.add(@bump_offset, 1)
       end
     end
+    
+#     def bump_write!(list) when is_list(list) do
+#       snippet do
+#         inline for item <- list do
+#           # WE NEED TO INCREMENT bump_offset after each round
+#           case item do
+#             {:ascii, char} ->
+#               snippet do
+#                 memory32_8![@bump_offset] = char
+#               end
+#               
+#             {:hex_upper, hex} ->
+#               snippet do
+#                 memory32_8![@bump_offset] =
+#                   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+#               end
+#           end
+#         end
+# 
+#         @bump_offset = I32.add(@bump_offset, length(list))
+#       end |> dbg()
+#     end
 
     def join!(list!) when is_list(list!) do
       alias ComponentsGuide.Wasm.Examples.Memory.Copying
@@ -267,7 +335,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           #           I32.match ptr do
           #             0 ->
           #               return(count)
-          # 
+          #
           #             _ ->
           #               ptr = call(:tl, ptr)
           #               count = I32.add(count, 1)

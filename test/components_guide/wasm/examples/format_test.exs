@@ -31,15 +31,17 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("`") == "%60"
       assert url_encode.("<>`") == "%3C%3E%60"
       assert url_encode.("put it+й") == "put%20it+%D0%B9"
-      assert url_encode.("ftp://s-ite.tld/?value=put it+й") == "ftp://s-ite.tld/?value=put%20it+%D0%B9"
+
+      assert url_encode.("ftp://s-ite.tld/?value=put it+й") ==
+               "ftp://s-ite.tld/?value=put%20it+%D0%B9"
+
       assert url_encode.(":/?#[]@!$&\'()*+,;=~_-.") == ":/?#[]@!$&\'()*+,;=~_-."
       assert url_encode.("😀") == "%F0%9F%98%80"
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
-      
-      assert byte_size(Wasm.to_wasm(URLEncoding)) == 517
+
+      assert byte_size(Wasm.to_wasm(URLEncoding)) == 513
     end
   end
-  
-  
-  byte_size(Wasm.to_wasm(URLEncoding)) |> dbg()
+
+  # byte_size(Wasm.to_wasm(URLEncoding)) |> dbg()
 end

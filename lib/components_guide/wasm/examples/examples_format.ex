@@ -104,8 +104,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       func url_encode(str_ptr(I32.String)),
            I32.String,
            i: I32,
-           char: I32 do
-        @bump_mark = @bump_offset
+           char: I32,
+           temp_write_32: I32 do
+        write_start!()
 
         loop EachByte do
           char = memory32_8![I32.add(str_ptr, i)].unsigned
@@ -117,10 +118,23 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
                |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*+,;=~_-.})) do
               bump_write!(ascii: char)
             else
+              # bump_write!([])
+              
+              # bump_write!(
+              #   ascii: ?%,
+              #   hex_upper: I32.div_u(char, 16),
+              # )
+              # bump_write!(
+              #   ascii: ?%,
+              #   hex_upper: I32.div_u(char, 16),
+              #   hex_upper: I32.rem_u(char, 16)
+              # )
+
               bump_write!(ascii: ?%)
-              # bump_write!(u8_hex_upper: char)
-              bump_write!(hex_upper: I32.div_u(char, 16))
-              bump_write!(hex_upper: I32.rem_u(char, 16))
+              temp_write_32 = I32.div_u(char, 16)
+              bump_write!(hex_upper: temp_write_32)
+              temp_write_32 = I32.rem_u(char, 16)
+              bump_write!(hex_upper: temp_write_32)
             end
 
             i = I32.add(i, 1)
@@ -128,9 +142,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           end
         end
 
-        bump_write!(ascii: 0x0)
-
-        @bump_mark
+        write_done!()
       end
     end
 
