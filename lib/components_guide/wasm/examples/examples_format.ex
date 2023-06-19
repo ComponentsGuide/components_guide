@@ -103,15 +103,13 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     wasm do
       func url_encode(str_ptr(I32.String)),
            I32.String,
-           i: I32,
            char: I32,
            abc: I32,
            __dup_32: I32 do
         write_start!()
 
         loop EachByte do
-          # char = memory32_8![I32.add(str_ptr, i)].unsigned
-          char = memory32_8![I32.u!(str_ptr + i)].unsigned
+          char = memory32_8![str_ptr].unsigned
 
           if char do
             if I32.in_inclusive_range?(char, ?a, ?z)
@@ -147,7 +145,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               # bump_write!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
             end
 
-            i = I32.add(i, 1)
+            str_ptr = I32.add(str_ptr, 1)
+            # i = I32.add(i, 1)
             # i = I32.u!(i + 1)
             # I32.increment!(i)
             EachByte.continue()

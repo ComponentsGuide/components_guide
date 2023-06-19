@@ -24,13 +24,11 @@
       end
     end)
   (func (;1;) (type 0) (param i32) (result i32)
-    (local i32 i32 i32)
+    (local i32 i32)
     global.get 0
     global.set 1
     loop  ;; label = @1
       local.get 0
-      local.get 2
-      i32.add
       i32.load8_u
       local.tee 1
       if  ;; label = @2
@@ -165,10 +163,10 @@
           local.get 1
           i32.const 4
           i32.shr_u
-          local.tee 3
+          local.tee 2
           i32.const 48
           i32.const 55
-          local.get 3
+          local.get 2
           i32.const 9
           i32.le_u
           select
@@ -196,10 +194,10 @@
         i32.const 1
         i32.add
         global.set 0
-        local.get 2
+        local.get 0
         i32.const 1
         i32.add
-        local.set 2
+        local.set 0
         br 1 (;@1;)
       end
     end
