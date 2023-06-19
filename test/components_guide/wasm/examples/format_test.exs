@@ -39,7 +39,20 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("😀") == "%F0%9F%98%80"
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
 
-      assert byte_size(Wasm.to_wasm(URLEncoding)) == 501
+      assert byte_size(Wasm.to_wasm(URLEncoding)) == 489
+      # assert byte_size(Wasm.to_wasm(URLEncoding)) == 499
+    end
+
+    @tag :skip
+    test "opt" do
+      path_in = Path.join(__DIR__, "url_encode.wasm")
+      path_out = Path.join(__DIR__, "url_encode_OPT.wasm")
+      wasm = Wasm.to_wasm(URLEncoding)
+      File.write!(path_in, wasm)
+      System.cmd("wasm-opt", [path_in, "-o", path_out, "-O"])
+
+      %{size: size} = File.stat!(path_out)
+      assert size == 468
     end
   end
 
