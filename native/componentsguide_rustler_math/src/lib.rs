@@ -680,6 +680,7 @@ impl RunningInstance {
             _ => false,
         });
 
+        // TODO: remove this and just rely on exported memory
         let mut imported_memory: Option<Memory> = match has_exported_memory {
             true => None,
             false => {
