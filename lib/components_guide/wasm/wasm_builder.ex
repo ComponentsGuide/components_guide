@@ -314,24 +314,30 @@ defmodule ComponentsGuide.WasmBuilder do
       |> Enum.reduce(&_or/2)
     end
 
+    # defmodule Unsigned do
+    #   def rem(a, b), do: {:i32, :rem_u, {a, b}}
+    # end
+
     def do_u(items) do
-      import Kernel
+      # import Kernel
+      # import Kernel, except: [rem: 2]
+      # import Unsigned
 
       Macro.prewalk(items, fn
-        # Allow values known at compile time to be executed by Elixir
-        node = {:+, _, [a, b]} when is_integer(a) and is_integer(b) ->
+        # Allow values known at compile time to be executed at compile-time by Elixir
+        node = {:+, _, [a, b]} when Kernel.and(is_integer(a), is_integer(b)) ->
           node
 
         {:+, meta, [a, b]} ->
           {:{}, meta, [:i32, :add, {a, b}]}
 
-        node = {:-, _, [a, b]} when is_integer(a) and is_integer(b) ->
+        node = {:-, _, [a, b]} when Kernel.and(is_integer(a), is_integer(b)) ->
           node
 
         {:-, meta, [a, b]} ->
           {:{}, meta, [:i32, :sub, {a, b}]}
 
-        node = {:/, _, [a, b]} when is_integer(a) and is_integer(b) ->
+        node = {:/, _, [a, b]} when Kernel.and(is_integer(a), is_integer(b)) ->
           node
 
         {:/, meta, [a, b]} ->
@@ -355,6 +361,9 @@ defmodule ComponentsGuide.WasmBuilder do
         {:&&&, meta, [a, b]} ->
           {:{}, meta, [:i32, :and, {a, b}]}
 
+        {:rem, meta, [a, b]} ->
+          {:{}, meta, [:i32, :rem_u, {a, b}]}
+
         {{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]} ->
           quote do: {:i32, :load8_u, unquote(offset)}
 
@@ -364,11 +373,21 @@ defmodule ComponentsGuide.WasmBuilder do
     end
 
     defmacro u!(do: expression) do
-      do_u(get_block_items(expression))
+      # import Kernel, except: [rem: 2]
+      # import Unsigned
+
+      quote do
+        unquote(do_u(get_block_items(expression)))
+      end
     end
 
     defmacro u!(expression) do
-      do_u(expression)
+      # import Kernel, except: [rem: 2]
+      # import Unsigned
+
+      quote do
+        unquote(do_u(expression))
+      end
     end
 
     defmacro when?(condition, do: when_true, else: when_false) do
@@ -510,13 +529,13 @@ defmodule ComponentsGuide.WasmBuilder do
         single -> [single]
       end
     end
-    
+
     defmacro global(list) do
       quote do
         @wasm_global for {key, value} <- unquote(list), do: {key, i32(value)}
       end
     end
-    
+
     defmacro global(:export_readonly, list) do
       quote do
         @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
@@ -826,7 +845,7 @@ defmodule ComponentsGuide.WasmBuilder do
       @wasm_global_exported_readonly unquote(list)
     end
   end
-  
+
   defmacro wasm_memory(pages: count) do
     quote do
       @wasm_memory unquote(count)
@@ -904,7 +923,7 @@ defmodule ComponentsGuide.WasmBuilder do
           for {name, type} <- args do
             Macro.escape(param(name, expand_type(type)))
           end
-        
+
         args ->
           for {name, _meta, [type]} <- args do
             Macro.escape(param(name, expand_type(type)))
@@ -917,7 +936,7 @@ defmodule ComponentsGuide.WasmBuilder do
           for {name, type} <- args do
             {name, expand_type(type)}
           end
-        
+
         args ->
           for {name, _meta, [type]} <- args do
             {name, expand_type(type)}

@@ -5,7 +5,7 @@ defmodule ComponentsGuide.Wasm.Examples.MagicNumbers do
 
   defmodule MobileThrottling do
     use WasmBuilder
-    
+
     I32.global(:export_readonly,
       slow_3g_latency_ms: 2000,
       slow_3g_download: 50_000,
