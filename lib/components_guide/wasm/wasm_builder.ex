@@ -880,14 +880,9 @@ defmodule ComponentsGuide.WasmBuilder do
     FuncType.imported_func(name, options[:params], options[:result])
   end
 
-  defmacro func(call, options) when is_list(options) do
-    {block, options} = Keyword.pop!(options, :do)
-    define_func(call, :public, options, block, __CALLER__)
+  defmacro func(call, do: block) do
+    define_func(call, :public, [], block, __CALLER__)
   end
-
-  # defmacro func(call, options, do: block) when is_list(options) do
-  #   define_func(call, :public, options, block, __CALLER__)
-  # end
 
   defmacro func(call, result_type, do: block) do
     define_func(call, :public, [result: result_type], block, __CALLER__)
@@ -906,10 +901,6 @@ defmodule ComponentsGuide.WasmBuilder do
   # Also incentivises making funcp pure by having all inputs be parameters.
   defmacro funcp(call, do: block) do
     define_func(call, :private, [], block, __CALLER__)
-  end
-
-  defmacro funcp(call, options, do: block) when is_list(options) do
-    define_func(call, :private, options, block, __CALLER__)
   end
 
   defmacro funcp(call, result_type, do: block) do
