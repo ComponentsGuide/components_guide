@@ -7,7 +7,7 @@ config :components_guide, ComponentsGuideWeb.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 # config :logger, level: :debug
 
 # Initialize plugs at runtime for faster test compilation
