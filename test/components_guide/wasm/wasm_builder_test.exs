@@ -6,7 +6,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
 
   test "func" do
     wasm =
-      func answer, result: I32 do
+      func answer(), I32 do
         42
       end
 
@@ -25,7 +25,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
     defwasm do
       memory(export(:mem), 1)
 
-      func answer, result: I32 do
+      func answer(), I32 do
         42
       end
     end
@@ -71,15 +71,15 @@ defmodule ComponentsGuide.WasmBuilderTest do
     defwasm do
       memory(export(:mem), 1)
 
-      func answer, result: I32 do
+      func answer(), I32 do
         I32.mul(2, 21)
       end
 
-      func get_pi, result: :f32 do
+      func get_pi(), :f32 do
         3.14
       end
 
-      funcp internal, result: :f32 do
+      funcp internal(), :f32 do
         99.0
       end
     end
@@ -140,7 +140,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
         data_nul_terminated(status * 24, message)
       end
 
-      func lookup(status(I32)), result: I32 do
+      func lookup(status(I32)), I32 do
         I32.mul(status, 24)
       end
     end
@@ -194,7 +194,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
     use WasmBuilder
 
     defwasm do
-      func validate(num(I32)), result: I32, locals: [lt: I32, gt: I32] do
+      func validate(num(I32)), I32, lt: I32, gt: I32 do
         lt = I32.lt_s(num, 1)
         gt = I32.gt_s(num, 255)
 
@@ -245,11 +245,11 @@ defmodule ComponentsGuide.WasmBuilderTest do
         tally = I32.add(tally, element)
       end
 
-      func calculate_mean(), result: I32 do
+      func calculate_mean(), I32 do
         I32.div_u(tally, count)
       end
 
-      # func calculate_mean(), result: I32 do
+      # func calculate_mean(), I32 do
       #   I32.div_u(global_get(:tally), global_get(:count))
       # end
     end
@@ -283,7 +283,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func get_is_valid, result: I32, locals: [i: I32, char: I32] do
+      func get_is_valid(), I32, i: I32, char: I32 do
         i = 1024
 
         loop :continue, result: I32 do

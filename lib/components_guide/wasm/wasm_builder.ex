@@ -885,9 +885,9 @@ defmodule ComponentsGuide.WasmBuilder do
     define_func(call, :public, options, block, __CALLER__)
   end
 
-  defmacro func(call, options, do: block) when is_list(options) do
-    define_func(call, :public, options, block, __CALLER__)
-  end
+  # defmacro func(call, options, do: block) when is_list(options) do
+  #   define_func(call, :public, options, block, __CALLER__)
+  # end
 
   defmacro func(call, result_type, do: block) do
     define_func(call, :public, [result: result_type], block, __CALLER__)
@@ -904,8 +904,16 @@ defmodule ComponentsGuide.WasmBuilder do
   # TODO: require `globals` option be passed to explicitly list global used.
   # Would be useful for sharing funcp between wasm modules too.
   # Also incentivises making funcp pure by having all inputs be parameters.
-  defmacro funcp(call, options \\ [], do: block) do
+  defmacro funcp(call, do: block) do
+    define_func(call, :private, [], block, __CALLER__)
+  end
+
+  defmacro funcp(call, options, do: block) when is_list(options) do
     define_func(call, :private, options, block, __CALLER__)
+  end
+
+  defmacro funcp(call, result_type, do: block) do
+    define_func(call, :private, [result: result_type], block, __CALLER__)
   end
 
   defmacro funcp(call, result_type, locals, do: block) when is_list(locals) do

@@ -5,11 +5,11 @@ defmodule ComponentsGuide.Wasm.Examples.Numeric do
     use Wasm
 
     defwasm do
-      func i32_double(value(I32)), result: I32 do
+      func i32_double(value(I32)), I32 do
         I32.mul(value, 2)
       end
 
-      func f32_double(value(F32)), result: F32 do
+      func f32_double(value(F32)), F32 do
         F32.mul(value, 2.0)
       end
     end
@@ -19,7 +19,7 @@ defmodule ComponentsGuide.Wasm.Examples.Numeric do
     use Wasm
 
     defwasm do
-      func to_int_in_range(value(F32), min(I32), max(I32)), result: I32 do
+      func to_int_in_range(value(F32), min(I32), max(I32)), I32 do
         # Math.floor(Math.random() * (max - min + 1)) + min
         I32.add(
           I32.trunc_f32_s(

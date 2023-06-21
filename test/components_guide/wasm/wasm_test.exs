@@ -118,7 +118,7 @@ defmodule ComponentsGuide.WasmTest do
     use ComponentsGuide.WasmBuilder
 
     defwasm do
-      func add(a(I32), b(I32)), result: I32 do
+      func add(a(I32), b(I32)), I32 do
         local_get(:a)
         local_get(:b)
         i32(:add)
@@ -298,7 +298,7 @@ defmodule ComponentsGuide.WasmTest do
         tally = I32.add(tally, element)
       end
 
-      func calculate_mean(), result: I32 do
+      func calculate_mean(), I32 do
         I32.div_u(tally, count)
       end
     end
@@ -340,7 +340,7 @@ defmodule ComponentsGuide.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func get_is_valid, result: I32, locals: [read_offset: I32, char: I32] do
+      func get_is_valid, I32, read_offset: I32, char: I32 do
         read_offset = 1024
 
         loop EachChar, result: I32 do
@@ -391,7 +391,7 @@ defmodule ComponentsGuide.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func do_copy, result: I32, locals: [read_offset: I32, char: I32] do
+      func do_copy, I32, read_offset: I32, char: I32 do
         read_offset = 1024
 
         loop EachChar, result: I32 do
@@ -436,7 +436,7 @@ defmodule ComponentsGuide.WasmTest do
     use WasmBuilder
 
     defwasm imports: [env: [buffer: memory(2)]] do
-      func escape_html, result: I32, locals: [read_offset: I32, write_offset: I32, char: I32] do
+      func escape_html(), I32, read_offset: I32, write_offset: I32, char: I32 do
         read_offset = 1024
         write_offset = 1024 + 1024
 

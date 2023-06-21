@@ -20,8 +20,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     defwasm do
       funcp escape(read_offset(I32), write_offset(I32)),
-        result: I32,
-        locals: [char: I32, bytes_written: I32] do
+            I32,
+            char: I32,
+            bytes_written: I32 do
         bytes_written = 0
 
         loop EachChar, result: I32 do
@@ -59,7 +60,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         end
       end
 
-      func escape_html, result: I32 do
+      func escape_html(), I32 do
         call(:escape, 1024, 1024 + 1024)
       end
     end
@@ -82,26 +83,26 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
               body_chunk_index: i32(0)
               # request_body_write_offset: i32(@request_body_write_offset)
             ] do
-      func(get_request_body_write_offset, result: I32, do: request_body_write_offset)
+      func(get_request_body_write_offset(), I32, do: request_body_write_offset)
 
       func GET do
         body_chunk_index = 0
       end
 
-      funcp get_is_valid, result: I32 do
+      funcp get_is_valid(), I32 do
         I32.eq(I32.load8_u(request_body_write_offset), ?g)
       end
 
-      func get_status, result: I32 do
+      func get_status(), I32 do
         I32.if_else(call(:get_is_valid), do: 200, else: 400)
         # if call(:get_is_valid), result: I32, do: 200, else: 400
       end
 
-      func get_headers, result: I32 do
+      func get_headers(), I32 do
         const("content-type: text/html;charset=utf-8\\r\\n")
       end
 
-      func next_body_chunk, result: I32 do
+      func next_body_chunk(), I32 do
         I32.match body_chunk_index do
           0 ->
             ~S"<!doctype html>"
@@ -200,7 +201,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     )
 
     wasm do
-      func(get_current, result: I32, do: @count)
+      func(get_current(), I32, do: @count)
 
       func increment, I32 do
         @count = I32.add(@count, 1)
@@ -313,7 +314,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     )
 
     wasm do
-      # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
+      # funcp escape_html, I32, globals: [body_chunk_index: I32], source: EscapeHTML
 
       # EscapeHTML.funcp(escape, I32)
       # EscapeHTML.funcp escape(read_offset(I32), write_offset(I32)), I32
@@ -325,7 +326,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         @body_chunk_index = 0
       end
 
-      func free, locals: [i: I32] do
+      func free(), nil, i: I32 do
         @bump_offset = BumpAllocator.Constants.bump_init_offset()
 
         # for (i = 64, i >= 0; i--)

@@ -7,8 +7,10 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
 
   defwasm do
     func streq(address_a(I32), address_b(I32)),
-      result: I32,
-      locals: [i: I32, byte_a: I32, byte_b: I32] do
+         I32,
+         i: I32,
+         byte_a: I32,
+         byte_b: I32 do
       loop EachByte, result: I32 do
         byte_a = memory32_8![I32.add(address_a, i)].unsigned
         byte_b = memory32_8![I32.add(address_b, i)].unsigned
@@ -26,7 +28,7 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
       end
     end
 
-    func strlen(string_ptr(I32)), result: I32, locals: [count: I32] do
+    func strlen(string_ptr(I32)), I32, count: I32 do
       # while (string_ptr[count] != 0) {
       #   count++;
       # }

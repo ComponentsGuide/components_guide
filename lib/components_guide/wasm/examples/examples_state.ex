@@ -74,9 +74,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     defwasm globals: [
               count: i32(0)
             ] do
-      func(get_current, result: I32, do: count)
+      func(get_current(), I32, do: count)
 
-      func increment, result: I32 do
+      func increment(), I32 do
         count = I32.add(count, 1)
         count
       end
@@ -123,7 +123,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func(get_current, result: I32, do: state)
+      func(get_current(), I32, do: state)
 
       # defstates :state do
       #   state Idle do
@@ -210,20 +210,20 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               edit_count: i32(0),
               submitted_edit_count: i32(0)
             ] do
-      func(get_current, result: I32, do: state)
-      func(get_edit_count, result: I32, do: edit_count)
-      func(get_submitted_edit_count, result: I32, do: submitted_edit_count)
+      func(get_current(), I32, do: state)
+      func(get_edit_count(), I32, do: edit_count)
+      func(get_submitted_edit_count(), I32, do: submitted_edit_count)
 
-      func user_can_edit?, result: I32 do
+      func user_can_edit?(), I32 do
         state |> I32.eq(submitting) |> I32.eqz()
       end
 
-      func user_can_submit?, result: I32 do
+      func user_can_submit?(), I32 do
         state |> I32.eq(submitting) |> I32.eqz()
         # eq(state, submitting) |> eqz()
       end
 
-      func user_did_edit do
+      func user_did_edit() do
         # if I32.magic(state in [initial, edited]) do
         #   state = edited
         #   edit_count = I32.add(edit_count, 1)
@@ -294,7 +294,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               # Allow setting initial state
               state: @states.offline?
             ] do
-      func(get_current, result: I32, do: state)
+      func(get_current(), I32, do: state)
 
       on(online(offline?), target: online?)
       on(offline(online?), target: offline?)
@@ -324,7 +324,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func(get_current, result: I32, do: state)
+      func(get_current(), I32, do: state)
 
       # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
       on(focus(inactive), target: active)
@@ -360,7 +360,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.closed?
             ] do
-      func(get_current, result: I32, do: state)
+      func(get_current(), I32, do: state)
       on(open(closed?), target: open?)
       on(close(open?), target: closed?)
       # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
@@ -386,7 +386,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: i32(0)
             ] do
-      func(aborted?, result: I32, do: state)
+      func(aborted?(), I32, do: state)
 
       on(abort(active), target: aborted)
     end
@@ -412,7 +412,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.pending
             ] do
-      func(get_current, result: I32, do: state)
+      func(get_current(), I32, do: state)
 
       on(resolve(pending), target: resolved)
       on(reject(pending), target: rejected)
@@ -445,9 +445,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             globals: [
               state: @states.initial?
             ] do
-      func get_current, result: I32 do
-        state
-      end
+      func(get_current(), I32, do: state)
 
       on(transitionstart(_), target: started?)
       on(transitioncancel(_), target: canceled?)
@@ -467,12 +465,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     alias Wasm.Instance
 
     defwasm exported_globals: [], exported_mutable_globals: [time: i32(0)] do
-      func will_send(), result: I32 do
+      func will_send(), I32 do
         time = I32.add(time, 1)
         time
       end
 
-      func received(incoming_time(I32)), result: I32 do
+      func received(incoming_time(I32)), I32 do
         if I32.gt_u(incoming_time, time) do
           time = incoming_time
         end
@@ -531,10 +529,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             ] do
       # change_count = i32(0)
 
-      func(get_current(), result: I32, do: state)
-      func(get_change_count(), result: I32, do: change_count)
+      func(get_current(), I32, do: state)
+      func(get_change_count(), I32, do: change_count)
 
-      func(get_search_params(), result: I32, do: 0x0)
+      func(get_search_params(), I32, do: 0x0)
 
       on next() do
         initial? -> destination?
@@ -543,7 +541,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         flights? -> seats?
       end
 
-      func get_path(), result: I32.String do
+      func get_path(), I32.String do
         I32.match state do
           initial? -> const("/book")
           destination? -> const("/destination")

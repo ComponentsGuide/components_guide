@@ -22,7 +22,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
         body_chunk_index = 0
       end
 
-      func next_body_chunk, result: I32 do
+      func next_body_chunk(), I32.String do
         I32.match body_chunk_index do
           0 ->
             ~S[<svg width="64" height="64">]

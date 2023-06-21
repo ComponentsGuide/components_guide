@@ -12,7 +12,7 @@ defmodule ComponentsGuide.Wasm.Examples do
                     end)
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
-      func parse(), result: I32, locals: [i: I32] do
+      func parse(), I32, i: I32 do
         # If does no end in nul byte, return 0
         if memory32_8![I32.add(input_offset, 3)].unsigned do
           return(0)
@@ -106,7 +106,7 @@ defmodule ComponentsGuide.Wasm.Examples do
             exported_mutable_globals: [
               input_offset: i32(@input_offset)
             ] do
-      func get_status(), result: I32 do
+      func get_status(), I32 do
         # 500
         call(:http_get, 0)
       end
@@ -121,7 +121,7 @@ defmodule ComponentsGuide.Wasm.Examples do
         #   resp.status
         # end}
         # http: [
-        #   func get(address(I32)), result: I32 do
+        #   func get(address(I32)), I32 do
         #     200
         #   end
         # ]
@@ -149,7 +149,7 @@ defmodule ComponentsGuide.Wasm.Examples do
                 expect_by_role: func(name: :get_by_role, params: I32)
               ]
             ] do
-      func test_home_page, result: I32 do
+      func test_home_page(), I32 do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
         call(:visit, const("/"))
@@ -170,7 +170,7 @@ defmodule ComponentsGuide.Wasm.Examples do
                 expect_by_role: func(name: :get_by_role, params: I32)
               ]
             ] do
-      func test_home_page, result: I32.String do
+      func test_home_page(), I32.String do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
         const(~S[<button class="text-lg">Click me</button>])
@@ -194,7 +194,7 @@ defmodule ComponentsGuide.Wasm.Examples do
       func on_reset() do
       end
 
-      func to_urlencoded, result: I32 do
+      func to_urlencoded(), I32 do
         -1
       end
     end

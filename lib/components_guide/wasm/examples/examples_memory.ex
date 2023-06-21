@@ -334,23 +334,23 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @wasm_memory 2
 
     defwasm do
-      func cons(hd(I32), tl(I32)), result: I32, locals: [ptr: I32] do
+      func cons(hd(I32), tl(I32)), I32, ptr: I32 do
         ptr = call(:bump_alloc, 8)
         memory32![ptr] = hd
         memory32![I32.add(ptr, 4)] = tl
         ptr
       end
 
-      func hd(ptr(I32)), result: I32 do
+      func hd(ptr(I32)), I32 do
         I32.if_eqz(ptr, do: 0x0, else: memory32![ptr])
         # I32.eqz(ptr) |> I32.if_else(do: 0x0, else: memory32![ptr])
       end
 
-      func tl(ptr(I32)), result: I32 do
+      func tl(ptr(I32)), I32 do
         I32.if_eqz(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
       end
 
-      func reverse(node(I32)), result: I32, locals: [prev: I32, current: I32, next: I32] do
+      func reverse(node(I32)), I32, prev: I32, current: I32, next: I32 do
         current = node
 
         loop Iterate, result: I32 do
@@ -364,7 +364,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         end
       end
 
-      func list_count(ptr(I32)), result: I32, locals: [count: I32] do
+      func list_count(ptr(I32)), I32, count: I32 do
         loop Iterate, result: I32 do
           #           I32.match ptr do
           #             0 ->
@@ -390,7 +390,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         end
       end
 
-      func list32_sum(ptr(I32)), result: I32, locals: [sum: I32] do
+      func list32_sum(ptr(I32)), I32, sum: I32 do
         loop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(sum)
 
