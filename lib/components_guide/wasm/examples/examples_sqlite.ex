@@ -31,13 +31,12 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
                 prepare: func(name: :sqlite3_prepare, params: I32, result: I32)
               ]
             ] do
-      func init(), nil do
+      func init() do
         _ = sqlite3_exec(~S"CREATE TABLE heights(id INTEGER PRIMARY KEY AUTOINCREMENT, feet INT)")
       end
 
       func add_height(height(I32)),
-           nil,
-           i: I32 do
+        i: I32 do
         _ = sqlite3_exec(~S"INSERT INTO heights(feet) VALUES (99)")
 
         # i = json!([i32: height])

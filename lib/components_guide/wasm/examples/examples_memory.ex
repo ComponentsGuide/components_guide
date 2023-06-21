@@ -23,8 +23,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     wasm do
       func memcpy(dest(I32), src(I32), byte_count(I32)),
-           nil,
-           i: I32 do
+        i: I32 do
         loop EachByte do
           I32.u! do
             memory32_8![dest + i] = memory32_8![src + i]

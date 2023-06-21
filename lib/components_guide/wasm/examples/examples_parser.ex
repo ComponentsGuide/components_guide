@@ -14,7 +14,6 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
              value: I32,
              write_ptr: I32.I8.Pointer
            ),
-           nil,
            i: I32,
            digit: I32 do
         i = 8

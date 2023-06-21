@@ -884,12 +884,12 @@ defmodule ComponentsGuide.WasmBuilder do
     define_func(call, :public, [], block, __CALLER__)
   end
 
-  defmacro func(call, result_type, do: block) do
-    define_func(call, :public, [result: result_type], block, __CALLER__)
+  defmacro func(call, locals, do: block) when is_list(locals) do
+    define_func(call, :public, [locals: locals], block, __CALLER__)
   end
 
-  defmacro func(call, nil, locals, do: block) when is_list(locals) do
-    define_func(call, :public, [locals: locals], block, __CALLER__)
+  defmacro func(call, result_type, do: block) do
+    define_func(call, :public, [result: result_type], block, __CALLER__)
   end
 
   defmacro func(call, result_type, locals, do: block) when is_list(locals) do
@@ -901,6 +901,10 @@ defmodule ComponentsGuide.WasmBuilder do
   # Also incentivises making funcp pure by having all inputs be parameters.
   defmacro funcp(call, do: block) do
     define_func(call, :private, [], block, __CALLER__)
+  end
+
+  defmacro func(call, locals, do: block) when is_list(locals) do
+    define_func(call, :private, [locals: locals], block, __CALLER__)
   end
 
   defmacro funcp(call, result_type, do: block) do
