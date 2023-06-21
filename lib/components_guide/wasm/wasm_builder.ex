@@ -510,6 +510,18 @@ defmodule ComponentsGuide.WasmBuilder do
         single -> [single]
       end
     end
+    
+    defmacro global(list) do
+      quote do
+        @wasm_global for {key, value} <- unquote(list), do: {key, i32(value)}
+      end
+    end
+    
+    defmacro global(:export_readonly, list) do
+      quote do
+        @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
+      end
+    end
   end
 
   defmodule F32 do
