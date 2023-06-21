@@ -302,7 +302,6 @@ defmodule ComponentsGuide.Wasm do
     instance = WasmNative.wasm_run_instance(source, identifier, imports, pid)
 
     GenServer.call(pid, {:started_instance, instance})
-    |> dbg()
 
     # receive do
     #   :run_instance_start ->
