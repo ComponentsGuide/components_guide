@@ -19,7 +19,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
     quote do
       import ComponentsGuide.WasmBuilder
-      alias ComponentsGuide.WasmBuilder.{I32, F32}
+      alias ComponentsGuide.WasmBuilder.{I32, U32, F32}
       require ComponentsGuide.WasmBuilder.I32
 
       # @wasm_name __MODULE__ |> Module.split() |> List.last()
@@ -321,7 +321,7 @@ defmodule ComponentsGuide.WasmBuilder do
       |> Enum.reduce(&_or/2)
     end
 
-    # defmodule Unsigned do
+    # defmodule U32 do
     #   def rem(a, b), do: {:i32, :rem_u, {a, b}}
     # end
 
@@ -543,11 +543,27 @@ defmodule ComponentsGuide.WasmBuilder do
       end
     end
 
+    defmacro export_global(list) do
+      quote do
+        @wasm_exported_mutable_global_types for {key, value} <- unquote(list),
+                                                do: {key, i32(value)}
+      end
+    end
+
+    defmacro export_global(:readonly, list) do
+      quote do
+        @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
+      end
+    end
+
     defmacro global(:export_readonly, list) do
       quote do
         @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
       end
     end
+  end
+
+  defmodule U32 do
   end
 
   defmodule F32 do
@@ -806,7 +822,13 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  defmacro wasm(do: block) do
+  defmacro wasm(transform \\ nil, do: block) do
+    block =
+      case Macro.expand_literals(transform, __ENV__) do
+        nil -> block
+        U32 -> I32.do_u(block)
+      end
+
     %{body: body, constants: constants} = do_module_body(block, [], __CALLER__.module)
     Module.put_attribute(__CALLER__.module, :wasm_constants, constants)
 
@@ -983,19 +1005,25 @@ defmodule ComponentsGuide.WasmBuilder do
       {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
         quote do: {:i32, :load, unquote(offset)}
 
+      # local[byte_at!: offset] = value
       {:=, _meta,
        [
          {{:., _, [Access, :get]}, _,
           [
             {local, _, nil},
             [
-              i32_8_at!: offset
+              byte_at!: offset
             ]
           ]},
          value
        ]}
       when is_atom(local) and is_map_key(locals, local) ->
-        quote do: {:i32, :store8, unquote(offset), unquote(value)} |> dbg()
+        # TODO: add exception for when this isn’t the matching type.
+        :i32_8_ptr = locals[local]
+
+        quote do:
+                {:i32, :store8, I32.add(local_get(unquote(local)), unquote(offset)),
+                 unquote(value)}
 
       {:=, _, [{local, _, nil}, input]}
       when is_atom(local) and is_map_key(locals, local) ->

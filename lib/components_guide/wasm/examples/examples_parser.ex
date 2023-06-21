@@ -9,40 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     # Memory.increase! pages: 1
     wasm_memory(pages: 1)
 
-    wasm do
-      # TODO: an idea for wrapping writes to memory in a block
-      # func todo_u32_to_hex_lower(value(I32), write_to_address(I32)), locals: [i: I32, digit: I32] do
-      #   # func u32_to_hex_lower(value: I32, write_to_address: I32), locals: [i: I32, digit: I32] do
-      #   i = 8
-
-      #   # loop Digits, i <- I32.range!(8..0/-1) do
-      #   loop Digits do
-      #     i = I32.sub(i, 1)
-
-      #     digit = I32.rem_u(value, 16)
-      #     value = I32.div_u(value, 16)
-
-      #     Memory.I32.write_8! write_to_address do
-      #       write_8! ->
-      #         if I32.gt_u(digit, 9) do
-      #           write_8![i] = I32.add(?a, I32.sub(digit, 10))
-      #         else
-      #           write_8![i] = I32.add(?0, digit)
-      #         end
-      #     end
-
-      #     Memory.I32.write! do
-      #       if I32.gt_u(digit, 9) do
-      #         @bytes![I32.add(write_to_address, i)] = I32.add(?a, I32.sub(digit, 10))
-      #       else
-      #         @bytes![I32.add(write_to_address, i)] = I32.add(?0, digit)
-      #       end
-      #     end
-
-      #     Digits.continue(if: I32.gt_u(i, 0))
-      #   end
-      # end
-
+    wasm U32 do
       func u32_to_hex_lower(
              value: I32,
              write_ptr: I32.I8.Pointer
@@ -53,39 +20,18 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
         i = 8
 
         loop Digits do
-          I32.u! do
-            i = i - 1
+          i = i - 1
 
-            digit = rem(value, 16)
-            value = value / 16
+          digit = rem(value, 16)
+          value = value / 16
 
-            # write_ptr offset: i do
-            #     if digit > 9 do
-            #       ?a + digit - 10
-            #     else
-            #       ?0 + digit
-            #     end
-            # end
-
-            # write_ptr offset: i do
-            #   write! ->
-            #     if digit > 9 do
-            #       write!(?a + digit - 10)
-            #     else
-            #       write!(?0 + digit)
-            #     end
-            # end
-
-            if digit > 9 do
-              # write_ptr[byte_at!: i] = ?a + digit - 10
-              # Memory.I32.offset(write_ptr, i) |> Memory.I32.store!(?a + digit - 10)
-              memory32_8![write_ptr + i] = ?a + digit - 10
-            else
-              memory32_8![write_ptr + i] = ?0 + digit
-            end
-
-            Digits.continue(if: i > 0)
+          if digit > 9 do
+            write_ptr[byte_at!: i] = ?a + digit - 10
+          else
+            write_ptr[byte_at!: i] = ?0 + digit
           end
+
+          Digits.continue(if: i > 0)
         end
       end
     end

@@ -8,6 +8,8 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
     alias Parser.HexConversion
 
     test "u32_to_hex_lower" do
+      IO.puts(HexConversion.to_wat())
+
       inst = HexConversion.start()
       u32_to_hex_lower = Instance.capture(inst, :u32_to_hex_lower, 2)
       read = &Instance.read_memory(inst, &1, 8)
