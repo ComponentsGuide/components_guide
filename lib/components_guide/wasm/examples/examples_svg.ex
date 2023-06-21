@@ -16,7 +16,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
             globals: [
               body_chunk_index: i32(0)
             ] do
-      HexConversion.funcp(:i32_to_hex_lower)
+      HexConversion.funcp(:u32_to_hex_lower)
 
       func rewind do
         body_chunk_index = 0
@@ -32,7 +32,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
 
           2 ->
             memory32_8![0x10000] = ?#
-            HexConversion.i32_to_hex_lower(color_hex, 0x10001)
+            HexConversion.u32_to_hex_lower(color_hex, 0x10001)
             push(0x10000)
 
           3 ->

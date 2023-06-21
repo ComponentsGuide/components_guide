@@ -317,7 +317,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
       # EscapeHTML.funcp(escape, I32)
       # EscapeHTML.funcp escape(read_offset(I32), write_offset(I32)), I32
-      # cpfuncp(escape, from: EscapeHTML, result: I32)
       EscapeHTML.funcp(:escape)
 
       func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))

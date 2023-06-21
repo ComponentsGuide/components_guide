@@ -826,12 +826,20 @@ defmodule ComponentsGuide.WasmBuilder do
       @wasm_global_exported_readonly unquote(list)
     end
   end
+  
+  defmacro wasm_memory(pages: count) do
+    quote do
+      @wasm_memory unquote(count)
+    end
+  end
 
   def expand_type(type) do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
       F32 -> :f32
       I32.String -> :i32
+      I32.Pointer -> :i32
+      # Memory.I32.Pointer -> :i32
       _ -> type
     end
   end
@@ -873,16 +881,6 @@ defmodule ComponentsGuide.WasmBuilder do
     define_func(call, :private, [result: result_type, locals: locals], block, __CALLER__)
   end
 
-  defmacro cpfuncp(call, options) do
-    {name, _args} = Macro.decompose_call(call)
-
-    source = Keyword.fetch!(options, :from)
-    source = Macro.expand(source, __CALLER__)
-    func = source.funcp(name)
-
-    Macro.escape(func)
-  end
-
   defp define_func(call, visibility, options, block, env) do
     call = Macro.expand_once(call, __ENV__)
 
@@ -891,12 +889,6 @@ defmodule ComponentsGuide.WasmBuilder do
         :error -> {expand_identifier(call, __ENV__), []}
         other -> other
       end
-
-    # if name == :i32_to_hex_lower do
-    #   dbg(args)
-    # end
-
-    # {name, args} = Macro.decompose_call(call)
 
     name = name
 
@@ -907,13 +899,29 @@ defmodule ComponentsGuide.WasmBuilder do
       end
 
     params =
-      for {name, _meta, [type]} <- args do
-        Macro.escape(param(name, expand_type(type)))
+      case args do
+        [args] when is_list(args) ->
+          for {name, type} <- args do
+            Macro.escape(param(name, expand_type(type)))
+          end
+        
+        args ->
+          for {name, _meta, [type]} <- args do
+            Macro.escape(param(name, expand_type(type)))
+          end
       end
 
     arg_types =
-      for {name, _meta, [type]} <- args do
-        {name, expand_type(type)}
+      case args do
+        [args] when is_list(args) ->
+          for {name, type} <- args do
+            {name, expand_type(type)}
+          end
+        
+        args ->
+          for {name, _meta, [type]} <- args do
+            {name, expand_type(type)}
+          end
       end
 
     result_type = Keyword.get(options, :result, nil) |> expand_type()

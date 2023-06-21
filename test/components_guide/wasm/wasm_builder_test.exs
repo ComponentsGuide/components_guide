@@ -129,16 +129,32 @@ defmodule ComponentsGuide.WasmBuilderTest do
       {429, "Too Many Requests"}
     ]
 
-    defwasm do
+    def status_table(), do: @_statuses
+
+    wasm do
       wasm_import(:env, :buffer, memory(1))
 
       for {status, message} <- @_statuses do
-        data(status * 24, "#{message}\\00")
+        # data(status * 24, "#{message}\\00")
+        # data(status * 24, message)
+        data_nul_terminated(status * 24, message)
       end
 
       func lookup(status(I32)), result: I32 do
         I32.mul(status, 24)
       end
+    end
+  end
+
+  # FIXME: this shouldn’t live in wasm_builder_test.exs
+  test "works" do
+    alias ComponentsGuide.Wasm.Instance
+
+    inst = Instance.run(HTTPStatusLookup)
+    assert Instance.call_reading_string(inst, :lookup, 200) == "OK"
+
+    for {status, status_text} <- HTTPStatusLookup.status_table() do
+      assert Instance.call_reading_string(inst, :lookup, status) == status_text
     end
   end
 

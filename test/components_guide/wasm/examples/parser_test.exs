@@ -7,24 +7,27 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
   describe "HexConversion" do
     alias Parser.HexConversion
 
-    test "i32_to_hex_lower" do
+    test "u32_to_hex_lower" do
       inst = HexConversion.start()
-      i32_to_hex_lower = Instance.capture(inst, :i32_to_hex_lower, 2)
+      u32_to_hex_lower = Instance.capture(inst, :u32_to_hex_lower, 2)
       read = &Instance.read_memory(inst, &1, 8)
 
-      i32_to_hex_lower.(0x00000000, 0x100)
+      u32_to_hex_lower.(0x00000000, 0x100)
       assert read.(0x100) == "00000000"
 
-      i32_to_hex_lower.(0x00ABCDEF, 0x100)
+      u32_to_hex_lower.(255, 0x100)
+      assert read.(0x100) == "000000ff"
+
+      u32_to_hex_lower.(0x00ABCDEF, 0x100)
       assert read.(0x100) == "00abcdef"
 
-      i32_to_hex_lower.(0x44ABCDEF, 0x100)
+      u32_to_hex_lower.(0x44ABCDEF, 0x100)
       assert read.(0x100) == "44abcdef"
 
-      i32_to_hex_lower.(0xFFFF_FFFF, 0x100)
+      u32_to_hex_lower.(0xFFFF_FFFF, 0x100)
       assert read.(0x100) == "ffffffff"
 
-      i32_to_hex_lower.(1, 0x100)
+      u32_to_hex_lower.(1, 0x100)
       assert read.(0x100) == "00000001"
 
       # Does NOT write outside its bounds.
