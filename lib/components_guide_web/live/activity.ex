@@ -20,6 +20,7 @@ defmodule ComponentsGuideWeb.ActivityLive do
     {:ok, assign(socket, uuid: new_uuid())}
   end
 
+  @impl true
   def handle_info(:update, socket) do
     {:noreply, assign(socket, :uuid, new_uuid())}
   end

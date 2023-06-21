@@ -10,6 +10,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # https://developers.cloudflare.com/cache/concepts/cache-control/
     # https://bitsup.blogspot.com/2016/05/cache-control-immutable.html
     # https://hacks.mozilla.org/2017/01/using-immutable-caching-to-speed-up-the-web/
+    # https://github.com/jjenzz/pretty-cache-header
 
     use Wasm
     use BumpAllocator

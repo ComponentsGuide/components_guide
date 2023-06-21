@@ -289,7 +289,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               listen_to_window: i32(0x100)
               # listen_to_window_offline: i32(1),
               # listen_to_window_online: i32(1),
-              # memory: memory_with_data("navigator.onLine\0")
             ],
             exported_mutable_globals: [
               # Allow setting initial state

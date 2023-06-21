@@ -43,7 +43,6 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     @page_size 64 * 1024
     @readonly_start 0xFF
-    @bump_start 1 * @page_size
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
     @_strings pack_strings_nul_terminated(@readonly_start,
@@ -95,7 +94,6 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     @page_size 64 * 1024
     @readonly_start 0xFF
-    @bump_start 1 * @page_size
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
 
@@ -106,7 +104,6 @@ defmodule ComponentsGuide.Wasm.Examples do
               ]
             ],
             exported_mutable_globals: [
-              # memory: memory(3),
               input_offset: i32(@input_offset)
             ] do
       func get_status(), result: I32 do

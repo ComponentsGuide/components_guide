@@ -45,7 +45,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
 
       func u32_to_hex_lower(
              value: I32,
-             write_ptr: I32.Pointer
+             write_ptr: I32.I8.Pointer
            ),
            nil,
            i: I32,
@@ -77,7 +77,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
             # end
 
             if digit > 9 do
-              # write_ptr.i32_8![at: i] = ?a + digit - 10
+              # write_ptr[byte_at!: i] = ?a + digit - 10
               # Memory.I32.offset(write_ptr, i) |> Memory.I32.store!(?a + digit - 10)
               memory32_8![write_ptr + i] = ?a + digit - 10
             else

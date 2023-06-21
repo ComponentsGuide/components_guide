@@ -37,11 +37,18 @@ defmodule ComponentsGuide.WasmBuilder do
 
         Module.put_attribute(__MODULE__, :wasm_name, __MODULE__ |> Module.split() |> List.last())
 
-        # Module.register_attribute(__ENV__.module, :wasm_memory, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_memory, accumulate: true)
+
+        # FIXME: clean up these names and decide if it should be one attribute or many.
         Module.register_attribute(__MODULE__, :wasm_global, accumulate: true)
+        Module.register_attribute(__MODULE__, :wasm_internal_globals, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_global_exported_readonly, accumulate: true)
-        # Module.register_attribute(__MODULE__, :wasm_imports, accumulate: true)
+
+        Module.register_attribute(__MODULE__, :wasm_exported_mutable_global_types,
+          accumulate: true
+        )
+
+        Module.register_attribute(__MODULE__, :wasm_imports, accumulate: true)
         Module.register_attribute(__MODULE__, :wasm_body, accumulate: true)
         # @wasm_memory 0
       end
@@ -559,8 +566,6 @@ defmodule ComponentsGuide.WasmBuilder do
     end
   end
 
-  @primitive_types [:i32, :f32]
-
   def module(name, do: body) do
     %ModuleDefinition{name: name, body: body}
   end
@@ -690,13 +695,14 @@ defmodule ComponentsGuide.WasmBuilder do
           ModuleDefinition.new(
             # name: unquote(name),
             name: @wasm_name,
-            imports: List.wrap(@wasm_imports),
-            globals: List.wrap(@wasm_internal_globals) ++ List.flatten(List.wrap(@wasm_global)),
-            exported_globals:
-              List.wrap(@wasm_exported_global_types) ++
-                List.flatten(List.wrap(@wasm_global_exported_readonly)),
-            exported_mutable_global_types: List.wrap(@wasm_exported_mutable_global_types),
-            memory: @wasm_memory2 || Memory.from(@wasm_memory),
+            imports: List.flatten(List.wrap(@wasm_imports)),
+            globals:
+              List.flatten(List.wrap(@wasm_internal_globals)) ++
+                List.flatten(List.wrap(@wasm_global)),
+            exported_globals: List.flatten(List.wrap(@wasm_global_exported_readonly)),
+            exported_mutable_global_types:
+              List.flatten(List.wrap(@wasm_exported_mutable_global_types)),
+            memory: Memory.from(@wasm_memory),
             body: List.flatten(@wasm_body)
           )
         end
@@ -743,22 +749,6 @@ defmodule ComponentsGuide.WasmBuilder do
     exported_global_types = Keyword.get(options, :exported_globals, [])
     exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
 
-    memory =
-      case Keyword.get(options, :exported_memory) do
-        nil ->
-          nil
-
-        min when is_integer(min) ->
-          quote do: %Memory{name: "memory", min: unquote(min), exported?: true}
-
-        mem_options when is_list(mem_options) ->
-          Macro.escape(%Memory{
-            name: "memory",
-            min: Keyword.get(mem_options, :min),
-            exported?: true
-          })
-      end
-
     globals =
       (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
       |> Keyword.new(fn {key, _} -> {key, nil} end)
@@ -773,9 +763,8 @@ defmodule ComponentsGuide.WasmBuilder do
       # @before_compile unquote(__MODULE__).BeforeCompile
 
       @wasm_imports unquote(imports)
-      @wasm_memory2 unquote(memory)
       @wasm_internal_globals unquote(internal_global_types)
-      @wasm_exported_global_types unquote(exported_global_types)
+      @wasm_global_exported_readonly unquote(exported_global_types)
       @wasm_exported_mutable_global_types unquote(exported_mutable_global_types)
 
       import Kernel, except: [if: 2, @: 1]
@@ -857,7 +846,8 @@ defmodule ComponentsGuide.WasmBuilder do
       I32 -> :i32
       F32 -> :f32
       I32.String -> :i32
-      I32.Pointer -> :i32
+      I32.Pointer -> :i32_ptr
+      I32.I8.Pointer -> :i32_8_ptr
       # Memory.I32.Pointer -> :i32
       _ -> type
     end
@@ -993,6 +983,20 @@ defmodule ComponentsGuide.WasmBuilder do
       {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
         quote do: {:i32, :load, unquote(offset)}
 
+      {:=, _meta,
+       [
+         {{:., _, [Access, :get]}, _,
+          [
+            {local, _, nil},
+            [
+              i32_8_at!: offset
+            ]
+          ]},
+         value
+       ]}
+      when is_atom(local) and is_map_key(locals, local) ->
+        quote do: {:i32, :store8, unquote(offset), unquote(value)} |> dbg()
+
       {:=, _, [{local, _, nil}, input]}
       when is_atom(local) and is_map_key(locals, local) ->
         [input, quote(do: {:local_set, unquote(local)})]
@@ -1078,6 +1082,8 @@ defmodule ComponentsGuide.WasmBuilder do
   # def global(name, type, initial_value) do
   #   %Global{name: name, type: type, initial_value: initial_value, exported: false}
   # end
+
+  @primitive_types [:i32, :f32, :i32_ptr, :i32_8_ptr]
 
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
@@ -1460,7 +1466,17 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 
   def do_wat(%Param{name: name, type: type}, indent) do
-    ~s"#{indent}(param $#{name} #{type})"
+    [
+      indent,
+      "(param $",
+      to_string(name),
+      " ",
+      case type do
+        type when type in [:i32, :i32_ptr, :i32_8_ptr] -> "i32"
+        :f32 -> "f32"
+      end,
+      ?)
+    ]
   end
 
   def do_wat(
@@ -1471,16 +1487,8 @@ defmodule ComponentsGuide.WasmBuilder do
           when_false: when_false
         },
         indent
-      ) do
-    if condition == nil do
-      dbg(%IfElse{
-        result: result,
-        condition: condition,
-        when_true: when_true,
-        when_false: when_false
-      })
-    end
-
+      )
+      when not is_nil(condition) do
     [
       [
         indent,

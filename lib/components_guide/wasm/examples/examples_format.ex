@@ -18,7 +18,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
     end
 
-    defwasm exported_memory: 2 do
+    wasm_memory(pages: 2)
+
+    wasm do
       func u32toa_count(value(I32)),
            I32,
            digit_count: I32,
