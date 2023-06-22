@@ -227,82 +227,10 @@
           i32.or
           i32.or
           local.get 1
-          i32.const 47
+          i32.const 95
           i32.eq
-          local.get 1
-          i32.const 58
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 63
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 35
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 91
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 93
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 64
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 33
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 36
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 38
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 92
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 39
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 40
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 41
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 42
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 44
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 59
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 61
-          i32.eq
-          i32.or
           local.get 1
           i32.const 126
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 95
           i32.eq
           i32.or
           local.get 1

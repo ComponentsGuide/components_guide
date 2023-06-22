@@ -159,7 +159,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               if I32.in_inclusive_range?(char, ?a, ?z)
                  |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
                  |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
-                 |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*,;=~_-.})) do
+                 |> I32.or(I32.in?(char, ~C{~_-.})) do
                 bump_write!(ascii: char)
               else
                 bump_write!(ascii: ?%)

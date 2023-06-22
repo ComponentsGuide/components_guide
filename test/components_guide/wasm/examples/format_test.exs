@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
     alias Format.URLEncoding
 
     test "wasm byte size" do
-      assert byte_size(Wasm.to_wasm(URLEncoding)) == 860
+      assert byte_size(Wasm.to_wasm(URLEncoding)) == 748
     end
 
     test "url_encode_rfc3986" do
@@ -39,7 +39,12 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("ftp://s-ite.tld/?value=put it+й") ==
                "ftp://s-ite.tld/?value=put%20it+%D0%B9"
 
+      assert url_encode.("ftp://s-ite.tld/?value=put it+й") ==
+               URI.encode("ftp://s-ite.tld/?value=put it+й")
+
       assert url_encode.(":/?#[]@!$&\'()*+,;=~_-.") == ":/?#[]@!$&\'()*+,;=~_-."
+      assert url_encode.(":/?#[]@!$&\'()*+,;=~_-.") == URI.encode(":/?#[]@!$&\'()*+,;=~_-.")
+
       assert url_encode.("😀") == "%F0%9F%98%80"
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
     end
@@ -52,17 +57,25 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("abcxyzABCXYZ") == "abcxyzABCXYZ"
       assert url_encode.("two words") == "two+words"
       assert url_encode.("TWO WORDS") == "TWO+WORDS"
-      # assert url_encode.("+") == "%60"
-      # assert url_encode.("`") == "%60"
-      # assert url_encode.("<>`") == "%3C%3E%60"
-      # assert url_encode.("put it+й") == "put%20it+%D0%B9"
-      # 
-      # assert url_encode.("ftp://s-ite.tld/?value=put it+й") ==
-      #          "ftp://s-ite.tld/?value=put%20it+%D0%B9"
-      # 
-      # assert url_encode.(":/?#[]@!$&\'()*+,;=~_-.") == ":/?#[]@!$&\'()*+,;=~_-."
-      # assert url_encode.("😀") == "%F0%9F%98%80"
-      # assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
+      assert url_encode.("+") == "%2B"
+      assert url_encode.("`") == "%60"
+      assert url_encode.("<>`") == "%3C%3E%60"
+      assert url_encode.("put it+й") == "put+it%2B%D0%B9"
+
+      assert url_encode.("ftp://s-ite.tld/?value=put it+й") ==
+               "ftp%3A%2F%2Fs-ite.tld%2F%3Fvalue%3Dput+it%2B%D0%B9"
+
+      assert url_encode.("ftp://s-ite.tld/?value=put it+й") ==
+               URI.encode_www_form("ftp://s-ite.tld/?value=put it+й")
+
+      assert url_encode.(":/?#[]@!$&\'()*,;=~_-.") ==
+               "%3A%2F%3F%23%5B%5D%40%21%24%26%27%28%29%2A%2C%3B%3D~_-."
+
+      assert url_encode.(":/?#[]@!$&\'()*,;=~_-.") ==
+               URI.encode_www_form(":/?#[]@!$&\'()*,;=~_-.")
+
+      assert url_encode.("😀") == "%F0%9F%98%80"
+      assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
     end
 
     # @tag :skip
@@ -76,7 +89,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
 
       %{size: size} = File.stat!(path_opt_wasm)
-      assert size == 765
+      assert size == 653
 
       {wat, 0} = System.cmd("wasm2wat", [path_wasm])
       File.write!(path_wat, wat)
