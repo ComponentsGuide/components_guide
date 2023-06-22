@@ -101,27 +101,27 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
     end
 
-    wasm do
+    wasm U32 do
       func url_encode_rfc3986(str_ptr(I32.String)),
            I32.String,
-           char: I32,
+           char: I32.U8,
            abc: I32,
            __dup_32: I32 do
         write_start!()
 
         loop EachByte do
-          char = memory32_8![str_ptr].unsigned
+          char = str_ptr[at!: 0]
 
           if char do
             if I32.in_inclusive_range?(char, ?a, ?z)
                |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
                |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
-               |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*+,;=~_-.})) do
+               |> I32.or(I32.in?(char, ~C{+:/?#[]@!$&\'()*,;=~_-.})) do
               bump_write!(ascii: char)
             else
               bump_write!(ascii: ?%)
-              bump_write!(hex_upper: I32.u!(char >>> 4))
-              bump_write!(hex_upper: I32.u!(char &&& 15))
+              bump_write!(hex_upper: char >>> 4)
+              bump_write!(hex_upper: char &&& 15)
               # bump_write!(hex_upper: I32.div_u(char, 16))
               # bump_write!(hex_upper: I32.rem_u(char, 16))
 
@@ -134,10 +134,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               # bump_write!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
             end
 
-            str_ptr = I32.add(str_ptr, 1)
-            # i = I32.add(i, 1)
-            # i = I32.u!(i + 1)
-            # I32.increment!(i)
+            str_ptr = str_ptr + 1
             EachByte.continue()
           end
         end
@@ -162,12 +159,12 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               if I32.in_inclusive_range?(char, ?a, ?z)
                  |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
                  |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
-                 |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*+,;=~_-.})) do
+                 |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*,;=~_-.})) do
                 bump_write!(ascii: char)
               else
                 bump_write!(ascii: ?%)
-                bump_write!(hex_upper: I32.u!(char >>> 4))
-                bump_write!(hex_upper: I32.u!(char &&& 15))
+                bump_write!(hex_upper: char >>> 4)
+                bump_write!(hex_upper: char &&& 15)
                 # bump_write!(hex_upper: I32.div_u(char, 16))
                 # bump_write!(hex_upper: I32.rem_u(char, 16))
 
@@ -181,10 +178,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
               end
             end
 
-            str_ptr = I32.add(str_ptr, 1)
-            # i = I32.add(i, 1)
-            # i = I32.u!(i + 1)
-            # I32.increment!(i)
+            str_ptr = str_ptr + 1
             EachByte.continue()
           end
         end

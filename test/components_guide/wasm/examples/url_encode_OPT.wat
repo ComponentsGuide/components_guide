@@ -33,10 +33,14 @@
         i32.or
         i32.or
         local.get 1
-        i32.const 47
+        i32.const 58
         i32.eq
         local.get 1
-        i32.const 58
+        i32.const 43
+        i32.eq
+        i32.or
+        local.get 1
+        i32.const 47
         i32.eq
         i32.or
         local.get 1
@@ -89,10 +93,6 @@
         i32.or
         local.get 1
         i32.const 42
-        i32.eq
-        i32.or
-        local.get 1
-        i32.const 43
         i32.eq
         i32.or
         local.get 1
@@ -283,10 +283,6 @@
           i32.or
           local.get 1
           i32.const 42
-          i32.eq
-          i32.or
-          local.get 1
-          i32.const 43
           i32.eq
           i32.or
           local.get 1
