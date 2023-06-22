@@ -865,6 +865,8 @@ defmodule Orb do
       F32 -> :f32
       I32.U8 -> :i32_u8
       I32.String -> :i32_string
+      # I32.AlignedPointer -> :i32_aligned_ptr
+      # I32.UnalignedPointer -> :i32_ptr
       I32.Pointer -> :i32_ptr
       I32.I8.Pointer -> :i32_8_ptr
       I32.U8.Pointer -> :i32_u8_ptr
