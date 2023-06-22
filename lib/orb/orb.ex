@@ -866,9 +866,11 @@ defmodule Orb do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
       F32 -> :f32
-      I32.String -> :i32
+      I32.U8 -> :i32_u8
+      I32.String -> :i32_string
       I32.Pointer -> :i32_ptr
       I32.I8.Pointer -> :i32_8_ptr
+      I32.U8.Pointer -> :i32_u8_ptr
       # Memory.I32.Pointer -> :i32
       _ -> type
     end
@@ -1007,6 +1009,30 @@ defmodule Orb do
       {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
         quote do: {:i32, :load, unquote(offset)}
 
+      {{:., _, [Access, :get]}, _,
+       [
+         {local, _, nil},
+         [
+           at!: offset
+         ]
+       ]} ->
+        computed_offset =
+          case offset do
+            0 ->
+              quote do: local_get(unquote(local))
+
+            offset ->
+              quote do: I32.add(local_get(unquote(local)), unquote(offset))
+          end
+
+        case locals[local] do
+          :i32_u8_ptr ->
+            quote do: {:i32, :load8_u, unquote(computed_offset)}
+
+          :i32_string ->
+            quote do: {:i32, :load8_u, unquote(computed_offset)}
+        end
+
       # local[byte_at!: offset] = value
       {:=, _meta,
        [
@@ -1113,7 +1139,7 @@ defmodule Orb do
   #   %Global{name: name, type: type, initial_value: initial_value, exported: false}
   # end
 
-  @primitive_types [:i32, :f32, :i32_ptr, :i32_8_ptr]
+  @primitive_types [:i32, :f32, :i32_u8, :i32_string, :i32_ptr, :i32_8_ptr, :i32_u8_ptr]
 
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
@@ -1305,6 +1331,13 @@ defmodule Orb do
 
   def to_wat(term), do: do_wat(term, "") |> IO.chardata_to_string()
 
+  defp do_type(type) do
+    case type do
+      type when type in [:i32, :i32_u8, :i32_string, :i32_ptr, :i32_8_ptr, :i32_u8_ptr] -> "i32"
+      :f32 -> "f32"
+    end
+  end
+
   def do_wat(term), do: do_wat(term, "")
 
   def do_wat(term, indent)
@@ -1488,7 +1521,17 @@ defmodule Orb do
         ),
         "\n"
       ],
-      for({id, type} <- local_types, do: ["  " <> indent, "(local $#{id} #{type})", "\n"]),
+      for {id, type} <- local_types do
+        [
+          "  ",
+          indent,
+          "(local $",
+          to_string(id),
+          " ",
+          do_type(type),
+          ")\n"
+        ]
+      end,
       do_wat(body, "  " <> indent),
       "\n",
       [indent, ")"]
@@ -1501,10 +1544,7 @@ defmodule Orb do
       "(param $",
       to_string(name),
       " ",
-      case type do
-        type when type in [:i32, :i32_ptr, :i32_8_ptr] -> "i32"
-        :f32 -> "f32"
-      end,
+      do_type(type),
       ?)
     ]
   end
@@ -1604,7 +1644,9 @@ defmodule Orb do
   def do_wat(:drop, indent), do: [indent, "drop"]
 
   def do_wat({:export, name}, _indent), do: "(export \"#{name}\")"
-  def do_wat({:result, value}, _indent), do: "(result #{value})"
+
+  def do_wat({:result, value}, _indent), do: ["(result ", do_type(value), ")"]
+
   def do_wat({:i32_const, value}, indent), do: "#{indent}(i32.const #{value})"
   def do_wat({:i32_const_string, value, _string}, indent), do: "#{indent}(i32.const #{value})"
   def do_wat({:global_get, identifier}, indent), do: "#{indent}(global.get $#{identifier})"

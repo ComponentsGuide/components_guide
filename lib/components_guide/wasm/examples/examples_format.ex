@@ -145,15 +145,15 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         write_done!()
       end
 
-      func url_encode_www_form(str_ptr(I32.String)),
+      func url_encode_www_form(str_ptr: I32.String),
            I32.String,
-           char: I32,
+           char: I32.U8,
            abc: I32,
            __dup_32: I32 do
         write_start!()
 
         loop EachByte do
-          char = memory32_8![str_ptr].unsigned
+          char = str_ptr[at!: 0]
 
           if char do
             if I32.eq(char, 0x20) do
