@@ -1033,7 +1033,7 @@ defmodule Orb do
             {offset, 1} ->
               quote do: I32.add(local_get(unquote(local)), unquote(offset))
 
-            # We can computed at compiletime
+            # We can compute at compile-time
             {offset, factor} when is_integer(offset) ->
               quote do:
                       I32.add(
@@ -1052,25 +1052,60 @@ defmodule Orb do
 
         quote do: {:i32, unquote(load_instruction), unquote(computed_offset)}
 
-      # local[byte_at!: offset] = value
+      # local[at!: offset] = value
       {:=, _meta,
        [
          {{:., _, [Access, :get]}, _,
           [
             {local, _, nil},
             [
-              byte_at!: offset
+              at!: offset
             ]
           ]},
          value
        ]}
       when is_atom(local) and is_map_key(locals, local) ->
-        # TODO: add exception for when this isn’t the matching type.
-        :i32_8_ptr = locals[local]
+        {bytes_factor, store_instruction} =
+          case locals[local] do
+            :i32_ptr ->
+              {4, :store}
 
-        quote do:
-                {:i32, :store8, I32.add(local_get(unquote(local)), unquote(offset)),
-                 unquote(value)}
+            :i32_u8_ptr ->
+              {1, :store8}
+
+            :i32_8_ptr ->
+              {1, :store8}
+
+            :i32_string ->
+              {1, :store8}
+          end
+
+        computed_offset =
+          case {offset, bytes_factor} do
+            {0, _} ->
+              quote do: local_get(unquote(local))
+
+            {offset, 1} ->
+              quote do: I32.add(local_get(unquote(local)), unquote(offset))
+
+            # We can compute at compile-time
+            {offset, factor} when is_integer(offset) ->
+              quote do:
+                      I32.add(
+                        local_get(unquote(local)),
+                        unquote(offset * factor)
+                      )
+
+            # We can only compute at runtime
+            {offset, factor} ->
+              quote do:
+                      I32.add(
+                        local_get(unquote(local)),
+                        I32.mul(unquote(offset), unquote(factor))
+                      )
+          end
+
+        quote do: {:i32, unquote(store_instruction), unquote(computed_offset), unquote(value)}
 
       {:=, _, [{local, _, nil}, input]}
       when is_atom(local) and is_map_key(locals, local) ->

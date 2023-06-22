@@ -25,9 +25,9 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
           value = value / 16
 
           if digit > 9 do
-            write_ptr[byte_at!: i] = ?a + digit - 10
+            write_ptr[at!: i] = ?a + digit - 10
           else
-            write_ptr[byte_at!: i] = ?0 + digit
+            write_ptr[at!: i] = ?0 + digit
           end
 
           Digits.continue(if: i > 0)
