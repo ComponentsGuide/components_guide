@@ -342,11 +342,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       func hd(ptr: I32.Pointer), I32.Pointer do
         # ptr[at: 0, fallback: 0x0]
         ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 0])
-        # I32.eqz?(ptr, do: 0x0, else: memory32![ptr])
       end
 
       func tl(ptr: I32.Pointer), I32.Pointer do
-        I32.eqz?(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
+        ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 1])
       end
 
       func reverse(node(I32)), I32, prev: I32, current: I32, next: I32 do

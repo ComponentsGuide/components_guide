@@ -1013,25 +1013,44 @@ defmodule Orb do
            at!: offset
          ]
        ]} ->
-        computed_offset =
-          case offset do
-            0 ->
-              quote do: local_get(unquote(local))
+        {bytes_factor, load_instruction} =
+          case locals[local] do
+            :i32_ptr ->
+              {4, :load}
 
-            offset ->
-              quote do: I32.add(local_get(unquote(local)), unquote(offset))
+            :i32_u8_ptr ->
+              {1, :load8_u}
+
+            :i32_string ->
+              {1, :load8_u}
           end
 
-        case locals[local] do
-          :i32_ptr ->
-            quote do: {:i32, :load, unquote(computed_offset)}
+        computed_offset =
+          case {offset, bytes_factor} do
+            {0, _} ->
+              quote do: local_get(unquote(local))
 
-          :i32_u8_ptr ->
-            quote do: {:i32, :load8_u, unquote(computed_offset)}
+            {offset, 1} ->
+              quote do: I32.add(local_get(unquote(local)), unquote(offset))
 
-          :i32_string ->
-            quote do: {:i32, :load8_u, unquote(computed_offset)}
-        end
+            # We can computed at compiletime
+            {offset, factor} when is_integer(offset) ->
+              quote do:
+                      I32.add(
+                        local_get(unquote(local)),
+                        unquote(offset * factor)
+                      )
+
+            # We can only compute at runtime
+            {offset, factor} ->
+              quote do:
+                      I32.add(
+                        local_get(unquote(local)),
+                        I32.mul(unquote(offset), unquote(factor))
+                      )
+          end
+
+        quote do: {:i32, unquote(load_instruction), unquote(computed_offset)}
 
       # local[byte_at!: offset] = value
       {:=, _meta,
