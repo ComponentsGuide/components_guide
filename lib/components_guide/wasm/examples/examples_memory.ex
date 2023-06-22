@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @wasm_memory 2
 
     wasm U32 do
-      func memcpy(dest: I32.U8.Buffer, src: I32.U8.Pointer, byte_count: I32),
+      func memcpy(dest: I32.U8.Pointer, src: I32.U8.Pointer, byte_count: I32),
         i: I32 do
         loop EachByte do
           dest[at!: i] = src[at!: i]
