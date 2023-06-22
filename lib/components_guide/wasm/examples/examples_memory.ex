@@ -86,12 +86,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       def bump_init_offset(), do: @bump_start
     end
 
-    # require Constants
-
     use Orb
     import ComponentsGuide.Wasm.Examples.Memory.Copying
-
-    # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
 
     defmacro __using__(opts \\ []) do
       quote do
