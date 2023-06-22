@@ -144,6 +144,53 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
         write_done!()
       end
+
+      func url_encode_www_form(str_ptr(I32.String)),
+           I32.String,
+           char: I32,
+           abc: I32,
+           __dup_32: I32 do
+        write_start!()
+
+        loop EachByte do
+          char = memory32_8![str_ptr].unsigned
+
+          if char do
+            if I32.eq(char, 0x20) do
+              bump_write!(ascii: ?+)
+            else
+              if I32.in_inclusive_range?(char, ?a, ?z)
+                 |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
+                 |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
+                 |> I32.or(I32.in?(char, ~C{:/?#[]@!$&\'()*+,;=~_-.})) do
+                bump_write!(ascii: char)
+              else
+                bump_write!(ascii: ?%)
+                bump_write!(hex_upper: I32.u!(char >>> 4))
+                bump_write!(hex_upper: I32.u!(char &&& 15))
+                # bump_write!(hex_upper: I32.div_u(char, 16))
+                # bump_write!(hex_upper: I32.rem_u(char, 16))
+
+                # __dup_32 = I32.div_u(char, 16)
+                # bump_write!(hex_upper: __dup_32)
+                # __dup_32 = I32.rem_u(char, 16)
+                # bump_write!(hex_upper: __dup_32)
+
+                # bump_write!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
+                # bump_write!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
+              end
+            end
+
+            str_ptr = I32.add(str_ptr, 1)
+            # i = I32.add(i, 1)
+            # i = I32.u!(i + 1)
+            # I32.increment!(i)
+            EachByte.continue()
+          end
+        end
+
+        write_done!()
+      end
     end
 
     def url_encode(str_ptr), do: call(:url_encode, str_ptr)
