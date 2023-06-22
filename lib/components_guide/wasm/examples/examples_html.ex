@@ -93,7 +93,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func get_status(), I32 do
-        I32.if_else(call(:get_is_valid), do: 200, else: 400)
+        I32.when?(call(:get_is_valid), do: 200, else: 400)
         # if call(:get_is_valid), result: I32, do: 200, else: 400
       end
 
@@ -355,7 +355,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         I32.match @body_chunk_index do
           0 ->
             @url_list = call(:reverse, @url_list)
-            @body_chunk_index = @url_list |> I32.if_eqz(do: 4, else: 1)
+            @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
 
             ~S"""
             <?xml version="1.0" encoding="UTF-8"?>
@@ -373,7 +373,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
           3 ->
             @url_list = call(:tl, @url_list)
-            @body_chunk_index = @url_list |> I32.if_eqz(do: 4, else: 1)
+            @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
 
             ~S"""
             </loc>
@@ -466,7 +466,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         I32.match @body_chunk_index do
           0 ->
             @form_element_list = call(:reverse, @form_element_list)
-            @body_chunk_index = @form_element_list |> I32.if_eqz(do: 6, else: 1)
+            @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
 
             ~S[<form>\n]
             return()
@@ -485,7 +485,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
           5 ->
             @form_element_list = call(:tl, @form_element_list)
-            @body_chunk_index = @form_element_list |> I32.if_eqz(do: 6, else: 1)
+            @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
 
             ~S[">\n</label>\n]
 

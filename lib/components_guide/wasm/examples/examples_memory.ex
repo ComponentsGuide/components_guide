@@ -332,20 +332,21 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     @wasm_memory 2
 
     defwasm do
-      func cons(hd(I32), tl(I32)), I32, ptr: I32 do
+      func cons(hd: I32.Pointer, tl: I32.Pointer), I32.Pointer, ptr: I32.Pointer do
         ptr = call(:bump_alloc, 8)
         memory32![ptr] = hd
         memory32![I32.add(ptr, 4)] = tl
         ptr
       end
 
-      func hd(ptr(I32)), I32 do
-        I32.if_eqz(ptr, do: 0x0, else: memory32![ptr])
-        # I32.eqz(ptr) |> I32.if_else(do: 0x0, else: memory32![ptr])
+      func hd(ptr: I32.Pointer), I32.Pointer do
+        # ptr[at: 0, fallback: 0x0]
+        ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 0])
+        # I32.eqz?(ptr, do: 0x0, else: memory32![ptr])
       end
 
-      func tl(ptr(I32)), I32 do
-        I32.if_eqz(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
+      func tl(ptr: I32.Pointer), I32.Pointer do
+        I32.eqz?(ptr, do: 0x0, else: memory32![I32.add(ptr, 4)])
       end
 
       func reverse(node(I32)), I32, prev: I32, current: I32, next: I32 do

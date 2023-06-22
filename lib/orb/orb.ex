@@ -419,21 +419,17 @@ defmodule Orb do
       ]
     end
 
-    def if_else(condition, do: when_true, else: when_false) do
-      %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: when_false}
+    # def eqz?(value, do: when_true, else: when_false) do
+    #   {:i32, :and, {value, when_true}}, else: when_false)
+    # end
+
+    def eqz?(value, do: when_true, else: when_false) do
+      %IfElse{result: :i32, condition: eqz(value), when_true: when_true, when_false: when_false}
     end
 
-    def if_else(condition, do: when_true) do
-      %IfElse{result: :i32, condition: condition, when_true: when_true, when_false: nil}
-    end
-
-    def if_eqz(value, do: when_true, else: when_false) do
-      if_else(eqz(value), do: when_true, else: when_false)
-    end
-
-    def if_eqz(value, do: when_true) do
-      if_else(eqz(value), do: when_true)
-    end
+    # def eqz?(value, do: when_true) do
+    #   %IfElse{result: :i32, condition: eqz(value), when_true: when_true}
+    # end
 
     def enum(cases) do
       Map.new(Enum.with_index(cases), fn {key, index} -> {key, {:i32_const, index}} end)
@@ -1027,6 +1023,9 @@ defmodule Orb do
           end
 
         case locals[local] do
+          :i32_ptr ->
+            quote do: {:i32, :load, unquote(computed_offset)}
+
           :i32_u8_ptr ->
             quote do: {:i32, :load8_u, unquote(computed_offset)}
 

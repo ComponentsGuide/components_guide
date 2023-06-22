@@ -78,6 +78,16 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
     end
 
+    @tag :skip
+    test "url_encode_query_www_form" do
+      inst = Instance.run(URLEncoding)
+      url_encode_query = Instance.capture(inst, String, :url_encode_query_www_form, 1)
+
+      list = Instance.alloc_list([["a", "1"], ["b", "2"]])
+
+      assert url_encode_query.(list) == "a=1&b=2"
+    end
+
     # @tag :skip
     test "opt" do
       path_wasm = Path.join(__DIR__, "url_encode.wasm")
