@@ -327,13 +327,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
 
     # increase_memory pages: 2
-    @wasm_memory 2
+    # @wasm_memory 2
 
-    defwasm do
+    wasm U32 do
       func cons(hd: I32.Pointer, tl: I32.Pointer), I32.Pointer, ptr: I32.Pointer do
         ptr = call(:bump_alloc, 8)
-        memory32![ptr] = hd
-        memory32![I32.add(ptr, 4)] = tl
+        ptr[at!: 0] = hd
+        ptr[at!: 1] = tl
         ptr
       end
 
@@ -384,7 +384,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           # I32.when? ptr, else: return(count)
 
           ptr = call(:tl, ptr)
-          count = I32.add(count, 1)
+          count = count + 1
           Iterate.continue()
         end
       end
@@ -393,7 +393,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         loop Iterate, result: I32 do
           if I32.eqz(ptr), do: return(sum)
 
-          sum = I32.add(sum, call(:hd, ptr))
+          sum = sum + call(:hd, ptr)
           ptr = call(:tl, ptr)
 
           Iterate.continue()
