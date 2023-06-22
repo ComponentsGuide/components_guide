@@ -1,5 +1,5 @@
 defmodule Orb do
-  alias ComponentsGuide.Wasm.Ops
+  alias Orb.Ops
   require Ops
 
   defmacro __using__(opts) do

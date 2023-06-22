@@ -1,4 +1,4 @@
-defmodule ComponentsGuide.Wasm.Ops do
+defmodule Orb.Ops do
   # See: https://webassembly.github.io/spec/core/syntax/instructions.html#numeric-instructions
   @i_unary_ops ~w(clz ctz popcnt)a
   @i_binary_ops ~w(add sub mul div_u div_s rem_u rem_s and or xor shl shr_u shr_s rotl rotr)a
