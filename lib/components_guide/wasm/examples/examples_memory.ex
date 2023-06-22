@@ -355,15 +355,15 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         loop Iterate, result: I32 do
           if I32.eqz(current), do: return(prev)
 
-          next = memory32![I32.add(current, 4)]
-          memory32![I32.add(current, 4)] = prev
+          next = current[at!: 1]
+          current[at!: 1] = prev
           prev = current
           current = next
           Iterate.continue()
         end
       end
 
-      func list_count(ptr(I32)), I32, count: I32 do
+      func list_count(ptr: I32.Pointer), I32, count: I32 do
         loop Iterate, result: I32 do
           #           I32.match ptr do
           #             0 ->
