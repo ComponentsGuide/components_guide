@@ -63,7 +63,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     test "wasm size" do
       wasm = Wasm.to_wasm(LinkedLists)
-      assert byte_size(wasm) == 365
+      assert byte_size(wasm) == 374
     end
 
     test "multiple allocations" do
@@ -108,7 +108,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       assert sum.(l2) == 7
       assert sum.(l3) == 12
 
-      Instance.call(inst, :reverse, l3)
+      Instance.call(inst, :reverse_in_place, l3)
       Instance.log_memory(inst, 0x10000, 32)
       assert Enum.to_list(enum.(l1)) == [3, 4, 5]
     end

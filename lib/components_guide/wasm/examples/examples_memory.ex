@@ -321,7 +321,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           unquote(__MODULE__).funcp(:cons)
           unquote(__MODULE__).funcp(:hd)
           unquote(__MODULE__).funcp(:tl)
-          unquote(__MODULE__).funcp(:reverse)
+          unquote(__MODULE__).funcp(:reverse_in_place)
         end
 
         import unquote(__MODULE__)
@@ -348,7 +348,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 1])
       end
 
-      func reverse(node(I32)), I32, prev: I32, current: I32, next: I32 do
+      func reverse_in_place(node: I32.Pointer), I32.Pointer,
+        prev: I32.Pointer,
+        current: I32.Pointer,
+        next: I32.Pointer do
         current = node
 
         loop Iterate, result: I32 do

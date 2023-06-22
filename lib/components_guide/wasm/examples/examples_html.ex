@@ -354,7 +354,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, I32 do
         I32.match @body_chunk_index do
           0 ->
-            @url_list = call(:reverse, @url_list)
+            @url_list = call(:reverse_in_place, @url_list)
             @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
 
             ~S"""
@@ -450,7 +450,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       LinkedLists.funcp(:cons)
       LinkedLists.funcp(:hd)
       LinkedLists.funcp(:tl)
-      LinkedLists.funcp(:reverse)
+      LinkedLists.funcp(:reverse_in_place)
 
       func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
 
@@ -465,7 +465,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk, I32 do
         I32.match @body_chunk_index do
           0 ->
-            @form_element_list = call(:reverse, @form_element_list)
+            @form_element_list = call(:reverse_in_place, @form_element_list)
             @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
 
             ~S[<form>\n]
