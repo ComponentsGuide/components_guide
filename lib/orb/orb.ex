@@ -1137,15 +1137,23 @@ defmodule Orb do
     end)
   end
 
-  defmacro snippet(locals \\ [], do: block) do
+  defmacro snippet(transform \\ nil, locals \\ [], do: block) do
+    block =
+      case Macro.expand_literals(transform, __ENV__) do
+        nil -> block
+        U32 -> I32.do_u(block)
+      end
+
     block_items =
       case block do
         {:__block__, _meta, items} -> items
         single -> [single]
       end
 
-    locals = Map.new(locals)
-    # do_snippet(locals, block_items)
+    locals =
+      for {key, type} <- locals, into: %{} do
+        {key, expand_type(type)}
+      end
 
     quote do
       import Kernel, except: [if: 2, @: 1]
