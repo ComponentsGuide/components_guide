@@ -367,6 +367,7 @@ defmodule Orb do
         {:&&&, meta, [a, b]} ->
           {:{}, meta, [:i32, :and, {a, b}]}
 
+        # FIXME: I don’t like this, as it’s not really a proper “call” e.g. it breaks |> piping
         {:rem, meta, [a, b]} ->
           {:{}, meta, [:i32, :rem_u, {a, b}]}
 
