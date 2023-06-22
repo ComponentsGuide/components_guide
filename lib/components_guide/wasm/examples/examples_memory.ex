@@ -1,15 +1,14 @@
 defmodule ComponentsGuide.Wasm.Examples.Memory do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.WasmBuilder
 
   defmodule Copying do
-    use WasmBuilder
+    use Orb
 
     defmacro __using__(_opts) do
       quote do
         # @wasm_memory 1
 
-        import WasmBuilder
+        import Orb
 
         wasm do
           unquote(__MODULE__).funcp(:memcpy)
@@ -91,7 +90,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     # require Constants
 
-    use WasmBuilder
+    use Orb
     import ComponentsGuide.Wasm.Examples.Memory.Copying
 
     # defmacro bump_offset(), do: Macro.escape(Module.get_attribute(__MODULE__, :bump_start))
@@ -101,7 +100,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         @wasm_memory 2
         # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
 
-        import ComponentsGuide.WasmBuilder
+        import Orb
 
         global(
           bump_offset: i32(Constants.bump_init_offset()),
@@ -110,12 +109,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         use ComponentsGuide.Wasm.Examples.Memory.Copying
 
-        ComponentsGuide.WasmBuilder.wasm do
+        Orb.wasm do
           unquote(__MODULE__).funcp(:bump_alloc)
         end
 
         if unquote(opts[:export]) do
-          ComponentsGuide.WasmBuilder.wasm do
+          Orb.wasm do
             func alloc(size(I32)), I32 do
               call(:bump_alloc, local_get(:size))
             end
@@ -316,7 +315,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       quote do
         # @wasm_memory 1
 
-        import WasmBuilder
+        import Orb
 
         wasm do
           unquote(__MODULE__).funcp(:cons)

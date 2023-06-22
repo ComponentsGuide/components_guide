@@ -1,10 +1,9 @@
 defmodule ComponentsGuide.Wasm.Examples.MagicNumbers do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule MobileThrottling do
-    use WasmBuilder
+    use Orb
 
     I32.global(:export_readonly,
       slow_3g_latency_ms: 2000,

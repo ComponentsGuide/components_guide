@@ -26,8 +26,8 @@ defmodule ComponentsGuide.Wasm.Examples.WASI do
             ] do
     end
 
-    import ComponentsGuide.WasmBuilderUsing, only: []
-    import ComponentsGuide.WasmBuilderUsing2, only: []
+    import OrbUsing, only: []
+    import OrbUsing2, only: []
     import Kernel
 
     # Write 64-bit number in little-endian format

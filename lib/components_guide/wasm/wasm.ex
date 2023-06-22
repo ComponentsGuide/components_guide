@@ -3,10 +3,10 @@ defmodule ComponentsGuide.Wasm do
 
   defmacro __using__(_) do
     quote location: :keep do
-      use ComponentsGuide.WasmBuilder
-      import ComponentsGuide.WasmBuilder
-      alias ComponentsGuide.WasmBuilder.{I32, F32}
-      require ComponentsGuide.WasmBuilder.I32
+      use Orb
+      import Orb
+      alias Orb.{I32, F32}
+      require Orb.I32
 
       require Logger
       # TODO: allow use Wasm.Instance?
@@ -461,7 +461,7 @@ defmodule ComponentsGuide.Wasm do
     source
   end
 
-  # do: ComponentsGuide.WasmBuilder.to_wat(atom)
+  # do: Orb.to_wat(atom)
 
   defp process_result([]), do: nil
   defp process_result([a]), do: a

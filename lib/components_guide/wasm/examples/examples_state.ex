@@ -3,11 +3,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule StateMachine do
     defmacro on(call, target: target) do
-      use ComponentsGuide.WasmBuilder, inline: true
-      # import ComponentsGuide.WasmBuilder
-      # alias ComponentsGuide.WasmBuilder.{I32, F32}
+      use Orb, inline: true
+      # import Orb
+      # alias Orb.{I32, F32}
       import Kernel, except: [if: 2]
-      import ComponentsGuide.WasmBuilderUsing
+      import OrbUsing
 
       {name, args} = Macro.decompose_call(call)
       [current_state] = args
@@ -38,11 +38,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
 
     defmacro on(call, do: targets) do
-      use ComponentsGuide.WasmBuilder, inline: true
-      # import ComponentsGuide.WasmBuilder
-      # alias ComponentsGuide.WasmBuilder.{I32, F32}
+      use Orb, inline: true
+      # import Orb
+      # alias Orb.{I32, F32}
       import Kernel, except: [if: 2]
-      import ComponentsGuide.WasmBuilderUsing
+      import OrbUsing
 
       {name, []} = Macro.decompose_call(call)
 

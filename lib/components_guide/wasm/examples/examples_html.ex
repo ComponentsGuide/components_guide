@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
@@ -185,7 +184,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   # end
 
   defmodule CounterHTML do
-    use WasmBuilder
+    use Orb
     use BumpAllocator
 
     # @body deftemplate(~E"""

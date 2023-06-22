@@ -1,8 +1,7 @@
-defmodule ComponentsGuide.WasmBuilderTest do
+defmodule OrbTest do
   use ExUnit.Case, async: true
 
-  import ComponentsGuide.WasmBuilder
-  alias ComponentsGuide.WasmBuilder
+  import Orb
 
   test "func" do
     wasm =
@@ -20,7 +19,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule SingleFunc do
-    use ComponentsGuide.WasmBuilder
+    use Orb
 
     defwasm do
       memory(export(:mem), 1)
@@ -32,15 +31,15 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   test "defwasm/1 defines __wasm_module__/0" do
-    alias ComponentsGuide.WasmBuilder
+    alias Orb
 
     wasm = SingleFunc.__wasm_module__()
 
-    assert wasm == %WasmBuilder.ModuleDefinition{
+    assert wasm == %Orb.ModuleDefinition{
              name: "SingleFunc",
              body: [
-               %WasmBuilder.Memory{name: {:export, :mem}, min: 1},
-               %WasmBuilder.Func{
+               %Orb.Memory{name: {:export, :mem}, min: 1},
+               %Orb.Func{
                  name: :answer,
                  params: [],
                  result: {:result, :i32},
@@ -66,7 +65,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule ManyFuncs do
-    use ComponentsGuide.WasmBuilder
+    use Orb
 
     defwasm do
       memory(export(:mem), 1)
@@ -105,7 +104,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule HTTPStatusLookup do
-    use ComponentsGuide.WasmBuilder
+    use Orb
 
     @_statuses [
       {200, "OK"},
@@ -191,7 +190,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule WithinRange do
-    use WasmBuilder
+    use Orb
 
     defwasm do
       func validate(num(I32)), I32, lt: I32, gt: I32 do
@@ -231,7 +230,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule CalculateMean do
-    use WasmBuilder
+    use Orb
 
     defwasm imports: [
               env: [buffer: memory(1)]
@@ -280,7 +279,7 @@ defmodule ComponentsGuide.WasmBuilderTest do
   end
 
   defmodule FileNameSafe do
-    use WasmBuilder
+    use Orb
 
     defwasm imports: [env: [buffer: memory(2)]] do
       func get_is_valid(), I32, i: I32, char: I32 do

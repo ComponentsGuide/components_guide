@@ -1,8 +1,8 @@
-defmodule ComponentsGuide.WasmBuilder.I32.String.Test do
+defmodule Orb.I32.String.Test do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Wasm.Instance
-  alias ComponentsGuide.WasmBuilder.I32
+  alias Orb.I32
 
   test "strlen" do
     inst = Instance.run(I32.String)

@@ -1,7 +1,7 @@
-defmodule ComponentsGuide.WasmBuilder.I32.String do
+defmodule Orb.I32.String do
   # TODO: should this be called I32.ASCII?
 
-  use ComponentsGuide.WasmBuilder
+  use Orb
 
   @wasm_memory 1
 
@@ -49,9 +49,9 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
     quote do
       import unquote(__MODULE__), only: [streq: 2, strlen: 1]
 
-      import ComponentsGuide.WasmBuilder
+      import Orb
 
-      ComponentsGuide.WasmBuilder.wasm do
+      Orb.wasm do
         unquote(__MODULE__).funcp(:streq)
         unquote(__MODULE__).funcp(:strlen)
       end
@@ -75,7 +75,7 @@ defmodule ComponentsGuide.WasmBuilder.I32.String do
 
           [match] ->
             quote do
-              %ComponentsGuide.WasmBuilder.IfElse{
+              %Orb.IfElse{
                 condition: streq(unquote(value), unquote(match)),
                 when_true: [unquote(get_block_items(target)), break(:i32_string_match)]
               }

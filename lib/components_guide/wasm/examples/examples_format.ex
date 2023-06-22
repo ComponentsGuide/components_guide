@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.Format do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule IntToString do
@@ -9,7 +8,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
     defmacro __using__(_) do
       quote do
-        import WasmBuilder
+        import Orb
 
         wasm do
           IntToString.funcp(:u32toa_count)
@@ -89,12 +88,12 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
   end
 
   defmodule URLEncoding do
-    use WasmBuilder
+    use Orb
     use BumpAllocator, export: true
 
     defmacro __using__(_) do
       quote do
-        import WasmBuilder
+        import Orb
 
         wasm do
           URLEncoding.funcp(:encode_url)

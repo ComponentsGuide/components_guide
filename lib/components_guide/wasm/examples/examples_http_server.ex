@@ -1,11 +1,10 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
-  alias ComponentsGuide.WasmBuilder
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule PortfolioSite do
-    use WasmBuilder
+    use Orb
     use Memory.BumpAllocator
     use I32.String
     use IntToString

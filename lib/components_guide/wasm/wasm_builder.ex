@@ -1,5 +1,4 @@
-# TODO: rename to Orb
-defmodule ComponentsGuide.WasmBuilder do
+defmodule Orb do
   alias ComponentsGuide.Wasm.Ops
   require Ops
 
@@ -18,9 +17,9 @@ defmodule ComponentsGuide.WasmBuilder do
       end
 
     quote do
-      import ComponentsGuide.WasmBuilder
-      alias ComponentsGuide.WasmBuilder.{I32, U32, F32}
-      require ComponentsGuide.WasmBuilder.I32
+      import Orb
+      alias Orb.{I32, U32, F32}
+      require Orb.I32
 
       # @wasm_name __MODULE__ |> Module.split() |> List.last()
       # @before_compile {unquote(__MODULE__), :register_attributes}
@@ -78,8 +77,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
     defp expand_type(type) do
       case Macro.expand_literals(type, __ENV__) do
-        ComponentsGuide.WasmBuilder.I32 -> :i32
-        ComponentsGuide.WasmBuilder.F32 -> :f32
+        Orb.I32 -> :i32
+        Orb.F32 -> :f32
         _ -> type
       end
     end
@@ -452,7 +451,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
             [match] ->
               quote do
-                %ComponentsGuide.WasmBuilder.IfElse{
+                %Orb.IfElse{
                   condition: I32.eq(unquote(value), unquote(match)),
                   when_true: [unquote(get_block_items(target)), break(:i32_match)]
                 }
@@ -487,7 +486,7 @@ defmodule ComponentsGuide.WasmBuilder do
 
             [match] ->
               quote do
-                %ComponentsGuide.WasmBuilder.IfElse{
+                %Orb.IfElse{
                   condition: unquote(match),
                   when_true: [unquote(get_block_items(target)), break(:i32_map)]
                 }
@@ -706,7 +705,7 @@ defmodule ComponentsGuide.WasmBuilder do
       quote do
         def __wasm_module__() do
           # import Kernel, except: [if: 2, @: 1]
-          # import ComponentsGuide.WasmBuilderUsing2
+          # import OrbUsing2
 
           ModuleDefinition.new(
             # name: unquote(name),
@@ -724,9 +723,9 @@ defmodule ComponentsGuide.WasmBuilder do
         end
 
         def funcp(name),
-          do: ComponentsGuide.WasmBuilder.ModuleDefinition.funcp_ref!(__MODULE__, name)
+          do: Orb.ModuleDefinition.funcp_ref!(__MODULE__, name)
 
-        def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
+        def to_wat(), do: Orb.to_wat(__wasm_module__())
       end
     end
   end
@@ -784,16 +783,16 @@ defmodule ComponentsGuide.WasmBuilder do
       @wasm_exported_mutable_global_types unquote(exported_mutable_global_types)
 
       import Kernel, except: [if: 2, @: 1]
-      import ComponentsGuide.WasmBuilderUsing
-      import ComponentsGuide.WasmBuilderUsing2
+      import OrbUsing
+      import OrbUsing2
 
       @wasm_body unquote(block_items)
       # @wasm_body do_module_body(unquote(block), unquote(options), unquote(env.module))
       # @wasm_body unquote(do_module_body(block, options, env.module)[:body])
 
       import Kernel
-      import ComponentsGuide.WasmBuilderUsing, only: []
-      import ComponentsGuide.WasmBuilderUsing2, only: []
+      import OrbUsing, only: []
+      import OrbUsing2, only: []
     end
   end
 
@@ -813,7 +812,7 @@ defmodule ComponentsGuide.WasmBuilder do
     quote do
       #       def funcp(name), do: ModuleDefinition.funcp_ref!(__MODULE__, name)
       #
-      #       def to_wat(), do: ComponentsGuide.WasmBuilder.to_wat(__wasm_module__())
+      #       def to_wat(), do: Orb.to_wat(__wasm_module__())
 
       # import Kernel
       unquote(definition)
@@ -834,14 +833,14 @@ defmodule ComponentsGuide.WasmBuilder do
 
     quote do
       import Kernel, except: [if: 2, @: 1]
-      import ComponentsGuide.WasmBuilderUsing
-      import ComponentsGuide.WasmBuilderUsing2
+      import OrbUsing
+      import OrbUsing2
 
       @wasm_body unquote(body)
 
       import Kernel
-      import ComponentsGuide.WasmBuilderUsing, only: []
-      import ComponentsGuide.WasmBuilderUsing2, only: []
+      import OrbUsing, only: []
+      import OrbUsing2, only: []
     end
   end
 
@@ -1068,8 +1067,8 @@ defmodule ComponentsGuide.WasmBuilder do
 
     quote do
       import Kernel, except: [if: 2, @: 1]
-      import ComponentsGuide.WasmBuilderUsing
-      import ComponentsGuide.WasmBuilderUsing2
+      import OrbUsing
+      import OrbUsing2
 
       unquote(do_snippet(locals, block_items))
     end
@@ -1680,25 +1679,25 @@ defmodule ComponentsGuide.WasmBuilder do
   end
 end
 
-defmodule ComponentsGuide.WasmBuilderUsing do
+defmodule OrbUsing do
   import Kernel, except: [if: 2]
-  import ComponentsGuide.WasmBuilder
-  # alias ComponentsGuide.WasmBuilder.{I32}
+  import Orb
+  # alias Orb.{I32}
 
   defmacro if(condition, [result: result], do: when_true, else: when_false) do
     quote do
-      %ComponentsGuide.WasmBuilder.IfElse{
+      %Orb.IfElse{
         result: unquote(result),
         condition: unquote(condition),
-        when_true: unquote(ComponentsGuide.WasmBuilder.get_block_items(when_true)),
-        when_false: unquote(ComponentsGuide.WasmBuilder.get_block_items(when_false))
+        when_true: unquote(Orb.get_block_items(when_true)),
+        when_false: unquote(Orb.get_block_items(when_false))
       }
     end
   end
 
   defmacro if(condition, result: result, do: when_true, else: when_false) do
     quote do
-      %ComponentsGuide.WasmBuilder.IfElse{
+      %Orb.IfElse{
         result: unquote(result),
         condition: unquote(condition),
         when_true: unquote(when_true),
@@ -1719,12 +1718,12 @@ defmodule ComponentsGuide.WasmBuilderUsing do
     end
   end
 
-  # defdelegate if(condition, cases), to: ComponentsGuide.WasmBuilder, as: :if_
+  # defdelegate if(condition, cases), to: Orb, as: :if_
 end
 
-defmodule ComponentsGuide.WasmBuilderUsing2 do
+defmodule OrbUsing2 do
   import Kernel, except: [if: 2, @: 1]
-  import ComponentsGuide.WasmBuilderUsing
+  import OrbUsing
 
   defmacro @{name, meta, args} do
     # IO.inspect({name, meta, args})

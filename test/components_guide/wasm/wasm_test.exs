@@ -2,7 +2,6 @@ defmodule ComponentsGuide.WasmTest do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.WasmBuilder
 
   test "add/2" do
     assert ComponentsGuide.Wasm.WasmNative.add(3, 4) == 7
@@ -115,7 +114,7 @@ defmodule ComponentsGuide.WasmTest do
   end
 
   defmodule Add2Ints do
-    use ComponentsGuide.WasmBuilder
+    use Orb
 
     defwasm do
       func add(a(I32), b(I32)), I32 do
@@ -284,7 +283,7 @@ defmodule ComponentsGuide.WasmTest do
   end
 
   defmodule CalculateMean do
-    use WasmBuilder
+    use Orb
 
     defwasm imports: [
               env: [buffer: memory(1)]
@@ -337,7 +336,7 @@ defmodule ComponentsGuide.WasmTest do
   end
 
   defmodule FileNameSafe do
-    use WasmBuilder
+    use Orb
 
     defwasm imports: [env: [buffer: memory(2)]] do
       func get_is_valid, I32, read_offset: I32, char: I32 do
@@ -388,7 +387,7 @@ defmodule ComponentsGuide.WasmTest do
   end
 
   defmodule CopyString do
-    use WasmBuilder
+    use Orb
 
     defwasm imports: [env: [buffer: memory(2)]] do
       func do_copy, I32, read_offset: I32, char: I32 do
@@ -433,7 +432,7 @@ defmodule ComponentsGuide.WasmTest do
   end
 
   defmodule EscapeHTML do
-    use WasmBuilder
+    use Orb
 
     defwasm imports: [env: [buffer: memory(2)]] do
       func escape_html(), I32, read_offset: I32, write_offset: I32, char: I32 do

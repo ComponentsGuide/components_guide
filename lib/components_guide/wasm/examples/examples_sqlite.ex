@@ -1,16 +1,15 @@
 defmodule ComponentsGuide.Wasm.Examples.Sqlite do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.WasmBuilder
 
   defmodule Helpers do
-    use WasmBuilder
+    use Orb
 
     def sqlite3_exec(sql_ptr), do: call(:sqlite3_exec, sql_ptr)
     def sqlite3_prepare(sql_ptr), do: call(:sqlite3_prepare, sql_ptr)
   end
 
   defmodule HeightsTable do
-    use WasmBuilder
+    use Orb
 
     @wasm_memory 2
 
