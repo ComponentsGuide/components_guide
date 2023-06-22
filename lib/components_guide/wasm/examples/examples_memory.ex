@@ -100,9 +100,9 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         import Orb
 
-        global(
-          bump_offset: i32(Constants.bump_init_offset()),
-          bump_mark: i32(0)
+        I32.global(
+          bump_offset: Constants.bump_init_offset(),
+          bump_mark: 0
         )
 
         use ComponentsGuide.Wasm.Examples.Memory.Copying
@@ -113,7 +113,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         if unquote(opts[:export]) do
           Orb.wasm do
-            func alloc(size(I32)), I32 do
+            func alloc(size: I32), I32 do
               call(:bump_alloc, local_get(:size))
             end
           end
@@ -125,13 +125,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     @wasm_memory 2
 
-    global(
-      bump_offset: i32(Constants.bump_init_offset()),
-      bump_mark: i32(0)
+    I32.global(
+      bump_offset: Constants.bump_init_offset(),
+      bump_mark: 0
     )
 
     wasm do
-      funcp bump_alloc(size(I32)), I32, [] do
+      funcp bump_alloc(size: I32), I32, [] do
         # TODO: check if we have allocated too much
         # and if so, either err or increase the available memory.
         # TODO: Need better maths than this to round up to aligned memory?
@@ -150,7 +150,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         @bump_offset = Constants.bump_init_offset()
       end
 
-      func alloc(size(I32)), I32 do
+      func alloc(size: I32), I32 do
         call(:bump_alloc, size)
       end
 
