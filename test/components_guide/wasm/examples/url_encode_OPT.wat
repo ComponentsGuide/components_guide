@@ -197,5 +197,5 @@
   (global (;0;) (mut i32) (i32.const 65536))
   (global (;1;) (mut i32) (i32.const 0))
   (export "memory" (memory 0))
-  (export "url_encode" (func 0))
+  (export "url_encode_rfc3986" (func 0))
   (export "alloc" (func 1)))

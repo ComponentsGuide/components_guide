@@ -102,7 +102,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     end
 
     wasm do
-      func url_encode(str_ptr(I32.String)),
+      func url_encode_rfc3986(str_ptr(I32.String)),
            I32.String,
            char: I32,
            abc: I32,

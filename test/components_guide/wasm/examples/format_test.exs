@@ -20,9 +20,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
   describe "URLEncoding" do
     alias Format.URLEncoding
 
-    test "url_encode" do
+    test "url_encode_rfc3986" do
       inst = Instance.run(URLEncoding)
-      url_encode = Instance.capture(inst, String, :url_encode, 1)
+      url_encode = Instance.capture(inst, String, :url_encode_rfc3986, 1)
 
       assert url_encode.("0123456789") == "0123456789"
       assert url_encode.("abcxyzABCXYZ") == "abcxyzABCXYZ"
@@ -39,7 +39,10 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       assert url_encode.("😀") == "%F0%9F%98%80"
       assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
 
-      assert byte_size(Wasm.to_wasm(URLEncoding)) == 479
+      assert byte_size(Wasm.to_wasm(URLEncoding)) == 487
+    end
+
+    test "url_encode_www_form" do
     end
 
     # @tag :skip
@@ -53,7 +56,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
 
       %{size: size} = File.stat!(path_opt_wasm)
-      assert size == 408
+      assert size == 416
 
       {wat, 0} = System.cmd("wasm2wat", [path_wasm])
       File.write!(path_wat, wat)
