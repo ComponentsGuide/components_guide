@@ -95,10 +95,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     defmacro __using__(opts \\ []) do
       quote do
-        @wasm_memory 2
-        # @wasm_global {:bump_offset, i32(BumpAllocator.bump_offset())}
-
         import Orb
+
+        # Memory.pages(increase_by: 2)
+        wasm_memory(pages: 2)
 
         I32.global(
           bump_offset: Constants.bump_init_offset(),
@@ -123,7 +123,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
-    @wasm_memory 2
+    wasm_memory(pages: 2)
 
     I32.global(
       bump_offset: Constants.bump_init_offset(),
