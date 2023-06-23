@@ -336,10 +336,15 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       func hd(ptr: I32.Pointer), I32.Pointer do
         # ptr[at: 0, fallback: 0x0]
         ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 0])
+        # ptr &&& ptr[at!: 0]
+        # ptr[at!: 0]
       end
 
       func tl(ptr: I32.Pointer), I32.Pointer do
+        # ptr.unwrap[at!: 1]
+        # ptr |> I32.eqz?(do: :unreachable, else: ptr[at!: 1])
         ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 1])
+        # ptr[at!: 1]
       end
 
       func reverse_in_place(node: I32.Pointer), I32.Pointer,
@@ -348,7 +353,19 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         next: I32.Pointer do
         current = node
 
+        # loop current, result: I32 do
+        #   0 ->
+        #     {:halt, prev}
+        #   
+        #   current ->
+        #     next = current[at!: 1]
+        #     current[at!: 1] = prev
+        #     prev = current
+        #     {:cont, next}
+        # end
+
         loop Iterate, result: I32 do
+          # return(prev, if: I32.eqz(current))
           if I32.eqz(current), do: return(prev)
 
           next = current[at!: 1]

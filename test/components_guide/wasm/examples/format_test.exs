@@ -85,6 +85,13 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
 
       list = Instance.alloc_list([["a", "1"], ["b", "2"]])
 
+      # result = Instance.call(
+      #   URLEncoding.url_encode_query_www_form([
+      #     a: 1,
+      #     b: 1,
+      #   ])
+      # )
+
       assert url_encode_query.(list) == "a=1&b=2"
     end
 
