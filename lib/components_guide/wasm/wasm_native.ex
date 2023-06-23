@@ -43,6 +43,7 @@ defmodule ComponentsGuide.Wasm.WasmNative do
   def wasm_instance_cast_func_i32(_, _, _), do: error()
   def wasm_instance_write_i32(_, _, _), do: error()
   def wasm_instance_write_i64(_, _, _), do: error()
+  def wasm_instance_write_memory(_, _, _), do: error()
   def wasm_instance_write_string_nul_terminated(_, _, _), do: error()
   def wasm_instance_read_memory(_, _, _), do: error()
   def wasm_instance_read_string_nul_terminated(_, _), do: error()

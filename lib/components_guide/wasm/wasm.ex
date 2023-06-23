@@ -406,6 +406,11 @@ defmodule ComponentsGuide.Wasm do
     WasmNative.wasm_instance_write_i64(get_instance_handle(instance), memory_offset, value)
   end
 
+  def instance_write_memory(instance, memory_offset, bytes)
+      when is_integer(memory_offset) and is_bitstring(bytes) do
+    WasmNative.wasm_instance_write_memory(get_instance_handle(instance), memory_offset, bytes)
+  end
+
   def instance_write_string_nul_terminated(instance, memory_offset, string)
       when is_integer(memory_offset) do
     WasmNative.wasm_instance_write_string_nul_terminated(

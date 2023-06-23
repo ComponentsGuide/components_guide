@@ -169,6 +169,14 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
+    def bump_write!(strptr: strptr) do
+      snippet do
+        Copying.memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr))
+        I32.add(global_get(:bump_offset), call(:strlen, strptr))
+        global_set(:bump_offset)
+      end
+    end
+
     def bump_write!(ascii: char) do
       snippet do
         memory32_8![@bump_offset] = char
@@ -334,6 +342,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
 
       func hd(ptr: I32.Pointer), I32.Pointer do
+        # Zig: https://godbolt.org/z/bG5zj6bzx
         # ptr[at: 0, fallback: 0x0]
         ptr |> I32.eqz?(do: 0x0, else: ptr[at!: 0])
         # ptr &&& ptr[at!: 0]
@@ -411,6 +420,18 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
           Iterate.continue()
         end
+      end
+    end
+
+    def hd!(ptr) do
+      snippet U32 do
+        I32.load(ptr)
+      end
+    end
+
+    def tl!(ptr) do
+      snippet U32 do
+        I32.load(ptr + 4)
       end
     end
 

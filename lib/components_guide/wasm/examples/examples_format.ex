@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.Format do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
   defmodule IntToString do
     use Wasm
@@ -90,6 +91,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
   defmodule URLEncoding do
     use Orb
     use BumpAllocator, export: true
+    use I32.String
 
     defmacro __using__(_) do
       quote do
@@ -181,6 +183,26 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
             str_ptr = str_ptr + 1
             EachByte.continue()
           end
+        end
+
+        write_done!()
+      end
+
+      func url_encode_query_www_form(list_ptr: I32.Pointer), I32.String do
+        write_start!()
+
+        loop EachPair do
+          bump_write!(strptr: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
+          bump_write!(ascii: ?=)
+          bump_write!(strptr: LinkedLists.hd!(LinkedLists.tl!(LinkedLists.hd!(list_ptr))))
+
+          list_ptr = LinkedLists.tl!(list_ptr)
+
+          if list_ptr do
+            bump_write!(ascii: ?&)
+          end
+
+          EachPair.continue(if: list_ptr)
         end
 
         write_done!()

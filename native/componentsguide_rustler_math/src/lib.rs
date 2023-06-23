@@ -871,6 +871,12 @@ impl RunningInstance {
         self.memory.write(&mut self.store, offset, &bytes)?;
         Ok(())
     }
+    
+    fn write_memory(&mut self, memory_offset: u32, bytes: Vec<u8>) -> Result<(), anyhow::Error> {
+        let offset: usize = memory_offset.try_into().unwrap();
+        self.memory.write(&mut self.store, offset, &bytes)?;
+        Ok(())
+    }
 
     fn write_string_nul_terminated(
         &mut self,
@@ -1052,6 +1058,19 @@ fn wasm_instance_write_string_nul_terminated(
 }
 
 #[nif]
+fn wasm_instance_write_memory(
+    env: Env,
+    resource: ResourceArc<RunningInstanceResource>,
+    memory_offset: u32,
+    bytes: Vec<u8>,
+) -> Result<(), Error> {
+    let mut instance = resource.lock.write().map_err(string_error)?;
+    instance
+        .write_memory(memory_offset, bytes)
+        .map_err(string_error)
+}
+
+#[nif]
 fn wasm_instance_read_memory(
     resource: ResourceArc<RunningInstanceResource>,
     start: u32,
@@ -1208,6 +1227,7 @@ rustler::init!(
         wasm_instance_write_i32,
         wasm_instance_write_i64,
         wasm_instance_write_string_nul_terminated,
+        wasm_instance_write_memory,
         wasm_instance_read_memory,
         wasm_instance_read_string_nul_terminated,
         wasm_call_out_reply,

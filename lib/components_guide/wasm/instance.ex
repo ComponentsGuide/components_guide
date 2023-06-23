@@ -21,6 +21,10 @@ defmodule ComponentsGuide.Wasm.Instance do
   defdelegate write_i32(instance, memory_offset, value), to: Wasm, as: :instance_write_i32
   defdelegate write_i64(instance, memory_offset, value), to: Wasm, as: :instance_write_i64
 
+  defdelegate write_memory(instance, memory_offset, bytes),
+    to: Wasm,
+    as: :instance_write_memory
+
   defdelegate read_string_nul_terminated(instance, memory_offset),
     to: Wasm,
     as: :instance_read_string_nul_terminated
@@ -114,6 +118,71 @@ defmodule ComponentsGuide.Wasm.Instance do
     offset = call(instance, :alloc, byte_size(string) + 1)
     write_string_nul_terminated(instance, offset, string)
     offset
+  end
+
+  #   def alloc_list(instance, list) do
+  #     items_encoded = encode_value(list)
+  #     bytes = IO.iodata_to_binary(items_encoded)
+  # 
+  #     list_bytes =
+  #       for item <- items_encoded do
+  #         case item do
+  #           item when is_binary(item) ->
+  #             offset = call(instance, :alloc, byte_size(item))
+  #             encode_value(offset)
+  # 
+  #           [a, b] when is_binary(a) and is_binary(b) ->
+  #             offset_a = call(instance, :alloc, byte_size(a))
+  #             offset_b = call(instance, :alloc, byte_size(b))
+  #             offset_list = cons(instance, offset_a, offset_b)
+  #             IO.inspect({offset_a, offset_b, offset_list})
+  #             encode_value(offset_list)
+  #         end
+  #       end
+  # 
+  #     IO.inspect(list_bytes)
+  #     list_bytes = IO.iodata_to_binary(list_bytes)
+  # 
+  #     {items_encoded, bytes, list_bytes}
+  #     # offset = call(instance, :alloc, byte_size(items_bytes))
+  #     # write_string_nul_terminated(instance, offset, string)
+  #     # offset
+  #   end
+
+  def alloc_list(instance, []), do: 0x0
+
+  def alloc_list(instance, [single]) when is_binary(single),
+    do: cons(instance, alloc_string(instance, single), 0x0)
+
+  def alloc_list(instance, [single]) when is_list(single),
+    do: cons(instance, alloc_list(instance, single), 0x0)
+
+  def alloc_list(instance, [head | tail]) when is_binary(head),
+    do: cons(instance, alloc_string(instance, head), alloc_list(instance, tail))
+
+  def alloc_list(instance, [head | tail]) when is_list(head),
+    do: cons(instance, alloc_list(instance, head), alloc_list(instance, tail))
+
+  defp cons(instance, head, tail) do
+    offset_list = call(instance, :alloc, 8)
+    write_i32(instance, offset_list, head)
+    write_i32(instance, offset_list + 4, tail)
+    offset_list
+  end
+
+  defp encode_value(s) when is_binary(s) do
+    # TODO: should we align bytes?
+    s <> <<0>>
+  end
+
+  defp encode_value(n) when is_integer(n) do
+    # TODO: Assumes 32-bit numbers
+    # WebAssembly is little endian
+    <<n::little-size(32)>>
+  end
+
+  defp encode_value(l) when is_list(l) do
+    for item <- l, do: encode_value(item)
   end
 
   defp alloc_if_needed(inst, value) when is_binary(value), do: alloc_string(inst, value)
