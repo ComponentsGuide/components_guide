@@ -88,6 +88,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
       l1 = cons.(3, 0x0)
       l2 = cons.(4, l1)
       l3 = cons.(5, l2)
+      l4 = cons.(6, l3)
 
       # Instance.write_i32(inst, i1, 0xdeadbeef)
       # Instance.write_i32(inst, i1, 3)
@@ -96,21 +97,30 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
       Instance.log_memory(inst, 0x10000, 32)
 
+      assert Enum.to_list(enum.(l4)) == [6, 5, 4, 3]
       assert Enum.to_list(enum.(l3)) == [5, 4, 3]
+      assert Enum.to_list(enum.(l2)) == [4, 3]
+      assert Enum.to_list(enum.(l1)) == [3]
 
       assert count.(0x0) == 0
       assert count.(l1) == 1
       assert count.(l2) == 2
       assert count.(l3) == 3
+      assert count.(l4) == 4
 
       assert sum.(0x0) == 0
       assert sum.(l1) == 3
       assert sum.(l2) == 7
       assert sum.(l3) == 12
+      assert sum.(l4) == 18
 
-      Instance.call(inst, :reverse_in_place, l3)
+      Instance.call(inst, :reverse_in_place, l4)
       Instance.log_memory(inst, 0x10000, 32)
-      assert Enum.to_list(enum.(l1)) == [3, 4, 5]
+      assert Enum.to_list(enum.(l1)) == [3, 4, 5, 6]
+      # TODO: is this the right behavior?
+      assert Enum.to_list(enum.(l2)) == [4, 5, 6]
+      assert Enum.to_list(enum.(l3)) == [5, 6]
+      assert Enum.to_list(enum.(l4)) == [6]
     end
   end
 end
