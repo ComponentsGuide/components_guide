@@ -1663,6 +1663,7 @@ defmodule Orb do
     [
       do_wat(condition, indent),
       [
+        "\n",
         indent,
         "(if ",
         if(result, do: ["(result ", to_string(expand_type(result)), ") "], else: ""),
