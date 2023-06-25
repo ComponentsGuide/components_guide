@@ -139,7 +139,7 @@ defmodule OrbTest do
         data_nul_terminated(status * 24, message)
       end
 
-      func lookup(status(I32)), I32 do
+      func lookup(status: I32), I32 do
         I32.mul(status, 24)
       end
     end
@@ -192,8 +192,8 @@ defmodule OrbTest do
   defmodule WithinRange do
     use Orb
 
-    defwasm do
-      func validate(num(I32)), I32, lt: I32, gt: I32 do
+    wasm do
+      func validate(num: I32), I32, lt: I32, gt: I32 do
         lt = I32.lt_s(num, 1)
         gt = I32.gt_s(num, 255)
 
@@ -239,7 +239,7 @@ defmodule OrbTest do
               count: i32(0),
               tally: i32(0)
             ] do
-      func insert(element(I32)) do
+      func insert(element: I32) do
         count = I32.add(count, 1)
         tally = I32.add(tally, element)
       end

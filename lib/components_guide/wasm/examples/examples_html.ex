@@ -219,7 +219,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       #     end
       # 
       #     wasm do
-      funcp i32toa(value(I32)), I32, working_ptr: I32.U8.Pointer, digit: I32 do
+      funcp i32toa(value: I32), I32, working_ptr: I32.U8.Pointer, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
         @bump_offset = I32.u!(@bump_offset + 11)

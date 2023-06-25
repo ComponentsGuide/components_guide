@@ -123,7 +123,7 @@ defmodule ComponentsGuide.Wasm.Examples do
         #   resp.status
         # end}
         # http: [
-        #   func get(address(I32)), I32 do
+        #   func get(address: I32), I32 do
         #     200
         #   end
         # ]
@@ -175,7 +175,7 @@ defmodule ComponentsGuide.Wasm.Examples do
       func test_home_page(), I32.String do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
-        const(~S[<button class="text-lg">Click me</button>])
+        ~S[<button class="text-lg">Click me</button>]
         # _css = const_set_insert(:css, ~s[.text-lg{font-size: 125%}])
         # css = const_list_append(:css, ~s[.text-lg{font-size: 125%}])
 
@@ -188,7 +188,7 @@ defmodule ComponentsGuide.Wasm.Examples do
     use Wasm
 
     defwasm imports: [] do
-      func on_input(input_name(I32), string_value(I32)) do
+      func on_input(input_name: I32, string_value: I32) do
         # TODO: store string_value under key input_name
         # TODO: add funcs like Keyword.put() to the LinkedLists wasm module
       end

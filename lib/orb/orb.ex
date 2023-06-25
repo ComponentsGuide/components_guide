@@ -521,7 +521,7 @@ defmodule Orb do
 
     defmacro prop(global_name) do
       quote do
-        func unquote(String.to_atom("#{global_name}="))(new_value(I32)) do
+        func unquote(String.to_atom("#{global_name}="))(new_value: I32) do
           local_get(:new_value)
           global_set(unquote(global_name))
         end
@@ -530,7 +530,7 @@ defmodule Orb do
 
     defmacro prop(global_name, as: func_name) do
       quote do
-        func unquote(func_name)(new_value(I32)) do
+        func unquote(func_name)(new_value: I32) do
           local_get(:new_value)
           global_set(unquote(global_name))
         end
