@@ -86,10 +86,6 @@ defmodule ComponentsGuide.Wasm.Instance do
   end
 
   def capture(inst, String, f, arity) do
-    capture_reading_string(inst, f, arity)
-  end
-
-  def capture_reading_string(inst, f, arity) do
     wrap = &alloc_if_needed(inst, &1)
 
     case arity do
