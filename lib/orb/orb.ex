@@ -1499,20 +1499,25 @@ defmodule Orb do
 
             int ->
               [
+                indent,
+                "  ",
                 ~S{(memory (export "memory")},
                 [" ", to_string(int)],
-                ~S{)}
+                ~S{)},
+                "\n"
               ]
           end
 
         %Memory{min: min} ->
           [
+            "  ",
             ~S{(memory (export "memory")},
             case min do
               nil -> []
               int -> [" ", to_string(int)]
             end,
-            ~S{)}
+            ~S{)},
+            "\n"
           ]
       end,
       for(

@@ -232,25 +232,20 @@ defmodule OrbTest do
   defmodule CalculateMean do
     use Orb
 
-    defwasm imports: [
-              env: [buffer: memory(1)]
-            ],
-            globals: [
-              count: i32(0),
-              tally: i32(0)
-            ] do
+    I32.global(
+      count: 0,
+      tally: 0
+    )
+
+    wasm U32 do
       func insert(element: I32) do
-        count = I32.add(count, 1)
-        tally = I32.add(tally, element)
+        @count = @count + 1
+        @tally = @tally + element
       end
 
       func calculate_mean(), I32 do
-        I32.div_u(tally, count)
+        @tally / @count
       end
-
-      # func calculate_mean(), I32 do
-      #   I32.div_u(global_get(:tally), global_get(:count))
-      # end
     end
   end
 
@@ -259,7 +254,6 @@ defmodule OrbTest do
 
     wasm_source = """
     (module $CalculateMean
-      (import "env" "buffer" (memory 1))
       (global $count (mut i32) (i32.const 0))
       (global $tally (mut i32) (i32.const 0))
       (func $insert (export "insert") (param $element i32)
@@ -281,7 +275,9 @@ defmodule OrbTest do
   defmodule FileNameSafe do
     use Orb
 
-    defwasm imports: [env: [buffer: memory(2)]] do
+    wasm_memory(pages: 2)
+
+    wasm do
       func get_is_valid(), I32, i: I32, char: I32 do
         i = 1024
 
@@ -307,7 +303,7 @@ defmodule OrbTest do
   test "loop" do
     wasm_source = """
     (module $FileNameSafe
-      (import "env" "buffer" (memory 2))
+      (memory (export "memory") 2)
       (func $get_is_valid (export "get_is_valid") (result i32)
         (local $i i32)
         (local $char i32)
