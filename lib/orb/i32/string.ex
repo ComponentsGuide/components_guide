@@ -71,7 +71,9 @@ defmodule Orb.I32.String do
           # _ ->
           # like an else clause
           [{:_, _, _}] ->
-            target
+            quote do
+              unquote(get_block_items(target))
+            end
 
           [match] ->
             quote do
@@ -83,12 +85,13 @@ defmodule Orb.I32.String do
         end
       end
 
-    catchall = for {:->, _, [[{:_, _, _}], _]} <- transform, do: true
+    # catchall = for {:->, _, [[{:_, _, _}], _]} <- transform, do: true
+    has_catchall? = Enum.any?(transform, &match?({:->, _, [[{:_, _, _}], _]}, &1))
 
     final_instruction =
-      case catchall do
-        [] -> :unreachable
-        [true] -> []
+      case has_catchall? do
+        false -> :unreachable
+        true -> []
       end
 
     quote do

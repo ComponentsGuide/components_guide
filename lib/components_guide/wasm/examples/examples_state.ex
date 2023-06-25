@@ -647,7 +647,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
           # @ok_connected -> @ok_awaiting_pong
       end
 
-      func pop_heartbeat_inbox(), I32 do
+      func pop_inbox_heartbeat(), I32 do
         I32.match @heartbeat_inbox do
           0 ->
             0
