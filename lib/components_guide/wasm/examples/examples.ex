@@ -3,7 +3,7 @@ defmodule ComponentsGuide.Wasm.Examples do
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule SimpleWeekdayParser do
-    use Wasm
+    use Orb
 
     @weekdays_i32 (for s <- ~w(Mon Tue Wed Thu Fri Sat Sun) do
                      #  I32.from_4_byte_ascii(s <> <<0>>)
@@ -11,16 +11,19 @@ defmodule ComponentsGuide.Wasm.Examples do
                      #  I32.from_4_byte_ascii("#{s}\0")
                    end)
 
-    defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
+    wasm_memory(pages: 1)
+    I32.export_global(input_offset: 1024)
+
+    defwasm do
       func parse(), I32, i: I32 do
         # If does no end in nul byte, return 0
-        if memory32_8![I32.add(input_offset, 3)].unsigned do
+        if memory32_8![I32.add(@input_offset, 3)].unsigned do
           return(0)
         end
 
         # Write nul byte at end
-        memory32_8![I32.add(input_offset, 3)] = 0
-        i = memory32![input_offset]
+        memory32_8![I32.add(@input_offset, 3)] = 0
+        i = memory32![@input_offset]
 
         # Check equality to each weekday as a i32 e.g. `Mon\0`
         inline for {day_i32!, index!} <- ^Enum.with_index(@weekdays_i32, 1) do

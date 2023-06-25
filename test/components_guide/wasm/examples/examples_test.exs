@@ -11,7 +11,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
     test "works" do
       # IO.puts(SimpleWeekdayParser.to_wat())
       # IO.inspect(byte_size(SimpleWeekdayParser.to_wasm()))
-      a = SimpleWeekdayParser.start()
+      a = Instance.run(SimpleWeekdayParser)
 
       assert SimpleWeekdayParser.parse(a) == 0
 

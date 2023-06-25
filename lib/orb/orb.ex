@@ -852,6 +852,8 @@ defmodule Orb do
   end
 
   defmacro wasm(transform \\ nil, do: block) do
+    # block = interpolate_external_values(block, __ENV__)
+
     block =
       case Macro.expand_literals(transform, __ENV__) do
         nil -> block
