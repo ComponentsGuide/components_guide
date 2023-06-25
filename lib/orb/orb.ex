@@ -1490,24 +1490,6 @@ defmodule Orb do
         nil ->
           []
 
-        list when is_list(list) ->
-          min = Enum.sum(list)
-
-          case min do
-            0 ->
-              []
-
-            int ->
-              [
-                indent,
-                "  ",
-                ~S{(memory (export "memory")},
-                [" ", to_string(int)],
-                ~S{)},
-                "\n"
-              ]
-          end
-
         %Memory{min: min} ->
           [
             "  ",
