@@ -557,6 +557,13 @@ defmodule Orb do
         @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
       end
     end
+
+    defmacro export_enum(keys) do
+      quote do
+        @wasm_global_exported_readonly for {key, index} <- Enum.with_index(unquote(keys)),
+                                           do: {key, i32(index)}
+      end
+    end
   end
 
   defmodule U32 do

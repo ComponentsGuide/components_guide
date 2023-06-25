@@ -7,7 +7,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       # import Orb
       # alias Orb.{I32, F32}
       import Kernel, except: [if: 2]
-      import OrbUsing
 
       {name, args} = Macro.decompose_call(call)
       [current_state] = args
@@ -69,21 +68,21 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   defmodule Counter do
     use Wasm
 
-    @wasm_memory 1
+    wasm_memory(pages: 1)
+    # Memory.increase(pages: 1)
 
-    defwasm globals: [
-              count: i32(0)
-            ] do
-      func(get_current(), I32, do: count)
+    I32.global(count: 0)
+
+    wasm U32 do
+      func(get_current(), I32, do: @count)
 
       func increment(), I32 do
-        count = I32.add(count, 1)
-        count
+        @count = @count + 1
+        @count
       end
     end
 
-    alias ComponentsGuide.Wasm
-    alias Wasm.Instance
+    alias ComponentsGuide.Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def increment(instance), do: Instance.call(instance, :increment)
@@ -111,19 +110,38 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     #   on failed(:loading), do: :failed
     # end
 
-    defwasm exported_globals: [
-              idle: i32(0),
-              loading: i32(1),
-              loaded: i32(2),
-              failed: i32(3)
-              # failed_timed_out
-              # failed_network_error
-              # failed_bad_response
-            ],
-            globals: [
-              state: i32(0)
-            ] do
-      func(get_current(), I32, do: state)
+    I32.export_enum([:idle, :loading, :loaded, :failed])
+    I32.global(state: 0)
+
+    # State.transitions do
+    #   @idle ->
+    #     [begin: @loading]
+    #     
+    #   @loading ->
+    #     [success: @loaded, failure: @failed]
+    # end
+
+    # State.define :state do
+    #   :idle ->
+    #     [begin: :loading]
+    #     
+    #   :loading ->
+    #     [success: :loaded, failure: :failed]
+    #   
+    #   :loaded ->
+    #     :terminal
+    #     
+    #   :failed ->
+    #     :terminal
+    # end
+
+    wasm do
+      # @idle 0
+      # @loading 1
+      # @loaded 2
+      # @failed 3
+
+      func(get_current(), I32, do: @state)
 
       # defstates :state do
       #   state Idle do
@@ -144,9 +162,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
       # on(begin(idle), target: loading, action: :load)
       # on(begin(idle -> loading, action: :load))
-      on(begin(idle), target: loading)
-      on(success(loading), target: loaded)
-      on(failure(loading), target: failed)
+      on(begin(@idle), target: @loading)
+      on(success(@loading), target: @loaded)
+      on(failure(@loading), target: @failed)
 
       # state_machine state do
       #   idle ->
@@ -161,27 +179,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
       #   failed ->
       #     nil
-      # end
-
-      # func begin do
-      #   if I32.eq(state, idle) do
-      #     state = loading
-      #     # {:raw_wat, ~s[(global.set $state (i32.const 1))]}
-
-      #     # TODO: Call entry callback “load”
-      #   end
-      # end
-
-      # func success do
-      #   if I32.eq(state, loading) do
-      #     state = loaded
-      #   end
-      # end
-
-      # func failure do
-      #   if I32.eq(state, loading) do
-      #     state = failed
-      #   end
       # end
     end
 
@@ -495,66 +492,45 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
-    @states I32.enum([
-              :initial?,
-              :destination?,
-              :dates?,
-              :flights?,
-              :seats?,
-              :checkout?,
-              :checkout_failed?,
-              :booked?,
-              :confirmation?
-            ])
+    I32.export_enum([
+      :initial?,
+      :destination?,
+      :dates?,
+      :flights?,
+      :seats?,
+      :checkout?,
+      :checkout_failed?,
+      :booked?,
+      :confirmation?
+    ])
 
-    # @transitions do
-    #   initial?, :next -> destination?
-    #   destination?, :next -> dates?
-    # end
+    # I32.global(state: @initial?)
+    I32.global(state: 0)
+    I32.global(change_count: 0)
 
-    @wasm_memory 1
+    wasm_memory(pages: 1)
 
-    defwasm exported_globals: [
-              initial?: @states.initial?,
-              destination?: @states.destination?,
-              dates?: @states.dates?,
-              flights?: @states.flights?,
-              seats?: @states.seats?,
-              checkout?: @states.checkout?,
-              checkout_failed?: @states.checkout_failed?
-            ],
-            globals: [
-              state: @states.initial?,
-              change_count: i32(0)
-            ] do
-      # change_count = i32(0)
-
-      func(get_current(), I32, do: state)
-      func(get_change_count(), I32, do: change_count)
-
+    wasm do
+      func(get_current(), I32, do: @state)
+      func(get_change_count(), I32, do: @change_count)
       func(get_search_params(), I32, do: 0x0)
 
       on next() do
-        initial? -> destination?
-        destination? -> dates?
-        dates? -> flights?
-        flights? -> seats?
+        @initial? -> @destination?
+        @destination? -> @dates?
+        @dates? -> @flights?
+        @flights? -> @seats?
       end
 
       func get_path(), I32.String do
-        I32.match state do
-          initial? -> const("/book")
-          destination? -> const("/destination")
-          dates? -> const("/dates")
-          flights? -> const("/flights")
-          seats? -> const("/seats")
+        I32.match @state do
+          @initial? -> const("/book")
+          @destination? -> const("/destination")
+          @dates? -> const("/dates")
+          @flights? -> const("/flights")
+          @seats? -> const("/seats")
         end
       end
-
-      # on(initial?, :next, target: destination?)
-      # on(next(destination?), target: dates?)
-      # on(transitioncancel(_), target: canceled?)
-      # on(transitionend(_), target: ended?)
     end
   end
 end
