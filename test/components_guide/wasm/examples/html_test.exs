@@ -13,6 +13,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
   }
 
   describe "EscapeHTML" do
+    test "wasm size" do
+      wasm = Wasm.to_wasm(EscapeHTML)
+      assert byte_size(wasm) == 598
+    end
+
     test "escape valid html" do
       # offset = Wasm.call(EscapeHTML, "get_request_body_write_offset")
 

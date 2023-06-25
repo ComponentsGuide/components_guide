@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.StateTest do
   use ExUnit.Case, async: true
 
+  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.State
 
@@ -49,7 +50,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     end
 
     test "wasm size" do
-      wasm = Dialog.to_wasm()
+      wasm = Wasm.to_wasm(Dialog)
       assert byte_size(wasm) == 204
     end
   end

@@ -23,38 +23,35 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             char: I32.U8,
             bytes_written: I32 do
         bytes_written = 0
+        
+        # I32.U8.consume_chars read_offset, char do  
+        # end
 
         loop EachChar, result: I32 do
-          defblock Outer do
-            char = read_offset[at!: 0]
+          char = read_offset[at!: 0]
+          read_offset = read_offset + 1
 
-            inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
-              if I32.eq(char, ^char_to_match!) do
-                inline for char_out! <- ^chars_out! do
-                  write_offset[at!: bytes_written] = ^char_out!
-                  bytes_written = bytes_written + 1
-                end
-
-                break(Outer)
+          inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
+            if I32.eq(char, ^char_to_match!) do
+              inline for char_out! <- ^chars_out! do
+                write_offset[at!: bytes_written] = ^char_out!
+                bytes_written = bytes_written + 1
               end
-            end
 
-            write_offset[at!: bytes_written] = char
-
-            if char do
-              bytes_written = bytes_written + 1
-              break(Outer)
-            else
-              push(bytes_written)
-              return()
+              EachChar.continue()
             end
           end
 
-          read_offset = read_offset + 1
-          # continue(EachChar)
-          # halt(EachChar)
-          # :continue
-          # EachChar
+          write_offset[at!: bytes_written] = char
+
+          if char do
+            bytes_written = bytes_written + 1
+            EachChar.continue()
+          else
+            push(bytes_written)
+            return()
+          end
+
           EachChar.continue()
         end
       end
