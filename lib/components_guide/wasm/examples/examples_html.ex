@@ -9,7 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @wasm_memory 2
 
-    @_escaped_html_table [
+    @escaped_html_table [
       {?&, ~C"&amp;"},
       {?<, ~C"&lt;"},
       {?>, ~C"&gt;"},
@@ -28,10 +28,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           defblock Outer do
             char = memory32_8![read_offset].unsigned
 
-            inline for {char_to_match!, chars_out!} <- @_escaped_html_table do
-              if I32.eq(char, char_to_match!) do
-                inline for char_out! <- chars_out! do
-                  memory32_8![I32.add(write_offset, bytes_written)] = char_out!
+            inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
+              if I32.eq(char, ^char_to_match!) do
+                inline for char_out! <- ^chars_out! do
+                  memory32_8![I32.add(write_offset, bytes_written)] = ^char_out!
                   bytes_written = I32.add(bytes_written, 1)
                 end
 

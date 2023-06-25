@@ -106,7 +106,7 @@ defmodule OrbTest do
   defmodule HTTPStatusLookup do
     use Orb
 
-    @_statuses [
+    @statuses [
       {200, "OK"},
       {201, "Created"},
       {204, "No Content"},
@@ -128,12 +128,12 @@ defmodule OrbTest do
       {429, "Too Many Requests"}
     ]
 
-    def status_table(), do: @_statuses
+    def status_table(), do: @statuses
 
     wasm do
       wasm_import(:env, :buffer, memory(1))
 
-      for {status, message} <- @_statuses do
+      for {status, message} <- ^@statuses do
         # data(status * 24, "#{message}\\00")
         # data(status * 24, message)
         data_nul_terminated(status * 24, message)

@@ -325,10 +325,8 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert get_debug_path.() == "/connecting_busy"
       assert get_current.() == reconnecting
       assert get_path.() == "/reconnecting"
-      
-      
     end
-    
+
     test "socket error" do
       IO.puts(LiveAPIConnection.to_wat())
       instance = Instance.run(LiveAPIConnection)

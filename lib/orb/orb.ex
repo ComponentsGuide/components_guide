@@ -640,7 +640,20 @@ defmodule Orb do
     end
   end
 
-  def do_module_body(block, options, env_module) do
+  defp interpolate_external_values(ast, env) do
+    Macro.postwalk(ast, fn
+      {:^, _, [term]} ->
+        Macro.postwalk(term, &Macro.expand_once(&1, env))
+
+      {:^, _, _other} ->
+        raise "Invalid ^. Expected single argument."
+
+      other ->
+        other
+    end)
+  end
+
+  def do_module_body(block, options, env, env_module) do
     # TODO split into readonly_globals and mutable_globals?
     internal_global_types = Keyword.get(options, :globals, [])
     # TODO rename to export_readonly_globals?
@@ -658,6 +671,8 @@ defmodule Orb do
       (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
       |> Keyword.new(fn {key, _} -> {key, nil} end)
       |> Map.new()
+
+    block = interpolate_external_values(block, env)
 
     block_items =
       case block do
@@ -710,14 +725,6 @@ defmodule Orb do
       body: block_items,
       constants: constants
     }
-  end
-
-  defmacro do_module_body2(block, options, env_module) do
-    result = do_module_body(block, options, env_module)[:body]
-
-    quote do
-      unquote(result)
-    end
   end
 
   defmodule BeforeCompile do
@@ -789,7 +796,7 @@ defmodule Orb do
       |> Keyword.new(fn {key, _} -> {key, nil} end)
       |> Map.new()
 
-    %{body: block_items, constants: constants} = do_module_body(block, options, env.module)
+    %{body: block_items, constants: constants} = do_module_body(block, options, env, env.module)
     Module.put_attribute(env.module, :wasm_constants, constants)
 
     Module.put_attribute(env.module, :wasm_name, name)
@@ -848,7 +855,7 @@ defmodule Orb do
         U32 -> I32.do_u(block)
       end
 
-    %{body: body, constants: constants} = do_module_body(block, [], __CALLER__.module)
+    %{body: body, constants: constants} = do_module_body(block, [], __CALLER__, __CALLER__.module)
     Module.put_attribute(__CALLER__.module, :wasm_constants, constants)
 
     quote do
@@ -1161,8 +1168,10 @@ defmodule Orb do
   end
 
   defmacro snippet(transform \\ nil, locals \\ [], do: block) do
+    block = interpolate_external_values(block, __CALLER__)
+
     block =
-      case Macro.expand_literals(transform, __ENV__) do
+      case Macro.expand_literals(transform, __CALLER__) do
         nil -> block
         U32 -> I32.do_u(block)
       end
@@ -1354,12 +1363,14 @@ defmodule Orb do
   # import Kernel
 
   defmacro inline(do: block) do
-    get_block_items(block)
+    block |> get_block_items()
   end
 
   defmacro inline({:for, meta, [for_arg]}, do: block) do
+    # for_arg = interpolate_external_values(for_arg, __CALLER__)
+    block = block |> get_block_items()
     # import Kernel
-    {:for, meta, [for_arg, [do: get_block_items(block)]]}
+    {:for, meta, [for_arg, [do: block]]}
     # {:for, meta, [for_arg, [do: quote do: inline(do: unquote(block))]]}
   end
 

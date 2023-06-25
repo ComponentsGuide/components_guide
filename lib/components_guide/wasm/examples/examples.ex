@@ -5,11 +5,11 @@ defmodule ComponentsGuide.Wasm.Examples do
   defmodule SimpleWeekdayParser do
     use Wasm
 
-    @_weekdays_i32 (for s <- ~w(Mon Tue Wed Thu Fri Sat Sun) do
-                      #  I32.from_4_byte_ascii(s <> <<0>>)
-                      I32.from_4_byte_ascii(s <> "\0")
-                      #  I32.from_4_byte_ascii("#{s}\0")
-                    end)
+    @weekdays_i32 (for s <- ~w(Mon Tue Wed Thu Fri Sat Sun) do
+                     #  I32.from_4_byte_ascii(s <> <<0>>)
+                     I32.from_4_byte_ascii(s <> "\0")
+                     #  I32.from_4_byte_ascii("#{s}\0")
+                   end)
 
     defwasm imports: [env: [buffer: memory(1)]], exported_globals: [input_offset: i32(1024)] do
       func parse(), I32, i: I32 do
@@ -23,8 +23,7 @@ defmodule ComponentsGuide.Wasm.Examples do
         i = memory32![input_offset]
 
         # Check equality to each weekday as a i32 e.g. `Mon\0`
-        # inline for {day_i32!, index!} <- Enum.with_index(Module.get_attribute(__MODULE__, :weekdays_i32), 1) do
-        inline for {day_i32!, index!} <- Enum.with_index(@_weekdays_i32, 1) do
+        inline for {day_i32!, index!} <- ^Enum.with_index(@weekdays_i32, 1) do
           if I32.eq(i, day_i32!), do: return(index!)
         end
 
@@ -45,40 +44,40 @@ defmodule ComponentsGuide.Wasm.Examples do
     @readonly_start 0xFF
     @input_offset 1 * @page_size
     @output_offset 2 * @page_size
-    @_strings pack_strings_nul_terminated(@readonly_start,
-                charset_utf8: ~S[; charset=utf-8],
-                text_plain: ~S[text/plain],
-                text_html: ~S[text/html],
-                application_json: ~S[application/json],
-                application_wasm: ~S[application/wasm],
-                image_png: ~S[image/png]
-              )
+    @strings pack_strings_nul_terminated(@readonly_start,
+               charset_utf8: ~S[; charset=utf-8],
+               text_plain: ~S[text/plain],
+               text_html: ~S[text/html],
+               application_json: ~S[application/json],
+               application_wasm: ~S[application/wasm],
+               image_png: ~S[image/png]
+             )
 
     defwasm imports: [env: [buffer: memory(2)]],
             # exported_globals: [input_offset: i32(1024)],
             globals: [chunk1: i32(0), chunk2: i32(0)] do
       func txt do
-        chunk1 = @_strings.text_plain.offset
-        chunk2 = @_strings.charset_utf8.offset
+        chunk1 = ^@strings.text_plain.offset
+        chunk2 = ^@strings.charset_utf8.offset
       end
 
       func html do
-        chunk1 = @_strings.text_html.offset
-        chunk2 = @_strings.charset_utf8.offset
+        chunk1 = ^@strings.text_html.offset
+        chunk2 = ^@strings.charset_utf8.offset
       end
 
       func json do
-        chunk1 = @_strings.application_json.offset
-        chunk2 = @_strings.charset_utf8.offset
+        chunk1 = ^@strings.application_json.offset
+        chunk2 = ^@strings.charset_utf8.offset
       end
 
       func wasm do
-        chunk1 = @_strings.application_wasm.offset
+        chunk1 = ^@strings.application_wasm.offset
         chunk2 = 0x0
       end
 
       func png do
-        chunk1 = @_strings.image_png.offset
+        chunk1 = ^@strings.image_png.offset
         chunk2 = 0x0
       end
     end
