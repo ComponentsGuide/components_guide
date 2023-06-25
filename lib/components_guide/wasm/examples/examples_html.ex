@@ -23,7 +23,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             char: I32.U8,
             bytes_written: I32 do
         bytes_written = 0
-        
+
         # I32.U8.consume_chars read_offset, char do  
         # end
 
@@ -72,49 +72,45 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     @wasm_memory 2
     @request_body_write_offset 65536
 
-    defwasm exported_mutable_globals: [
-              request_body_write_offset: i32(@request_body_write_offset)
-            ],
-            globals: [
-              body_chunk_index: i32(0)
-              # request_body_write_offset: i32(@request_body_write_offset)
-            ] do
-      func(get_request_body_write_offset(), I32, do: request_body_write_offset)
+    I32.global(body_chunk_index: 0)
+    I32.export_global(request_body_write_offset: @request_body_write_offset)
+
+    wasm U32 do
+      func(get_request_body_write_offset(), I32, do: @request_body_write_offset)
 
       func GET do
-        body_chunk_index = 0
+        @body_chunk_index = 0
       end
 
       funcp get_is_valid(), I32 do
-        I32.eq(I32.load8_u(request_body_write_offset), ?g)
+        I32.eq(I32.load8_u(@request_body_write_offset), ?g)
       end
 
       func get_status(), I32 do
         I32.when?(call(:get_is_valid), do: 200, else: 400)
-        # if call(:get_is_valid), result: I32, do: 200, else: 400
       end
 
       func get_headers(), I32 do
-        const("content-type: text/html;charset=utf-8\\r\\n")
+        ~S"content-type: text/html;charset=utf-8\r\n"
       end
 
       func next_body_chunk(), I32 do
-        I32.match body_chunk_index do
+        I32.match @body_chunk_index do
           0 ->
             ~S"<!doctype html>"
 
           1 ->
             if call(:get_is_valid), result: I32 do
-              const("<h1>Good</h1>")
+              ~S"<h1>Good</h1>"
             else
-              const("<h1>Bad</h1>")
+              ~S"<h1>Bad</h1>"
             end
 
           _ ->
             0x0
         end
 
-        body_chunk_index = I32.add(body_chunk_index, 1)
+        @body_chunk_index = @body_chunk_index + 1
       end
     end
 
@@ -189,7 +185,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #       <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
     #       """)
 
-    @wasm_memory 1
+    wasm_memory(pages: 1)
 
     global(
       count: i32(0),
@@ -199,45 +195,48 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     wasm do
       func(get_current(), I32, do: @count)
 
-      func increment, I32 do
+      func increment(), I32 do
         @count = I32.add(@count, 1)
         @count
       end
 
-      func rewind, nil, i: I32 do
+      func rewind(), ptr: I32.Pointer do
         @body_chunk_index = 0
         @bump_offset = BumpAllocator.Constants.bump_init_offset()
 
-        i = 64
+        ptr = I32.add(64, @bump_offset)
 
         loop Clear do
-          memory32![I32.add(i, BumpAllocator.Constants.bump_init_offset())] = 0x0
+          ptr[at!: 0] = 0x0
 
-          if I32.gt_u(i, 0) do
-            i = I32.sub(i, 1)
+          if I32.gt_u(ptr, @bump_offset) do
+            ptr = I32.sub(ptr, 1)
             Clear.continue()
           end
         end
       end
 
-      funcp i32toa(value(I32)), I32, working_offset: I32, digit: I32 do
+      #     end
+      # 
+      #     wasm do
+      funcp i32toa(value(I32)), I32, working_ptr: I32.U8.Pointer, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
         @bump_offset = I32.u!(@bump_offset + 11)
         # We then start from the back, as we have to print the digits in reverse.
-        working_offset = @bump_offset
+        working_ptr = @bump_offset
 
         loop Digits do
-          working_offset = I32.u!(working_offset - 1)
+          working_ptr = I32.u!(working_ptr - 1)
 
           digit = I32.rem_u(value, 10)
           value = I32.u!(value / 10)
-          memory32_8![working_offset] = I32.u!(?0 + digit)
+          working_ptr[at!: 0] = I32.u!(?0 + digit)
 
           Digits.continue(if: I32.u!(value > 0))
         end
 
-        working_offset
+        working_ptr
       end
 
       func next_body_chunk, I32 do
@@ -294,61 +293,52 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     @wasm_memory 3
 
     @page_size 64 * 1024
-    @_bump_start 1 * @page_size
+    @bump_start 1 * @page_size
     @input_offset 1 * @page_size
-    @_output_offset 2 * @page_size
-    # @_output_offset 2 * 64 * 1024
+    @output_offset 2 * @page_size
 
-    global(:export_readonly,
-      input_offset: i32(@_bump_start)
+    I32.export_global(:readonly,
+      input_offset: @bump_start
     )
 
-    global(
-      body_chunk_index: i32(0),
-      output_offset: i32(@_output_offset),
-      url_list: i32(0x0)
+    I32.global(
+      body_chunk_index: 0,
+      output_offset: @output_offset,
+      url_list: 0x0
     )
 
     wasm do
-      # funcp escape_html, I32, globals: [body_chunk_index: I32], source: EscapeHTML
-
       # EscapeHTML.funcp(escape, I32)
-      # EscapeHTML.funcp escape(read_offset(I32), write_offset(I32)), I32
+      # EscapeHTML.funcp escape(read_offset: I32, write_offset: I32), I32
       EscapeHTML.funcp(:escape)
 
-      func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
+      func(alloc(byte_size: I32), I32, do: call(:bump_alloc, byte_size))
 
-      func rewind do
+      func rewind() do
         @body_chunk_index = 0
       end
 
-      func free(), nil, i: I32 do
+      func free(), ptr: I32.Pointer do
+        @body_chunk_index = 0
         @bump_offset = BumpAllocator.Constants.bump_init_offset()
 
-        # for (i = 64, i >= 0; i--)
-        i = 64
+        ptr = I32.add(64, @bump_offset)
 
-        # loop Clear, 64..0//-1 do
-        # loop Clear, 0..64 do
-        # loop 0, 64, -1, i do
-        # i.loop 0, 64, -1 do
-        # while I32.ge_u(i, 0) do
-        # loop Clear, while: I32.ge_u(i, 0) do
         loop Clear do
-          memory32![I32.add(i, BumpAllocator.Constants.bump_init_offset())] = 0x0
+          ptr[at!: 0] = 0x0
 
-          if I32.gt_u(i, 0) do
-            i = I32.sub(i, 1)
+          if I32.gt_u(ptr, @bump_offset) do
+            ptr = I32.sub(ptr, 1)
             Clear.continue()
           end
         end
       end
 
-      func add_url(str_ptr(I32)) do
+      func add_url(str_ptr: I32.U8.Pointer) do
         @url_list = call(:cons, str_ptr, @url_list)
       end
 
-      func next_body_chunk, I32 do
+      func next_body_chunk(), I32 do
         I32.match @body_chunk_index do
           0 ->
             @url_list = call(:reverse_in_place, @url_list)
@@ -414,7 +404,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     use BumpAllocator
     use LinkedLists
 
-    @wasm_memory 3
+    wasm_memory(pages: 3)
 
     @_field_types I32.calculate_enum([
                     :textbox,
@@ -426,9 +416,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 
-    global(
-      body_chunk_index: i32(0),
-      form_element_list: i32(0x0)
+    I32.global(
+      body_chunk_index: 0,
+      form_element_list: 0x0
     )
 
     # wasm_import(
@@ -449,9 +439,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       LinkedLists.funcp(:tl)
       LinkedLists.funcp(:reverse_in_place)
 
-      func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
+      func(alloc(byte_size: I32), I32, do: call(:bump_alloc, byte_size))
 
-      func add_textbox(name_ptr(I32)) do
+      func add_textbox(name_ptr: I32.U8.Pointer) do
         @form_element_list = call(:cons, name_ptr, @form_element_list)
       end
 
@@ -459,7 +449,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         @body_chunk_index = 0
       end
 
-      func next_body_chunk, I32 do
+      func next_body_chunk(), I32 do
         I32.match @body_chunk_index do
           0 ->
             @form_element_list = call(:reverse_in_place, @form_element_list)
