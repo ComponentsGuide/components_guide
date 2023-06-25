@@ -553,7 +553,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # See: https://liveblocks.io/blog/whats-new-in-v1-1
 
     use Orb
-    use StateMachine
 
     I32.enum([
       :idle_initial,
@@ -574,8 +573,15 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       :disconnected
     ])
 
+    use StateMachine, initial: :initial
+
+    # wasm_import [
+    #   effects: [
+    #     send_heartbeat: func(name: :send_heartbeat, params: I32, result: I32)
+    #   ]
+    # ]
+
     # I32.global(state: @initial?)
-    # I32.global(change_count: 0)
 
     I32.global(success_count: 0)
     I32.global(token: 0)
@@ -591,7 +597,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     wasm U32 do
       func(get_search_params(), I32, do: 0x0)
-      func(get_success_count(), I32, do: @success_count)
+      func(info_success_count(), I32, do: @success_count)
 
       # TODO: do this in another way?
       func(set_token(token: I32)) do

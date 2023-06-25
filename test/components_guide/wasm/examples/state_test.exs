@@ -197,13 +197,13 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       disconnected = Instance.get_global(instance, :disconnected)
 
       get_current = Instance.capture(instance, :get_current, 0)
-      get_path = Instance.capture_reading_string(instance, :get_path, 0)
-      get_success_count = Instance.capture(instance, :get_success_count, 0)
+      get_path = Instance.capture(instance, String, :get_path, 0)
+      info_success_count = Instance.capture(instance, :info_success_count, 0)
       pop_heartbeat_inbox = Instance.capture(instance, :pop_heartbeat_inbox, 0)
 
       assert get_current.() == initial
       assert get_path.() == "/initial"
-      assert get_success_count.() == 0
+      assert info_success_count.() == 0
       assert pop_heartbeat_inbox.() == 0
 
       Instance.call(instance, :connect)
@@ -213,19 +213,19 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       Instance.call(instance, :auth_succeeded)
       assert get_current.() == connecting
       assert get_path.() == "/connecting"
-      assert get_success_count.() == 0
+      assert info_success_count.() == 0
 
       Instance.call(instance, :connecting_succeeded)
       assert get_current.() == connected
       assert get_path.() == "/connected"
-      assert get_success_count.() == 1
+      assert info_success_count.() == 1
       assert pop_heartbeat_inbox.() == 0
       # assert timer_ms_heartbeat.() == 30_000
 
       Instance.call(instance, :window_did_focus)
       assert get_current.() == connected
       assert get_path.() == "/connected"
-      assert get_success_count.() == 1
+      assert info_success_count.() == 1
       assert pop_heartbeat_inbox.() == 1
     end
   end
@@ -244,7 +244,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       seats? = Instance.get_global(instance, :seats?)
 
       get_current = Instance.capture(instance, :get_current, 0)
-      get_path = Instance.capture_reading_string(instance, :get_path, 0)
+      get_path = Instance.capture(instance, String, :get_path, 0)
       # get_path = Instance.capture(instance, :get_path, 0)
       next = Instance.capture(instance, :next, 0)
 
