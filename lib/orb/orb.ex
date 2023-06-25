@@ -1865,26 +1865,15 @@ defmodule OrbUsing2 do
   import Kernel, except: [if: 2, @: 1]
 
   defmacro @{name, meta, args} do
-    # IO.inspect({name, meta, args})
-
-    # dbg(
-    #   {__CALLER__.module, name, Module.attributes_in(__CALLER__.module),
-    #    Module.has_attribute?(__CALLER__.module, name)}
-    # )
-
-    Kernel.if Module.has_attribute?(__CALLER__.module, name) ||
-                String.starts_with?(to_string(name), "_") do
-      # Kernel.@({name, meta, args}) || :foo
-      term = {name, meta, args}
-
-      quote do
-        Kernel.@(unquote(term))
-      end
-
-      # nil
-    else
-      {:global_get, meta, [name]}
-    end
+    #     Kernel.if Module.has_attribute?(__CALLER__.module, name) do
+    #       term = {name, meta, args}
+    # 
+    #       quote do
+    #         Kernel.@(unquote(term))
+    #       end
+    #     else
+    {:global_get, meta, [name]}
+    # end
   end
 
   #   defmacro @{name, meta, args} do
