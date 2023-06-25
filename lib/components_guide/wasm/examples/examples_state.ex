@@ -679,8 +679,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
       func(get_current(), I32, do: call(:get_public_state))
 
-      func get_path(), I32.String do
-        I32.match call(:get_public_state) do
+      func get_path(), I32.String, state: I32 do
+        state = call(:get_public_state)
+        I32.match state do
           @initial -> ~S[/initial]
           @connecting -> ~S[/connecting]
           @connected -> ~S[/connected]
