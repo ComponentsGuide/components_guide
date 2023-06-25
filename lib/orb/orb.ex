@@ -312,12 +312,15 @@ defmodule Orb do
     end
 
     def in?(value, list) when is_list(list) do
-      # FIXME: this is pushing everything onto the stack, and then doing a massive
-      # sequence of `or` to flatten them down.
-      # Try to do the `or` after each value.
+      for {item, index} <- Enum.with_index(list) do
+        case index do
+          0 ->
+            eq(value, item)
 
-      for(item <- list, do: eq(value, item))
-      |> Enum.reduce(&_or/2)
+          _ ->
+            [eq(value, item), {:i32, :or}]
+        end
+      end
     end
 
     # defmodule U32 do
@@ -1658,11 +1661,11 @@ defmodule Orb do
       )
       when not is_nil(condition) do
     [
+      do_wat(condition, indent),
       [
         indent,
         "(if ",
         if(result, do: ["(result ", to_string(expand_type(result)), ") "], else: ""),
-        do_wat(condition, ""),
         ?\n
       ],
       ["  ", indent, "(then", ?\n],

@@ -98,7 +98,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       # )
     end
 
-    @tag :skip
+    # @tag :skip
     test "optimize with wasm-opt" do
       path_wasm = Path.join(__DIR__, "url_encode.wasm")
       path_wat = Path.join(__DIR__, "url_encode.wat")
@@ -109,7 +109,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
       System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
 
       %{size: size} = File.stat!(path_opt_wasm)
-      assert size == 653
+      assert size == 913
 
       {wat, 0} = System.cmd("wasm2wat", [path_wasm])
       File.write!(path_wat, wat)
