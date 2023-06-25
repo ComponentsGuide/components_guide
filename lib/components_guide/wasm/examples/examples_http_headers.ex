@@ -219,4 +219,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       end
     end
   end
+
+  defmodule SimpleHeader do
+    # TODO: Implement this algorithm: https://fetch.spec.whatwg.org/#simple-header
+  end
 end
