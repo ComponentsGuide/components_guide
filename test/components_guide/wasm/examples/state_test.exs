@@ -325,6 +325,46 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert get_debug_path.() == "/connecting_busy"
       assert get_current.() == reconnecting
       assert get_path.() == "/reconnecting"
+      
+      
+    end
+    
+    test "socket error" do
+      IO.puts(LiveAPIConnection.to_wat())
+      instance = Instance.run(LiveAPIConnection)
+
+      {:ok, manager} = Manager.start_link()
+
+      initial = Instance.get_global(instance, :initial)
+      connecting = Instance.get_global(instance, :connecting)
+      connected = Instance.get_global(instance, :connected)
+      reconnecting = Instance.get_global(instance, :reconnecting)
+      disconnected = Instance.get_global(instance, :disconnected)
+
+      get_current = Instance.capture(instance, :get_current, 0)
+      get_path = Instance.capture(instance, String, :get_path, 0)
+      get_debug_path = Instance.capture(instance, String, :get_debug_path, 0)
+      info_success_count = Instance.capture(instance, :info_success_count, 0)
+      get_backoff_delay = Instance.capture(instance, :get_backoff_delay, 0)
+
+      assert get_path.() == "/initial"
+      Instance.call(instance, :connect)
+      assert get_path.() == "/connecting"
+      Instance.call(instance, :auth_succeeded)
+      assert get_path.() == "/connecting"
+      Instance.call(instance, :connecting_succeeded)
+      assert get_path.() == "/connected"
+      # assert info_success_count.() == 1
+      # assert effect_heartbeat?.() == 0
+      # assert timer_ms_heartbeat.() == 30_000
+      # Manager.heartbeat_after(manager, div(timer_ms_heartbeat.(), 1000))
+
+      assert get_debug_path.() == "/ok_connected"
+      Instance.call(instance, :socket_received_error)
+      assert get_debug_path.() == "/connecting_backoff"
+      assert get_current.() == reconnecting
+      assert get_path.() == "/reconnecting"
+      assert get_backoff_delay.() == 250
     end
   end
 

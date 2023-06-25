@@ -574,6 +574,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     ])
 
     use StateMachine, initial: :initial
+    
+    @_backoff_delays [250, 500, 1000, 2000, 4000, 8000, 10000]
 
     # wasm_import [
     #   effects: [
@@ -585,6 +587,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.global(success_count: 0)
     I32.global(token: 0)
+    I32.global(backoff_level: 0)
     # I32.global(inbox_heartbeat: 0)
 
     wasm_memory(pages: 1)
@@ -638,6 +641,23 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
       on pong_timedout() do
         @ok_awaiting_pong -> @connecting_busy
+      end
+      
+      on socket_received_error() do
+        @ok_connected, @ok_awaiting_pong -> {@connecting_backoff, backoff_level: 1}
+      end
+      
+      func get_backoff_delay(), I32 do
+        I32.match @backoff_level do
+          0 -> 0
+          1 -> inline do: Enum.at(@_backoff_delays, 0)
+          2 -> Enum.at(@_backoff_delays, 1)
+          3 -> Enum.at(@_backoff_delays, 2)
+          4 -> Enum.at(@_backoff_delays, 3)
+          5 -> Enum.at(@_backoff_delays, 4)
+          6 -> Enum.at(@_backoff_delays, 5)
+          _ -> Enum.at(@_backoff_delays, 6)
+        end
       end
 
       on navigator_offline() do
