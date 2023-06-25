@@ -406,13 +406,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     wasm_memory(pages: 3)
 
-    @_field_types I32.calculate_enum([
-                    :textbox,
-                    :url,
-                    :email,
-                    :checkbox,
-                    :hidden
-                  ])
+    @field_types I32.calculate_enum([
+                   :textbox,
+                   :url,
+                   :email,
+                   :checkbox,
+                   :hidden
+                 ])
 
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 
@@ -427,12 +427,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #   ]
     # )
 
-    defwasm imports: [
-              log: [
-                int32: func(name: :log32, params: I32, result: I32)
-              ]
-            ] do
-      # funcp escape_html, result: I32, globals: [body_chunk_index: I32], source: EscapeHTML
+    wasm_import(:log, :int32, func(name: :log32, params: I32, result: I32))
+
+    wasm do
       EscapeHTML.funcp(:escape)
       LinkedLists.funcp(:cons)
       LinkedLists.funcp(:hd)

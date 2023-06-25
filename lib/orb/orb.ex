@@ -894,6 +894,28 @@ defmodule Orb do
     end
   end
 
+  defmacro wasm_import(mod, name, func_type) do
+    # case definition do
+    #   {:func, _meta, [name, arg1]} ->
+    #     quote do
+    #       %Import{
+    #         module: unquote(first),
+    #         name: unquote(second),
+    #         type: FuncType.imported_func(unquote(name), unquote(arg1), nil)
+    #       }
+    #     end
+    # 
+    #   _ ->
+    #     quote do
+    #       %Import{module: unquote(first), name: unquote(second), type: unquote(definition)}
+    #     end
+    # end
+
+    quote do
+      @wasm_imports %Import{module: unquote(mod), name: unquote(name), type: unquote(func_type)}
+    end
+  end
+
   def expand_type(type) do
     case Macro.expand_literals(type, __ENV__) do
       I32 -> :i32
@@ -1232,7 +1254,7 @@ defmodule Orb do
   #   %Data{offset: offset, key: key, values: values, nul_terminated: true}
   # end
 
-  def wasm_import(module, name, type) do
+  def wasm_import_old(module, name, type) do
     %Import{module: module, name: name, type: type}
   end
 

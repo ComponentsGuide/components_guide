@@ -131,7 +131,7 @@ defmodule OrbTest do
     def status_table(), do: @statuses
 
     wasm do
-      wasm_import(:env, :buffer, memory(1))
+      wasm_import_old(:env, :buffer, memory(1))
 
       for {status, message} <- ^@statuses do
         # data(status * 24, "#{message}\\00")
