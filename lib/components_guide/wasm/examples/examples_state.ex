@@ -585,7 +585,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.global(success_count: 0)
     I32.global(token: 0)
-    I32.global(heartbeat_inbox: 0)
+    I32.global(inbox_heartbeat: 0)
 
     wasm_memory(pages: 1)
 
@@ -637,23 +637,29 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       end
 
       on navigator_offline() do
-        @ok_connected -> {@ok_awaiting_pong, heartbeat_inbox: :increment}
+        @ok_connected -> {@ok_awaiting_pong, inbox_heartbeat: :increment}
       end
 
       on window_did_focus() do
         @ok_connected ->
-          # {@ok_awaiting_pong, [:send_heartbeat]}
-          {@ok_awaiting_pong, heartbeat_inbox: :increment}
-          # @ok_connected -> @ok_awaiting_pong
+          # {@ok_awaiting_pong, [:heartbeat]}
+          {@ok_awaiting_pong, inbox_heartbeat: :increment}
+      end
+
+      func timer_ms_heartbeat(), I32 do
+        I32.match @state do
+          @ok_connected -> 30_000
+          _ -> 0
+        end
       end
 
       func pop_inbox_heartbeat(), I32 do
-        I32.match @heartbeat_inbox do
+        I32.match @inbox_heartbeat do
           0 ->
             0
 
           _ ->
-            @heartbeat_inbox = @heartbeat_inbox - 1
+            @inbox_heartbeat = @inbox_heartbeat - 1
             1
         end
       end
