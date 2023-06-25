@@ -200,8 +200,6 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       get_path = Instance.capture_reading_string(instance, :get_path, 0)
       get_success_count = Instance.capture(instance, :get_success_count, 0)
       pop_heartbeat_inbox = Instance.capture(instance, :pop_heartbeat_inbox, 0)
-      # get_path = Instance.capture(instance, :get_path, 0)
-      # next = Instance.capture(instance, :next, 0)
 
       assert get_current.() == initial
       assert get_path.() == "/initial"
@@ -229,22 +227,6 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert get_path.() == "/connected"
       assert get_success_count.() == 1
       assert pop_heartbeat_inbox.() == 1
-
-      #       next.()
-      #       assert get_current.() == destination?
-      #       assert get_path.() == "/destination"
-      # 
-      #       next.()
-      #       assert get_current.() == dates?
-      #       assert get_path.() == "/dates"
-      # 
-      #       next.()
-      #       assert get_current.() == flights?
-      #       assert get_path.() == "/flights"
-      # 
-      #       next.()
-      #       assert get_current.() == seats?
-      #       assert get_path.() == "/seats"
     end
   end
 
