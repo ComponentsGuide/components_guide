@@ -186,9 +186,78 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
   describe "LiveAPIConnection" do
     alias State.LiveAPIConnection
 
+    defmodule Manager do
+      use GenServer
+      
+      defmodule State do
+        @keys [:parent, :ping_ref, :tref]
+        defstruct @keys
+        
+        def new(parent), do: %__MODULE__{parent: parent}
+      end
+
+      def start_link(opts \\ nil) do
+        state = State.new(self())
+        GenServer.start_link(__MODULE__, state)
+      end
+
+      @impl GenServer
+      def init(state) do
+        {:ok, state}
+      end
+      
+      defp do_ping(state) do
+        ping_ref = Process.send_after(self(), :pong, 20)
+        %State{state | ping_ref: ping_ref}
+      end
+
+      @impl GenServer
+      def handle_call(:request_ping, _from, state) do
+        state = do_ping(state)
+        {:reply, :ok, state}
+      end
+
+      @impl GenServer
+      def handle_call({:timer_ms, msg, duration_ms}, from, state) when is_number(duration_ms) do
+        # tref = :timer.send_after(duration_ms, self(), {:timer_finished, from, msg, duration_ms})
+        tref = Process.send_after(self(), {:timer_finished, from, msg, duration_ms}, duration_ms)
+        {:reply, :ok, %{state | tref: tref}}
+      end
+
+      @impl GenServer
+      def handle_info(:pong, state) do
+        send(state.parent, :pong)
+        {:noreply, state}
+      end
+
+      @impl GenServer
+      def handle_info({:timer_finished, from, :heartbeat, _duration}, state) do
+        state = do_ping(state)
+        {:noreply, state}
+      end
+
+      @impl GenServer
+      def handle_info({:timer_finished, from, msg, _duration}, state) do
+        IO.puts("timer finished #{msg}")
+        {:noreply, state}
+      end
+
+      def heartbeat_after(pid, 0), do: nil
+
+      def heartbeat_after(pid, duration_ms) do
+        GenServer.call(pid, {:timer_ms, :heartbeat, duration_ms})
+        :ok
+      end
+
+      def heartbeat_now(pid, if: 0), do: nil
+      def heartbeat_now(pid, if: _), do: GenServer.call(pid, :request_ping)
+    end
+
     test "works" do
       IO.puts(LiveAPIConnection.to_wat())
       instance = Instance.run(LiveAPIConnection)
+
+      {:ok, manager} = Manager.start_link()
 
       initial = Instance.get_global(instance, :initial)
       connecting = Instance.get_global(instance, :connecting)
@@ -228,6 +297,12 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert info_success_count.() == 1
       assert pop_inbox_heartbeat.() == 0
       assert timer_ms_heartbeat.() == 30_000
+      Manager.heartbeat_after(manager, div(timer_ms_heartbeat.(), 1000))
+
+      assert_receive :pong
+      Instance.call(instance, :pong)
+      assert get_current.() == connected
+      assert get_path.() == "/connected"
 
       Instance.call(instance, :window_did_focus)
       assert get_current.() == connected
@@ -236,6 +311,12 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert pop_inbox_heartbeat.() == 1
       assert pop_inbox_heartbeat.() == 0
       assert timer_ms_heartbeat.() == 0
+      Manager.heartbeat_now(manager, if: 1)
+      
+      assert_receive :pong
+      Instance.call(instance, :pong)
+      assert get_current.() == connected
+      assert get_path.() == "/connected"
     end
   end
 
