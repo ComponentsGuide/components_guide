@@ -277,14 +277,14 @@ defmodule OrbTest do
 
     wasm_memory(pages: 2)
 
-    wasm do
-      func get_is_valid(), I32, i: I32, char: I32 do
-        i = 1024
+    wasm U32 do
+      func get_is_valid(), I32, str: I32.U8.Pointer, char: I32 do
+        str = 1024
 
         loop :continue, result: I32 do
           defblock Outer do
             defblock :inner do
-              char = I32.load8_u(i)
+              char = str[at!: 0]
               break(:inner, if: I32.eq(char, ?/))
               break(Outer, if: char)
               return(1)
@@ -293,7 +293,7 @@ defmodule OrbTest do
             return(0)
           end
 
-          i = I32.add(i, 1)
+          str = str + 1
           {:br, :continue}
         end
       end
@@ -305,14 +305,14 @@ defmodule OrbTest do
     (module $FileNameSafe
       (memory (export "memory") 2)
       (func $get_is_valid (export "get_is_valid") (result i32)
-        (local $i i32)
+        (local $str i32)
         (local $char i32)
         (i32.const 1024)
-        (local.set $i)
+        (local.set $str)
         (loop $continue (result i32)
           (block $Outer
             (block $inner
-              (i32.load8_u (local.get $i))
+              (i32.load8_u (local.get $str))
               (local.set $char)
               (i32.eq (local.get $char) (i32.const 47))
               br_if $inner
@@ -322,8 +322,8 @@ defmodule OrbTest do
             )
             (return (i32.const 0))
           )
-          (i32.add (local.get $i) (i32.const 1))
-          (local.set $i)
+          (i32.add (local.get $str) (i32.const 1))
+          (local.set $str)
           br $continue
         )
       )
