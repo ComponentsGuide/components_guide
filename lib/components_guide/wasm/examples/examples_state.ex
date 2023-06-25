@@ -2,9 +2,21 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   alias ComponentsGuide.Wasm
 
   defmodule StateMachine do
-    # defmacro __using__(_opts) do
-    #   I32.global(state: 0)
-    # end
+    defmacro __using__(_opts) do
+      quote do
+        use Orb
+        Orb.I32.global(state: 0, change_count: 0)
+
+        import unquote(__MODULE__)
+
+        wasm Orb.U32 do
+          funcp transition_to(new_state: Orb.I32) do
+            local_get(:new_state)
+            global_set(:state)
+          end
+        end
+      end
+    end
 
     defmacro on(call, target: target) do
       use Orb, inline: true
@@ -154,7 +166,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   defmodule Loader do
     use Wasm
 
-    import StateMachine
+    use StateMachine
 
     # defmodule LoadableMachine do
     #   use Machine,
@@ -174,7 +186,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # end
 
     I32.export_enum([:idle, :loading, :loaded, :failed])
-    I32.global(state: 0)
 
     # State.transitions do
     #   @idle ->
@@ -332,7 +343,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule OfflineStatus do
     use Wasm
-    import StateMachine
+    use StateMachine
 
     @states I32.calculate_enum([:offline?, :online?])
 
@@ -349,12 +360,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               listen_to_window: i32(0x100)
               # listen_to_window_offline: i32(1),
               # listen_to_window_online: i32(1),
-            ],
-            exported_mutable_globals: [
-              # Allow setting initial state
-              state: @states.offline?
             ] do
-      func(get_current(), I32, do: state)
+      func(get_current(), I32, do: @state)
 
       on(online(offline?), target: online?)
       on(offline(online?), target: offline?)
@@ -369,7 +376,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule FocusListener do
     use Wasm
-    import StateMachine
+    use StateMachine
 
     defwasm exported_globals: [
               active: i32(0),
@@ -380,11 +387,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               conditions: [
                 is_focused: func(name: :check_is_active, params: nil, result: I32)
               ]
-            ],
-            globals: [
-              state: i32(0)
             ] do
-      func(get_current(), I32, do: state)
+      func(get_current(), I32, do: @state)
 
       # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
       on(focus(inactive), target: active)
@@ -399,7 +403,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule Dialog do
     use Wasm
-    import StateMachine
 
     # Generate state machine on the fly:
     # /wasm/state-machine/Closed,Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
@@ -407,6 +410,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # /wasm/state-machine/Closed,Open/Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
 
     @states I32.calculate_enum([:closed?, :open?])
+    use StateMachine, initial: @states.closed?
 
     # defstatemachine [:closed?, :open?] do
     #   on(open(closed?), target: open?)
@@ -416,11 +420,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     defwasm exported_globals: [
               closed?: @states.closed?,
               open?: @states.open?
-            ],
-            globals: [
-              state: @states.closed?
             ] do
-      func(get_current(), I32, do: state)
+      func(get_current(), I32, do: @state)
       on(open(closed?), target: open?)
       on(close(open?), target: closed?)
       # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
@@ -437,16 +438,13 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule AbortController do
     use Wasm
-    import StateMachine
+    use StateMachine
 
     defwasm exported_globals: [
               active: i32(0),
               aborted: i32(1)
-            ],
-            globals: [
-              state: i32(0)
             ] do
-      func(aborted?(), I32, do: state)
+      func(aborted?(), I32, do: @state)
 
       on(abort(active), target: aborted)
     end
@@ -460,7 +458,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   # Or is it Future?
   defmodule Promise do
     use Wasm
-    import StateMachine
+    use StateMachine, initial: @states.pending
 
     @states I32.calculate_enum([:pending, :resolved, :rejected])
 
@@ -468,11 +466,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               pending: @states.pending,
               resolved: @states.resolved,
               rejected: @states.rejected
-            ],
-            globals: [
-              state: @states.pending
             ] do
-      func(get_current(), I32, do: state)
+      func(get_current(), I32, do: @state)
 
       on(resolve(pending), target: resolved)
       on(reject(pending), target: rejected)
@@ -487,7 +482,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule CSSTransition do
     use Wasm
-    import StateMachine
+    use StateMachine
 
     @states I32.calculate_enum([
               :initial?,
@@ -501,11 +496,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               started?: @states.started?,
               canceled?: @states.canceled?,
               ended?: @states.ended?
-            ],
-            globals: [
-              state: @states.initial?
             ] do
-      func(get_current(), I32, do: state)
+      func(get_current(), I32, do: @state)
 
       on(transitionstart(_), target: started?)
       on(transitioncancel(_), target: canceled?)
@@ -555,7 +547,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # See: https://liveblocks.io/blog/whats-new-in-v1-1
 
     use Orb
-    import StateMachine
+    use StateMachine
 
     I32.enum([
       :idle_initial,
@@ -577,7 +569,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     ])
 
     # I32.global(state: @initial?)
-    I32.global(state: 0)
     # I32.global(change_count: 0)
 
     I32.global(success_count: 0)
@@ -685,7 +676,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule FlightBooking do
     use Wasm
-    import StateMachine
 
     I32.export_enum([
       :initial?,
@@ -699,9 +689,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       :confirmation?
     ])
 
+    use StateMachine, initial: :initial?
     # I32.global(state: @initial?)
-    I32.global(state: 0)
-    I32.global(change_count: 0)
 
     wasm_memory(pages: 1)
 

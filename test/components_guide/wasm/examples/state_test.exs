@@ -45,7 +45,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
     test "wasm size" do
       wasm = Dialog.to_wasm()
-      assert byte_size(wasm) == 155
+      assert byte_size(wasm) == 172
     end
   end
 
