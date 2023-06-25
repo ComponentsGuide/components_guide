@@ -13,6 +13,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
           funcp transition_to(new_state: Orb.I32) do
             local_get(:new_state)
             global_set(:state)
+            Orb.I32.add(global_get(:change_count), 1)
+            global_set(:change_count)
+          end
+
+          func get_change_count(), Orb.I32 do
+            global_get(:change_count)
           end
         end
       end
@@ -34,7 +40,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         {:_, _, _} ->
           quote do
             func unquote(name) do
-              [unquote(target), global_set(:state)]
+              Orb.call(:transition_to, unquote(target))
             end
           end
 
@@ -45,7 +51,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
             func unquote(name) do
               if I32.eq(global_get(:state), unquote(current_state)) do
-                [unquote(target), global_set(:state)]
+                Orb.call(:transition_to, unquote(target))
               end
             end
           end
@@ -584,7 +590,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # ]
 
     wasm U32 do
-      # func(get_change_count(), I32, do: @change_count)
       func(get_search_params(), I32, do: 0x0)
       func(get_success_count(), I32, do: @success_count)
 
@@ -696,7 +701,6 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     wasm do
       func(get_current(), I32, do: @state)
-      func(get_change_count(), I32, do: @change_count)
       func(get_search_params(), I32, do: 0x0)
 
       on next() do

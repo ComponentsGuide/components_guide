@@ -32,20 +32,25 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     alias State.Dialog
 
     test "works" do
-      # Like Agent.start(fun)
-      instance = Dialog.start()
-      assert Dialog.get_current(instance) == 0
+      instance = Instance.run(Dialog)
+      get_current = Instance.capture(instance, :get_current, 0)
+      get_change_count = Instance.capture(instance, :get_change_count, 0)
+
+      assert get_current.() == 0
+      assert get_change_count.() == 0
 
       Dialog.open(instance)
-      assert Dialog.get_current(instance) == 1
+      assert get_current.() == 1
+      assert get_change_count.() == 1
 
       Dialog.close(instance)
-      assert Dialog.get_current(instance) == 0
+      assert get_current.() == 0
+      assert get_change_count.() == 2
     end
 
     test "wasm size" do
       wasm = Dialog.to_wasm()
-      assert byte_size(wasm) == 172
+      assert byte_size(wasm) == 204
     end
   end
 
@@ -63,7 +68,8 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
                {:func, "get_current"},
                {:func, "begin"},
                {:func, "success"},
-               {:func, "failure"}
+               {:func, "failure"},
+               {:func, "get_change_count"}
              ]
     end
 
