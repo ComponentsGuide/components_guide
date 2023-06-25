@@ -65,6 +65,17 @@ defmodule ComponentsGuide.Wasm do
     WasmNative.wasm_list_exports(source)
   end
 
+  def grouped_exports(source) do
+    exports = list_exports(source)
+
+    for export <- exports, reduce: %{global: %{}, memory: %{}, func: %{}} do
+      acc ->
+        type = elem(export, 0)
+        name = elem(export, 1)
+        put_in(acc, [type, name], export |> Tuple.delete_at(0) |> Tuple.delete_at(0))
+    end
+  end
+
   def list_import_types(source) do
     source =
       case process_source(source) do

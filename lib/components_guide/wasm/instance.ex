@@ -3,11 +3,12 @@ defmodule ComponentsGuide.Wasm.Instance do
 
   require Logger
 
-  defstruct [:elixir_mod, :handle]
+  defstruct [:elixir_mod, :exports, :handle]
 
   def run(mod, imports \\ []) do
-    handle = ComponentsGuide.Wasm.run_instance(mod, imports)
-    %__MODULE__{elixir_mod: mod, handle: handle}
+    exports = Wasm.grouped_exports(mod)
+    handle = Wasm.run_instance(mod, imports)
+    %__MODULE__{elixir_mod: mod, exports: exports, handle: handle}
   rescue
     x in [RuntimeError] ->
       Logger.error(mod.to_wat())
@@ -64,7 +65,30 @@ defmodule ComponentsGuide.Wasm.Instance do
     to: Wasm,
     as: :instance_call_joining_string_chunks
 
+  defmodule CaptureFuncError do
+    defexception [:func_name, :instance]
+
+    @impl true
+    def message(%{func_name: func_name, instance: %{exports: %{func: funcs}}}) do
+      func_names = Map.keys(funcs)
+      "func #{func_name} not found in exports #{inspect(func_names)}"
+    end
+  end
+
   def capture(inst, f, arity) do
+    f = to_string(f)
+
+    case inst do
+      %__MODULE__{exports: %{func: %{^f => _}}} ->
+        nil
+
+      %__MODULE__{} ->
+        raise CaptureFuncError, func_name: f, instance: inst
+
+      _ ->
+        nil
+    end
+
     wrap = &alloc_if_needed(inst, &1)
 
     # call = Function.capture(__MODULE__, :call, arity + 2)
@@ -190,6 +214,10 @@ defmodule ComponentsGuide.Wasm.Instance do
     hex_pretty = hex |> String.to_charlist() |> Stream.chunk_every(8) |> Enum.join(" ")
     IO.inspect(hex_pretty, limit: :infinite, label: "Wasm instance memory")
     # IO.inspect(bytes, base: :hex, label: "Wasm instance memory")
+  end
+
+  def exports(instance) do
+    Wasm.list_exports(instance.elixir_mod)
   end
 
   defimpl String.Chars do

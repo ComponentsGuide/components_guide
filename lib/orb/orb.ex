@@ -439,18 +439,26 @@ defmodule Orb do
 
     defmacro match(value, do: transform) do
       statements =
-        for {:->, _, [input, target]} <- transform do
+        for {:->, _, [input, result]} <- transform do
           case input do
             # _ ->
             # like an else clause
             [{:_, _, _}] ->
-              get_block_items(target)
+              get_block_items(result)
 
             [match] ->
               quote do
                 %Orb.IfElse{
                   condition: I32.eq(unquote(value), unquote(match)),
-                  when_true: [unquote(get_block_items(target)), break(:i32_match)]
+                  when_true: [unquote(get_block_items(result)), break(:i32_match)]
+                }
+              end
+
+            matches ->
+              quote do
+                %Orb.IfElse{
+                  condition: I32.in?(unquote(value), unquote(matches)),
+                  when_true: [unquote(get_block_items(result)), break(:i32_match)]
                 }
               end
           end

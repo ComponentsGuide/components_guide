@@ -188,11 +188,11 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
     defmodule Manager do
       use GenServer
-      
+
       defmodule State do
         @keys [:parent, :ping_ref, :tref]
         defstruct @keys
-        
+
         def new(parent), do: %__MODULE__{parent: parent}
       end
 
@@ -205,7 +205,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       def init(state) do
         {:ok, state}
       end
-      
+
       defp do_ping(state) do
         ping_ref = Process.send_after(self(), :pong, 20)
         %State{state | ping_ref: ping_ref}
@@ -262,40 +262,42 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       initial = Instance.get_global(instance, :initial)
       connecting = Instance.get_global(instance, :connecting)
       connected = Instance.get_global(instance, :connected)
-      reconnected = Instance.get_global(instance, :reconnected)
+      reconnecting = Instance.get_global(instance, :reconnecting)
       disconnected = Instance.get_global(instance, :disconnected)
 
       get_current = Instance.capture(instance, :get_current, 0)
       get_path = Instance.capture(instance, String, :get_path, 0)
+      get_debug_path = Instance.capture(instance, String, :get_debug_path, 0)
       info_success_count = Instance.capture(instance, :info_success_count, 0)
-      pop_inbox_heartbeat = Instance.capture(instance, :pop_inbox_heartbeat, 0)
+      effect_heartbeat? = Instance.capture(instance, :effect_heartbeat?, 0)
       timer_ms_heartbeat = Instance.capture(instance, :timer_ms_heartbeat, 0)
+      timeout_ms_pong = Instance.capture(instance, :timeout_ms_pong, 0)
 
       assert get_current.() == initial
       assert get_path.() == "/initial"
       assert info_success_count.() == 0
-      assert pop_inbox_heartbeat.() == 0
+      assert effect_heartbeat?.() == 0
       assert timer_ms_heartbeat.() == 0
 
       Instance.call(instance, :connect)
       assert get_current.() == connecting
       assert get_path.() == "/connecting"
       assert info_success_count.() == 0
-      assert pop_inbox_heartbeat.() == 0
+      assert effect_heartbeat?.() == 0
       assert timer_ms_heartbeat.() == 0
 
       Instance.call(instance, :auth_succeeded)
       assert get_current.() == connecting
       assert get_path.() == "/connecting"
       assert info_success_count.() == 0
-      assert pop_inbox_heartbeat.() == 0
+      assert effect_heartbeat?.() == 0
       assert timer_ms_heartbeat.() == 0
 
       Instance.call(instance, :connecting_succeeded)
       assert get_current.() == connected
       assert get_path.() == "/connected"
       assert info_success_count.() == 1
-      assert pop_inbox_heartbeat.() == 0
+      assert effect_heartbeat?.() == 0
       assert timer_ms_heartbeat.() == 30_000
       Manager.heartbeat_after(manager, div(timer_ms_heartbeat.(), 1000))
 
@@ -308,15 +310,21 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert get_current.() == connected
       assert get_path.() == "/connected"
       assert info_success_count.() == 1
-      assert pop_inbox_heartbeat.() == 1
-      assert pop_inbox_heartbeat.() == 0
+      assert effect_heartbeat?.() == 1
       assert timer_ms_heartbeat.() == 0
-      Manager.heartbeat_now(manager, if: 1)
-      
-      assert_receive :pong
-      Instance.call(instance, :pong)
-      assert get_current.() == connected
-      assert get_path.() == "/connected"
+      assert timeout_ms_pong.() == 2_000
+      Manager.heartbeat_now(manager, if: effect_heartbeat?.())
+
+      # assert_receive :pong, timeout_ms_pong.()
+      # Instance.call(instance, :pong)
+      # assert get_current.() == connected
+      # assert get_path.() == "/connected"
+
+      assert get_debug_path.() == "/ok_awaiting_pong"
+      Instance.call(instance, :pong_timedout)
+      assert get_debug_path.() == "/connecting_busy"
+      assert get_current.() == reconnecting
+      assert get_path.() == "/reconnecting"
     end
   end
 

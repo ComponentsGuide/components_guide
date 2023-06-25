@@ -585,7 +585,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.global(success_count: 0)
     I32.global(token: 0)
-    I32.global(inbox_heartbeat: 0)
+    # I32.global(inbox_heartbeat: 0)
 
     wasm_memory(pages: 1)
 
@@ -636,14 +636,18 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         @ok_awaiting_pong -> @ok_connected
       end
 
+      on pong_timedout() do
+        @ok_awaiting_pong -> @connecting_busy
+      end
+
       on navigator_offline() do
-        @ok_connected -> {@ok_awaiting_pong, inbox_heartbeat: :increment}
+        @ok_connected -> @ok_awaiting_pong
       end
 
       on window_did_focus() do
         @ok_connected ->
           # {@ok_awaiting_pong, [:heartbeat]}
-          {@ok_awaiting_pong, inbox_heartbeat: :increment}
+          @ok_awaiting_pong
       end
 
       func timer_ms_heartbeat(), I32 do
@@ -653,27 +657,33 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         end
       end
 
-      func pop_inbox_heartbeat(), I32 do
-        I32.match @inbox_heartbeat do
-          0 ->
-            0
-
-          _ ->
-            @inbox_heartbeat = @inbox_heartbeat - 1
-            1
+      func timeout_ms_pong(), I32 do
+        I32.match @state do
+          @ok_awaiting_pong -> 2_000
+          _ -> 0
         end
+      end
+
+      func effect_heartbeat?(), I32 do
+        I32.in?(@state, [@ok_awaiting_pong])
       end
 
       funcp get_public_state(), I32 do
         I32.match @state do
-          @idle_initial -> @initial
-          @idle_failed -> @disconnected
-          @auth_busy -> @connecting
-          @auth_backoff -> @connecting
-          @connecting_busy -> @connecting
-          @connecting_backoff -> @connecting
-          @ok_connected -> @connected
-          @ok_awaiting_pong -> @connected
+          @idle_initial ->
+            @initial
+
+          @idle_failed ->
+            @disconnected
+
+          @auth_busy, @auth_backoff, @connecting_busy, @connecting_backoff ->
+            I32.when?(@success_count > 0, do: @reconnecting, else: @connecting)
+
+          @ok_connected ->
+            @connected
+
+          @ok_awaiting_pong ->
+            @connected
         end
       end
 
@@ -681,12 +691,26 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
       func get_path(), I32.String, state: I32 do
         state = call(:get_public_state)
+
         I32.match state do
           @initial -> ~S[/initial]
           @connecting -> ~S[/connecting]
           @connected -> ~S[/connected]
           @reconnecting -> ~S[/reconnecting]
           @disconnected -> ~S[/disconnected]
+        end
+      end
+
+      func get_debug_path(), I32.String do
+        I32.match @state do
+          @idle_initial -> ~S[/idle_initial]
+          @idle_failed -> ~S[/idle_failed]
+          @auth_busy -> ~S[/auth_busy]
+          @auth_backoff -> ~S[/auth_backoff]
+          @connecting_busy -> ~S[/connecting_busy]
+          @connecting_backoff -> ~S[/connecting_backoff]
+          @ok_connected -> ~S[/ok_connected]
+          @ok_awaiting_pong -> ~S[/ok_awaiting_pong]
         end
       end
     end
