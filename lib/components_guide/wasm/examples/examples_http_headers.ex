@@ -121,7 +121,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     import Writer
 
     # defmodule Constants do
-    #   @constant_values I32.enum([:secure, :http_only])
+    #   @constant_values I32.calculate_enum([:secure, :http_only])
 
     #   def get_len(value) do
 

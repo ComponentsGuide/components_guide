@@ -419,7 +419,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @wasm_memory 3
 
-    @_field_types I32.enum([
+    @_field_types I32.calculate_enum([
                     :textbox,
                     :url,
                     :email,

@@ -431,7 +431,7 @@ defmodule Orb do
     #   %IfElse{result: :i32, condition: eqz(value), when_true: when_true}
     # end
 
-    def enum(cases) do
+    def calculate_enum(cases) do
       Map.new(Enum.with_index(cases), fn {key, index} -> {key, {:i32_const, index}} end)
     end
 
@@ -562,6 +562,13 @@ defmodule Orb do
       quote do
         @wasm_global_exported_readonly for {key, index} <- Enum.with_index(unquote(keys)),
                                            do: {key, i32(index)}
+      end
+    end
+
+    defmacro enum(keys) do
+      quote do
+        @wasm_global for {key, index} <- Enum.with_index(unquote(keys)),
+                         do: {key, i32(index)}
       end
     end
   end

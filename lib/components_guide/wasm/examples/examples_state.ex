@@ -2,6 +2,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   alias ComponentsGuide.Wasm
 
   defmodule StateMachine do
+    # defmacro __using__(_opts) do
+    #   I32.global(state: 0)
+    # end
+
     defmacro on(call, target: target) do
       use Orb, inline: true
       # import Orb
@@ -46,11 +50,70 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       {name, []} = Macro.decompose_call(call)
 
       statements =
-        for {:->, _, [[match], target]} <- targets do
-          quote do
-            if I32.eq(global_get(:state), unquote(match)) do
-              [unquote(target), global_set(:state), :return]
+        for {:->, _, [matches, target]} <- targets do
+          effect =
+            case target do
+              {target, global_mutations} when is_list(global_mutations) ->
+                quote do
+                  [
+                    unquote(target),
+                    global_set(:state),
+                    unquote(
+                      for {global_name, mutation} <- global_mutations do
+                        case mutation do
+                          :increment ->
+                            quote do
+                              [
+                                I32.add(global_get(unquote(global_name)), 1),
+                                global_set(unquote(global_name))
+                              ]
+                            end
+
+                          n when is_integer(n) ->
+                            quote do
+                              [
+                                push(unquote(n)),
+                                global_set(unquote(global_name))
+                              ]
+                            end
+                        end
+                      end
+                    ),
+                    :return
+                  ]
+                end
+
+              {target, {:snippet, _, _} = snippet} ->
+                quote do
+                  [unquote(target), global_set(:state), unquote(snippet), :return]
+                end
+
+              target ->
+                IO.inspect(target)
+
+                quote do
+                  [unquote(target), global_set(:state), :return]
+                end
             end
+
+          case matches do
+            # catchall
+            [{:_, _, nil}] ->
+              effect
+
+            [match] ->
+              quote do
+                if I32.eq(global_get(:state), unquote(match)) do
+                  unquote(effect)
+                end
+              end
+
+            matches ->
+              quote do
+                if I32.in?(global_get(:state), unquote(matches)) do
+                  unquote(effect)
+                end
+              end
           end
         end
 
@@ -271,7 +334,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
-    @states I32.enum([:offline?, :online?])
+    @states I32.calculate_enum([:offline?, :online?])
 
     # defstate Offline do
     #   on(online, target: Online)
@@ -343,7 +406,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # Generate state machine on the fly with initial state Open:
     # /wasm/state-machine/Closed,Open/Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
 
-    @states I32.enum([:closed?, :open?])
+    @states I32.calculate_enum([:closed?, :open?])
 
     # defstatemachine [:closed?, :open?] do
     #   on(open(closed?), target: open?)
@@ -399,7 +462,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
-    @states I32.enum([:pending, :resolved, :rejected])
+    @states I32.calculate_enum([:pending, :resolved, :rejected])
 
     defwasm exported_globals: [
               pending: @states.pending,
@@ -426,7 +489,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use Wasm
     import StateMachine
 
-    @states I32.enum([
+    @states I32.calculate_enum([
               :initial?,
               :started?,
               :canceled?,
@@ -488,6 +551,138 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
   end
 
+  defmodule LiveAPIConnection do
+    # See: https://liveblocks.io/blog/whats-new-in-v1-1
+
+    use Orb
+    import StateMachine
+
+    I32.enum([
+      :idle_initial,
+      :idle_failed,
+      :auth_busy,
+      :auth_backoff,
+      :connecting_busy,
+      :connecting_backoff,
+      :ok_connected,
+      :ok_awaiting_pong
+    ])
+
+    I32.export_enum([
+      :initial,
+      :connecting,
+      :connected,
+      :reconnecting,
+      :disconnected
+    ])
+
+    # I32.global(state: @initial?)
+    I32.global(state: 0)
+    # I32.global(change_count: 0)
+
+    I32.global(success_count: 0)
+    I32.global(token: 0)
+    I32.global(heartbeat_inbox: 0)
+
+    wasm_memory(pages: 1)
+
+    # wasm_import [
+    #   effects: [
+    #     send_heartbeat: func(name: :send_heartbeat, params: I32, result: I32)
+    #   ]
+    # ]
+
+    wasm U32 do
+      # func(get_change_count(), I32, do: @change_count)
+      func(get_search_params(), I32, do: 0x0)
+      func(get_success_count(), I32, do: @success_count)
+
+      # TODO: do this in another way?
+      func(set_token(token: I32)) do
+        @token = token
+      end
+
+      on reconnect() do
+        _ ->
+          {@auth_backoff, success_count: 0}
+      end
+
+      on disconnect() do
+        _ -> @idle_initial
+      end
+
+      on connect() do
+        @idle_initial, @idle_failed -> I32.when?(@token, do: @connecting_busy, else: @auth_busy)
+      end
+
+      # TODO: pass token
+      on auth_succeeded() do
+        @auth_busy -> @connecting_busy
+      end
+
+      on connecting_succeeded() do
+        @connecting_busy ->
+          {@ok_connected, success_count: :increment}
+          # @connecting_busy ->
+          #   {@ok_connected,
+          #    snippet U32 do
+          #      @success_count = @success_count + 1
+          #    end}
+      end
+
+      on pong() do
+        @ok_awaiting_pong -> @ok_connected
+      end
+
+      on navigator_offline() do
+        @ok_connected -> {@ok_awaiting_pong, heartbeat_inbox: :increment}
+      end
+
+      on window_did_focus() do
+        @ok_connected ->
+          # {@ok_awaiting_pong, [:send_heartbeat]}
+          {@ok_awaiting_pong, heartbeat_inbox: :increment}
+          # @ok_connected -> @ok_awaiting_pong
+      end
+
+      func pop_heartbeat_inbox(), I32 do
+        I32.match @heartbeat_inbox do
+          0 ->
+            0
+
+          _ ->
+            @heartbeat_inbox = @heartbeat_inbox - 1
+            1
+        end
+      end
+
+      funcp get_public_state(), I32 do
+        I32.match @state do
+          @idle_initial -> @initial
+          @idle_failed -> @disconnected
+          @auth_busy -> @connecting
+          @auth_backoff -> @connecting
+          @connecting_busy -> @connecting
+          @connecting_backoff -> @connecting
+          @ok_connected -> @connected
+          @ok_awaiting_pong -> @connected
+        end
+      end
+
+      func(get_current(), I32, do: call(:get_public_state))
+
+      func get_path(), I32.String do
+        I32.match call(:get_public_state) do
+          @initial -> ~S[/initial]
+          @connecting -> ~S[/connecting]
+          @connected -> ~S[/connected]
+          @reconnecting -> ~S[/reconnecting]
+          @disconnected -> ~S[/disconnected]
+        end
+      end
+    end
+  end
+
   defmodule FlightBooking do
     use Wasm
     import StateMachine
@@ -524,11 +719,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
       func get_path(), I32.String do
         I32.match @state do
-          @initial? -> const("/book")
-          @destination? -> const("/destination")
-          @dates? -> const("/dates")
-          @flights? -> const("/flights")
-          @seats? -> const("/seats")
+          @initial? -> ~S[/book]
+          @destination? -> ~S[/destination]
+          @dates? -> ~S[/dates]
+          @flights? -> ~S[/flights]
+          @seats? -> ~S[/seats]
         end
       end
     end

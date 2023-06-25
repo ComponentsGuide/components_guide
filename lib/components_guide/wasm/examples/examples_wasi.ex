@@ -11,7 +11,7 @@ defmodule ComponentsGuide.Wasm.Examples.WASI do
     # export const CLOCKID_MONOTONIC = 1;
     # export const CLOCKID_PROCESS_CPUTIME_ID = 2;
     # export const CLOCKID_THREAD_CPUTIME_ID = 3;
-    @clockid I32.enum([
+    @clockid I32.calculate_enum([
                :realtime,
                :monotonic,
                :process_cputime_id,
