@@ -435,6 +435,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
+    def reverse_in_place!(%Orb.MutRef{read: read, write: write}) do
+      snippet U32 do
+        call(:reverse_in_place, read)
+        write
+      end
+    end
+
     def start() do
       imports = [
         {:log, :int32,

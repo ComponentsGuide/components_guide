@@ -1446,6 +1446,20 @@ defmodule Orb do
     }
   end
 
+  defmodule MutRef do
+    defstruct [:read, :write]
+
+    def from({:global_get, name} = read) do
+      %__MODULE__{read: read, write: {:global_set, name}}
+    end
+
+    def from({:local_get, name} = read) do
+      %__MODULE__{read: read, write: {:local_set, name}}
+    end
+  end
+
+  def mut!(term), do: MutRef.from(term)
+
   def raw_wat(source), do: {:raw_wat, String.trim(source)}
   def sigil_A(source, _modifiers), do: {:raw_wat, String.trim(source)}
 

@@ -307,7 +307,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       url_list: 0x0
     )
 
-    wasm do
+    wasm U32 do
       # EscapeHTML.funcp(escape, I32)
       # EscapeHTML.funcp escape(read_offset: I32, write_offset: I32), I32
       EscapeHTML.funcp(:escape)
@@ -316,22 +316,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
       func rewind() do
         @body_chunk_index = 0
-      end
-
-      func free(), ptr: I32.Pointer do
-        @body_chunk_index = 0
-        @bump_offset = BumpAllocator.Constants.bump_init_offset()
-
-        ptr = I32.add(64, @bump_offset)
-
-        loop Clear do
-          ptr[at!: 0] = 0x0
-
-          if I32.gt_u(ptr, @bump_offset) do
-            ptr = I32.sub(ptr, 1)
-            Clear.continue()
-          end
-        end
       end
 
       func add_url(str_ptr: I32.U8.Pointer) do
@@ -355,11 +339,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S"<url>\n<loc>"
 
           2 ->
-            call(:escape, call(:hd, @url_list), @output_offset)
+            call(:escape, hd!(@url_list), @output_offset)
             push(@output_offset)
 
           3 ->
-            @url_list = call(:tl, @url_list)
+            @url_list = tl!(@url_list)
             @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
 
             ~S"""
@@ -383,7 +367,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        @body_chunk_index = I32.add(@body_chunk_index, 1)
+        @body_chunk_index = @body_chunk_index + 1
       end
     end
 
@@ -401,7 +385,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule HTMLFormBuilder do
     use Wasm
-    use BumpAllocator
+    use BumpAllocator, export: true
     use LinkedLists
 
     wasm_memory(pages: 3)
@@ -429,14 +413,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     wasm_import(:log, :int32, func(name: :log32, params: I32, result: I32))
 
-    wasm do
+    wasm U32 do
       EscapeHTML.funcp(:escape)
       LinkedLists.funcp(:cons)
       LinkedLists.funcp(:hd)
       LinkedLists.funcp(:tl)
       LinkedLists.funcp(:reverse_in_place)
-
-      func(alloc(byte_size: I32), I32, do: call(:bump_alloc, byte_size))
 
       func add_textbox(name_ptr: I32.U8.Pointer) do
         @form_element_list = call(:cons, name_ptr, @form_element_list)
@@ -449,7 +431,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func next_body_chunk(), I32 do
         I32.match @body_chunk_index do
           0 ->
-            @form_element_list = call(:reverse_in_place, @form_element_list)
+            reverse_in_place!(mut!(@form_element_list))
             @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
 
             ~S[<form>\n]
@@ -459,16 +441,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S[<label for="]
 
           2 ->
-            call(:hd, @form_element_list)
+            hd!(@form_element_list)
 
           3 ->
             ~S[">\n  <input type="text" name="]
 
           4 ->
-            call(:hd, @form_element_list)
+            hd!(@form_element_list)
 
           5 ->
-            @form_element_list = call(:tl, @form_element_list)
+            @form_element_list = tl!(@form_element_list)
             @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
 
             ~S[">\n</label>\n]
@@ -487,7 +469,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        @body_chunk_index = I32.add(@body_chunk_index, 1)
+        @body_chunk_index = @body_chunk_index + 1
       end
     end
 
