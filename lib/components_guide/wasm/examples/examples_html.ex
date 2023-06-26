@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
   defmodule EscapeHTML do
@@ -282,6 +283,59 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     def initial_html() do
       instance = start()
       read_body(instance)
+    end
+  end
+
+  defmodule MultiStepForm do
+    # See: https://buildui.com/courses/framer-motion-recipes/multistep-wizard
+
+    use Orb
+    use BumpAllocator
+    use I32.String
+    use StringBuilder
+
+    I32.export_global(step_count: 4)
+    I32.global(step: 1)
+
+    wasm U32 do
+      func(get_current_step(), I32, do: @step)
+
+      funcp _change_step(step: I32) do
+        @step =
+          I32.when? step < 1 do
+            1
+          else
+            I32.when?(step > @step_count, do: @step_count, else: step)
+          end
+      end
+
+      func(next_step(), do: call(:_change_step, @step + 1))
+      func(previous_step(), do: call(:_change_step, @step - 1))
+      func(jump_to_step(step: I32), do: call(:_change_step, step))
+
+      func(to_string(), I32.String, do: call(:to_html))
+
+      func to_html(), I32.String do
+        write_start!()
+        _ = call(:render_step, 1)
+        _ = call(:render_step, 2)
+        # join!([
+        #   call(:render_step, 1),
+        #   call(:render_step, 2),
+        #   call(:render_step, 3),
+        #   call(:render_step, 4),
+        #   call(:render_step, 5)
+        # ])
+        write_done!()
+      end
+
+      funcp render_step(step: I32), I32.String do
+        write_start!()
+        bump_write!(strptr: ~S[<div class="w-4 h-4 text-center">])
+        # bump_write!(~S[<div class="w-4 h-4 text-center">])
+        bump_write!(strptr: ~S[</div>])
+        write_done!()
+      end
     end
   end
 

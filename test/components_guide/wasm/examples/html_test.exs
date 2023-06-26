@@ -8,6 +8,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
     EscapeHTML,
     HTMLPage,
     CounterHTML,
+    MultiStepForm,
     SitemapBuilder,
     HTMLFormBuilder
   }
@@ -205,7 +206,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       # TODO: strip out unused private functions
 
       # assert byte_size(CounterHTML.to_wasm()) == 501
-      assert byte_size(Wasm.to_wasm(CounterHTML)) == 568
+      assert byte_size(Wasm.to_wasm(CounterHTML)) == 520
     end
 
     test "works" do
@@ -239,6 +240,15 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
 
       assert CounterHTML.read_body(instance) ==
                ~s[<output class="flex p-4 bg-gray-800">14</output>\n<button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>]
+    end
+  end
+
+  describe "MultiStepForm" do
+    test "works" do
+      instance = Instance.run(MultiStepForm)
+
+      assert to_string(instance) ==
+               ~s[<div class="w-4 h-4 text-center"></div><div class="w-4 h-4 text-center"></div>]
     end
   end
 

@@ -87,7 +87,6 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
 
     use Orb
-    import ComponentsGuide.Wasm.Examples.Memory.Copying
 
     defmacro __using__(opts \\ []) do
       quote do
@@ -98,11 +97,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         I32.global(
           bump_offset: Constants.bump_init_offset(),
-          bump_mark: 0,
-          bump_write_level: 0
+          bump_mark: 0
         )
-
-        use ComponentsGuide.Wasm.Examples.Memory.Copying
 
         Orb.wasm do
           unquote(__MODULE__).funcp(:bump_alloc)
@@ -124,8 +120,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     I32.global(
       bump_offset: Constants.bump_init_offset(),
-      bump_mark: 0,
-      bump_write_level: 0
+      bump_mark: 0
     )
 
     wasm do
@@ -160,10 +155,6 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     def alloc(byte_count) do
       call(:bump_alloc, byte_count)
     end
-
-    # def memcpy(dest, {:const_string, string}) do
-    #   call(:bump_memcpy, dest, src, byte_count(string))
-    # end
   end
 
   defmodule LinkedLists do

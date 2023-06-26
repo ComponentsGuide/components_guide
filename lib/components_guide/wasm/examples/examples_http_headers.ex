@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule CacheControl do
@@ -14,17 +15,18 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     use Wasm
     use BumpAllocator
+    use Copying
     import Writer
 
     def start(), do: Wasm.Instance.run(__MODULE__)
 
-    global(
-      private: i32_boolean(0),
-      public: i32_boolean(0),
-      no_store: i32_boolean(0),
-      immutable: i32_boolean(0),
-      max_age_seconds: i32(-1),
-      s_max_age_seconds: i32(-1)
+    I32.global(
+      private: false,
+      public: false,
+      no_store: false,
+      immutable: false,
+      max_age_seconds: -1,
+      s_max_age_seconds: -1
     )
 
     wasm do
@@ -117,6 +119,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     use Wasm
     # use Memory, allocator: :bump
     use BumpAllocator
+    use Copying
     use I32.String
     import Writer
 

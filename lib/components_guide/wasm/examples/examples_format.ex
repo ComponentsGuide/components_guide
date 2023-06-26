@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
 
   defmodule IntToString do
     use Wasm
@@ -14,6 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         wasm do
           IntToString.funcp(:u32toa_count)
           IntToString.funcp(:u32toa)
+          # IntToString.funcp(:write_u32)
         end
       end
     end
@@ -37,9 +39,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         digit_count
       end
 
-      func write_u32(value(I32), str_ptr(I32)),
+      func write_u32(value: I32, str_ptr: I32.U8.Pointer),
            I32,
-           working_offset: I32,
+           working_offset: I32.U8.Pointer,
            last_offset: I32,
            digit: I32 do
         last_offset = I32.add(str_ptr, call(:u32toa_count, value))
@@ -92,6 +94,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     use Orb
     use BumpAllocator, export: true
     use I32.String
+    use StringBuilder
 
     defmacro __using__(_) do
       quote do

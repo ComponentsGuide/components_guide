@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
-  use ComponentsGuide.Wasm
+  use Orb
   import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
@@ -11,6 +11,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       use Copying
 
       import unquote(__MODULE__)
+
+      I32.global(bump_write_level: 0)
     end
   end
 

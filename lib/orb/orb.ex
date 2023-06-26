@@ -1279,8 +1279,10 @@ defmodule Orb do
   def i32_const(value), do: {:i32_const, value}
   def i32_boolean(0), do: {:i32_const, 0}
   def i32_boolean(1), do: {:i32_const, 1}
-  def i32(op) when op in Ops.i32(:all), do: {:i32, op}
   def i32(n) when is_integer(n), do: {:i32_const, n}
+  def i32(false), do: {:i32_const, 0}
+  def i32(true), do: {:i32_const, 1}
+  def i32(op) when op in Ops.i32(:all), do: {:i32, op}
 
   def push(tuple)
       when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const, :local_get, :global_get],

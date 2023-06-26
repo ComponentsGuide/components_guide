@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule PortfolioSite do
@@ -8,6 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     use Memory.BumpAllocator
     use I32.String
     use IntToString
+    use StringBuilder
     import Writer
 
     global(
