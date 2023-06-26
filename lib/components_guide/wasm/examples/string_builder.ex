@@ -67,24 +67,24 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def bump_write!(strptr: str_ptr) do
+  def append!(string: str_ptr) do
     call(:bump_write_str, str_ptr)
   end
 
-  def bump_write!(ascii: char) do
+  def append!(ascii: char) do
     snippet U32 do
       I32.store8(@bump_offset, char)
       @bump_offset = @bump_offset + 1
     end
   end
 
-  def bump_write!(u32: int) do
+  def append!(u32: int) do
     snippet do
       @bump_offset = IntToString.write_u32(int, @bump_offset)
     end
   end
 
-  def bump_write!(hex_upper: hex) do
+  def append!(hex_upper: hex) do
     # This might be a bit over the top…
     {initial, following} =
       case hex do
@@ -144,7 +144,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  #     def bump_write!(list) when is_list(list) do
+  #     def append!(list) when is_list(list) do
   #       snippet do
   #         inline for item <- list do
   #           # WE NEED TO INCREMENT bump_offset after each round

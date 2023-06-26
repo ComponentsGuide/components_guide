@@ -122,21 +122,21 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
                |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
                |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
                |> I32.or(I32.in?(char, ~C{+:/?#[]@!$&\'()*,;=~_-.})) do
-              bump_write!(ascii: char)
+              append!(ascii: char)
             else
-              bump_write!(ascii: ?%)
-              bump_write!(hex_upper: char >>> 4)
-              bump_write!(hex_upper: char &&& 15)
-              # bump_write!(hex_upper: I32.div_u(char, 16))
-              # bump_write!(hex_upper: I32.rem_u(char, 16))
+              append!(ascii: ?%)
+              append!(hex_upper: char >>> 4)
+              append!(hex_upper: char &&& 15)
+              # append!(hex_upper: I32.div_u(char, 16))
+              # append!(hex_upper: I32.rem_u(char, 16))
 
               # __dup_32 = I32.div_u(char, 16)
-              # bump_write!(hex_upper: __dup_32)
+              # append!(hex_upper: __dup_32)
               # __dup_32 = I32.rem_u(char, 16)
-              # bump_write!(hex_upper: __dup_32)
+              # append!(hex_upper: __dup_32)
 
-              # bump_write!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
-              # bump_write!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
+              # append!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
+              # append!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
             end
 
             str_ptr = str_ptr + 1
@@ -159,27 +159,27 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
           if char do
             if I32.eq(char, 0x20) do
-              bump_write!(ascii: ?+)
+              append!(ascii: ?+)
             else
               if I32.in_inclusive_range?(char, ?a, ?z)
                  |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
                  |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
                  |> I32.or(I32.in?(char, ~C{~_-.})) do
-                bump_write!(ascii: char)
+                append!(ascii: char)
               else
-                bump_write!(ascii: ?%)
-                bump_write!(hex_upper: char >>> 4)
-                bump_write!(hex_upper: char &&& 15)
-                # bump_write!(hex_upper: I32.div_u(char, 16))
-                # bump_write!(hex_upper: I32.rem_u(char, 16))
+                append!(ascii: ?%)
+                append!(hex_upper: char >>> 4)
+                append!(hex_upper: char &&& 15)
+                # append!(hex_upper: I32.div_u(char, 16))
+                # append!(hex_upper: I32.rem_u(char, 16))
 
                 # __dup_32 = I32.div_u(char, 16)
-                # bump_write!(hex_upper: __dup_32)
+                # append!(hex_upper: __dup_32)
                 # __dup_32 = I32.rem_u(char, 16)
-                # bump_write!(hex_upper: __dup_32)
+                # append!(hex_upper: __dup_32)
 
-                # bump_write!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
-                # bump_write!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
+                # append!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
+                # append!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
               end
             end
 
@@ -195,14 +195,14 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         bump_begin!()
 
         loop EachPair do
-          bump_write!(strptr: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
-          bump_write!(ascii: ?=)
-          bump_write!(strptr: LinkedLists.hd!(LinkedLists.tl!(LinkedLists.hd!(list_ptr))))
+          append!(string: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
+          append!(ascii: ?=)
+          append!(string: LinkedLists.hd!(LinkedLists.tl!(LinkedLists.hd!(list_ptr))))
 
           list_ptr = LinkedLists.tl!(list_ptr)
 
           if list_ptr do
-            bump_write!(ascii: ?&)
+            append!(ascii: ?&)
           end
 
           EachPair.continue(if: list_ptr)
