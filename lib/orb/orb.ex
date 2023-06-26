@@ -1428,6 +1428,7 @@ defmodule Orb do
 
   def return(), do: :return
   def return(value), do: {:return, value}
+  def return(value, if: condition), do: %IfElse{condition: condition, when_true: {:return, value}}
 
   def nop(), do: :nop
 

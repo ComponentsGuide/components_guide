@@ -338,30 +338,29 @@ defmodule ComponentsGuide.WasmTest do
   defmodule FileNameSafe do
     use Orb
 
-    defwasm imports: [env: [buffer: memory(2)]] do
-      func get_is_valid, I32, read_offset: I32, char: I32 do
-        read_offset = 1024
+    wasm_memory(pages: 2)
+
+    wasm U32 do
+      func get_is_valid(), I32, str: I32.U8.Pointer, char: I32 do
+        str = 1024
+
+        # str.each_char do
+        #   0x0 ->
+        #     return(1)
+        #   
+        #   ?/ ->
+        #     return(0)
+        #   
+        #   _ ->
+        #     :cont
+        # end
 
         loop EachChar, result: I32 do
-          defblock Outer do
-            defblock Inner do
-              # char = I32.load8_u(read_offset)
-              # char = I32.Memory.load!(read_offset)
-              # char = I32.Memory.load8!(read_offset).unsigned
-              # char = I32.memory![read_offset].unsigned
-              char = I32.memory8!(read_offset).unsigned
-              # char = memory32_8![read_offset].unsigned
-              break(Inner, if: I32.eq(char, ?/))
-              break(Outer, if: char)
-              push(1)
-              return()
-            end
+          char = str[at!: 0]
+          return(0, if: I32.eq(char, ?/))
+          return(1, if: I32.eqz(char))
 
-            push(0)
-            return()
-          end
-
-          read_offset = I32.add(read_offset, 1)
+          str = str + 1
           EachChar.continue()
         end
       end
