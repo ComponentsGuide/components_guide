@@ -38,6 +38,12 @@
     global.get 2)
   (func (;2;) (type 3) (param i32)
     (local i32 i32 i32)
+    local.get 0
+    global.get 2
+    i32.eq
+    if  ;; label = @1
+      return
+    end
     global.get 1
     local.set 3
     loop  ;; label = @1

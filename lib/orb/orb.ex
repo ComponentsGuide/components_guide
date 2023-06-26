@@ -1432,6 +1432,7 @@ defmodule Orb do
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
+  def return(if: condition), do: %IfElse{condition: condition, when_true: :return}
   def return(value), do: {:return, value}
   def return(value, if: condition), do: %IfElse{condition: condition, when_true: {:return, value}}
 

@@ -248,7 +248,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       instance = Instance.run(MultiStepForm)
 
       assert to_string(instance) ==
-               ~s[<div class="w-4 h-4 text-center"></div><div class="w-4 h-4 text-center"></div>]
+               ~S"""
+               <div class="w-4 h-4 text-center">1</div>
+               <div class="w-4 h-4 text-center">2</div>
+               <div class="w-4 h-4 text-center">3</div>
+               <div class="w-4 h-4 text-center">4</div>
+               <div class="w-4 h-4 text-center">5</div>
+               """
     end
   end
 

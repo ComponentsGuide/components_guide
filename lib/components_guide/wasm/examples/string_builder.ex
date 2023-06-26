@@ -10,6 +10,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     quote do
       use Copying
       use I32.String
+      use IntToString
 
       import unquote(__MODULE__)
 
@@ -45,6 +46,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
 
     funcp bump_write_str(str_ptr: I32.U8.Pointer), len: I32 do
+      return(if: I32.eq(str_ptr, @bump_mark))
+
       len = call(:strlen, str_ptr)
       Copying.memcpy(@bump_offset, str_ptr, len)
       @bump_offset = @bump_offset + len
@@ -162,10 +165,9 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     alias ComponentsGuide.Wasm.Examples.Memory.Copying
 
     snippet do
-      global_get(:bump_offset)
-      global_set(:bump_mark)
+      write_start!()
 
-      inline for item! <- list! do
+      inline for item! <- ^list! do
         case item! do
           {:i32_const_string, strptr, string} ->
             [
@@ -174,21 +176,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
               global_set(:bump_offset)
             ]
 
-          strptr ->
-            [
-              Copying.memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr)),
-              I32.add(global_get(:bump_offset), call(:strlen, strptr)),
-              global_set(:bump_offset)
-            ]
+          str_ptr ->
+            call(:bump_write_str, str_ptr)
         end
       end
 
-      # Add nul-terminator
-      I32.add(global_get(:bump_offset), 1)
-      global_set(:bump_offset)
-      # @bump_offset = I32.add(@bump_offset, 1)
-
-      global_get(:bump_mark)
+      write_done!()
     end
   end
 

@@ -15,7 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         wasm do
           IntToString.funcp(:u32toa_count)
           IntToString.funcp(:u32toa)
-          # IntToString.funcp(:write_u32)
+          IntToString.funcp(:write_u32)
         end
       end
     end
