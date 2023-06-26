@@ -1293,14 +1293,12 @@ defmodule Orb do
 
   def push(n) when is_integer(n), do: {:i32_const, n}
 
-  defmacro push(value, do: block) do
-    quote do
-      [
-        unquote(value),
-        unquote(get_block_items(block)),
-        :pop
-      ]
-    end
+  def push(value, do: block) do
+    [
+      value,
+      get_block_items(block),
+      :pop
+    ]
   end
 
   def global_get(identifier), do: {:global_get, identifier}

@@ -316,13 +316,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func(to_string(), I32.String, do: call(:to_html))
 
       func to_html(), I32.String do
-        # write_start!()
+        # bump_begin!()
         # _ = call(:render_step, 1)
         # _ = call(:render_step, 2)
         # _ = call(:render_step, 3)
         # _ = call(:render_step, 4)
         # _ = call(:render_step, 5)
-        # write_done!()
+        # bump_done!()
         join!([
           call(:render_step, 1),
           call(:render_step, 2),
@@ -333,12 +333,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       funcp render_step(step: I32), I32.String do
-        write_start!()
-        bump_write!(strptr: ~S[<div class="w-4 h-4 text-center">])
-        bump_write!(u32: step)
-        # bump_write!(~S[<div class="w-4 h-4 text-center">])
-        bump_write!(strptr: ~S[</div>\n])
-        write_done!()
+        build! do
+          bump_write!(strptr: ~S[<div class="w-4 h-4 text-center">])
+          bump_write!(u32: step)
+          bump_write!(strptr: ~S[</div>\n])
+        end
+
+        # bump_begin!()
+        # bump_write!(strptr: ~S[<div class="w-4 h-4 text-center">])
+        # bump_write!(u32: step)
+        # bump_write!(strptr: ~S[</div>\n])
+        # bump_done!()
       end
     end
   end

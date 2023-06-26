@@ -112,7 +112,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
            char: I32.U8,
            abc: I32,
            __dup_32: I32 do
-        write_start!()
+        bump_begin!()
 
         loop EachByte do
           char = str_ptr[at!: 0]
@@ -144,7 +144,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           end
         end
 
-        write_done!()
+        bump_done!()
       end
 
       func url_encode_www_form(str_ptr: I32.String),
@@ -152,7 +152,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
            char: I32.U8,
            abc: I32,
            __dup_32: I32 do
-        write_start!()
+        bump_begin!()
 
         loop EachByte do
           char = str_ptr[at!: 0]
@@ -188,11 +188,11 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           end
         end
 
-        write_done!()
+        bump_done!()
       end
 
       func url_encode_query_www_form(list_ptr: I32.Pointer), I32.String do
-        write_start!()
+        bump_begin!()
 
         loop EachPair do
           bump_write!(strptr: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
@@ -208,7 +208,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           EachPair.continue(if: list_ptr)
         end
 
-        write_done!()
+        bump_done!()
       end
     end
 

@@ -54,12 +54,17 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def write_start!() do
-    call(:bump_write_start)
-  end
+  def bump_begin!(), do: call(:bump_write_start)
+  def bump_done!(), do: call(:bump_write_done)
 
-  def write_done!() do
-    call(:bump_write_done)
+  defmacro build!(do: {:__block__, _, items}) do
+    quote do
+      [
+        bump_begin!(),
+        unquote(items),
+        bump_done!()
+      ]
+    end
   end
 
   def bump_write!(strptr: str_ptr) do
@@ -165,7 +170,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     alias ComponentsGuide.Wasm.Examples.Memory.Copying
 
     snippet do
-      write_start!()
+      bump_begin!()
 
       inline for item! <- ^list! do
         case item! do
@@ -181,7 +186,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
         end
       end
 
-      write_done!()
+      bump_done!()
     end
   end
 
