@@ -287,7 +287,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule SitemapBuilder do
     use Wasm
-    use BumpAllocator
+    use BumpAllocator, export: true
     use LinkedLists
 
     @wasm_memory 3
@@ -312,20 +312,18 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       # EscapeHTML.funcp escape(read_offset: I32, write_offset: I32), I32
       EscapeHTML.funcp(:escape)
 
-      func(alloc(byte_size: I32), I32, do: call(:bump_alloc, byte_size))
-
       func rewind() do
         @body_chunk_index = 0
       end
 
       func add_url(str_ptr: I32.U8.Pointer) do
-        @url_list = call(:cons, str_ptr, @url_list)
+        @url_list = cons(str_ptr, @url_list)
       end
 
       func next_body_chunk(), I32 do
         I32.match @body_chunk_index do
           0 ->
-            @url_list = call(:reverse_in_place, @url_list)
+            reverse_in_place!(mut!(@url_list))
             @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
 
             ~S"""
@@ -415,13 +413,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     wasm U32 do
       EscapeHTML.funcp(:escape)
-      LinkedLists.funcp(:cons)
-      LinkedLists.funcp(:hd)
-      LinkedLists.funcp(:tl)
-      LinkedLists.funcp(:reverse_in_place)
 
       func add_textbox(name_ptr: I32.U8.Pointer) do
-        @form_element_list = call(:cons, name_ptr, @form_element_list)
+        @form_element_list = cons(name_ptr, @form_element_list)
       end
 
       func rewind() do
@@ -441,6 +435,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S[<label for="]
 
           2 ->
+            # TODO: escape HTML
             hd!(@form_element_list)
 
           3 ->

@@ -423,6 +423,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
+    def cons(head, tail) do
+      snippet U32 do
+        call(:cons, head, tail)
+      end
+    end
+
     def hd!(ptr) do
       snippet U32 do
         I32.load(ptr)
