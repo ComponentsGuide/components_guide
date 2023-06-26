@@ -251,6 +251,9 @@ defmodule Orb do
     def rotl(a, b)
     def rotr(a, b)
 
+    def store(offset, i32)
+    def store8(offset, i8)
+
     for op <- Ops.i32(1) do
       def unquote(op)(a) do
         {:i32, unquote(op), a}
@@ -960,7 +963,7 @@ defmodule Orb do
     define_func(call, :private, [], block, __CALLER__)
   end
 
-  defmacro func(call, locals, do: block) when is_list(locals) do
+  defmacro funcp(call, locals, do: block) when is_list(locals) do
     define_func(call, :private, [locals: locals], block, __CALLER__)
   end
 
