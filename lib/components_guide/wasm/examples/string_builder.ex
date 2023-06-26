@@ -9,48 +9,64 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   defmacro __using__(_) do
     quote do
       use Copying
+      use I32.String
 
       import unquote(__MODULE__)
 
       I32.global(bump_write_level: 0)
+
+      Orb.wasm do
+        unquote(__MODULE__).funcp(:bump_write_start)
+        unquote(__MODULE__).funcp(:bump_write_done)
+        unquote(__MODULE__).funcp(:bump_write_str)
+      end
     end
   end
 
-  def write_start!() do
-    snippet U32 do
+  wasm U32 do
+    funcp bump_write_start() do
       if I32.eqz(@bump_write_level) do
         @bump_mark = @bump_offset
       end
 
       @bump_write_level = @bump_write_level + 1
     end
-  end
 
-  def write_done!() do
-    snippet U32 do
+    funcp bump_write_done(), I32 do
       assert!(@bump_write_level > 0)
       @bump_write_level = @bump_write_level - 1
 
       if I32.eqz(@bump_write_level) do
-        bump_write!(ascii: 0x0)
+        I32.store8(@bump_offset, 0x0)
+        @bump_offset = I32.add(@bump_offset, 1)
       end
 
       @bump_mark
     end
-  end
 
-  def bump_write!(strptr: strptr) do
-    snippet do
-      Copying.memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr))
-      I32.add(global_get(:bump_offset), call(:strlen, strptr))
-      global_set(:bump_offset)
+    funcp bump_write_str(str_ptr: I32.U8.Pointer), len: I32 do
+      len = call(:strlen, str_ptr)
+      Copying.memcpy(@bump_offset, str_ptr, len)
+      @bump_offset = @bump_offset + len
     end
   end
 
+  def write_start!() do
+    call(:bump_write_start)
+  end
+
+  def write_done!() do
+    call(:bump_write_done)
+  end
+
+  def bump_write!(strptr: str_ptr) do
+    call(:bump_write_str, str_ptr)
+  end
+
   def bump_write!(ascii: char) do
-    snippet do
-      memory32_8![@bump_offset] = char
-      @bump_offset = I32.add(@bump_offset, 1)
+    snippet U32 do
+      I32.store8(@bump_offset, char)
+      @bump_offset = @bump_offset + 1
     end
   end
 
