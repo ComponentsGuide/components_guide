@@ -317,16 +317,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
       func to_html(), I32.String do
         build! do
-          # build!(:build_step, 1)
-          # build!(:build_step, 2)
-          # build!(:build_step, 3)
-          # build!(:build_step, 4)
-          # build!(:build_step, 5)
-          _ = call(:build_step, 1)
-          _ = call(:build_step, 2)
-          _ = call(:build_step, 3)
-          _ = call(:build_step, 4)
-          _ = call(:build_step, 5)
+          append!(:build_step, 1)
+          append!(:build_step, 2)
+          append!(:build_step, 3)
+          append!(:build_step, 4)
+          append!(:build_step, 5)
+          # _ = call(:build_step, 1)
+          # _ = call(:build_step, 2)
+          # _ = call(:build_step, 3)
+          # _ = call(:build_step, 4)
+          # _ = call(:build_step, 5)
         end
 
         # join!([

@@ -67,6 +67,14 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
+  def append!(function) when is_atom(function) do
+    call(function) |> drop()
+  end
+
+  def append!(function, a) when is_atom(function) do
+    call(function, a) |> drop()
+  end
+
   def append!(string: str_ptr) do
     call(:bump_write_str, str_ptr)
   end
