@@ -1,0 +1,191 @@
+defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
+  use ComponentsGuide.Wasm
+  import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory.Copying
+  alias ComponentsGuide.Wasm.Examples.Format.IntToString
+
+  import Copying
+
+  defmacro __using__(_) do
+    quote do
+      use Copying
+
+      import unquote(__MODULE__)
+    end
+  end
+
+  def write_start!() do
+    snippet U32 do
+      if I32.eqz(@bump_write_level) do
+        @bump_mark = @bump_offset
+      end
+
+      @bump_write_level = @bump_write_level + 1
+    end
+  end
+
+  def write_done!() do
+    snippet U32 do
+      assert!(@bump_write_level > 0)
+      @bump_write_level = @bump_write_level - 1
+
+      if I32.eqz(@bump_write_level) do
+        bump_write!(ascii: 0x0)
+      end
+
+      @bump_mark
+    end
+  end
+
+  def bump_write!(strptr: strptr) do
+    snippet do
+      Copying.memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr))
+      I32.add(global_get(:bump_offset), call(:strlen, strptr))
+      global_set(:bump_offset)
+    end
+  end
+
+  def bump_write!(ascii: char) do
+    snippet do
+      memory32_8![@bump_offset] = char
+      @bump_offset = I32.add(@bump_offset, 1)
+    end
+  end
+
+  def bump_write!(u32: int) do
+    snippet do
+      @bump_offset = IntToString.write_u32(int, @bump_offset)
+    end
+  end
+
+  def bump_write!(hex_upper: hex) do
+    # This might be a bit over the top…
+    {initial, following} =
+      case hex do
+        [value, {:local_tee, identifier}] ->
+          {hex, {:local_get, identifier}}
+
+        _ ->
+          {hex, hex}
+      end
+
+    snippet do
+      # push(hex)
+      # 
+      # push(I32.le_u(hex, 9))
+      # 
+      # :drop
+      # 
+      # :pop
+
+      # memory32_8![@bump_offset] = I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+
+      # I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+
+      # push(@bump_offset)
+      # push(@bump_offset)
+
+      # memory32_8![0x0] = hex
+      # if I32.le_u(memory32_8![0x0].unsigned, 9) do
+      #   memory32_8![@bump_offset] = I32.add(memory32_8![0x0].unsigned, ?0)
+      # else
+      #   memory32_8![@bump_offset] = I32.sub(memory32_8![0x0].unsigned, 10) |> I32.add(?A)
+      # end
+
+      # I32.when? I32.le_u(:pop, 9) do
+      #   push(hex)
+      #   I32.add(:pop, ?0)
+      # else
+      #   push(hex)
+      #   I32.sub(:pop, 10) |> I32.add(?A)
+      # end
+      # memory32_8![:pop] = :pop
+
+      # memory32_8![@bump_offset] =
+      #   initial |> I32.add(I32.when?(I32.le_u(following, 9), do: ?0, else: inline(do: ?A - 10)))
+
+      memory32_8![@bump_offset] =
+        I32.u!(initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
+
+      # memory32_8![@bump_offset] =
+      #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
+
+      # FIXME: we are evaluating hex multiple times. Do we have to stash it in a variable?
+      # memory32_8![@bump_offset] =
+      #   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+
+      @bump_offset = I32.add(@bump_offset, 1)
+    end
+  end
+
+  #     def bump_write!(list) when is_list(list) do
+  #       snippet do
+  #         inline for item <- list do
+  #           # WE NEED TO INCREMENT bump_offset after each round
+  #           case item do
+  #             {:ascii, char} ->
+  #               snippet do
+  #                 memory32_8![@bump_offset] = char
+  #               end
+  #               
+  #             {:hex_upper, hex} ->
+  #               snippet do
+  #                 memory32_8![@bump_offset] =
+  #                   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
+  #               end
+  #           end
+  #         end
+  # 
+  #         @bump_offset = I32.add(@bump_offset, length(list))
+  #       end |> dbg()
+  #     end
+
+  def join!(list!) when is_list(list!) do
+    alias ComponentsGuide.Wasm.Examples.Memory.Copying
+
+    snippet do
+      global_get(:bump_offset)
+      global_set(:bump_mark)
+
+      inline for item! <- list! do
+        case item! do
+          {:i32_const_string, strptr, string} ->
+            [
+              Copying.memcpy(global_get(:bump_offset), strptr, byte_size(string)),
+              I32.add(global_get(:bump_offset), byte_size(string)),
+              global_set(:bump_offset)
+            ]
+
+          strptr ->
+            [
+              Copying.memcpy(global_get(:bump_offset), strptr, call(:strlen, strptr)),
+              I32.add(global_get(:bump_offset), call(:strlen, strptr)),
+              global_set(:bump_offset)
+            ]
+        end
+      end
+
+      # Add nul-terminator
+      I32.add(global_get(:bump_offset), 1)
+      global_set(:bump_offset)
+      # @bump_offset = I32.add(@bump_offset, 1)
+
+      global_get(:bump_mark)
+    end
+  end
+
+  #   defmacro sigil_s({:<<>>, line, pieces}, []) do
+  #     dbg(pieces)
+  # 
+  #     pieces =
+  #       for piece <- pieces do
+  #         piece
+  #       end
+  # 
+  #     # {:<<>>, line, pieces}
+  #     # dbg({line, pieces})
+  #     quote do
+  #       write!(unquote(pieces))
+  #     end
+  #   end
+end
