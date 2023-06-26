@@ -316,6 +316,20 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       func(to_string(), I32.String, do: call(:to_html))
 
       func to_html(), I32.String do
+        build! do
+          # build!(:build_step, 1)
+          # build!(:build_step, 2)
+          # build!(:build_step, 3)
+          # build!(:build_step, 4)
+          # build!(:build_step, 5)
+          _ = call(:build_step, 1)
+          _ = call(:build_step, 2)
+          _ = call(:build_step, 3)
+          _ = call(:build_step, 4)
+          _ = call(:build_step, 5)
+          # List.duplicate(drop(), 5)
+        end
+
         # bump_begin!()
         # _ = call(:render_step, 1)
         # _ = call(:render_step, 2)
@@ -323,16 +337,16 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         # _ = call(:render_step, 4)
         # _ = call(:render_step, 5)
         # bump_done!()
-        join!([
-          call(:render_step, 1),
-          call(:render_step, 2),
-          call(:render_step, 3),
-          call(:render_step, 4),
-          call(:render_step, 5)
-        ])
+        # join!([
+        #   call(:build_step, 1),
+        #   call(:build_step, 2),
+        #   call(:build_step, 3),
+        #   call(:build_step, 4),
+        #   call(:build_step, 5)
+        # ])
       end
 
-      funcp render_step(step: I32), I32.String do
+      funcp build_step(step: I32), I32 do
         build! do
           bump_write!(strptr: ~S[<div class="w-4 h-4 text-center">])
           bump_write!(u32: step)
