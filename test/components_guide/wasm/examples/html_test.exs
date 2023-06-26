@@ -249,11 +249,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
 
       assert to_string(instance) ==
                ~S"""
-               <div class="w-4 h-4 text-center">1</div>
-               <div class="w-4 h-4 text-center">2</div>
-               <div class="w-4 h-4 text-center">3</div>
-               <div class="w-4 h-4 text-center">4</div>
-               <div class="w-4 h-4 text-center">5</div>
+               <div class="w-4 h-4 text-center bg-blue-600 text-white">1</div>
+               <div class="w-4 h-4 text-center text-black">2</div>
+               <div class="w-4 h-4 text-center text-black">3</div>
+               <div class="w-4 h-4 text-center text-black">4</div>
+               <div class="w-4 h-4 text-center text-black">5</div>
                """
     end
   end

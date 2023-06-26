@@ -322,11 +322,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           append!(:build_step, 3)
           append!(:build_step, 4)
           append!(:build_step, 5)
-          # _ = call(:build_step, 1)
-          # _ = call(:build_step, 2)
-          # _ = call(:build_step, 3)
-          # _ = call(:build_step, 4)
-          # _ = call(:build_step, 5)
         end
 
         # join!([
@@ -340,7 +335,15 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
       funcp build_step(step: I32), I32.String do
         build! do
-          append!(string: ~S[<div class="w-4 h-4 text-center">])
+          append!(string: ~S[<div class="w-4 h-4 text-center])
+
+          if I32.eq(global_get(:step), step) do
+            append!(string: ~S[ bg-blue-600 text-white])
+          else
+            append!(string: ~S[ text-black])
+          end
+
+          append!(string: ~S[">])
           append!(u32: step)
           append!(string: ~S[</div>\n])
         end
