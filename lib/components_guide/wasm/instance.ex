@@ -10,7 +10,7 @@ defmodule ComponentsGuide.Wasm.Instance do
     handle = Wasm.run_instance(mod, imports)
     %__MODULE__{elixir_mod: mod, exports: exports, handle: handle}
   rescue
-    x in [RuntimeError] ->
+    x in [RuntimeError, Protocol.UndefinedError] ->
       Logger.error(mod.to_wat())
       reraise x, __STACKTRACE__
   end
