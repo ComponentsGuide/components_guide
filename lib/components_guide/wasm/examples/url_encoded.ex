@@ -25,26 +25,20 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     func url_encoded_count(url_encoded: I32.U8.Pointer), I32,
       char: I32.U8,
       count: I32,
-      pair_count: I32 do
-      loop EachByte do
+      has_pair?: I32 do
+      loop EachChar do
         char = url_encoded[at!: 0]
 
         if I32.in?(char, [?&, 0]) do
-          count = count + (pair_count > 0)
-          pair_count = 0
+          count = count + has_pair?
+          has_pair? = 0
         else
-          pair_count = pair_count + 1
+          has_pair? = has_pair? ||| 1
         end
-
-        # if I32.eq(char, ?&) do
-        #   count = count + (pair_count > 0)
-        # else
-        #   pair_count = pair_count + 1
-        # end
 
         url_encoded = url_encoded + 1
 
-        EachByte.continue(if: char)
+        EachChar.continue(if: char)
       end
 
       count
