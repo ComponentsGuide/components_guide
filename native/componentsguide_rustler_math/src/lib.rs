@@ -581,7 +581,7 @@ impl ImportsTable {
                         owned_env.run(|env| {
                             let func_module_name2 = "";
                             let func_name2 = "";
-                            eprintln!("Sending :reply_to_func_call_out func#{func_id} {func_module_name2} {func_name2}");
+                            // eprintln!("Sending :reply_to_func_call_out func#{func_id} {func_module_name2} {func_name2}");
                             env.send(
                                 &pid,
                                 (atom::reply_to_func_call_out(), func_id, reply, params2).encode(env),
@@ -611,10 +611,11 @@ impl ImportsTable {
                         .unwrap_or_else(|error| panic!("Did not recv reply value in time calling imported func {}.{}: {error:?}", func_module_name, func_name));
                         // .expect("Did not recv reply value in time");
 
+                    // eprintln!("Got reply {reply_binary}");
+                    
                     // let reply_binary2 = reply_binary
                     //     .as_ref()
                     //     .expect("Did not write back reply value 2");
-                    eprintln!("Got reply {reply_binary}");
                     // reply_binary2.to_vec()
 
                     let number = reply_binary;
@@ -1076,7 +1077,6 @@ fn wasm_instance_read_memory(
     start: u32,
     length: u32,
 ) -> Result<Vec<u8>, Error> {
-    eprintln!("wasm_instance_read_memory");
     // let instance = resource.lock.read().map_err(string_error)?;
     let instance = resource.lock.try_read().map_err(string_error)?;
     let result = instance.read_memory(start, length).map_err(string_error)?;
@@ -1090,7 +1090,6 @@ fn wasm_instance_read_string_nul_terminated(
     resource: ResourceArc<RunningInstanceResource>,
     memory_offset: u32
 ) -> Result<String, Error> {
-    eprintln!("wasm_instance_read_string_nul_terminated");
     // drop(resource.lock.try_read().map_err(string_error)?);
     
     let mut instance = resource.lock.try_write().map_err(string_error)?;

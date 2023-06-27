@@ -93,9 +93,9 @@ defmodule ComponentsGuide.Research.Source do
     end
   end
 
-  defp cache_key(key) when is_binary(key) do
-    :crypto.hash(:sha256, key) |> Base.encode16(case: :lower)
-  end
+  # defp cache_key(key) when is_binary(key) do
+  #   :crypto.hash(:sha256, key) |> Base.encode16(case: :lower)
+  # end
 
   defp run_and_cache(key) do
     with {:ok, value} <- run(key) do

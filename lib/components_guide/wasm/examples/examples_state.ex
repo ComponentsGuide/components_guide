@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.State do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule StateMachine do
     defmacro __using__(_opts) do
@@ -553,6 +554,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # See: https://liveblocks.io/blog/whats-new-in-v1-1
 
     use Orb
+    use BumpAllocator, export: true
 
     I32.enum([
       :idle_initial,

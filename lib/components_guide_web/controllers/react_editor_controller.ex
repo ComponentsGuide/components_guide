@@ -1356,7 +1356,7 @@ defmodule ComponentsGuideWeb.ReactEditorController do
     render_source(conn, source)
   end
 
-  def show(conn, params) do
+  def show(conn, _params) do
     source = ~s"""
     export default function App() {
       const [count, next] = useReducer(n => n + 1, 0);

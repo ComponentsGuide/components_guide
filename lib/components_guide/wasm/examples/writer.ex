@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.Writer do
   use ComponentsGuide.Wasm
-  import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   import ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 

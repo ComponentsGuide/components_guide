@@ -1,7 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.MagicNumbers do
-  alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-
   defmodule MobileThrottling do
     use Orb
 

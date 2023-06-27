@@ -102,17 +102,17 @@ defmodule ComponentsGuideWeb.ResearchController do
     index(conn, %{"q" => ""})
   end
 
-  defp present_results(results) when is_binary(results) do
-    results
-  end
-
-  defp present_results(results) when is_list(results) do
-    items =
-      results
-      |> Enum.map(fn result -> content_tag(:li, result) end)
-
-    content_tag(:ul, items)
-  end
+  #   defp present_results(results) when is_binary(results) do
+  #     results
+  #   end
+  # 
+  #   defp present_results(results) when is_list(results) do
+  #     items =
+  #       results
+  #       |> Enum.map(fn result -> content_tag(:li, result) end)
+  # 
+  #     content_tag(:ul, items)
+  #   end
 
   defp bundlephobia(query) do
     case Spec.search_for(:bundlephobia, query) |> tap(&IO.inspect/1) do
@@ -123,7 +123,7 @@ defmodule ComponentsGuideWeb.ResearchController do
       %{"error" => _} ->
         []
 
-      other ->
+      _other ->
         []
     end
   end
@@ -169,21 +169,21 @@ defmodule ComponentsGuideWeb.ResearchController do
     end
   end
 
-  defp html_spec(query) do
-    case Spec.search_for(:whatwg_html_spec, query) do
-      [] ->
-        []
-
-      :error ->
-        []
-
-      results ->
-        content_tag(:article, [
-          content_tag(:h2, "HTML spec"),
-          results |> present_results()
-        ])
-    end
-  end
+  #   defp html_spec(query) do
+  #     case Spec.search_for(:whatwg_html_spec, query) do
+  #       [] ->
+  #         []
+  # 
+  #       :error ->
+  #         []
+  # 
+  #       results ->
+  #         content_tag(:article, [
+  #           content_tag(:h2, "HTML spec"),
+  #           results |> present_results()
+  #         ])
+  #     end
+  #   end
 
   defp aria_practices(query) do
     case Spec.search_for(:wai_aria_practices, query) do

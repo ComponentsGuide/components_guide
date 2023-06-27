@@ -1,7 +1,6 @@
 defmodule ComponentsGuideWeb.LinksView do
   use ComponentsGuideWeb, :view
   alias Phoenix.HTML.Tag
-  alias Phoenix.HTML.Link
 
   # def defsection(name, tag_name, attrs) do
   #   Tag.content_tag(tag_name, "hello", attrs)

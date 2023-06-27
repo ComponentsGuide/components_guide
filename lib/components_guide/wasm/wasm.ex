@@ -206,8 +206,8 @@ defmodule ComponentsGuide.Wasm do
 
     @impl true
     def init(imports) do
-      IO.puts("Starting ReplyServer")
-      IO.inspect(imports)
+      # IO.puts("Starting ReplyServer")
+      # IO.inspect(imports)
       {:ok, %{imports: imports}}
     end
 
@@ -228,7 +228,7 @@ defmodule ComponentsGuide.Wasm do
           {:reply_to_func_call_out, func_id, resource, term},
           state = %{imports: imports}
         ) do
-      IO.inspect(func_id, label: "reply_to_func_call_out func_id")
+      # IO.inspect(func_id, label: "reply_to_func_call_out func_id")
       # IO.inspect(resource, label: "reply_to_func_call_out resource")
 
       handler =
@@ -238,8 +238,8 @@ defmodule ComponentsGuide.Wasm do
           _ -> nil
         end)
 
-      IO.inspect(handler, label: "reply_to_func_call_out found handler")
-      IO.inspect(term, label: "reply_to_func_call_out term")
+      # IO.inspect(handler, label: "reply_to_func_call_out found handler")
+      # IO.inspect(term, label: "reply_to_func_call_out term")
 
       # IO.inspect(handler, label: "reply_to_func_call_out found func")
 
@@ -260,7 +260,7 @@ defmodule ComponentsGuide.Wasm do
             handler.(resource, input)
         end
 
-      IO.inspect(output, label: "reply_to_func_call_out output")
+      # IO.inspect(output, label: "reply_to_func_call_out output")
       ComponentsGuide.Wasm.WasmNative.wasm_call_out_reply(resource, output)
 
       {:noreply, state}

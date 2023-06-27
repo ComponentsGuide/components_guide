@@ -22,7 +22,7 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
     id = slug(inner_text)
 
     node
-    |> Earmark.AstTools.merge_atts_in_node(id: slug(inner_text))
+    |> Earmark.AstTools.merge_atts_in_node(id: id)
   end
 
   def compile(path, name) do

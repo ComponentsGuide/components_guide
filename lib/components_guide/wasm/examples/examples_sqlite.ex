@@ -69,7 +69,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
            0
          end},
         {:sqlite3, :prepare,
-         fn caller, sql_ptr ->
+         fn _caller, _sql_ptr ->
            0
          end}
       ]

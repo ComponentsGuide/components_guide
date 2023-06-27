@@ -1,5 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
-  alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.Memory
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
@@ -10,7 +9,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     use I32.String
     use IntToString
     use StringBuilder
-    import Writer
 
     global(
       method: I32.String.null(),

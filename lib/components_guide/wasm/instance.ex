@@ -169,7 +169,7 @@ defmodule ComponentsGuide.Wasm.Instance do
   #     # offset
   #   end
 
-  def alloc_list(instance, []), do: 0x0
+  def alloc_list(_instance, []), do: 0x0
 
   def alloc_list(instance, [single]) when is_binary(single),
     do: cons(instance, alloc_string(instance, single), 0x0)

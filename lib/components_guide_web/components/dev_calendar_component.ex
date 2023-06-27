@@ -3,7 +3,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
 
   alias ComponentsGuideWeb.CalendarComponent
 
-  def calendar(assigns \\ %{}) do
+  def calendar(_assigns \\ %{}) do
     today = Date.utc_today()
     %{dates_to_items: dates_to_items, links: links} = get_data()
 
@@ -22,7 +22,7 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
     """
   end
 
-  def list(assigns \\ %{}) do
+  def list(_assigns \\ %{}) do
     %{groups: groups, links: links} = get_data()
     list = create_list(groups, links)
 
@@ -303,11 +303,6 @@ defmodule ComponentsGuideWeb.DevCalendarComponent do
       {_, x} when x in -50..300 -> true
       _ -> false
     end
-  end
-
-  defp iso_week_number(date) do
-    {_year, week_n} = :calendar.iso_week_number(date)
-    week_n
   end
 
   defp week_diff(date) do

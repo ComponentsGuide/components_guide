@@ -161,17 +161,16 @@ defmodule ComponentsGuide.Research.Spec do
     #       el
     #   end)
 
-    results =
-      Enum.map(html_elements, fn el ->
-        html_feature = Floki.find(el, "td:first-of-type")
-        implicit_semantics = Floki.find(el, "td:nth-of-type(2)")
+    Enum.map(html_elements, fn el ->
+      html_feature = Floki.find(el, "td:first-of-type")
+      implicit_semantics = Floki.find(el, "td:nth-of-type(2)")
 
-        %{
-          heading: html_feature |> Floki.text(),
-          implicit_semantics: implicit_semantics |> Floki.text(),
-          html: el
-        }
-      end)
+      %{
+        heading: html_feature |> Floki.text(),
+        implicit_semantics: implicit_semantics |> Floki.text(),
+        html: el
+      }
+    end)
   end
 
   defp process_search_for(:typescript_dom, query, {:ok, source}) do

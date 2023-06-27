@@ -197,7 +197,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
         def new(parent), do: %__MODULE__{parent: parent}
       end
 
-      def start_link(opts \\ nil) do
+      def start_link(_opts \\ nil) do
         state = State.new(self())
         GenServer.start_link(__MODULE__, state)
       end
@@ -232,25 +232,25 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       end
 
       @impl GenServer
-      def handle_info({:timer_finished, from, :heartbeat, _duration}, state) do
+      def handle_info({:timer_finished, _from, :heartbeat, _duration}, state) do
         state = do_ping(state)
         {:noreply, state}
       end
 
       @impl GenServer
-      def handle_info({:timer_finished, from, msg, _duration}, state) do
+      def handle_info({:timer_finished, _from, msg, _duration}, state) do
         IO.puts("timer finished #{msg}")
         {:noreply, state}
       end
 
-      def heartbeat_after(pid, 0), do: nil
+      def heartbeat_after(_pid, 0), do: nil
 
       def heartbeat_after(pid, duration_ms) do
         GenServer.call(pid, {:timer_ms, :heartbeat, duration_ms})
         :ok
       end
 
-      def heartbeat_now(pid, if: 0), do: nil
+      def heartbeat_now(_pid, if: 0), do: nil
       def heartbeat_now(pid, if: _), do: GenServer.call(pid, :request_ping)
     end
 
@@ -264,7 +264,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       connecting = Instance.get_global(instance, :connecting)
       connected = Instance.get_global(instance, :connected)
       reconnecting = Instance.get_global(instance, :reconnecting)
-      disconnected = Instance.get_global(instance, :disconnected)
+      _disconnected = Instance.get_global(instance, :disconnected)
 
       get_current = Instance.capture(instance, :get_current, 0)
       get_path = Instance.capture(instance, String, :get_path, 0)
@@ -332,18 +332,18 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       IO.puts(LiveAPIConnection.to_wat())
       instance = Instance.run(LiveAPIConnection)
 
-      {:ok, manager} = Manager.start_link()
+      {:ok, _manager} = Manager.start_link()
 
       initial = Instance.get_global(instance, :initial)
-      connecting = Instance.get_global(instance, :connecting)
-      connected = Instance.get_global(instance, :connected)
+      _connecting = Instance.get_global(instance, :connecting)
+      _connected = Instance.get_global(instance, :connected)
       reconnecting = Instance.get_global(instance, :reconnecting)
-      disconnected = Instance.get_global(instance, :disconnected)
+      _disconnected = Instance.get_global(instance, :disconnected)
 
       get_current = Instance.capture(instance, :get_current, 0)
       get_path = Instance.capture(instance, String, :get_path, 0)
       get_debug_path = Instance.capture(instance, String, :get_debug_path, 0)
-      info_success_count = Instance.capture(instance, :info_success_count, 0)
+      _info_success_count = Instance.capture(instance, :info_success_count, 0)
       get_backoff_delay = Instance.capture(instance, :get_backoff_delay, 0)
 
       assert get_path.() == "/initial"

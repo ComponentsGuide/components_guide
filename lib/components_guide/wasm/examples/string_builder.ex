@@ -1,10 +1,10 @@
 defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   use Orb
-  import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  # import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
-  import Copying
+  use Copying
 
   defmacro __using__(_) do
     quote do
@@ -67,12 +67,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def append!(function) when is_atom(function) do
-    call(function) |> drop()
-  end
-
   def append!(function, a) when is_atom(function) do
     call(function, a) |> drop()
+  end
+
+  def append!(function) when is_atom(function) do
+    call(function) |> drop()
   end
 
   def append!(string: str_ptr) do
@@ -96,7 +96,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     # This might be a bit over the top…
     {initial, following} =
       case hex do
-        [value, {:local_tee, identifier}] ->
+        [_value, {:local_tee, identifier}] ->
           {hex, {:local_get, identifier}}
 
         _ ->

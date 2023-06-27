@@ -637,7 +637,7 @@ defmodule Orb do
       receiver |> to_keylist() |> Map.new()
     end
 
-    def resolve(constants, {:i32_const_string, _strptr, _string} = value) do
+    def resolve(_constants, {:i32_const_string, _strptr, _string} = value) do
       value
     end
 
@@ -796,11 +796,6 @@ defmodule Orb do
     # TODO rename to export_readonly_globals?
     exported_global_types = Keyword.get(options, :exported_globals, [])
     exported_mutable_global_types = Keyword.get(options, :exported_mutable_globals, [])
-
-    globals =
-      (internal_global_types ++ exported_global_types ++ exported_mutable_global_types)
-      |> Keyword.new(fn {key, _} -> {key, nil} end)
-      |> Map.new()
 
     %{body: block_items, constants: constants} = do_module_body(block, options, env, env.module)
     Module.put_attribute(env.module, :wasm_constants, constants)
@@ -1177,7 +1172,7 @@ defmodule Orb do
         {:local_get, meta, [atom]}
 
       # @some_global = input
-      {:=, _, [{:@, _, [{global, _, nil}]}, input]} = term when is_atom(global) ->
+      {:=, _, [{:@, _, [{global, _, nil}]}, input]} when is_atom(global) ->
         [input, global_set(global)]
 
       # @some_global
@@ -1772,10 +1767,10 @@ defmodule Orb do
   end
 
   def do_wat(:nop, indent), do: [indent, "nop"]
-  def do_wat(:pop, indent), do: []
+  def do_wat(:pop, _indent), do: []
   def do_wat(:drop, indent), do: [indent, "drop"]
 
-  def do_wat({:export, name}, _indent), do: "(export \"#{name}\")"
+  def do_wat({:export, name}, indent), do: [indent, ~S/(export "/, to_string(name), ~S/")/]
 
   def do_wat({:result, value}, _indent), do: ["(result ", do_type(value), ")"]
 
@@ -1898,7 +1893,7 @@ end
 defmodule OrbUsing2 do
   import Kernel, except: [if: 2, @: 1]
 
-  defmacro @{name, meta, args} do
+  defmacro @{name, meta, _args} do
     #     Kernel.if Module.has_attribute?(__CALLER__.module, name) do
     #       term = {name, meta, args}
     # 

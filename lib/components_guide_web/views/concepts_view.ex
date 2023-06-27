@@ -3,7 +3,7 @@ defmodule ComponentsGuideWeb.ConceptsView do
   require EEx
   use ComponentsGuideWeb.Snippets
 
-  @hello 8
+  # @hello 8
 
   def header_background do
     Styling.linear_gradient("150grad", [

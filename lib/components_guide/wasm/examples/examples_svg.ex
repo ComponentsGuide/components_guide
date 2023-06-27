@@ -1,13 +1,13 @@
 defmodule ComponentsGuide.Wasm.Examples.SVG do
   alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  # alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Parser.HexConversion
 
   defmodule Square do
     use Wasm
 
-    @wasm_memory 2
+    wasm_memory(pages: 2)
 
     defwasm exported_mutable_globals: [
               # Opaque black

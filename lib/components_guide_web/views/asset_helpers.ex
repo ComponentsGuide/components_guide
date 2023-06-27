@@ -4,7 +4,6 @@ defmodule ComponentsGuideWeb.AssetsHelpers do
   """
 
   use Phoenix.HTML
-  import Phoenix.View
   alias ComponentsGuideWeb.Router.Helpers, as: Routes
 
   def collected_image(conn, module, image_name) do

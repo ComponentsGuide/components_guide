@@ -360,7 +360,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     @page_size 64 * 1024
     @bump_start 1 * @page_size
-    @input_offset 1 * @page_size
     @output_offset 2 * @page_size
 
     I32.export_global(:readonly,
@@ -454,13 +453,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     wasm_memory(pages: 3)
 
-    @field_types I32.calculate_enum([
-                   :textbox,
-                   :url,
-                   :email,
-                   :checkbox,
-                   :hidden
-                 ])
+    # @field_types I32.calculate_enum([
+    #                :textbox,
+    #                :url,
+    #                :email,
+    #                :checkbox,
+    #                :hidden
+    #              ])
 
     # @textbox_tuple Tuple.define(name: I32, label: I32)
 

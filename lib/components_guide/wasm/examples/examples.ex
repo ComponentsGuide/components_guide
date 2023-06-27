@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples do
   alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule SimpleWeekdayParser do
     use Orb
@@ -43,10 +42,7 @@ defmodule ComponentsGuide.Wasm.Examples do
   defmodule ContentTypeLookup do
     use Wasm
 
-    @page_size 64 * 1024
     @readonly_start 0xFF
-    @input_offset 1 * @page_size
-    @output_offset 2 * @page_size
     @strings pack_strings_nul_terminated(@readonly_start,
                charset_utf8: ~S[; charset=utf-8],
                text_plain: ~S[text/plain],
@@ -95,9 +91,8 @@ defmodule ComponentsGuide.Wasm.Examples do
     use Wasm
 
     @page_size 64 * 1024
-    @readonly_start 0xFF
+    # @readonly_start 0xFF
     @input_offset 1 * @page_size
-    @output_offset 2 * @page_size
 
     defwasm imports: [
               env: [buffer: memory(3)],

@@ -364,7 +364,7 @@ defmodule ComponentsGuide.Research.Static do
     def fetch_simple_icon_names() do
       url = "https://unpkg.com/browse/simple-icons@8.5.0/icons/"
 
-      case cached = read_cache(url) do
+      case read_cache(url) do
         nil ->
           link_els =
             Fetch.get!(url).body
@@ -384,11 +384,11 @@ defmodule ComponentsGuide.Research.Static do
 
   # @simple_icons ComponentsGuide.Research.Static.Sources.fetch_simple_icon_names()
 
-  @aliases %{
-    "redirect" => ["301", "302"],
-    "invalid" => ["412", "422"],
-    "etag" => ["304"]
-  }
+  # @aliases %{
+  #   "redirect" => ["301", "302"],
+  #   "invalid" => ["412", "422"],
+  #   "etag" => ["304"]
+  # }
 
   def search_for(query) when is_binary(query) do
     [

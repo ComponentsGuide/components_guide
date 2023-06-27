@@ -26,9 +26,9 @@ defmodule ComponentsGuideWeb.WebStandards.Live.URLForm do
       url.query |> URI.query_decoder()
     end
 
-    defp change_url(%State{} = state, url) do
-      put_in(state.raw_url, URI.to_string(url))
-    end
+    # defp change_url(%State{} = state, url) do
+    #   put_in(state.raw_url, URI.to_string(url))
+    # end
 
     def change(%State{} = state, :scheme, new_scheme) when is_binary(new_scheme) do
       url = to_url(state)
