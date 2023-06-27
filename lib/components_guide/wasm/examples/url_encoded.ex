@@ -1,22 +1,26 @@
 defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   use Orb
   alias ComponentsGuide.Wasm.Examples.Memory.{BumpAllocator, Copying}
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
 
   use BumpAllocator, export: true
   use Copying
+  use StringBuilder
 
   defmacro __using__(_) do
     quote do
       use BumpAllocator
       use Copying
+      use StringBuilder
       use I32.String
 
       import unquote(__MODULE__)
 
       Orb.wasm do
         unquote(__MODULE__).funcp(:url_encoded_count)
+        unquote(__MODULE__).funcp(:url_encoded_clone_first)
         unquote(__MODULE__).funcp(:url_encoded_decode_first_value)
-        unquote(__MODULE__).funcp(:url_encoded_next_pair)
+        unquote(__MODULE__).funcp(:url_encoded_rest)
       end
     end
   end
@@ -44,7 +48,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       count
     end
 
-    func url_encoded_clone_first_pair(url_encoded: I32.U8.Pointer), I32.U8.Pointer,
+    func url_encoded_clone_first(url_encoded: I32.U8.Pointer), I32.U8.Pointer,
       char: I32.U8,
       start: I32,
       len: I32,
@@ -79,14 +83,15 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     end
 
     # Like tl but for url-encoded data
-    func url_encoded_next_pair(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
+    func url_encoded_rest(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
       url_encoded
     end
   end
 
   def count(), do: call(:url_encoded_count)
-  def decode_first_value(url_encoded), do: call(:decode_first_value, url_encoded)
-  def next_pair(url_encoded), do: call(:decode_first_value, url_encoded)
+  def clone_first(url_encoded), do: call(:url_encoded_clone_first, url_encoded)
+  def decode_first_value(url_encoded), do: call(:url_encoded_decode_first_value, url_encoded)
+  def rest(url_encoded), do: call(:url_encoded_rest, url_encoded)
 
   def append_url_query(), do: :todo
 end
