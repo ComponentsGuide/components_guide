@@ -25,27 +25,54 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     func url_encoded_count(url_encoded: I32.U8.Pointer), I32,
       char: I32.U8,
       count: I32,
-      has_pair?: I32 do
-      loop EachChar do
+      pair_char_len: I32 do
+      loop EachByte do
         char = url_encoded[at!: 0]
 
         if I32.in?(char, [?&, 0]) do
-          count = count + has_pair?
-          has_pair? = 0
+          count = count + (pair_char_len > 0)
+          pair_char_len = 0
         else
-          has_pair? = has_pair? ||| 1
+          pair_char_len = pair_char_len + 1
         end
 
         url_encoded = url_encoded + 1
 
-        EachChar.continue(if: char)
+        EachByte.continue(if: char)
       end
 
       count
     end
 
-    # clone?
+    func url_encoded_clone_first_pair(url_encoded: I32.U8.Pointer), I32.U8.Pointer,
+      char: I32.U8,
+      start: I32,
+      len: I32,
+      clone: I32.U8.Pointer do
+      # loop char <- url_encoded, result: I32 do
+      loop EachByte, result: I32 do
+        char = url_encoded[at!: 0]
+
+        if I32.in?(char, [?&, 0]) do
+          clone = alloc(len + 1)
+          memcpy(dest: clone, src: start, byte_count: len)
+          # memset(dest: clone, u8: ?z, byte_count: len)
+          clone
+          return()
+        end
+
+        if I32.eqz(start) do
+          start = url_encoded
+        end
+
+        len = len + 1
+        url_encoded = url_encoded + 1
+        EachByte.continue()
+      end
+    end
+
     func url_encoded_decode_first_value(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
+      # TODO: do above, but also decode the url-encoding.
       0
     end
 

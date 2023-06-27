@@ -25,10 +25,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       func memcpy(dest: I32.U8.Pointer, src: I32.U8.Pointer, byte_count: I32),
         i: I32 do
         loop EachByte do
+          return(if: I32.eq(i, byte_count))
+
           dest[at!: i] = src[at!: i]
 
           i = i + 1
-          EachByte.continue(if: i < byte_count)
+          EachByte.continue()
         end
 
         # loop EachByte, count: byte_count do
@@ -75,10 +77,12 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       func memset(dest: I32.U8.Pointer, u8: I32.U8, byte_count: I32),
         i: I32 do
         loop EachByte do
+          return(if: I32.eq(i, byte_count))
+
           dest[at!: i] = u8
 
           i = i + 1
-          EachByte.continue(if: i < byte_count)
+          EachByte.continue()
         end
       end
     end

@@ -12,25 +12,31 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     test "wasm size" do
       wasm = Wasm.to_wasm(Copying)
-      assert byte_size(wasm) == 130
+      assert byte_size(wasm) == 138
     end
 
     test "memcpy", %{inst: inst} do
       memcpy = Instance.capture(inst, :memcpy, 3)
 
-      p1 = 0xE00
-      p2 = 0xF00
-      Instance.write_i32(inst, p1, 0x12345678)
-      memcpy.(p2, p1, 3)
-      assert Instance.read_memory(inst, p1, 4) == <<0x78, 0x56, 0x34, 0x12>>
-      assert Instance.read_memory(inst, p2, 4) == <<0x78, 0x56, 0x34, 0x0>>
+      a = 0xA00
+      b = 0xB00
+      c = 0xC00
+      Instance.write_i32(inst, a, 0x12345678)
+      memcpy.(b, a, 3)
+      assert Instance.read_memory(inst, a, 4) == <<0x78, 0x56, 0x34, 0x12>>
+      assert Instance.read_memory(inst, b, 4) == <<0x78, 0x56, 0x34, 0x0>>
+      memcpy.(c, a, 0)
+      assert Instance.read_memory(inst, c, 4) == <<0x0, 0x0, 0x0, 0x0>>
     end
 
     test "memset", %{inst: inst} do
       memset = Instance.capture(inst, :memset, 3)
 
-      memset.(0xE00, ?z, 4)
-      assert Instance.read_memory(inst, 0xE00, 5) == "zzzz\0"
+      memset.(0xA00, ?z, 3)
+      assert Instance.read_memory(inst, 0xA00, 4) == "zzz\0"
+
+      memset.(0xB00, ?z, 0)
+      assert Instance.read_memory(inst, 0xB00, 4) == "\0\0\0\0"
     end
   end
 

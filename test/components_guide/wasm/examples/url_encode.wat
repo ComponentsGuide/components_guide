@@ -194,6 +194,12 @@
   (func (;8;) (type 5) (param i32 i32 i32)
     (local i32)
     loop  ;; label = @1
+      local.get 3
+      local.get 2
+      i32.eq
+      if  ;; label = @2
+        return
+      end
       local.get 0
       local.get 3
       i32.add
@@ -203,23 +209,38 @@
       i32.load8_u
       i32.store8
       local.get 3
-      local.get 2
-      i32.lt_u
-      if  ;; label = @2
-        local.get 3
-        i32.const 1
-        i32.add
-        local.set 3
-        br 1 (;@1;)
-      end
+      i32.const 1
+      i32.add
+      local.set 3
+      br 0 (;@1;)
     end)
-  (func (;9;) (type 3) (param i32) (result i32)
+  (func (;9;) (type 5) (param i32 i32 i32)
+    (local i32)
+    loop  ;; label = @1
+      local.get 3
+      local.get 2
+      i32.eq
+      if  ;; label = @2
+        return
+      end
+      local.get 0
+      local.get 3
+      i32.add
+      local.get 1
+      i32.store8
+      local.get 3
+      i32.const 1
+      i32.add
+      local.set 3
+      br 0 (;@1;)
+    end)
+  (func (;10;) (type 3) (param i32) (result i32)
     global.get 1
     global.get 1
     local.get 0
     i32.add
     global.set 1)
-  (func (;10;) (type 3) (param i32) (result i32)
+  (func (;11;) (type 3) (param i32) (result i32)
     (local i32 i32 i32)
     call 0
     loop  ;; label = @1
@@ -408,7 +429,7 @@
       end
     end
     call 1)
-  (func (;11;) (type 3) (param i32) (result i32)
+  (func (;12;) (type 3) (param i32) (result i32)
     (local i32 i32 i32)
     call 0
     loop  ;; label = @1
@@ -534,7 +555,7 @@
       end
     end
     call 1)
-  (func (;12;) (type 3) (param i32) (result i32)
+  (func (;13;) (type 3) (param i32) (result i32)
     call 0
     loop  ;; label = @1
       local.get 0
@@ -574,15 +595,15 @@
       br_if 0 (;@1;)
     end
     call 1)
-  (func (;13;) (type 3) (param i32) (result i32)
+  (func (;14;) (type 3) (param i32) (result i32)
     local.get 0
-    call 9)
+    call 10)
   (memory (;0;) 2)
   (global (;0;) (mut i32) (i32.const 0))
   (global (;1;) (mut i32) (i32.const 65536))
   (global (;2;) (mut i32) (i32.const 0))
   (export "memory" (memory 0))
-  (export "url_encode_rfc3986" (func 10))
-  (export "url_encode_www_form" (func 11))
-  (export "url_encode_query_www_form" (func 12))
-  (export "alloc" (func 13)))
+  (export "url_encode_rfc3986" (func 11))
+  (export "url_encode_www_form" (func 12))
+  (export "url_encode_query_www_form" (func 13))
+  (export "alloc" (func 14)))

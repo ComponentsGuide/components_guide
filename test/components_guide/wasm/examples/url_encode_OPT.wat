@@ -65,17 +65,17 @@
     local.set 1
     loop  ;; label = @1
       local.get 1
-      local.get 3
-      i32.add
-      local.get 0
-      local.get 1
-      i32.add
-      i32.load8_u
-      i32.store8
-      local.get 1
       local.get 2
-      i32.lt_u
+      i32.ne
       if  ;; label = @2
+        local.get 1
+        local.get 3
+        i32.add
+        local.get 0
+        local.get 1
+        i32.add
+        i32.load8_u
+        i32.store8
         local.get 1
         i32.const 1
         i32.add
