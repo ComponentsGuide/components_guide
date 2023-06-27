@@ -12,6 +12,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         wasm do
           unquote(__MODULE__).funcp(:memcpy)
+          unquote(__MODULE__).funcp(:memset)
         end
 
         import unquote(__MODULE__)
@@ -26,10 +27,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         loop EachByte do
           dest[at!: i] = src[at!: i]
 
-          if i < byte_count do
-            i = i + 1
-            EachByte.continue()
-          end
+          i = i + 1
+          EachByte.continue(if: i < byte_count)
         end
 
         # loop EachByte, count: byte_count do
@@ -72,10 +71,28 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         #           I32.lt_u(i, byte_count)
         #       end
       end
+
+      func memset(dest: I32.U8.Pointer, u8: I32.U8, byte_count: I32),
+        i: I32 do
+        loop EachByte do
+          dest[at!: i] = u8
+
+          i = i + 1
+          EachByte.continue(if: i < byte_count)
+        end
+      end
     end
 
     def memcpy(dest, src, byte_count) do
       call(:memcpy, dest, src, byte_count)
+    end
+
+    def memcpy(dest: dest, src: src, byte_count: byte_count) do
+      call(:memcpy, dest, src, byte_count)
+    end
+
+    def memset(dest: dest, u8: u8, byte_count: byte_count) do
+      call(:memset, dest, u8, byte_count)
     end
   end
 
