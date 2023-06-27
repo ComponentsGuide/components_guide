@@ -39,7 +39,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite.Test do
       rows = Exqlite.Sqlite3.fetch_all(db, statement)
       assert rows == {:ok, [[1, 99], [2, 99], [3, 99], [4, 99], [5, 99], [6, 99]]}
 
-      IO.inspect(rows)
+      # IO.inspect(rows)
     end
   end
 end

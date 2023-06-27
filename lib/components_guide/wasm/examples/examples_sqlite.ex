@@ -61,10 +61,10 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
          end},
         {:sqlite3, :exec,
          fn caller, sql_ptr ->
-           IO.puts("!!!!!!!!!!")
-           IO.inspect(sql_ptr, label: "sqlite3 exec sql_ptr")
+           # IO.puts("!!!!!!!!!!")
+           # IO.inspect(sql_ptr, label: "sqlite3 exec sql_ptr")
            sql = Wasm.Instance.Caller.read_string_nul_terminated(caller, sql_ptr)
-           IO.inspect(sql, label: "sqlite3 exec sql")
+           # IO.inspect(sql, label: "sqlite3 exec sql")
            :ok = Exqlite.Sqlite3.execute(db, sql)
            0
          end},

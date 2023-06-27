@@ -255,7 +255,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     end
 
     test "works" do
-      IO.puts(LiveAPIConnection.to_wat())
+      # IO.puts(LiveAPIConnection.to_wat())
       instance = Instance.run(LiveAPIConnection)
 
       {:ok, manager} = Manager.start_link()
@@ -329,7 +329,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     end
 
     test "socket error" do
-      IO.puts(LiveAPIConnection.to_wat())
+      # IO.puts(LiveAPIConnection.to_wat())
       instance = Instance.run(LiveAPIConnection)
 
       {:ok, _manager} = Manager.start_link()
