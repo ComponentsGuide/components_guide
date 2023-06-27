@@ -53,19 +53,21 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       loop EachByte, result: I32 do
         char = url_encoded[at!: 0]
 
-        if I32.in?(char, [?&, 0]) do
+        if I32.eq(char, 0) ||| (I32.eq(char, ?&) &&& len > 0) do
           clone = alloc(len + 1)
           memcpy(dest: clone, src: start, byte_count: len)
-          # memset(dest: clone, u8: ?z, byte_count: len)
           clone
           return()
         end
 
-        if I32.eqz(start) do
-          start = url_encoded
+        if I32.eqz(I32.eq(char, ?&)) do
+          if I32.eqz(start) do
+            start = url_encoded
+          end
+
+          len = len + 1
         end
 
-        len = len + 1
         url_encoded = url_encoded + 1
         EachByte.continue()
       end

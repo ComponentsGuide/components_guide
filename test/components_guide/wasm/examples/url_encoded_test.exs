@@ -17,15 +17,17 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert url_encoded_count.("a") == 1
     assert url_encoded_count.("a&") == 1
     assert url_encoded_count.("a&&") == 1
-    assert url_encoded_count.("&a&&") == 1
+    assert url_encoded_count.("&a&") == 1
     assert url_encoded_count.("&&a&&") == 1
     assert url_encoded_count.("a=1") == 1
     assert url_encoded_count.("a=1&") == 1
     assert url_encoded_count.("a=1&&") == 1
+    assert url_encoded_count.("&&a=1&&") == 1
     assert url_encoded_count.("a=1&b=2") == 2
     assert url_encoded_count.("a=1&&b=2") == 2
     assert url_encoded_count.("a=1&&b=2&") == 2
     assert url_encoded_count.("a=1&&b=2&&") == 2
+    assert url_encoded_count.("&&a=1&&b=2&&") == 2
   end
 
   test "url_encoded_clone_first_value" do
@@ -38,14 +40,16 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert clone_first_pair.("a") == "a"
     assert clone_first_pair.("a&") == "a"
     assert clone_first_pair.("a&&") == "a"
-    # assert clone_first_pair.("&a&&") == 1
-    # assert clone_first_pair.("&&a&&") == 1
-    # assert clone_first_pair.("a=1") == 1
-    # assert clone_first_pair.("a=1&") == 1
-    # assert clone_first_pair.("a=1&&") == 1
-    # assert clone_first_pair.("a=1&b=2") == 2
-    # assert clone_first_pair.("a=1&&b=2") == 2
-    # assert clone_first_pair.("a=1&&b=2&") == 2
-    # assert clone_first_pair.("a=1&&b=2&&") == 2
+    assert clone_first_pair.("&a&") == "a"
+    assert clone_first_pair.("&&a&&") == "a"
+    assert clone_first_pair.("a=1") == "a=1"
+    assert clone_first_pair.("a=1&") == "a=1"
+    assert clone_first_pair.("a=1&&") == "a=1"
+    assert clone_first_pair.("&&a=1&&") == "a=1"
+    assert clone_first_pair.("a=1&b=2") == "a=1"
+    assert clone_first_pair.("a=1&&b=2") == "a=1"
+    assert clone_first_pair.("a=1&&b=2&") == "a=1"
+    assert clone_first_pair.("a=1&&b=2&&") == "a=1"
+    assert clone_first_pair.("&&a=1&&b=2&&") == "a=1"
   end
 end

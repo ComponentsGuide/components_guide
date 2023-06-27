@@ -298,6 +298,7 @@ defmodule Orb do
     end
 
     defp _or(a, b), do: {:i32, :or, {a, b}}
+    # TODO: rename to any?
     def unquote(:or)(a, b, c), do: _or(a, _or(b, c))
     # def unquote(:or)(a, b, c, d), do: _or(a, _or(b, _or(c, d)))
     def unquote(:or)(a, b, c, d), do: a |> _or(b |> _or(c |> _or(d)))
