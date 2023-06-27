@@ -1131,7 +1131,6 @@ fn wasm_caller_read_string_nul_terminated(
     
     let memory_ptr = &memory_ptr_and_size.0;
     let memory_size = memory_ptr_and_size.1;
-    eprintln!("wasm_caller_read_string_nul_terminated {memory_size}");
     
     let memory_ptr = memory_ptr.load(std::sync::atomic::Ordering::Relaxed);
     // let data = &memory.data(&store)[start..];
@@ -1143,8 +1142,6 @@ fn wasm_caller_read_string_nul_terminated(
     
     let cstr = unsafe { CStr::from_ptr(data.as_ptr()) };
     let string = String::from_utf8_lossy(cstr.to_bytes()).to_string();
-    
-    eprintln!("wasm_caller_read_string_nul_terminated {string}");
     
     // let s = wasm_extract_string(&caller, &memory, vec![memory_offset])?;
 
