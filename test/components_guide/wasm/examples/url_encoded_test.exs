@@ -52,4 +52,27 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert clone_first.("a=1&&b=2&&") == "a=1"
     assert clone_first.("&&a=1&&b=2&&") == "a=1"
   end
+
+  test "url_encoded_rest" do
+    inst = Instance.run(URLEncoded)
+
+    rest =
+      Instance.capture(inst, String, :url_encoded_rest, 1)
+
+    assert rest.("") == ""
+    assert rest.("a") == ""
+    assert rest.("a&") == "&"
+    assert rest.("a&&") == "&&"
+    assert rest.("&a&") == "&"
+    assert rest.("&&a&&") == "&&"
+    assert rest.("a=1") == ""
+    assert rest.("a=1&") == "&"
+    assert rest.("a=1&&") == "&&"
+    assert rest.("&&a=1&&") == "&&"
+    assert rest.("a=1&b=2") == "&b=2"
+    assert rest.("a=1&&b=2") == "&&b=2"
+    assert rest.("a=1&&b=2&") == "&&b=2&"
+    assert rest.("a=1&&b=2&&") == "&&b=2&&"
+    assert rest.("&&a=1&&b=2&&") == "&&b=2&&"
+  end
 end

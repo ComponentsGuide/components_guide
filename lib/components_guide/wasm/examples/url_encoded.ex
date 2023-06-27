@@ -72,14 +72,27 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func url_encoded_decode_first_value(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
-      # TODO: do above, but also decode the url-encoding.
-      0
+    # Like tl but for url-encoded data
+    func url_encoded_rest(url_encoded: I32.U8.Pointer), I32.U8.Pointer, char: I32.U8, len: I32 do
+      loop EachByte, result: I32 do
+        char = url_encoded[at!: 0]
+
+        if I32.eq(char, 0) ||| (I32.eq(char, ?&) &&& len > 0) do
+          url_encoded
+          return()
+        end
+
+        if I32.eqz(I32.eq(char, ?&)) do
+          len = len + 1
+        end
+
+        url_encoded = url_encoded + 1
+        EachByte.continue()
+      end
     end
 
-    # Like tl but for url-encoded data
-    func url_encoded_rest(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
-      url_encoded
+    func url_encoded_decode_first_value_www_form(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
+      0
     end
   end
 
