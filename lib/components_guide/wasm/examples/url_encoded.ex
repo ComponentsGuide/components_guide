@@ -50,25 +50,20 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
     func url_encoded_clone_first(url_encoded: I32.U8.Pointer), I32.U8.Pointer,
       char: I32.U8,
-      start: I32,
-      len: I32,
-      clone: I32.U8.Pointer do
+      len: I32 do
+      build_begin!()
+
       # loop char <- url_encoded, result: I32 do
       loop EachByte, result: I32 do
         char = url_encoded[at!: 0]
 
         if I32.eq(char, 0) ||| (I32.eq(char, ?&) &&& len > 0) do
-          clone = alloc(len + 1)
-          memcpy(dest: clone, src: start, byte_count: len)
-          clone
+          build_done!()
           return()
         end
 
         if I32.eqz(I32.eq(char, ?&)) do
-          if I32.eqz(start) do
-            start = url_encoded
-          end
-
+          append!(u8: char)
           len = len + 1
         end
 

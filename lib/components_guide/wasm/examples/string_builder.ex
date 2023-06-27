@@ -54,6 +54,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
+  def build_begin!(), do: call(:bump_write_start)
+  def build_done!(), do: call(:bump_write_done)
   def bump_begin!(), do: call(:bump_write_start)
   def bump_done!(), do: call(:bump_write_done)
 
@@ -79,12 +81,14 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     call(:bump_write_str, str_ptr)
   end
 
-  def append!(ascii: char) do
+  def append!(u8: char) do
     snippet U32 do
       I32.store8(@bump_offset, char)
       @bump_offset = @bump_offset + 1
     end
   end
+
+  def append!(ascii: char), do: append!(u8: char)
 
   def append!(u32: int) do
     snippet do
