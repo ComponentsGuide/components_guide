@@ -4,10 +4,12 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
-  use BumpAllocator, export: true
+  use BumpAllocator
   use Copying
   use StringBuilder
   # use LinkedLists
+
+  BumpAllocator.export_alloc()
 
   defmacro __using__(_) do
     quote do
@@ -215,7 +217,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     #     end
   end
 
-  def count(), do: call(:url_encoded_count)
+  def count(url_encoded), do: call(:url_encoded_count, url_encoded)
   def clone_first(url_encoded), do: call(:url_encoded_clone_first, url_encoded)
   def rest(url_encoded), do: call(:url_encoded_rest, url_encoded)
 

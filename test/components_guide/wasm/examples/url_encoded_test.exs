@@ -133,8 +133,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     build_start = Instance.capture(inst, :bump_write_start, 0)
     build_done = Instance.capture(inst, String, :bump_write_done, 0)
 
-    a = Instance.alloc_string("a")
-    b = Instance.alloc_string("b")
+    a = Instance.alloc_string(inst, "a")
+    b = Instance.alloc_string(inst, "b")
 
     build_start.()
     append_query.(a, b)

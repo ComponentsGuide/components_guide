@@ -344,7 +344,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           end
 
           append!(string: ~S[">])
-          append!(u32: step)
+          append!(decimal_u32: step)
           append!(string: ~S[</div>\n])
         end
       end
@@ -353,10 +353,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule SitemapBuilder do
     use Wasm
-    use BumpAllocator, export: true
+    use BumpAllocator
     use LinkedLists
 
-    @wasm_memory 3
+    BumpAllocator.export_alloc()
+
+    wasm_memory(pages: 3)
 
     @page_size 64 * 1024
     @bump_start 1 * @page_size
@@ -448,10 +450,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule HTMLFormBuilder do
     use Wasm
-    use BumpAllocator, export: true
+    use BumpAllocator
     use LinkedLists
 
-    wasm_memory(pages: 3)
+    BumpAllocator.export_alloc()
+
+    # wasm_memory(pages: 3)
 
     # @field_types I32.calculate_enum([
     #                :textbox,

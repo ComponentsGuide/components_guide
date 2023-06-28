@@ -96,7 +96,7 @@ defmodule Orb do
     def new(options) do
       {body, options} = Keyword.pop(options, :body)
 
-      {func_refs, other} = Enum.split_with(body, &match?({:mod_funcp_ref, _}, &1))
+      {func_refs, other} = Enum.split_with(body, &match?({:mod_func_ref, _, _}, &1))
 
       func_refs =
         func_refs
@@ -111,12 +111,12 @@ defmodule Orb do
       struct!(__MODULE__, fields)
     end
 
-    defp resolve_func_ref({:mod_funcp_ref, {mod, name}}) do
-      fetch_funcp!(mod.__wasm_module__(), mod, name)
+    defp resolve_func_ref({:mod_func_ref, visiblity, {mod, name}}) do
+      fetch_func!(mod.__wasm_module__(), visiblity, mod, name)
     end
 
-    defp resolve_func_ref({:mod_funcp_ref, mod}) when is_atom(mod) do
-      fetch_funcp!(mod.__wasm_module__(), mod)
+    defp resolve_func_ref({:mod_func_ref, visiblity, mod}) when is_atom(mod) do
+      fetch_func!(mod.__wasm_module__(), visiblity, mod)
     end
 
     defmodule FetchFuncError do
@@ -128,37 +128,53 @@ defmodule Orb do
       end
     end
 
-    def fetch_funcp!(%__MODULE__{body: body} = module_definition, source_module) do
+    def fetch_func!(%__MODULE__{body: body} = module_definition, visibility, source_module) do
       body = List.flatten(body)
+      exported? = visibility == :exported
 
       funcs =
         Enum.flat_map(body, fn
-          %Func{} = func -> [%{func | exported?: false, source_module: source_module}]
-          _ -> []
+          %Func{} = func ->
+            [%{func | exported?: exported?, source_module: func.source_module || source_module}]
+
+          _ ->
+            []
         end)
 
       funcs
     end
 
-    def fetch_funcp!(%__MODULE__{body: body} = module_definition, source_module, name) do
+    def fetch_func!(%__MODULE__{body: body} = module_definition, visibility, source_module, name) do
       body = List.flatten(body)
+      exported? = visibility == :exported
 
       # func = Enum.find(body, &match?(%Func{name: ^name}, &1))
       func =
         Enum.find_value(body, fn
-          %Func{name: ^name} = func -> %{func | exported?: false, source_module: source_module}
-          _ -> false
+          %Func{name: ^name} = func ->
+            %{func | exported?: exported?, source_module: func.source_module || source_module}
+
+          _ ->
+            false
         end)
 
       func || raise FetchFuncError, func_name: name, module_definition: module_definition
     end
 
+    def func_ref!(mod, name) when is_atom(mod) do
+      {:mod_func_ref, :exported, {mod, name}}
+    end
+
+    def func_ref_all!(mod) when is_atom(mod) do
+      {:mod_func_ref, :exported, mod}
+    end
+
     def funcp_ref!(mod, name) when is_atom(mod) do
-      {:mod_funcp_ref, {mod, name}}
+      {:mod_func_ref, :internal, {mod, name}}
     end
 
     def funcp_ref_all!(mod) when is_atom(mod) do
-      {:mod_funcp_ref, mod}
+      {:mod_func_ref, :internal, mod}
     end
   end
 
@@ -777,6 +793,12 @@ defmodule Orb do
             body: List.flatten(@wasm_body)
           )
         end
+
+        # def func(),
+        #   do: Orb.ModuleDefinition.func_ref_all!(__MODULE__)
+
+        def _func(name),
+          do: Orb.ModuleDefinition.func_ref!(__MODULE__, name)
 
         def funcp(),
           do: Orb.ModuleDefinition.funcp_ref_all!(__MODULE__)

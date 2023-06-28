@@ -114,13 +114,23 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       quote do
         import Orb
 
-        # Memory.pages(increase_by: 2)
-        wasm_memory(pages: 2)
+        cond do
+          Module.has_attribute?(__MODULE__, :wasm_use_bump_allocator) ->
+            IO.inspect(unquote(opts), label: "use BumpAllocator")
 
-        I32.global(
-          bump_offset: Constants.bump_init_offset(),
-          bump_mark: 0
-        )
+          true ->
+            wasm_memory(pages: 2)
+            # wasm_memory(min_pages: 2)
+            # Memory.pages(min: 2)
+            # Memory.pages(increase_by: 2)
+
+            I32.global(
+              bump_offset: Constants.bump_init_offset(),
+              bump_mark: 0
+            )
+
+            @wasm_use_bump_allocator true
+        end
 
         Orb.wasm do
           unquote(__MODULE__).funcp(:bump_alloc)
@@ -128,13 +138,19 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         if unquote(opts[:export]) do
           Orb.wasm do
-            func alloc(size: I32), I32 do
-              call(:bump_alloc, local_get(:size))
-            end
+            unquote(__MODULE__)._func(:alloc)
           end
         end
 
         import unquote(__MODULE__)
+      end
+    end
+
+    defmacro export_alloc() do
+      quote do
+        Orb.wasm do
+          unquote(__MODULE__)._func(:alloc)
+        end
       end
     end
 
@@ -161,12 +177,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         # end
       end
 
+      func(alloc(size: I32), I32, do: call(:bump_alloc, size))
+
       funcp bump_free_all() do
         @bump_offset = Constants.bump_init_offset()
-      end
-
-      func alloc(size: I32), I32 do
-        call(:bump_alloc, size)
       end
 
       func free_all() do

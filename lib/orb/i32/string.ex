@@ -52,8 +52,9 @@ defmodule Orb.I32.String do
       import Orb
 
       Orb.wasm do
-        unquote(__MODULE__).funcp(:streq)
-        unquote(__MODULE__).funcp(:strlen)
+        unquote(__MODULE__).funcp()
+        # unquote(__MODULE__).funcp(:streq)
+        # unquote(__MODULE__).funcp(:strlen)
       end
     end
   end

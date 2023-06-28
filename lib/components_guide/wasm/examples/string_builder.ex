@@ -94,8 +94,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
   def append!(ascii: char), do: append!(u8: char)
 
-  def append!(u32: int) do
-    snippet do
+  def append!(decimal_u32: int) do
+    snippet U32 do
       @bump_offset = IntToString.write_u32(int, @bump_offset)
     end
   end
