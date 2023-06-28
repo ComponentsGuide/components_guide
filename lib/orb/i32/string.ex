@@ -3,10 +3,10 @@ defmodule Orb.I32.String do
 
   use Orb
 
-  @wasm_memory 1
+  wasm_memory(pages: 1)
 
-  defwasm do
-    func streq(address_a(I32), address_b(I32)),
+  wasm do
+    func streq(address_a: I32, address_b: I32),
          I32,
          i: I32,
          byte_a: I32,
@@ -28,7 +28,7 @@ defmodule Orb.I32.String do
       end
     end
 
-    func strlen(string_ptr(I32)), I32, count: I32 do
+    func strlen(string_ptr: I32), I32, count: I32 do
       # while (string_ptr[count] != 0) {
       #   count++;
       # }
