@@ -56,6 +56,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
       Instance.capture(inst, String, :url_encoded_rest, 1)
 
     assert rest.("") == ""
+    assert rest.("&") == ""
     assert rest.("a") == ""
     assert rest.("a&") == "&"
     assert rest.("a&&") == "&&"

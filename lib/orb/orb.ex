@@ -1,5 +1,6 @@
 defmodule Orb do
   alias Orb.Ops
+  alias Orb.ToWat
   require Ops
 
   defmacro __using__(opts) do
@@ -685,6 +686,34 @@ defmodule Orb do
     end
   end
 
+  defmodule VariableReference do
+    defstruct [:global_or_local, :identifier, :type]
+
+    def global(identifier, type) do
+      %__MODULE__{global_or_local: :global, identifier: identifier, type: type}
+    end
+
+    def local(identifier, type) do
+      %__MODULE__{global_or_local: :local, identifier: identifier, type: type}
+    end
+
+    def fetch(%__MODULE__{global_or_local: :local, identifier: identifier, type: :i32} = ref,
+          at: offset
+        ) do
+      {:ok, {:i32, :load, {:i32, :add, {ref, offset}}}}
+    end
+
+    defimpl ToWat do
+      def to_wat(%VariableReference{global_or_local: :global, identifier: identifier}, indent) do
+        [indent, "(global.get $", to_string(identifier), ?)]
+      end
+
+      def to_wat(%VariableReference{global_or_local: :local, identifier: identifier}, indent) do
+        [indent, "(local.get $", to_string(identifier), ?)]
+      end
+    end
+  end
+
   defp interpolate_external_values(ast, env) do
     Macro.postwalk(ast, fn
       {:^, _, [term]} ->
@@ -962,19 +991,53 @@ defmodule Orb do
     end
   end
 
-  def expand_type(type) do
-    case Macro.expand_literals(type, __ENV__) do
-      I32 -> :i32
-      F32 -> :f32
-      I32.U8 -> :i32_u8
-      I32.String -> :i32_string
+  def expand_type(type, env \\ __ENV__) do
+    case Macro.expand_literals(type, env) do
+      I32 ->
+        :i32
+
+      F32 ->
+        :f32
+
+      I32.U8 ->
+        :i32_u8
+
+      I32.String ->
+        :i32_string
+
       # I32.AlignedPointer -> :i32_aligned_ptr
       # I32.UnalignedPointer -> :i32_ptr
-      I32.Pointer -> :i32_ptr
-      I32.I8.Pointer -> :i32_8_ptr
-      I32.U8.Pointer -> :i32_u8_ptr
+      I32.Pointer ->
+        :i32_ptr
+
+      I32.I8.Pointer ->
+        :i32_8_ptr
+
+      I32.U8.Pointer ->
+        :i32_u8_ptr
+
       # Memory.I32.Pointer -> :i32
-      _ -> type
+      :i32 ->
+        :i32
+
+      :f32 ->
+        :f32
+
+      nil ->
+        nil
+
+      other ->
+        case Code.ensure_loaded(other) do
+          {:module, mod} ->
+            if function_exported?(mod, :wasm_type, 0) do
+              mod.wasm_type()
+            else
+              raise "You passed a type module #{mod} that does not implement to_wasm/0."
+            end
+
+          {:error, :nofile} ->
+            raise "You passed a type module #{other} that does not exist."
+        end
     end
   end
 
@@ -1039,12 +1102,12 @@ defmodule Orb do
       case args do
         [args] when is_list(args) ->
           for {name, type} <- args do
-            Macro.escape(param(name, expand_type(type)))
+            Macro.escape(param(name, expand_type(type, env)))
           end
 
         args ->
           for {name, _meta, [type]} <- args do
-            Macro.escape(param(name, expand_type(type)))
+            Macro.escape(param(name, expand_type(type, env)))
           end
       end
 
@@ -1052,20 +1115,20 @@ defmodule Orb do
       case args do
         [args] when is_list(args) ->
           for {name, type} <- args do
-            {name, expand_type(type)}
+            {name, expand_type(type, env)}
           end
 
         args ->
           for {name, _meta, [type]} <- args do
-            {name, expand_type(type)}
+            {name, expand_type(type, env)}
           end
       end
 
-    result_type = Keyword.get(options, :result, nil) |> expand_type()
+    result_type = Keyword.get(options, :result, nil) |> expand_type(env)
 
     local_types =
       for {key, type} <- Keyword.get(options, :locals, []) do
-        {key, expand_type(type)}
+        {key, expand_type(type, env)}
       end
 
     locals = Map.new(arg_types ++ local_types)
@@ -1217,7 +1280,8 @@ defmodule Orb do
         [input, quote(do: {:local_set, unquote(local)})]
 
       {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
-        {:local_get, meta, [atom]}
+        # {:local_get, meta, [atom]}
+        quote do: VariableReference.local(unquote(atom), unquote(locals[atom]))
 
       # @some_global = input
       {:=, _, [{:@, _, [{global, _, nil}]}, input]} when is_atom(global) ->
@@ -1333,6 +1397,8 @@ defmodule Orb do
   def push(tuple)
       when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const, :local_get, :global_get],
       do: tuple
+
+  def push(%VariableReference{} = ref), do: ref
 
   def push(n) when is_integer(n), do: {:i32_const, n}
 
@@ -1894,12 +1960,17 @@ defmodule Orb do
       "\n"
     )
   end
+
+  def do_wat(%struct{} = value, indent) do
+    # Protocol.assert_impl!(struct, Orb.ToWat)
+
+    ToWat.to_wat(value, indent)
+  end
 end
 
 defmodule OrbUsing do
   import Kernel, except: [if: 2]
   import Orb
-  # alias Orb.{I32}
 
   defmacro if(condition, [result: result], do: when_true, else: when_false) do
     quote do

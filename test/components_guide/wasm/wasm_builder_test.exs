@@ -1,7 +1,7 @@
 defmodule OrbTest do
   use ExUnit.Case, async: true
 
-  import Orb
+  use Orb
 
   test "func" do
     wasm =

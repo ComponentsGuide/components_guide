@@ -29,16 +29,70 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
     #       end
     # 
     func set_www_form_data(data_ptr: I32.U8.Pointer) do
+      # TODO: validate
       @data_url_encoded = data_ptr
-      # TODO: replace @url_list with data deserialized from form.
     end
 
-    func to_html(), I32.String, count: I32, i: I32 do
+    func to_html(), I32.String,
+      count: I32,
+      pair: I32.String,
+      query_iterator: I32.String,
+      value_char_iterator: URLEncoded.ValueCharIterator,
+      value_char: I32.U8 do
       count = URLEncoded.count(@data_url_encoded)
 
       build! do
         append!(string: ~S[<form>\n])
         append!(decimal_u32: count)
+
+        query_iterator = @data_url_encoded
+
+        loop EachItem do
+          # pair = URLEncoded.clone_first(query_iterator)
+          # append!(string: pair)
+
+          # value_char_iterator = URLEncoded.Value.each_char(query_iterator)
+          # loop ValueChars do
+          #   char = value_char_iterator[at: 0]
+          # end
+          # |> while(char) do
+          #   value_char_iterator = URLEncoded.Value.next(value_char_iterator)
+          #   append!(u8: char)
+          # end
+
+          # value_char_iterator = URLEncoded.Value.each_char(query_iterator)
+          # loop char <- value_char_iterator do
+          #   append!(u8: char)
+          # end
+
+          # loop char <- value_char_iterator = URLEncoded.Value.each_char(query_iterator) do
+          #   append!(u8: char)
+          # end
+
+          # loop value_char_iterator, URLEncoded.Value.each_char(query_iterator) do
+          #   char ->
+          #     append!(u8: char)
+          # end
+
+          value_char_iterator = URLEncoded.ValueCharIterator.new(query_iterator)
+
+          #           loop ValueChars do
+          #             # char = value_char_iterator[:value]
+          #             value_char = value_char_iterator[at: 0]
+          # 
+          #             if value_char do
+          #               append!(u8: value_char)
+          # 
+          #               value_char_iterator = URLEncoded.ValueCharIterator.next(value_char_iterator)
+          #               ValueChars.continue()
+          #             end
+          #           end
+
+          query_iterator = URLEncoded.rest(query_iterator)
+
+          EachItem.continue(if: URLEncoded.count(query_iterator))
+        end
+
         append!(string: ~S[\n</form>\n])
       end
     end

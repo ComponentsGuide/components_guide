@@ -225,4 +225,16 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     do: call(:url_encoded_decode_first_value_www_form, url_encoded)
 
   def append_url_query(), do: :todo
+
+  defmodule ValueCharIterator do
+    def wasm_type(), do: :i32
+
+    def new(query_iterator) do
+      query_iterator
+    end
+
+    def next(value_char_iterator) do
+      I32.add(value_char_iterator, 1)
+    end
+  end
 end
