@@ -764,7 +764,7 @@ defmodule Orb do
           {[input, global_set(global)], constants}
 
         {atom, meta, nil}, constants when is_atom(atom) and is_map_key(globals, atom) ->
-          {{:global_get, meta, [atom]}, constants}
+          {quote(do: VariableReference.global(unquote(atom), unquote(globals[atom]))), constants}
 
         {:const, _, [str]}, constants when is_binary(str) ->
           {quote(do: data_for_constant(unquote(str))), [str | constants]}
@@ -775,6 +775,7 @@ defmodule Orb do
             [str | constants]
           }
 
+        # FIXME: have to decide whether supporting ~s and interpolation is too hard.
         {:sigil_s, _, [{:<<>>, _, [str]}, _]}, constants ->
           {
             quote(do: data_for_constant(unquote(str))),
