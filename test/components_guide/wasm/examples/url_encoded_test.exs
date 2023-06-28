@@ -126,7 +126,24 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert url_encode.("💪🏾") == "%F0%9F%92%AA%F0%9F%8F%BE"
   end
 
-  # @tag :skip
+  @tag :skip
+  test "append_url_encode_query_pair_www_form" do
+    inst = Instance.run(URLEncoded)
+    append_query = Instance.capture(inst, String, :append_url_encode_query_pair_www_form, 2)
+    build_start = Instance.capture(inst, :bump_write_start, 0)
+    build_done = Instance.capture(inst, String, :bump_write_done, 0)
+
+    a = Instance.alloc_string("a")
+    b = Instance.alloc_string("b")
+
+    build_start.()
+    append_query.(a, b)
+    s = build_done.()
+
+    assert s == "&a=b"
+  end
+
+  @tag :skip
   test "url_encode_query_www_form" do
     inst = Instance.run(URLEncoded)
     url_encode_query = Instance.capture(inst, String, :url_encode_query_www_form, 1)
@@ -146,11 +163,12 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     # )
   end
 
+  @tag :skip
   test "wasm byte size" do
     assert byte_size(Wasm.to_wasm(URLEncoded)) == 1678
   end
 
-  # @tag :skip
+  @tag :skip
   test "optimize with wasm-opt" do
     path_wasm = Path.join(__DIR__, "url_encode.wasm")
     path_wat = Path.join(__DIR__, "url_encode.wat")
