@@ -227,6 +227,9 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   def append_url_query(), do: :todo
 
   defmodule ValueCharIterator do
+    @behaviour Orb.Type
+
+    @impl Orb.Type
     def wasm_type(), do: :i32
 
     def new(query_iterator) do
