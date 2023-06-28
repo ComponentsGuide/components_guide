@@ -5,8 +5,8 @@ defmodule Orb.I32.U8.Pointer do
   @impl Orb.Type
   def wasm_type(), do: :i32
 
+  @impl Orb.Type
   def byte_count(), do: 1
-  def store_instruction(), do: :store8
 
   @impl Access
   def fetch(%Orb.VariableReference{} = var_ref, at!: offset) do

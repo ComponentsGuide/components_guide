@@ -1011,9 +1011,6 @@ defmodule Orb do
       I32.U8 ->
         :i32_u8
 
-      I32.String ->
-        :i32_string
-
       # I32.AlignedPointer -> :i32_aligned_ptr
       # I32.UnalignedPointer -> :i32_ptr
       # I32.Pointer ->
@@ -1180,48 +1177,6 @@ defmodule Orb do
       {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
         quote do: {:i32, :load, unquote(offset)}
 
-      # TODO: remove this
-      {{:., _, [Access, :get]}, _,
-       [
-         {local, _, nil},
-         [
-           at!: offset
-         ]
-       ]}
-      when :erlang.map_get(local, locals) in [:i32_string] ->
-        {bytes_factor, load_instruction} =
-          case locals[local] do
-            :i32_string ->
-              {1, :load8_u}
-          end
-
-        computed_offset =
-          case {offset, bytes_factor} do
-            {0, _} ->
-              quote do: local_get(unquote(local))
-
-            {offset, 1} ->
-              quote do: I32.add(local_get(unquote(local)), unquote(offset))
-
-            # We can compute at compile-time
-            {offset, factor} when is_integer(offset) ->
-              quote do:
-                      I32.add(
-                        local_get(unquote(local)),
-                        unquote(offset * factor)
-                      )
-
-            # We can only compute at runtime
-            {offset, factor} ->
-              quote do:
-                      I32.add(
-                        local_get(unquote(local)),
-                        I32.mul(unquote(offset), unquote(factor))
-                      )
-          end
-
-        quote do: {:i32, unquote(load_instruction), unquote(computed_offset)}
-
       # local[at!: offset] = value
       {:=, _meta,
        [
@@ -1235,20 +1190,17 @@ defmodule Orb do
          value
        ]}
       when is_atom(local) and is_map_key(locals, local) ->
-        {bytes_factor, store_instruction} =
-          case locals[local] do
-            :i32_string ->
-              {1, :store8}
+        # FIXME: add error message
+        bytes_factor = locals[local].byte_count()
 
-            other ->
-              {other.byte_count(), other.store_instruction()}
+        store_instruction =
+          case bytes_factor do
+            1 -> :store8
+            4 -> :store
           end
 
         computed_offset =
           case {offset, bytes_factor} do
-            # {offset, mod} when is_atom(mod) ->
-            #   quote do: 
-
             {0, _} ->
               quote do: local_get(unquote(local))
 
@@ -1371,7 +1323,7 @@ defmodule Orb do
   #   %Global{name: name, type: type, initial_value: initial_value, exported: false}
   # end
 
-  @primitive_types [:i32, :f32, :i32_u8, :i32_string]
+  @primitive_types [:i32, :f32, :i32_u8]
 
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
@@ -1601,7 +1553,7 @@ defmodule Orb do
 
   defp do_type(type) do
     case type do
-      type when type in [:i32, :i32_u8, :i32_string] ->
+      type when type in [:i32, :i32_u8] ->
         "i32"
 
       :f32 ->

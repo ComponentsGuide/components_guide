@@ -1,6 +1,21 @@
 defmodule Orb.I32.String do
   # TODO: should this be called I32.ASCII?
 
+  @behaviour Orb.Type
+  @behaviour Access
+
+  @impl Orb.Type
+  def wasm_type(), do: :i32
+
+  @impl Orb.Type
+  def byte_count(), do: 1
+
+  @impl Access
+  def fetch(%Orb.VariableReference{} = var_ref, at!: offset) do
+    ast = {:i32, :load8_u, Orb.I32.Add.neutralize(var_ref, offset)}
+    {:ok, ast}
+  end
+
   use Orb
 
   wasm_memory(pages: 1)
