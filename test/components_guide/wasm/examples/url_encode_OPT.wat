@@ -3,6 +3,7 @@
   (type (;1;) (func))
   (type (;2;) (func (result i32)))
   (type (;3;) (func (param i32)))
+  (type (;4;) (func (param i32 i32) (result i32)))
   (func (;0;) (type 1)
     global.get 0
     i32.eqz
@@ -88,6 +89,13 @@
     i32.add
     global.set 1)
   (func (;3;) (type 0) (param i32) (result i32)
+    (local i32)
+    global.get 1
+    global.get 1
+    local.get 0
+    i32.add
+    global.set 1)
+  (func (;4;) (type 0) (param i32) (result i32)
     (local i32 i32)
     call 0
     loop  ;; label = @1
@@ -265,7 +273,7 @@
       end
     end
     call 1)
-  (func (;4;) (type 0) (param i32) (result i32)
+  (func (;5;) (type 0) (param i32) (result i32)
     (local i32 i32)
     call 0
     loop  ;; label = @1
@@ -376,7 +384,7 @@
       end
     end
     call 1)
-  (func (;5;) (type 0) (param i32) (result i32)
+  (func (;6;) (type 0) (param i32) (result i32)
     call 0
     loop  ;; label = @1
       local.get 0
@@ -415,19 +423,130 @@
       br_if 0 (;@1;)
     end
     call 1)
-  (func (;6;) (type 0) (param i32) (result i32)
-    (local i32)
-    global.get 1
-    global.get 1
+  (func (;7;) (type 0) (param i32) (result i32)
+    (local i32 i32 i32)
+    loop  ;; label = @1
+      local.get 0
+      i32.load8_u
+      local.tee 1
+      i32.eqz
+      local.get 1
+      i32.const 38
+      i32.eq
+      i32.or
+      if (result i32)  ;; label = @2
+        local.get 3
+        local.get 2
+        i32.const 0
+        i32.ne
+        i32.add
+        local.set 3
+        i32.const 0
+      else
+        local.get 2
+        i32.const 1
+        i32.add
+      end
+      local.set 2
+      local.get 0
+      i32.const 1
+      i32.add
+      local.set 0
+      local.get 1
+      br_if 0 (;@1;)
+    end
+    local.get 3)
+  (func (;8;) (type 0) (param i32) (result i32)
+    (local i32 i32)
+    call 0
+    loop (result i32)  ;; label = @1
+      local.get 0
+      i32.load8_u
+      local.tee 1
+      i32.eqz
+      local.get 1
+      i32.const 38
+      i32.eq
+      local.get 2
+      i32.const 0
+      i32.ne
+      i32.and
+      i32.or
+      if (result i32)  ;; label = @2
+        call 1
+      else
+        local.get 1
+        i32.const 38
+        i32.ne
+        if  ;; label = @3
+          global.get 1
+          local.get 1
+          i32.store8
+          global.get 1
+          i32.const 1
+          i32.add
+          global.set 1
+          local.get 2
+          i32.const 1
+          i32.add
+          local.set 2
+        end
+        local.get 0
+        i32.const 1
+        i32.add
+        local.set 0
+        br 1 (;@1;)
+      end
+    end)
+  (func (;9;) (type 0) (param i32) (result i32)
+    (local i32 i32)
+    loop (result i32)  ;; label = @1
+      local.get 0
+      i32.load8_u
+      local.tee 2
+      i32.eqz
+      local.get 2
+      i32.const 38
+      i32.eq
+      local.get 1
+      i32.const 0
+      i32.ne
+      i32.and
+      i32.or
+      if (result i32)  ;; label = @2
+        local.get 0
+      else
+        local.get 1
+        i32.const 1
+        i32.add
+        local.get 1
+        local.get 2
+        i32.const 38
+        i32.ne
+        select
+        local.set 1
+        local.get 0
+        i32.const 1
+        i32.add
+        local.set 0
+        br 1 (;@1;)
+      end
+    end)
+  (func (;10;) (type 4) (param i32 i32) (result i32)
+    i32.const 0)
+  (func (;11;) (type 0) (param i32) (result i32)
     local.get 0
-    i32.add
-    global.set 1)
+    call 3)
   (memory (;0;) 2)
   (global (;0;) (mut i32) (i32.const 0))
   (global (;1;) (mut i32) (i32.const 65536))
   (global (;2;) (mut i32) (i32.const 0))
   (export "memory" (memory 0))
-  (export "url_encode_rfc3986" (func 3))
-  (export "url_encode_www_form" (func 4))
-  (export "url_encode_query_www_form" (func 5))
-  (export "alloc" (func 6)))
+  (export "url_encode_rfc3986" (func 4))
+  (export "url_encode_www_form" (func 5))
+  (export "url_encode_query_www_form" (func 6))
+  (export "url_encoded_count" (func 7))
+  (export "url_encoded_clone_first" (func 8))
+  (export "url_encoded_rest" (func 9))
+  (export "url_encoded_decode_first_www_form_value" (func 10))
+  (export "alloc" (func 11)))
