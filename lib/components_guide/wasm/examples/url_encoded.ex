@@ -17,10 +17,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       import unquote(__MODULE__)
 
       Orb.wasm do
-        unquote(__MODULE__).funcp(:url_encoded_count)
-        unquote(__MODULE__).funcp(:url_encoded_clone_first)
-        unquote(__MODULE__).funcp(:url_encoded_rest)
-        unquote(__MODULE__).funcp(:url_encoded_decode_first_www_form_value)
+        unquote(__MODULE__).funcp()
       end
     end
   end
