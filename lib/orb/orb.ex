@@ -1036,7 +1036,7 @@ defmodule Orb do
             end
 
           {:error, :nofile} ->
-            raise "You passed a type module #{other} that does not exist."
+            raise "You passed a type module #{other} that does not exist or cannot be loaded."
         end
     end
   end
