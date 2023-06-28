@@ -260,8 +260,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
 
   describe "SitemapBuilder" do
     test "works" do
-      # assert SitemapBuilder.exports() == []
-
       instance = Instance.run(SitemapBuilder)
 
       add_url = Instance.capture(instance, :add_url, 1)

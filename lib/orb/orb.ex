@@ -1016,13 +1016,14 @@ defmodule Orb do
 
       # I32.AlignedPointer -> :i32_aligned_ptr
       # I32.UnalignedPointer -> :i32_ptr
-      I32.Pointer ->
-        :i32_ptr
+      # I32.Pointer ->
+      #   :i32_ptr
 
       # I32.U8.Pointer ->
       #   :i32_u8_ptr
 
       # Memory.I32.Pointer -> :i32
+      # Memory0.I32 -> :i32
       :i32 ->
         :i32
 

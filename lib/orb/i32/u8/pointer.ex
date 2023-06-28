@@ -1,6 +1,4 @@
 defmodule Orb.I32.U8.Pointer do
-  defstruct [:variable_reference]
-
   @behaviour Orb.Type
   @behaviour Access
 
