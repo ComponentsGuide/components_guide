@@ -109,11 +109,8 @@ defmodule Orb do
 
       body = func_refs ++ other
 
-      options = Keyword.put(options, :body, body)
-
-      options = Keyword.update(options, :imports, [], &List.wrap/1)
-
-      struct!(__MODULE__, options)
+      fields = Keyword.put(options, :body, body)
+      struct!(__MODULE__, fields)
     end
 
     defp resolve_func_ref({:mod_funcp_ref, {mod, name}}) do
