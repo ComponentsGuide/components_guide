@@ -12,7 +12,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     wasm U32 do
       func u32_to_hex_lower(
              value: I32,
-             write_ptr: I32.I8.Pointer
+             write_ptr: I32.U8.Pointer
            ),
            i: I32,
            digit: I32 do

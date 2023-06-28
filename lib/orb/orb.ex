@@ -1019,9 +1019,6 @@ defmodule Orb do
       I32.Pointer ->
         :i32_ptr
 
-      I32.I8.Pointer ->
-        :i32_8_ptr
-
       # I32.U8.Pointer ->
       #   :i32_u8_ptr
 
@@ -1254,9 +1251,6 @@ defmodule Orb do
             :i32_u8_ptr ->
               {1, :store8}
 
-            :i32_8_ptr ->
-              {1, :store8}
-
             :i32_string ->
               {1, :store8}
 
@@ -1391,7 +1385,7 @@ defmodule Orb do
   #   %Global{name: name, type: type, initial_value: initial_value, exported: false}
   # end
 
-  @primitive_types [:i32, :f32, :i32_u8, :i32_string, :i32_ptr, :i32_8_ptr, :i32_u8_ptr]
+  @primitive_types [:i32, :f32, :i32_u8, :i32_string, :i32_ptr, :i32_u8_ptr]
 
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
@@ -1621,7 +1615,7 @@ defmodule Orb do
 
   defp do_type(type) do
     case type do
-      type when type in [:i32, :i32_u8, :i32_string, :i32_ptr, :i32_8_ptr, :i32_u8_ptr] ->
+      type when type in [:i32, :i32_u8, :i32_string, :i32_ptr, :i32_u8_ptr] ->
         "i32"
 
       :f32 ->
