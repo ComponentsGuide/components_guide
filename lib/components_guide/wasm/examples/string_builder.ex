@@ -57,7 +57,13 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def build_begin!(), do: call(:bump_write_start)
   def build_done!(), do: call(:bump_write_done)
 
-  defmacro build!(do: {:__block__, _, items}) do
+  defmacro build!(do: block) do
+    items =
+      case block do
+        {:__block__, _, items} -> items
+        term -> List.wrap(term)
+      end
+
     quote do
       [
         build_begin!(),

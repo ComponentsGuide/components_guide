@@ -99,6 +99,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     defmacro __using__(_) do
       quote do
         import Orb
+        use StringBuilder
 
         wasm do
           URLEncoding.funcp(:encode_url)
@@ -152,63 +153,59 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
            char: I32.U8,
            abc: I32,
            __dup_32: I32 do
-        build_begin!()
+        build! do
+          loop EachByte do
+            char = str_ptr[at!: 0]
 
-        loop EachByte do
-          char = str_ptr[at!: 0]
-
-          if char do
-            if I32.eq(char, 0x20) do
-              append!(ascii: ?+)
-            else
-              if I32.in_inclusive_range?(char, ?a, ?z)
-                 |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
-                 |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
-                 |> I32.or(I32.in?(char, ~C{~_-.})) do
-                append!(ascii: char)
+            if char do
+              if I32.eq(char, 0x20) do
+                append!(ascii: ?+)
               else
-                append!(ascii: ?%)
-                append!(hex_upper: char >>> 4)
-                append!(hex_upper: char &&& 15)
-                # append!(hex_upper: I32.div_u(char, 16))
-                # append!(hex_upper: I32.rem_u(char, 16))
+                if I32.in_inclusive_range?(char, ?a, ?z)
+                   |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
+                   |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
+                   |> I32.or(I32.in?(char, ~C{~_-.})) do
+                  append!(ascii: char)
+                else
+                  append!(ascii: ?%)
+                  append!(hex_upper: char >>> 4)
+                  append!(hex_upper: char &&& 15)
+                  # append!(hex_upper: I32.div_u(char, 16))
+                  # append!(hex_upper: I32.rem_u(char, 16))
 
-                # __dup_32 = I32.div_u(char, 16)
-                # append!(hex_upper: __dup_32)
-                # __dup_32 = I32.rem_u(char, 16)
-                # append!(hex_upper: __dup_32)
+                  # __dup_32 = I32.div_u(char, 16)
+                  # append!(hex_upper: __dup_32)
+                  # __dup_32 = I32.rem_u(char, 16)
+                  # append!(hex_upper: __dup_32)
 
-                # append!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
-                # append!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
+                  # append!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
+                  # append!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
+                end
               end
-            end
 
-            str_ptr = str_ptr + 1
-            EachByte.continue()
+              str_ptr = str_ptr + 1
+              EachByte.continue()
+            end
           end
         end
-
-        build_done!()
       end
 
       func url_encode_query_www_form(list_ptr: I32.Pointer), I32.String do
-        build_begin!()
+        build! do
+          loop EachPair do
+            append!(string: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
+            append!(ascii: ?=)
+            append!(string: LinkedLists.hd!(LinkedLists.tl!(LinkedLists.hd!(list_ptr))))
 
-        loop EachPair do
-          append!(string: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
-          append!(ascii: ?=)
-          append!(string: LinkedLists.hd!(LinkedLists.tl!(LinkedLists.hd!(list_ptr))))
+            list_ptr = LinkedLists.tl!(list_ptr)
 
-          list_ptr = LinkedLists.tl!(list_ptr)
+            if list_ptr do
+              append!(ascii: ?&)
+            end
 
-          if list_ptr do
-            append!(ascii: ?&)
+            EachPair.continue(if: list_ptr)
           end
-
-          EachPair.continue(if: list_ptr)
         end
-
-        build_done!()
       end
     end
 
