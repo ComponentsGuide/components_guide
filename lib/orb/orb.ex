@@ -1019,9 +1019,6 @@ defmodule Orb do
       # I32.Pointer ->
       #   :i32_ptr
 
-      # I32.U8.Pointer ->
-      #   :i32_u8_ptr
-
       # Memory.I32.Pointer -> :i32
       # Memory0.I32 -> :i32
       :i32 ->
@@ -1191,15 +1188,9 @@ defmodule Orb do
            at!: offset
          ]
        ]}
-      when :erlang.map_get(local, locals) in [:i32_ptr, :i32_u8_ptr, :i32_string] ->
+      when :erlang.map_get(local, locals) in [:i32_string] ->
         {bytes_factor, load_instruction} =
           case locals[local] do
-            :i32_ptr ->
-              {4, :load}
-
-            :i32_u8_ptr ->
-              {1, :load8_u}
-
             :i32_string ->
               {1, :load8_u}
           end
@@ -1246,12 +1237,6 @@ defmodule Orb do
       when is_atom(local) and is_map_key(locals, local) ->
         {bytes_factor, store_instruction} =
           case locals[local] do
-            :i32_ptr ->
-              {4, :store}
-
-            :i32_u8_ptr ->
-              {1, :store8}
-
             :i32_string ->
               {1, :store8}
 
@@ -1386,7 +1371,7 @@ defmodule Orb do
   #   %Global{name: name, type: type, initial_value: initial_value, exported: false}
   # end
 
-  @primitive_types [:i32, :f32, :i32_u8, :i32_string, :i32_ptr, :i32_u8_ptr]
+  @primitive_types [:i32, :f32, :i32_u8, :i32_string]
 
   def param(name, type) when type in @primitive_types do
     %Param{name: name, type: type}
@@ -1616,7 +1601,7 @@ defmodule Orb do
 
   defp do_type(type) do
     case type do
-      type when type in [:i32, :i32_u8, :i32_string, :i32_ptr, :i32_u8_ptr] ->
+      type when type in [:i32, :i32_u8, :i32_string] ->
         "i32"
 
       :f32 ->
