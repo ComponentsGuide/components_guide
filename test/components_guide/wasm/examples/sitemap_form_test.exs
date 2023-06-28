@@ -15,7 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
 
     assert to_html.() == ~S"""
            <form>
-           1
+           1 example.org
            </form>
            """
   end

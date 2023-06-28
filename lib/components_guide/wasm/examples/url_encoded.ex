@@ -99,6 +99,33 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
          I32.U8.Pointer do
       0
     end
+
+    func url_encoded_first_value_offset(url_encoded: I32.U8.Pointer),
+         I32.U8.Pointer,
+         char: I32.U8,
+         len: I32 do
+      loop EachByte, result: I32 do
+        char = url_encoded[at!: 0]
+
+        if I32.eq(char, 0) ||| (I32.eq(char, ?&) &&& len > 0) do
+          # url_encoded
+          0x0
+          return()
+        end
+
+        if I32.eq(char, ?=) do
+          url_encoded + 1
+          return()
+        end
+
+        if I32.eqz(I32.eq(char, ?&)) do
+          len = len + 1
+        end
+
+        url_encoded = url_encoded + 1
+        EachByte.continue()
+      end
+    end
   end
 
   wasm U32 do
@@ -228,16 +255,25 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   defmodule ValueCharIterator do
     @behaviour Orb.Type
+    @behaviour Access
 
     @impl Orb.Type
     def wasm_type(), do: :i32
 
     def new(query_iterator) do
-      query_iterator
+      # query_iterator
+      Orb.call(:url_encoded_first_value_offset, query_iterator)
     end
 
     def next(value_char_iterator) do
       I32.add(value_char_iterator, 1)
+    end
+
+    @impl Access
+    def fetch(%Orb.VariableReference{} = var_ref, 0) do
+      address = 0 |> Orb.I32.Add.neutralize(var_ref)
+      ast = {:i32, :load8_u, address}
+      {:ok, ast}
     end
   end
 end
