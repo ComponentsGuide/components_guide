@@ -19,8 +19,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       Orb.wasm do
         unquote(__MODULE__).funcp(:url_encoded_count)
         unquote(__MODULE__).funcp(:url_encoded_clone_first)
-        unquote(__MODULE__).funcp(:url_encoded_decode_first_value)
         unquote(__MODULE__).funcp(:url_encoded_rest)
+        unquote(__MODULE__).funcp(:url_encoded_decode_first_www_form_value)
       end
     end
   end
@@ -91,15 +91,21 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func url_encoded_decode_first_value_www_form(url_encoded: I32.U8.Pointer), I32.U8.Pointer do
+    func url_encoded_decode_first_www_form_value(
+           url_encoded: I32.U8.Pointer,
+           key: I32.U8.Pointer
+         ),
+         I32.U8.Pointer do
       0
     end
   end
 
   def count(), do: call(:url_encoded_count)
   def clone_first(url_encoded), do: call(:url_encoded_clone_first, url_encoded)
-  def decode_first_value(url_encoded), do: call(:url_encoded_decode_first_value, url_encoded)
   def rest(url_encoded), do: call(:url_encoded_rest, url_encoded)
+
+  def decode_first_www_form_value(url_encoded),
+    do: call(:url_encoded_decode_first_www_form_value, url_encoded)
 
   def append_url_query(), do: :todo
 end

@@ -59,7 +59,7 @@ defmodule Orb do
   end
 
   defmodule Func do
-    defstruct [:name, :params, :result, :local_types, :body, :exported?]
+    defstruct [:name, :params, :result, :local_types, :body, :exported?, :source_module]
   end
 
   defmodule FuncType do
@@ -96,12 +96,16 @@ defmodule Orb do
     def new(options) do
       {body, options} = Keyword.pop(options, :body)
 
-      {func_refs, other} = Enum.split_with(body, &match?({:mod_funcp_ref, _, _}, &1))
+      {func_refs, other} = Enum.split_with(body, &match?({:mod_funcp_ref, _}, &1))
 
       func_refs =
         func_refs
         |> Enum.uniq()
         |> Enum.map(&resolve_func_ref/1)
+        |> List.flatten()
+        |> Enum.uniq_by(fn %Func{source_module: source_module, name: name} ->
+          {source_module, name}
+        end)
 
       body = func_refs ++ other
 
@@ -112,8 +116,12 @@ defmodule Orb do
       struct!(__MODULE__, options)
     end
 
-    defp resolve_func_ref({:mod_funcp_ref, mod, name}) do
-      fetch_funcp!(mod.__wasm_module__(), name)
+    defp resolve_func_ref({:mod_funcp_ref, {mod, name}}) do
+      fetch_funcp!(mod.__wasm_module__(), mod, name)
+    end
+
+    defp resolve_func_ref({:mod_funcp_ref, mod}) when is_atom(mod) do
+      fetch_funcp!(mod.__wasm_module__(), mod)
     end
 
     defmodule FetchFuncError do
@@ -121,17 +129,29 @@ defmodule Orb do
 
       @impl true
       def message(%{func_name: func_name, module_definition: module_definition}) do
-        "func #{func_name} not found in #{module_definition.name} #{inspect(module_definition.body)}"
+        "funcp #{func_name} not found in #{module_definition.name} #{inspect(module_definition.body)}"
       end
     end
 
-    def fetch_funcp!(%__MODULE__{body: body} = module_definition, name) do
+    def fetch_funcp!(%__MODULE__{body: body} = module_definition, source_module) do
+      body = List.flatten(body)
+
+      funcs =
+        Enum.flat_map(body, fn
+          %Func{} = func -> [%{func | exported?: false, source_module: source_module}]
+          _ -> []
+        end)
+
+      funcs
+    end
+
+    def fetch_funcp!(%__MODULE__{body: body} = module_definition, source_module, name) do
       body = List.flatten(body)
 
       # func = Enum.find(body, &match?(%Func{name: ^name}, &1))
       func =
         Enum.find_value(body, fn
-          %Func{name: ^name} = func -> %{func | exported?: false}
+          %Func{name: ^name} = func -> %{func | exported?: false, source_module: source_module}
           _ -> false
         end)
 
@@ -139,7 +159,11 @@ defmodule Orb do
     end
 
     def funcp_ref!(mod, name) when is_atom(mod) do
-      {:mod_funcp_ref, mod, name}
+      {:mod_funcp_ref, {mod, name}}
+    end
+
+    def funcp_ref_all!(mod) when is_atom(mod) do
+      {:mod_funcp_ref, mod}
     end
   end
 
@@ -758,6 +782,9 @@ defmodule Orb do
             body: List.flatten(@wasm_body)
           )
         end
+
+        def funcp(),
+          do: Orb.ModuleDefinition.funcp_ref_all!(__MODULE__)
 
         def funcp(name),
           do: Orb.ModuleDefinition.funcp_ref!(__MODULE__, name)

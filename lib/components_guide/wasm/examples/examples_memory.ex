@@ -11,15 +11,16 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         import Orb
 
         wasm do
-          unquote(__MODULE__).funcp(:memcpy)
-          unquote(__MODULE__).funcp(:memset)
+          # unquote(__MODULE__).funcp(:memcpy)
+          # unquote(__MODULE__).funcp(:memset)
+          unquote(__MODULE__).funcp()
         end
 
         import unquote(__MODULE__)
       end
     end
 
-    @wasm_memory 2
+    wasm_memory(pages: 2)
 
     wasm U32 do
       func memcpy(dest: I32.U8.Pointer, src: I32.U8.Pointer, byte_count: I32),
