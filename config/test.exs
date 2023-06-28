@@ -9,6 +9,7 @@ config :components_guide, ComponentsGuideWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warning
 # config :logger, level: :debug
+config :logger, truncate: :infinity
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
