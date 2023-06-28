@@ -11,7 +11,17 @@ defmodule ComponentsGuide.Wasm.Instance do
     %__MODULE__{elixir_mod: mod, exports: exports, handle: handle}
   rescue
     x in [RuntimeError, Protocol.UndefinedError] ->
-      Logger.error(mod.to_wat())
+      wat = mod.to_wat()
+
+      case Wasm.to_wasm(wat) do
+        {:error, reason} ->
+          Logger.error(reason)
+
+        _ ->
+          Logger.error(wat)
+      end
+
+      # Logger.error(wat)
       reraise x, __STACKTRACE__
   end
 
