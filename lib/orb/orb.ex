@@ -103,9 +103,7 @@ defmodule Orb do
         |> Enum.uniq()
         |> Enum.map(&resolve_func_ref/1)
         |> List.flatten()
-        |> Enum.uniq_by(fn %Func{source_module: source_module, name: name} ->
-          {source_module, name}
-        end)
+        |> Enum.uniq_by(fn func -> {func.source_module, func.name} end)
 
       body = func_refs ++ other
 
