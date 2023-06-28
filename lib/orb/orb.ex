@@ -700,7 +700,15 @@ defmodule Orb do
     def fetch(%__MODULE__{global_or_local: :local, identifier: identifier, type: :i32} = ref,
           at: offset
         ) do
-      {:ok, {:i32, :load, {:i32, :add, {ref, offset}}}}
+      ast = {:i32, :load, {:i32, :add, {ref, offset}}}
+      {:ok, ast}
+    end
+
+    def fetch(
+          %__MODULE__{global_or_local: :local, identifier: identifier, type: mod} = ref,
+          key
+        ) do
+      mod.fetch(ref, key)
     end
 
     defimpl ToWat do
@@ -1014,8 +1022,8 @@ defmodule Orb do
       I32.I8.Pointer ->
         :i32_8_ptr
 
-      I32.U8.Pointer ->
-        :i32_u8_ptr
+      # I32.U8.Pointer ->
+      #   :i32_u8_ptr
 
       # Memory.I32.Pointer -> :i32
       :i32 ->
@@ -1027,18 +1035,20 @@ defmodule Orb do
       nil ->
         nil
 
-      other ->
-        case Code.ensure_loaded(other) do
-          {:module, mod} ->
-            if function_exported?(mod, :wasm_type, 0) do
-              mod.wasm_type()
-            else
-              raise "You passed a type module #{mod} that does not implement to_wasm/0."
-            end
-
-          {:error, :nofile} ->
-            raise "You passed a type module #{other} that does not exist or cannot be loaded."
-        end
+      mod ->
+        #         case Code.ensure_loaded(mod) do
+        #           {:module, mod} ->
+        #             if function_exported?(mod, :wasm_type, 0) do
+        #               # mod.wasm_type()
+        #               mod
+        #             else
+        #               raise "You passed a Orb type module #{mod} that does not implement wasm_type/0."
+        #             end
+        # 
+        #           {:error, :nofile} ->
+        # raise "You passed a Orb type module #{mod} that does not exist or cannot be loaded."
+        mod
+        # end
     end
   end
 
@@ -1175,13 +1185,15 @@ defmodule Orb do
       {{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]} ->
         quote do: {:i32, :load, unquote(offset)}
 
+      # TODO: remove this
       {{:., _, [Access, :get]}, _,
        [
          {local, _, nil},
          [
            at!: offset
          ]
-       ]} ->
+       ]}
+      when :erlang.map_get(local, locals) in [:i32_ptr, :i32_u8_ptr, :i32_string] ->
         {bytes_factor, load_instruction} =
           case locals[local] do
             :i32_ptr ->
@@ -1247,10 +1259,16 @@ defmodule Orb do
 
             :i32_string ->
               {1, :store8}
+
+            other ->
+              {other.byte_count(), other.store_instruction()}
           end
 
         computed_offset =
           case {offset, bytes_factor} do
+            # {offset, mod} when is_atom(mod) ->
+            #   quote do: 
+
             {0, _} ->
               quote do: local_get(unquote(local))
 
@@ -1379,12 +1397,28 @@ defmodule Orb do
     %Param{name: name, type: type}
   end
 
+  def param(name, type) when is_atom(type) do
+    # unless function_exported?(type, :wasm_type, 0) do
+    #   raise "Param of type #{type} must implement wasm_type/0."
+    # end
+
+    %Param{name: name, type: type}
+  end
+
   def export(name) do
     {:export, name}
   end
 
-  def result(type) when type in @primitive_types, do: {:result, type}
   def result(nil), do: nil
+  def result(type) when type in @primitive_types, do: {:result, type}
+
+  def result(type) when is_atom(type) do
+    # unless function_exported?(type, :wasm_type, 0) do
+    #   raise "Param of type #{type} must implement wasm_type/0."
+    # end
+
+    {:result, type}
+  end
 
   # TODO: unused
   def i32_const(value), do: {:i32_const, value}
@@ -1587,8 +1621,20 @@ defmodule Orb do
 
   defp do_type(type) do
     case type do
-      type when type in [:i32, :i32_u8, :i32_string, :i32_ptr, :i32_8_ptr, :i32_u8_ptr] -> "i32"
-      :f32 -> "f32"
+      type when type in [:i32, :i32_u8, :i32_string, :i32_ptr, :i32_8_ptr, :i32_u8_ptr] ->
+        "i32"
+
+      :f32 ->
+        "f32"
+
+      type ->
+        #         Code.ensure_loaded!(type)
+        # 
+        #         unless function_exported?(type, :wasm_type, 0) do
+        #           raise "Type #{type} must implement wasm_type/0."
+        #         end
+
+        type.wasm_type() |> to_string()
     end
   end
 
