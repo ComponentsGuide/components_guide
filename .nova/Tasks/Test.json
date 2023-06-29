@@ -2,7 +2,7 @@
   "actions" : {
     "build" : {
       "enabled" : true,
-      "script" : "source .envrc\nmix format\nmake test"
+      "script" : "source .envrc\nmix format\nmake test\nif [[ $? -eq 0 ]]; then\n\tsay \"Green\"\nelse\n\tsay \"Red\"\nfi"
     }
   },
   "openLogOnRun" : "start"
