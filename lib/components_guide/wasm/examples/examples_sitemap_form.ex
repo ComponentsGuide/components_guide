@@ -49,36 +49,12 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         append!(ascii: ?\n)
 
         query_iterator = @data_url_encoded
+        # query_iterator = URLEncoded.each_pair(@data_url_encoded)
 
         loop EachItem do
           append!(decimal_u32: i + 1)
           append!(ascii: 0x20)
 
-          # pair = URLEncoded.clone_first(query_iterator)
-          # append!(string: pair)
-
-          # value_char_iterator = URLEncoded.Value.each_char(query_iterator)
-          # loop ValueChars do
-          #   char = value_char_iterator[0]
-          # end
-          # |> while(char) do
-          #   value_char_iterator = URLEncoded.Value.next(value_char_iterator)
-          #   append!(u8: char)
-          # end
-
-          # value_char_iterator = URLEncoded.Value.each_char(query_iterator)
-          # loop char <- value_char_iterator do
-          #   append!(u8: char)
-          # end
-
-          # loop char <- value_char_iterator = URLEncoded.Value.each_char(query_iterator) do
-          #   append!(u8: char)
-          # end
-
-          # value_char_iterator = URLEncoded.Value.CharIterator.new(query_iterator)
-
-          # value_char_iterator = URLEncoded.Value.CharIterator.new(query_iterator)
-          # value_char_iterator = query_iterator[:each_char_of_value]
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
           loop value_char <- value_char_iterator do
