@@ -260,20 +260,26 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     @impl Orb.Type
     def wasm_type(), do: :i32
 
+    @impl Access
+    def fetch(%Orb.VariableReference{} = var_ref, 0) do
+      address = 0 |> Orb.I32.Add.neutralize(var_ref)
+      ast = {:i32, :load8_u, address}
+      {:ok, ast}
+    end
+
     def new(query_iterator) do
       # query_iterator
       Orb.call(:url_encoded_first_value_offset, query_iterator)
     end
 
     def next(value_char_iterator) do
-      I32.add(value_char_iterator, 1)
-    end
-
-    @impl Access
-    def fetch(%Orb.VariableReference{} = var_ref, 0) do
-      address = 0 |> Orb.I32.Add.neutralize(var_ref)
-      ast = {:i32, :load8_u, address}
-      {:ok, ast}
+      Orb.snippet U32, value_char_iterator: __MODULE__ do
+        I32.when? I32.in?(I32.load8_u(value_char_iterator + 1), [?&, 0]) do
+          0
+        else
+          I32.add(value_char_iterator, 1)
+        end
+      end
     end
   end
 end

@@ -37,18 +37,24 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
       count: I32,
       pair: I32.String,
       query_iterator: I32.String,
+      i: I32,
       value_char_iterator: URLEncoded.ValueCharIterator,
       value_char: I32.U8 do
       count = URLEncoded.count(@data_url_encoded)
 
       build! do
         append!(string: ~S[<form>\n])
+        append!(string: ~S[count: ])
         append!(decimal_u32: count)
-        append!(ascii: 0x20)
+        append!(ascii: ?;)
+        append!(ascii: ?\n)
 
         query_iterator = @data_url_encoded
 
         loop EachItem do
+          append!(decimal_u32: i + 1)
+          append!(ascii: 0x20)
+
           # pair = URLEncoded.clone_first(query_iterator)
           # append!(string: pair)
 
@@ -70,9 +76,9 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           #   append!(u8: char)
           # end
 
-          # loop value_char_iterator, URLEncoded.Value.each_char(query_iterator) do
-          #   char ->
-          #     append!(u8: char)
+          # value_char_iterator = URLEncoded.ValueCharIterator.new(query_iterator)
+          # loop value_char <- mut!(value_char_iterator) do
+          #   append!(u8: value_char)
           # end
 
           value_char_iterator = URLEncoded.ValueCharIterator.new(query_iterator)
@@ -88,16 +94,19 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
               append!(u8: value_char)
 
               value_char_iterator = URLEncoded.ValueCharIterator.next(value_char_iterator)
-              ValueChars.continue()
+              ValueChars.continue(if: value_char_iterator)
             end
           end
 
+          append!(ascii: ?\n)
+
           query_iterator = URLEncoded.rest(query_iterator)
+          i = i + 1
 
           EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
-        append!(string: ~S[\n</form>\n])
+        append!(string: ~S[</form>\n])
       end
     end
 

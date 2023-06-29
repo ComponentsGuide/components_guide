@@ -1272,7 +1272,7 @@ defmodule Orb do
 
     locals =
       for {key, type} <- locals, into: %{} do
-        {key, expand_type(type)}
+        {key, expand_type(type, __CALLER__)}
       end
 
     quote do
