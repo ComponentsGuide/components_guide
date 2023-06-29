@@ -11,8 +11,12 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
     set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)
     to_html = Instance.capture(inst, String, :to_html, 0)
 
-    # set_www_form_data.(URI.encode_query(%{"urls[]" => "example.org"}))
-    set_www_form_data.(URI.encode_query([{"urls[]", "example.org"}, {"urls[]", "example.org"}]))
+    [
+      {"urls[]", "example.org"},
+      {"urls[]", "example.org"}
+    ]
+    |> URI.encode_query()
+    |> set_www_form_data.()
 
     assert to_html.() == ~S"""
            <form>
