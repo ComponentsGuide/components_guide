@@ -28,7 +28,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
     #         @output_chunk_index = 0
     #       end
     # 
-    func set_www_form_data(data_ptr: I32.U8.Pointer) do
+    func set_www_form_data(data_ptr: URLEncoded) do
       # TODO: validate
       @data_url_encoded = data_ptr
     end
@@ -85,16 +85,19 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           # value_char_iterator = query_iterator[:first_value_char_iterator]
 
           loop ValueChars do
-            # char = value_char_iterator[:value]
-            value_char = value_char_iterator[0]
-            # {value_char, value_char_iterator} = value_char_iterator[:next]
-            # value_char = next!(value_char_iterator)
+            if value_char_iterator do
+              # char = value_char_iterator[:value]
+              value_char = value_char_iterator[0]
+              # {value_char, value_char_iterator} = value_char_iterator[:next]
+              # value_char = next!(value_char_iterator)
 
-            if value_char do
+              # if value_char do
               append!(u8: value_char)
 
-              value_char_iterator = URLEncoded.ValueCharIterator.next(value_char_iterator)
-              ValueChars.continue(if: value_char_iterator)
+              # value_char_iterator = URLEncoded.ValueCharIterator.next(value_char_iterator)
+              # value_char_iterator = next(value_char_iterator)
+              value_char_iterator = value_char_iterator[:next]
+              ValueChars.continue()
             end
           end
 
