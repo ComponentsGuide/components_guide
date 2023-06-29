@@ -1447,7 +1447,7 @@ defmodule Orb do
           %IfElse{
             condition: unquote(source),
             when_true: [
-              unquote(source)[0],
+              unquote(source)[:value],
               Orb.VariableReference.as_set(unquote(item)),
               unquote(get_block_items(block)),
               unquote(source)[:next],

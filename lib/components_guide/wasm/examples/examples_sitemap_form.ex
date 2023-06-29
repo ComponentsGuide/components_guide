@@ -96,7 +96,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           #               ValueChars.continue()
           #             end
           #           end
-          #           |> IO.inspect()
 
           append!(ascii: ?\n)
 

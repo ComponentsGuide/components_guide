@@ -268,7 +268,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       def wasm_type(), do: :i32
 
       @impl Access
-      def fetch(%Orb.VariableReference{} = var_ref, 0) do
+      def fetch(%Orb.VariableReference{} = var_ref, :value) do
         {:ok, {:i32, :load8_u, var_ref}}
       end
 
