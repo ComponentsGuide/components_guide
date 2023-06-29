@@ -1,5 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
-  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.HTML.EscapeHTML
@@ -85,17 +84,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           loop value_char <- value_char_iterator do
             append!(u8: value_char)
           end
-
-          #           loop ValueChars do
-          #             if value_char_iterator do
-          #               value_char = value_char_iterator[0]
-          # 
-          #               append!(u8: value_char)
-          # 
-          #               value_char_iterator = value_char_iterator[:next]
-          #               ValueChars.continue()
-          #             end
-          #           end
 
           append!(ascii: ?\n)
 
