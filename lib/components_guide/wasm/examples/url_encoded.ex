@@ -259,34 +259,38 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   def append_url_query(), do: :todo
 
-  defmodule ValueCharIterator do
-    @behaviour Orb.Type
-    @behaviour Access
+  defmodule Value do
+    defmodule CharIterator do
+      @behaviour Orb.Type
+      @behaviour Access
 
-    @impl Orb.Type
-    def wasm_type(), do: :i32
+      @impl Orb.Type
+      def wasm_type(), do: :i32
 
-    @impl Access
-    def fetch(%Orb.VariableReference{} = var_ref, 0) do
-      {:ok, {:i32, :load8_u, var_ref}}
-    end
+      @impl Access
+      def fetch(%Orb.VariableReference{} = var_ref, 0) do
+        {:ok, {:i32, :load8_u, var_ref}}
+      end
 
-    def fetch(%Orb.VariableReference{} = var_ref, :next) do
-      {:ok, next(var_ref)}
-    end
+      def fetch(%Orb.VariableReference{} = var_ref, :next) do
+        {:ok, next(var_ref)}
+      end
 
-    def new(query_iterator) do
-      Orb.call(:url_encoded_first_value_offset, query_iterator)
-    end
+      def new(query_iterator) do
+        Orb.call(:url_encoded_first_value_offset, query_iterator)
+      end
 
-    def next(value_char_iterator) do
-      Orb.snippet U32, value_char_iterator: __MODULE__ do
-        I32.when? I32.in?(I32.load8_u(value_char_iterator + 1), [?&, 0]) do
-          0
-        else
-          I32.add(value_char_iterator, 1)
+      def next(value_char_iterator) do
+        Orb.snippet U32, value_char_iterator: __MODULE__ do
+          I32.when? I32.in?(I32.load8_u(value_char_iterator + 1), [?&, 0]) do
+            0
+          else
+            I32.add(value_char_iterator, 1)
+          end
         end
       end
     end
+
+    def each_char(var_ref), do: CharIterator.new(var_ref)
   end
 end

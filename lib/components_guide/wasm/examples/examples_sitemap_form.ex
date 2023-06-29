@@ -36,9 +36,9 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
     func to_html(), I32.String,
       count: I32,
       pair: I32.String,
-      query_iterator: I32.String,
+      query_iterator: URLEncoded,
       i: I32,
-      value_char_iterator: URLEncoded.ValueCharIterator,
+      value_char_iterator: URLEncoded.Value.CharIterator,
       value_char: I32.U8 do
       count = URLEncoded.count(@data_url_encoded)
 
@@ -60,7 +60,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
           # value_char_iterator = URLEncoded.Value.each_char(query_iterator)
           # loop ValueChars do
-          #   char = value_char_iterator[at: 0]
+          #   char = value_char_iterator[0]
           # end
           # |> while(char) do
           #   value_char_iterator = URLEncoded.Value.next(value_char_iterator)
@@ -76,30 +76,27 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           #   append!(u8: char)
           # end
 
-          # value_char_iterator = URLEncoded.ValueCharIterator.new(query_iterator)
-          # loop value_char <- mut!(value_char_iterator) do
-          #   append!(u8: value_char)
-          # end
+          # value_char_iterator = URLEncoded.Value.CharIterator.new(query_iterator)
 
-          value_char_iterator = URLEncoded.ValueCharIterator.new(query_iterator)
-          # value_char_iterator = query_iterator[:first_value_char_iterator]
+          # value_char_iterator = URLEncoded.Value.CharIterator.new(query_iterator)
+          # value_char_iterator = query_iterator[:each_char_of_value]
+          value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
-          loop ValueChars do
-            if value_char_iterator do
-              # char = value_char_iterator[:value]
-              value_char = value_char_iterator[0]
-              # {value_char, value_char_iterator} = value_char_iterator[:next]
-              # value_char = next!(value_char_iterator)
-
-              # if value_char do
-              append!(u8: value_char)
-
-              # value_char_iterator = URLEncoded.ValueCharIterator.next(value_char_iterator)
-              # value_char_iterator = next(value_char_iterator)
-              value_char_iterator = value_char_iterator[:next]
-              ValueChars.continue()
-            end
+          loop value_char <- value_char_iterator do
+            append!(u8: value_char)
           end
+
+          #           loop ValueChars do
+          #             if value_char_iterator do
+          #               value_char = value_char_iterator[0]
+          # 
+          #               append!(u8: value_char)
+          # 
+          #               value_char_iterator = value_char_iterator[:next]
+          #               ValueChars.continue()
+          #             end
+          #           end
+          #           |> IO.inspect()
 
           append!(ascii: ?\n)
 

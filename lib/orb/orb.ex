@@ -706,6 +706,13 @@ defmodule Orb do
       %__MODULE__{global_or_local: :local, identifier: identifier, type: type}
     end
 
+    def as_set(%__MODULE__{global_or_local: :local, identifier: identifier}) do
+      {:local_set, identifier}
+    end
+
+    @behaviour Access
+
+    @impl Access
     def fetch(%__MODULE__{global_or_local: :local, identifier: identifier, type: :i32} = ref,
           at: offset
         ) do
@@ -781,7 +788,8 @@ defmodule Orb do
           {[input, global_set(global)], constants}
 
         {atom, meta, nil}, constants when is_atom(atom) and is_map_key(globals, atom) ->
-          {quote(do: VariableReference.global(unquote(atom), unquote(globals[atom]))), constants}
+          {quote(do: Orb.VariableReference.global(unquote(atom), unquote(globals[atom]))),
+           constants}
 
         {:const, _, [str]}, constants when is_binary(str) ->
           {quote(do: data_for_constant(unquote(str))), [str | constants]}
@@ -1241,7 +1249,7 @@ defmodule Orb do
 
       {atom, meta, nil} when is_atom(atom) and is_map_key(locals, atom) ->
         # {:local_get, meta, [atom]}
-        quote do: VariableReference.local(unquote(atom), unquote(locals[atom]))
+        quote do: Orb.VariableReference.local(unquote(atom), unquote(locals[atom]))
 
       # @some_global = input
       {:=, _, [{:@, _, [{global, _, nil}]}, input]} when is_atom(global) ->
@@ -1427,6 +1435,35 @@ defmodule Orb do
 
       other ->
         other
+    end
+  end
+
+  defmacro loop({:<-, _, [item, source]}, do: block) do
+    result_type = nil
+
+    block_items =
+      quote(
+        do: [
+          %IfElse{
+            condition: unquote(source),
+            when_true: [
+              unquote(source)[0],
+              Orb.VariableReference.as_set(unquote(item)),
+              unquote(get_block_items(block)),
+              unquote(source)[:next],
+              Orb.VariableReference.as_set(unquote(source)),
+              {:br, unquote(item).identifier}
+            ]
+          }
+        ]
+      )
+
+    quote do
+      %Loop{
+        identifier: unquote(item).identifier,
+        result: unquote(result_type),
+        body: unquote(block_items)
+      }
     end
   end
 
