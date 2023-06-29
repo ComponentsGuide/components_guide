@@ -18,7 +18,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
   I32.global(
     mode: 0,
     output_chunk_index: 0,
-    data_url_encoded: 0x0
+    data_url_encoded: URLEncoded
   )
 
   wasm U32 do

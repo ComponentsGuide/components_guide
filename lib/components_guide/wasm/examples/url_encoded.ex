@@ -244,6 +244,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     #     end
   end
 
+  def initial_i32(), do: 0x0
+
   def count(url_encoded), do: call(:url_encoded_count, url_encoded)
   def clone_first(url_encoded), do: call(:url_encoded_clone_first, url_encoded)
   def rest(url_encoded), do: call(:url_encoded_rest, url_encoded)

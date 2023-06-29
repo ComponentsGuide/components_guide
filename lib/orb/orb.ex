@@ -588,42 +588,51 @@ defmodule Orb do
       end
     end
 
+    def _do_global_value(value) when is_integer(value), do: Orb.i32(value)
+    def _do_global_value(false), do: Orb.i32(false)
+    def _do_global_value(true), do: Orb.i32(true)
+    # TODO: stash away which module so we can do smart stuff like with local types
+    def _do_global_value(value) when is_atom(value), do: value.initial_i32() |> Orb.i32()
+
     defmacro global(list) do
       quote do
-        @wasm_global for {key, value} <- unquote(list), do: {key, i32(value)}
+        @wasm_global for {key, value} <- unquote(list), do: {key, Orb.I32._do_global_value(value)}
       end
     end
 
     defmacro export_global(list) do
       quote do
         @wasm_exported_mutable_global_types for {key, value} <- unquote(list),
-                                                do: {key, i32(value)}
+                                                do: {key, Orb.I32._do_global_value(value)}
       end
     end
 
     defmacro export_global(:readonly, list) do
       quote do
-        @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
+        @wasm_global_exported_readonly for {key, value} <- unquote(list),
+                                           do: {key, Orb.I32._do_global_value(value)}
       end
     end
 
+    # TODO: remove
     defmacro global(:export_readonly, list) do
       quote do
-        @wasm_global_exported_readonly for {key, value} <- unquote(list), do: {key, i32(value)}
+        @wasm_global_exported_readonly for {key, value} <- unquote(list),
+                                           do: {key, Orb.I32._do_global_value(value)}
       end
     end
 
     defmacro export_enum(keys) do
       quote do
         @wasm_global_exported_readonly for {key, index} <- Enum.with_index(unquote(keys)),
-                                           do: {key, i32(index)}
+                                           do: {key, Orb.i32(index)}
       end
     end
 
     defmacro enum(keys) do
       quote do
         @wasm_global for {key, index} <- Enum.with_index(unquote(keys)),
-                         do: {key, i32(index)}
+                         do: {key, Orb.i32(index)}
       end
     end
   end
