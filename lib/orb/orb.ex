@@ -386,6 +386,9 @@ defmodule Orb do
         {:-, meta, [a, b]} ->
           {:{}, meta, [:i32, :sub, {a, b}]}
 
+        {:*, meta, [a, b]} ->
+          {:{}, meta, [:i32, :mul, {a, b}]}
+
         node = {:/, _, [a, b]} when Kernel.and(is_integer(a), is_integer(b)) ->
           node
 
@@ -406,6 +409,9 @@ defmodule Orb do
 
         {:>>>, meta, [a, b]} ->
           {:{}, meta, [:i32, :shr_u, {a, b}]}
+
+        {:<<<, meta, [a, b]} ->
+          {:{}, meta, [:i32, :shl, {a, b}]}
 
         {:&&&, meta, [a, b]} ->
           {:{}, meta, [:i32, :and, {a, b}]}
