@@ -5,8 +5,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
-  defmodule EscapeHTML do
-    use Wasm
+  defmodule BuildHTML do
+    use Orb
     use BumpAllocator
     use StringBuilder
 
@@ -34,7 +34,38 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
         append!(u8: char)
       end
+    end
 
+    def append_html_escaped!(char: char) do
+      call(:append_char_html_escaped, char)
+    end
+
+    defmacro __using__(_) do
+      quote do
+        import unquote(__MODULE__)
+
+        Orb.wasm do
+          unquote(__MODULE__).funcp()
+        end
+      end
+    end
+  end
+
+  defmodule EscapeHTML do
+    use Wasm
+    use BumpAllocator
+
+    wasm_memory(pages: 2)
+
+    @escaped_html_table [
+      {?&, ~C"&amp;"},
+      {?<, ~C"&lt;"},
+      {?>, ~C"&gt;"},
+      {?", ~C"&quot;"},
+      {?', ~C"&#39;"}
+    ]
+
+    wasm U32 do
       funcp escape(read_offset: I32.U8.Pointer, write_offset: I32.U8.Pointer),
             I32,
             char: I32.U8,
