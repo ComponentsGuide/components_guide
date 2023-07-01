@@ -2,11 +2,13 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.HTML.EscapeHTML
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.URLEncoded
 
   use Orb
   use BumpAllocator
   use URLEncoded
+  # use StringBuilder
 
   BumpAllocator.export_alloc()
 
@@ -21,7 +23,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
   )
 
   wasm U32 do
-    #       EscapeHTML.funcp(:escape)
+    EscapeHTML.funcp(:append_char_html_escaped)
     # 
     #       func rewind() do
     #         @output_chunk_index = 0
@@ -58,7 +60,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
           loop value_char <- value_char_iterator do
-            append!(u8: value_char)
+            call(:append_char_html_escaped, value_char)
+            # append!(u8: value_char)
           end
 
           append!(ascii: ?\n)

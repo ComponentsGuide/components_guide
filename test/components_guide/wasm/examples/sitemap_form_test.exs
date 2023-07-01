@@ -13,7 +13,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
 
     [
       {"urls[]", "example.org"},
-      {"urls[]", "caf+@!.org"}
+      {"urls[]", "caf+@!<.org"}
     ]
     |> URI.encode_query()
     |> set_www_form_data.()
@@ -22,7 +22,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
            <form>
            count: 2;
            1 example.org
-           2 caf+@!.org
+           2 caf+@!&lt;.org
            </form>
            """
   end

@@ -7,6 +7,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule EscapeHTML do
     use Wasm
+    use BumpAllocator
+    use StringBuilder
 
     wasm_memory(pages: 2)
 
@@ -19,6 +21,20 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     ]
 
     wasm U32 do
+      funcp append_char_html_escaped(char: I32.U8) do
+        inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
+          if I32.eq(char, ^char_to_match!) do
+            inline for char_out! <- ^chars_out! do
+              append!(u8: char_out!)
+            end
+
+            return()
+          end
+        end
+
+        append!(u8: char)
+      end
+
       funcp escape(read_offset: I32.U8.Pointer, write_offset: I32.U8.Pointer),
             I32,
             char: I32.U8,
