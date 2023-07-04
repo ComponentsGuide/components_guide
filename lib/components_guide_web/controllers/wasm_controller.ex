@@ -110,7 +110,7 @@ defmodule ComponentsGuideWeb.WasmController do
     set_www_form_data.(conn.query_string)
     html = to_html.()
 
-    render(conn, :demo, index_html: html)
+    render(conn, :demo, index_html: html, wasm_byte_count: byte_size(Wasm.to_wasm(wasm_mod)))
   end
 
   def output_function(conn, %{"module" => name, "function" => function}) do
