@@ -9,6 +9,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format.Test do
     alias Format.IntToString
 
     test "u32toa_count" do
+      Instance.run(IntToString)
+
       assert Wasm.call(IntToString, :u32toa_count, 0) == 1
       assert Wasm.call(IntToString, :u32toa_count, 7) == 1
       assert Wasm.call(IntToString, :u32toa_count, 17) == 2

@@ -140,7 +140,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       http_only: i32_boolean(0)
     )
 
-    wasm do
+    wasm U32 do
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
 
@@ -182,14 +182,15 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
         extra_len =
           I32.sum!([
-            I32.when?(domain_len, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
-            I32.when?(path_len, do: I32.add(path_len, byte_size("; Path=")), else: 0),
+            I32.when?(domain_len > 0, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
+            I32.when?(path_len > 0, do: I32.add(path_len, byte_size("; Path=")), else: 0),
             I32.when?(@secure, do: byte_size("; Secure"), else: 0),
             I32.when?(@http_only, do: byte_size("; HttpOnly"), else: 0)
           ])
 
         byte_count = I32.sum!([name_len, 1, value_len, extra_len])
 
+        # TODO: replace with build!/1
         # Add 1 for nul-terminator
         str = alloc(I32.add(byte_count, 1))
         writer = str

@@ -124,10 +124,12 @@ defmodule Orb.I32.String do
 
           [match] ->
             quote do
-              %Orb.IfElse{
-                condition: streq(unquote(value), unquote(match)),
-                when_true: [unquote(get_block_items(target)), break(:i32_string_match)]
-              }
+              Orb.IfElse.new(
+                nil,
+                streq(unquote(value), unquote(match)),
+                [unquote(get_block_items(target)), break(:i32_string_match)],
+                nil
+              )
             end
         end
       end

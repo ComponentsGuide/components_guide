@@ -232,11 +232,14 @@ defmodule Orb do
     def new(result, condition, when_true, when_false) do
       %__MODULE__{
         result: result,
-        condition: condition,
+        condition: optimize_condition(condition),
         when_true: when_true,
         when_false: when_false
       }
     end
+
+    defp optimize_condition({:i32, :gt_u, {n, 0}}), do: n
+    defp optimize_condition(condition), do: condition
 
     def detecting_result_type(condition, when_true, when_false) do
       result =
