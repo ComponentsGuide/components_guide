@@ -464,12 +464,8 @@ defmodule Orb do
     # end
 
     def eqz?(value, do: when_true, else: when_false) do
-      %IfElse{result: :i32, condition: eqz(value), when_true: when_true, when_false: when_false}
+      IfElse.new(:i32, eqz(value), when_true, when_false)
     end
-
-    # def eqz?(value, do: when_true) do
-    #   %IfElse{result: :i32, condition: eqz(value), when_true: when_true}
-    # end
 
     def calculate_enum(cases) do
       Map.new(Enum.with_index(cases), fn {key, index} -> {key, {:i32_const, index}} end)
@@ -1451,19 +1447,20 @@ defmodule Orb do
 
     block_items =
       quote(
-        do: [
-          %IfElse{
-            # condition: unquote(source),
-            condition: unquote(source)[:valid?],
-            when_true: [
+        do:
+          IfElse.new(
+            nil,
+            # unquote(source),
+            unquote(source)[:valid?],
+            [
               unquote(set_item),
               unquote(__get_block_items(block)),
               unquote(source)[:next],
               Orb.VariableReference.as_set(unquote(source)),
               {:br, unquote(identifier)}
-            ]
-          }
-        ]
+            ],
+            nil
+          )
       )
 
     quote do
@@ -1502,10 +1499,13 @@ defmodule Orb do
           block_items
 
         condition ->
-          quote do: %IfElse{
-                  condition: unquote(condition),
-                  when_true: [unquote(block_items), {:br, unquote(identifier)}]
-                }
+          quote do:
+                  IfElse.new(
+                    nil,
+                    unquote(condition),
+                    [unquote(block_items), {:br, unquote(identifier)}],
+                    nil
+                  )
       end
 
     # quote bind_quoted: [identifier: identifier] do
@@ -1573,9 +1573,9 @@ defmodule Orb do
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
-  def return(if: condition), do: %IfElse{condition: condition, when_true: :return}
+  def return(if: condition), do: IfElse.new(nil, condition, :return, nil)
   def return(value), do: {:return, value}
-  def return(value, if: condition), do: %IfElse{condition: condition, when_true: {:return, value}}
+  def return(value, if: condition), do: IfElse.new(nil, condition, {:return, value}, nil)
 
   def nop(), do: :nop
 
@@ -1585,12 +1585,12 @@ defmodule Orb do
   def unreachable!(), do: :unreachable
 
   def assert!(condition) do
-    %IfElse{
-      result: nil,
-      condition: condition,
-      when_true: nop(),
-      when_false: unreachable!()
-    }
+    IfElse.new(
+      nil,
+      condition,
+      nop(),
+      unreachable!()
+    )
   end
 
   defmodule MutRef do
