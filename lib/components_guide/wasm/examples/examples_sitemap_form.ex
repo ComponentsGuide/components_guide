@@ -107,7 +107,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S{<input id=add-url type=url name=urls[] value="">}
 
         ~S[<button data-strong>Update</button>\n]
-        ~S[<button formaction="sitemap.xml" formtarget="_blank">View Sitemap</button>\n]
+        ~S[<button formaction="sitemap.xml" formtarget="_blank">View XML Sitemap</button>\n]
 
         ~S[</form>\n]
       end
