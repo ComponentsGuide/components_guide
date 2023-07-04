@@ -14,6 +14,12 @@ defmodule ComponentsGuideWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :wasm_output do
+    plug(:accepts, ["html", "xml"])
+    # plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
+  end
+
   pipeline :dynamic_scripts do
     plug(:put_secure_browser_headers)
   end
@@ -22,8 +28,15 @@ defmodule ComponentsGuideWeb.Router do
     get("/:script", WasmController, :script)
   end
 
-  scope "/wasm/to-html", ComponentsGuideWeb do
-    get("/:module", WasmController, :to_html)
+  # scope "/wasm/to-html", ComponentsGuideWeb do
+  #   get("/:module", WasmController, :to_html)
+  # end
+
+  scope "/wasm-demo/:module", ComponentsGuideWeb do
+    pipe_through(:wasm_output)
+
+    get("/:function", WasmController, :output_function)
+    # get("/:xml.xml", WasmController, :to_xml)
   end
 
   scope "/", ComponentsGuideWeb do

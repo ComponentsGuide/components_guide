@@ -29,7 +29,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
       @data_url_encoded = data_ptr
     end
 
-    func to_html(), I32.String,
+    func html_index(), I32.String,
       count: I32,
       query_iterator: URLEncoded,
       i: I32,
@@ -60,7 +60,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         form { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         label { font-weight: bold }
         input { padding: 0.5rem; border: 1px solid currentColor }
-        button { padding: 0.5rem 1rem; color: white; background: #222; border: none }
+        button { padding: 0.5rem 1rem; background: #ddd; border: 1px solid #ccc }
+        button[data-strong] { color: white; background: #222; border-color: #222 }
         fieldset { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center; border: none; padding: 0 }
         </style>
         """
@@ -105,13 +106,14 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S[<label for=new-url>New URL</label>\n]
         ~S{<input id=new-url type=url name=urls[] value="">}
 
-        ~S[<button>Update</button>\n]
+        ~S[<button data-strong>Update</button>\n]
+        ~S[<button formaction="sitemap.xml" formtarget="_blank">View Sitemap</button>\n]
 
         ~S[</form>\n]
       end
     end
 
-    func to_sitemap_xml(), I32.String,
+    func xml_sitemap(), I32.String,
       count: I32,
       query_iterator: URLEncoded,
       i: I32,
@@ -129,22 +131,24 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         query_iterator = @data_url_encoded
         # query_iterator = URLEncoded.each_pair(@data_url_encoded)
 
-        loop EachItem do
-          ~S"<url>\n<loc>" |> append!()
-
+        loop EachItem, while: I32.eqz(URLEncoded.empty?(query_iterator)) do
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
-          loop value_char <- value_char_iterator do
-            if value_char do
-              append_html_escaped!(char: value_char)
-            end
-          end
+          if value_char_iterator do
+            ~S"<url>\n<loc>" |> append!()
 
-          ~S"""
-          </loc>
-          </url>
-          """
-          |> append!()
+            loop value_char <- value_char_iterator do
+              if value_char do
+                append_html_escaped!(char: value_char)
+              end
+            end
+
+            ~S"""
+            </loc>
+            </url>
+            """
+            |> append!()
+          end
 
           query_iterator = URLEncoded.rest(query_iterator)
           i = i + 1

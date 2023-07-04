@@ -93,6 +93,32 @@ defmodule ComponentsGuideWeb.WasmController do
     |> send_resp(200, javascript)
   end
 
+  def output_function(conn, %{"module" => name, "function" => function}) do
+    wasm_mod =
+      case name do
+        "sitemap-form" -> ComponentsGuide.Wasm.Examples.SitemapForm
+      end
+
+    {function, media_type} =
+      case function do
+        "index.html" -> {:html_index, "text/html"}
+        "sitemap.xml" -> {:xml_sitemap, "text/xml"}
+      end
+
+    IO.inspect(conn)
+
+    instance = Instance.run(wasm_mod)
+    set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
+    to_html = Instance.capture(instance, String, function, 0)
+
+    # set_www_form_data.("urls%5B%5D=https%3A%2F%2Fexample.org")
+    set_www_form_data.(conn.query_string)
+
+    conn
+    |> put_resp_content_type(media_type)
+    |> send_resp(200, to_html.())
+  end
+
   def to_html(conn, %{"module" => name}) do
     wasm_mod =
       case name do

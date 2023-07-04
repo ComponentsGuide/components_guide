@@ -9,7 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
   test "index.html" do
     inst = Instance.run(SitemapForm)
     set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)
-    to_html = Instance.capture(inst, String, :to_html, 0)
+    to_html = Instance.capture(inst, String, :html_index, 0)
 
     [
       {"urls[]", "https://example.org/a=1&b=2&c=3"},
@@ -28,11 +28,12 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
   test "sitemap.xml" do
     inst = Instance.run(SitemapForm)
     set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)
-    to_sitemap_xml = Instance.capture(inst, String, :to_sitemap_xml, 0)
+    to_sitemap_xml = Instance.capture(inst, String, :xml_sitemap, 0)
 
     [
       {"urls[]", "https://example.org/a=1&b=2&c=3"},
-      {"urls[]", "https://example.com/"}
+      {"urls[]", "https://example.com/"},
+      {"urls[]", ""}
     ]
     |> URI.encode_query()
     |> set_www_form_data.()
