@@ -90,6 +90,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             )
 
             loop value_char <- value_char_iterator do
+              # assert!(I32.eqz(I32.eq(value_char, 0)))
               append_html_escaped!(char: value_char)
             end
 
@@ -138,9 +139,9 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             ~S"<url>\n<loc>" |> append!()
 
             loop value_char <- value_char_iterator do
-              if value_char do
-                append_html_escaped!(char: value_char)
-              end
+              # assert!(I32.eqz(I32.eq(value_char, 0)))
+
+              append_html_escaped!(char: value_char)
             end
 
             ~S"""

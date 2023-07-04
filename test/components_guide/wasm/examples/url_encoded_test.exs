@@ -72,6 +72,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert first_value_offset.("a=1&&b=2&") > 0
     assert first_value_offset.("a=1&&b=2&&") > 0
     assert first_value_offset.("&&a=1&&b=2&&") > 0
+    assert first_value_offset.("urls%5B%5D=https%3A") > 0
 
     assert first_value.("") == ""
     assert first_value.("a") == ""
@@ -89,6 +90,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert first_value.("a=1&&b=2&") == "1&&b=2&"
     assert first_value.("a=1&&b=2&&") == "1&&b=2&&"
     assert first_value.("&&a=1&&b=2&&") == "1&&b=2&&"
+    assert first_value.("urls%5B%5D=https%3A") == "https%3A"
   end
 
   test "url_encoded_clone_first" do

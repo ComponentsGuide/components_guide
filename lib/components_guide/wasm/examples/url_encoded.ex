@@ -155,6 +155,16 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
         EachByte.continue()
       end
     end
+
+    func _url_encoded_value_next_char(ptr: I32.U8.Pointer), I32.U8.Pointer, next: I32.U8.Pointer do
+      next = I32.when?(I32.eq(I32.load8_u(ptr), ?%), do: 3, else: 1) |> I32.add(ptr)
+
+      I32.when? I32.in?(I32.load8_u(next), [0, ?&]) do
+        0x0
+      else
+        next
+      end
+    end
   end
 
   wasm U32 do
@@ -268,7 +278,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
           else
             c2 = str[at!: 2]
 
-            # TODO: does not catch/ignore invalid input like %zz
+            # TODO: assumes valid input, does not catch/ignore invalid input like %zz
             # See: https://github.com/stedonet/chex
             ((c1 &&& 0x0F) + (c1 >>> 6) * 9) <<< 4
             |> I32.add((c2 &&& 0x0F) + (c2 >>> 6) * 9)
@@ -323,9 +333,13 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       def wasm_type(), do: :i32
 
       @impl Access
+      def fetch(%Orb.VariableReference{} = var_ref, :valid?) do
+        # ast = I32.in?(I32.load8_u(var_ref), [?&, 0]) |> I32.eqz()
+        {:ok, var_ref}
+      end
+
       def fetch(%Orb.VariableReference{} = var_ref, :value) do
         {:ok, {:call, :decode_char_www_form, [var_ref]}}
-        # {:ok, {:i32, :load8_u, var_ref}}
       end
 
       def fetch(%Orb.VariableReference{} = var_ref, :next) do
@@ -337,17 +351,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
 
       def next(value_char_iterator) do
-        Orb.snippet U32, value_char_iterator: __MODULE__ do
-          I32.when? I32.eq(I32.load8_u(value_char_iterator), ?%) do
-            value_char_iterator + 3
-          else
-            I32.when? I32.in?(I32.load8_u(value_char_iterator + 1), [?&, 0]) do
-              0x0
-            else
-              value_char_iterator + 1
-            end
-          end
-        end
+        Orb.call(:_url_encoded_value_next_char, value_char_iterator)
       end
     end
 

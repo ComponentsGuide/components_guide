@@ -5,7 +5,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.SitemapForm
 
-  # @tag :skip
   test "index.html" do
     inst = Instance.run(SitemapForm)
     set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)
@@ -25,7 +24,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
     assert html =~ ~S{value="caf+@!&lt;.org"}
   end
 
-  @tag :skip
   test "bugs" do
     inst = Instance.run(SitemapForm)
     set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)

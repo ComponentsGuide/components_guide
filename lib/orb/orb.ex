@@ -268,9 +268,6 @@ defmodule Orb do
 
     require Ops
 
-    # TODO: add math macro?
-    # e.g. I32.math(do: max - min + 1) gets transformed into I32.add(I32.sub(max, min), 1)
-
     def add(a, b)
     def sub(a, b)
     def mul(a, b)
@@ -1465,7 +1462,8 @@ defmodule Orb do
       quote(
         do: [
           %IfElse{
-            condition: unquote(source),
+            # condition: unquote(source),
+            condition: unquote(source)[:valid?],
             when_true: [
               unquote(set_item),
               unquote(get_block_items(block)),
