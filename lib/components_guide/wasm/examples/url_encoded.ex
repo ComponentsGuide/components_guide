@@ -1,6 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   # https://url.spec.whatwg.org/#application/x-www-form-urlencoded
-  
+
   use Orb
   alias ComponentsGuide.Wasm.Examples.Memory.{BumpAllocator, Copying}
   alias ComponentsGuide.Wasm.Examples.StringBuilder

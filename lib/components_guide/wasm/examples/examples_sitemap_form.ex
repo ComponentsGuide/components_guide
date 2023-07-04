@@ -43,18 +43,20 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
       count = URLEncoded.count(@data_url_encoded)
 
       build! do
-        append!(string: ~S[<form>\n])
-        append!(string: ~S[count: ])
-        append!(decimal_u32: count)
-        append!(ascii: ?;)
-        append!(ascii: ?\n)
+        ~S[<form>\n]
+        ~S[count: ]
+
+        append!(
+          decimal_u32: count,
+          ascii: ?;,
+          ascii: ?\n
+        )
 
         query_iterator = @data_url_encoded
         # query_iterator = URLEncoded.each_pair(@data_url_encoded)
 
         loop EachItem do
-          append!(decimal_u32: i + 1)
-          append!(ascii: 0x20)
+          append!(decimal_u32: i + 1, ascii: 0x20)
 
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
@@ -71,7 +73,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
-        append!(string: ~S[</form>\n])
+        ~S[</form>\n]
       end
     end
 
@@ -84,18 +86,17 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
       count = URLEncoded.count(@data_url_encoded)
 
       build! do
-        append!(
-          string: ~S"""
-          <?xml version="1.0" encoding="UTF-8"?>
-          <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-          """
-        )
+        ~S"""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        """
+        |> append!()
 
         query_iterator = @data_url_encoded
         # query_iterator = URLEncoded.each_pair(@data_url_encoded)
 
         loop EachItem do
-          append!(string: ~S"<url>\n<loc>")
+          ~S"<url>\n<loc>" |> append!()
 
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
@@ -107,12 +108,11 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             # append!(u8: value_char)
           end
 
-          append!(
-            string: ~S"""
-            </loc>
-            </url>
-            """
-          )
+          ~S"""
+          </loc>
+          </url>
+          """
+          |> append!()
 
           query_iterator = URLEncoded.rest(query_iterator)
           i = i + 1
@@ -120,11 +120,10 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
-        append!(
-          string: ~S"""
-          </urlset>
-          """
-        )
+        ~S"""
+        </urlset>
+        """
+        |> append!()
       end
     end
 

@@ -64,6 +64,19 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
         term -> List.wrap(term)
       end
 
+    items =
+      for item <- items do
+        case item do
+          {:data_for_constant, _meta, _args} = node ->
+            # quote(bind_quoted: [node: node], do: append!(node))
+            # quote(do: append!(node))
+            {:append!, [], [node]}
+
+          other ->
+            other
+        end
+      end
+
     quote do
       [
         build_begin!(),
@@ -73,6 +86,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
+  # For nested build functions.
+  # We want inner functions to also return strings for easier debugging, not just append.
   def append!(function, a) when is_atom(function) do
     call(function, a) |> drop()
   end
@@ -81,7 +96,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     call(function) |> drop()
   end
 
+  def append!({:i32_const_string, _offset, _string} = str_ptr) do
+    call(:bump_write_str, str_ptr)
+  end
+
   def append!(string: str_ptr) do
+    IO.inspect(str_ptr)
     call(:bump_write_str, str_ptr)
   end
 
@@ -157,6 +177,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       #   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
 
       @bump_offset = I32.add(@bump_offset, 1)
+    end
+  end
+
+  def append!(list) when is_list(list) do
+    for item <- list do
+      append!([item])
     end
   end
 
