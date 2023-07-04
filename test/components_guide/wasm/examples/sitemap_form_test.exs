@@ -25,6 +25,34 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
     assert html =~ ~S{value="caf+@!&lt;.org"}
   end
 
+  @tag :skip
+  test "bugs" do
+    inst = Instance.run(SitemapForm)
+    set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)
+    to_sitemap_xml = Instance.capture(inst, String, :xml_sitemap, 0)
+    to_html = Instance.capture(inst, String, :html_index, 0)
+
+    [
+      {"urls[]", "https:"}
+    ]
+    |> URI.encode_query()
+    |> set_www_form_data.()
+
+    html = to_html.()
+
+    assert html =~ ~S{<!doctype html>}
+    assert html =~ ~S{value="https:"}
+
+    assert to_sitemap_xml.() == ~S"""
+           <?xml version="1.0" encoding="UTF-8"?>
+           <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+           <url>
+           <loc>https:</loc>
+           </url>
+           </urlset>
+           """
+  end
+
   test "sitemap.xml" do
     inst = Instance.run(SitemapForm)
     set_www_form_data = Instance.capture(inst, :set_www_form_data, 1)
