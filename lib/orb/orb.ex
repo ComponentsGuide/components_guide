@@ -424,7 +424,7 @@ defmodule Orb do
       # import Unsigned
 
       quote do
-        unquote(do_u(get_block_items(expression)))
+        unquote(do_u(__get_block_items(expression)))
       end
     end
 
@@ -442,8 +442,8 @@ defmodule Orb do
         IfElse.new(
           :i32,
           unquote(condition),
-          unquote(get_block_items(when_true)),
-          unquote(get_block_items(when_false))
+          unquote(__get_block_items(when_true)),
+          unquote(__get_block_items(when_false))
         )
       end
     end
@@ -484,13 +484,13 @@ defmodule Orb do
             # _ ->
             # like an else clause
             [{:_, _, _}] ->
-              get_block_items(result)
+              __get_block_items(result)
 
             [match] ->
               quote do
                 %Orb.IfElse{
                   condition: I32.eq(unquote(value), unquote(match)),
-                  when_true: [unquote(get_block_items(result)), break(:i32_match)]
+                  when_true: [unquote(__get_block_items(result)), break(:i32_match)]
                 }
               end
 
@@ -498,7 +498,7 @@ defmodule Orb do
               quote do
                 %Orb.IfElse{
                   condition: I32.in?(unquote(value), unquote(matches)),
-                  when_true: [unquote(get_block_items(result)), break(:i32_match)]
+                  when_true: [unquote(__get_block_items(result)), break(:i32_match)]
                 }
               end
           end
@@ -534,7 +534,7 @@ defmodule Orb do
               quote do
                 %Orb.IfElse{
                   condition: unquote(match),
-                  when_true: [unquote(get_block_items(target)), break(:i32_map)]
+                  when_true: [unquote(__get_block_items(target)), break(:i32_map)]
                 }
               end
           end
@@ -574,7 +574,7 @@ defmodule Orb do
       end
     end
 
-    defp get_block_items(block) do
+    defp __get_block_items(block) do
       case block do
         nil -> nil
         {:__block__, _meta, block_items} -> block_items
@@ -1383,7 +1383,7 @@ defmodule Orb do
   def push(value, do: block) do
     [
       value,
-      get_block_items(block),
+      __get_block_items(block),
       :pop
     ]
   end
@@ -1401,13 +1401,13 @@ defmodule Orb do
     quote do
       IfElse.detecting_result_type(
         unquote(condition),
-        unquote(get_block_items(when_true)),
-        unquote(get_block_items(when_false))
+        unquote(__get_block_items(when_true)),
+        unquote(__get_block_items(when_false))
       )
     end
   end
 
-  def get_block_items(block) do
+  def __get_block_items(block) do
     case block do
       nil -> nil
       {:__block__, _meta, block_items} -> block_items
@@ -1457,7 +1457,7 @@ defmodule Orb do
             condition: unquote(source)[:valid?],
             when_true: [
               unquote(set_item),
-              unquote(get_block_items(block)),
+              unquote(__get_block_items(block)),
               unquote(source)[:next],
               Orb.VariableReference.as_set(unquote(source)),
               {:br, unquote(identifier)}
@@ -1480,7 +1480,7 @@ defmodule Orb do
     result_type = Keyword.get(options, :result, nil) |> expand_type()
     while = Keyword.get(options, :while, nil)
 
-    block_items = get_block_items(block)
+    block_items = __get_block_items(block)
 
     block_items =
       Macro.prewalk(block_items, fn
@@ -1522,7 +1522,7 @@ defmodule Orb do
     identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
 
-    block_items = get_block_items(block)
+    block_items = __get_block_items(block)
 
     quote do
       %Block{
@@ -1536,12 +1536,12 @@ defmodule Orb do
   # import Kernel
 
   defmacro inline(do: block) do
-    block |> get_block_items()
+    block |> __get_block_items()
   end
 
   defmacro inline({:for, meta, [for_arg]}, do: block) do
     # for_arg = interpolate_external_values(for_arg, __CALLER__)
-    block = block |> get_block_items()
+    block = block |> __get_block_items()
     # import Kernel
     {:for, meta, [for_arg, [do: block]]}
     # {:for, meta, [for_arg, [do: quote do: inline(do: unquote(block))]]}
@@ -2023,8 +2023,8 @@ defmodule OrbUsing do
       Orb.IfElse.new(
         unquote(result),
         unquote(condition),
-        unquote(Orb.get_block_items(when_true)),
-        unquote(Orb.get_block_items(when_false))
+        unquote(Orb.__get_block_items(when_true)),
+        unquote(Orb.__get_block_items(when_false))
       )
     end
   end
@@ -2042,17 +2042,25 @@ defmodule OrbUsing do
 
   defmacro if(condition, do: when_true, else: when_false) do
     quote do
-      if_(unquote(condition), do: unquote(when_true), else: unquote(when_false))
+      Orb.IfElse.new(
+        nil,
+        unquote(condition),
+        unquote(Orb.__get_block_items(when_true)),
+        unquote(Orb.__get_block_items(when_false))
+      )
     end
   end
 
   defmacro if(condition, do: when_true) do
     quote do
-      if_(unquote(condition), do: unquote(when_true), else: nil)
+      Orb.IfElse.new(
+        nil,
+        unquote(condition),
+        unquote(Orb.__get_block_items(when_true)),
+        nil
+      )
     end
   end
-
-  # defdelegate if(condition, cases), to: Orb, as: :if_
 end
 
 defmodule OrbUsing2 do
