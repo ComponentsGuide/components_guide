@@ -26,6 +26,71 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert count.("&&a=1&&b=2&&") == 2
   end
 
+  test "url_encoded_empty?" do
+    inst = Instance.run(URLEncoded)
+    empty? = Instance.capture(inst, :url_encoded_empty?, 1)
+
+    assert empty?.("") == 1
+    assert empty?.("a") == 0
+    assert empty?.("a&") == 0
+    assert empty?.("a&&") == 0
+    assert empty?.("&a&") == 0
+    assert empty?.("&&a&&") == 0
+    assert empty?.("a=1") == 0
+    assert empty?.("a=1&") == 0
+    assert empty?.("a=1&&") == 0
+    assert empty?.("&&a=1&&") == 0
+    assert empty?.("a=1&b=2") == 0
+    assert empty?.("a=1&&b=2") == 0
+    assert empty?.("a=1&&b=2&") == 0
+    assert empty?.("a=1&&b=2&&") == 0
+    assert empty?.("&&a=1&&b=2&&") == 0
+  end
+
+  test "url_encoded_first_value_offset" do
+    inst = Instance.run(URLEncoded)
+
+    first_value_offset =
+      Instance.capture(inst, :url_encoded_first_value_offset, 1)
+
+    first_value =
+      Instance.capture(inst, String, :url_encoded_first_value_offset, 1)
+
+    assert first_value_offset.("") == 0
+    assert first_value_offset.("a") == 0
+    assert first_value_offset.("a&") == 0
+    assert first_value_offset.("a&&") == 0
+    assert first_value_offset.("&a&") == 0
+    assert first_value_offset.("&&a&&") == 0
+    assert first_value_offset.("a=") == 0
+    assert first_value_offset.("a=1") > 0
+    assert first_value_offset.("a=1&") > 0
+    assert first_value_offset.("a=1&&") > 0
+    assert first_value_offset.("&&a=1&&") > 0
+    assert first_value_offset.("a=1&b=2") > 0
+    assert first_value_offset.("a=1&&b=2") > 0
+    assert first_value_offset.("a=1&&b=2&") > 0
+    assert first_value_offset.("a=1&&b=2&&") > 0
+    assert first_value_offset.("&&a=1&&b=2&&") > 0
+
+    assert first_value.("") == ""
+    assert first_value.("a") == ""
+    assert first_value.("a&") == ""
+    assert first_value.("a&&") == ""
+    assert first_value.("&a&") == ""
+    assert first_value.("&&a&&") == ""
+    assert first_value.("a=") == ""
+    assert first_value.("a=1") == "1"
+    assert first_value.("a=1&") == "1&"
+    assert first_value.("a=1&&") == "1&&"
+    assert first_value.("&&a=1&&") == "1&&"
+    assert first_value.("a=1&b=2") == "1&b=2"
+    assert first_value.("a=1&&b=2") == "1&&b=2"
+    assert first_value.("a=1&&b=2&") == "1&&b=2&"
+    assert first_value.("a=1&&b=2&&") == "1&&b=2&&"
+    assert first_value.("&&a=1&&b=2&&") == "1&&b=2&&"
+  end
+
   test "url_encoded_clone_first" do
     inst = Instance.run(URLEncoded)
 
@@ -62,6 +127,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
     assert rest.("a&&") == "&&"
     assert rest.("&a&") == "&"
     assert rest.("&&a&&") == "&&"
+    assert rest.("a=") == ""
+    assert rest.("a=&") == "&"
     assert rest.("a=1") == ""
     assert rest.("a=1&") == "&"
     assert rest.("a=1&&") == "&&"

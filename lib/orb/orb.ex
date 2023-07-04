@@ -1489,6 +1489,7 @@ defmodule Orb do
   defmacro loop(identifier, options \\ [], do: block) do
     identifier = expand_identifier(identifier, __CALLER__)
     result_type = Keyword.get(options, :result, nil) |> expand_type()
+    while = Keyword.get(options, :while, nil)
 
     block_items = get_block_items(block)
 
@@ -1505,6 +1506,18 @@ defmodule Orb do
         other ->
           other
       end)
+
+    block_items =
+      case while do
+        nil ->
+          block_items
+
+        condition ->
+          quote do: %IfElse{
+                  condition: unquote(condition),
+                  when_true: [unquote(block_items), {:br, unquote(identifier)}]
+                }
+      end
 
     # quote bind_quoted: [identifier: identifier] do
     quote do

@@ -71,35 +71,35 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         query_iterator = @data_url_encoded
         # query_iterator = URLEncoded.each_pair(@data_url_encoded)
 
-        loop EachItem do
-          # build! do
-          append!(
-            string: ~S[<fieldset>],
-            string: ~S[<label for="url-],
-            decimal_u32: i + 1,
-            string: ~S[">],
-            decimal_u32: i + 1,
-            string: ~S[</label>],
-            string: ~S{<input type=url name=urls[] id="url-},
-            decimal_u32: i + 1,
-            string: ~S{" value="}
-          )
-
+        loop EachItem, while: I32.eqz(URLEncoded.empty?(query_iterator)) do
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
 
-          loop value_char <- value_char_iterator do
-            append_html_escaped!(char: value_char)
-          end
+          if value_char_iterator do
+            append!(
+              string: ~S[<fieldset>],
+              string: ~S[<label for="url-],
+              decimal_u32: i + 1,
+              string: ~S[">],
+              decimal_u32: i + 1,
+              string: ~S[</label>],
+              string: ~S{<input type=url name=urls[] id="url-},
+              decimal_u32: i + 1,
+              string: ~S{" value="}
+            )
 
-          append!(string: ~S[">])
-          append!(string: ~S[</fieldset>])
-          append!(ascii: ?\n)
-          # end
+            loop value_char <- value_char_iterator do
+              append_html_escaped!(char: value_char)
+            end
+
+            append!(string: ~S[">])
+            append!(string: ~S[</fieldset>])
+            append!(ascii: ?\n)
+          end
 
           query_iterator = URLEncoded.rest(query_iterator)
           i = i + 1
 
-          EachItem.continue(if: URLEncoded.count(query_iterator))
+          # EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
         ~S[<label for=new-url>New URL</label>\n]

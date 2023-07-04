@@ -51,6 +51,26 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       count
     end
 
+    func url_encoded_empty?(url_encoded: I32.U8.Pointer), I32,
+      char: I32.U8,
+      pair_char_len: I32 do
+      loop EachByte, result: I32 do
+        char = url_encoded[at!: 0]
+
+        if I32.eq(char, 0) do
+          return(1)
+        end
+
+        if char |> I32.eq(?&) |> I32.eqz() do
+          return(0)
+        end
+
+        url_encoded = url_encoded + 1
+
+        EachByte.continue()
+      end
+    end
+
     func url_encoded_clone_first(url_encoded: I32.U8.Pointer), I32.U8.Pointer,
       char: I32.U8,
       len: I32 do
@@ -110,13 +130,20 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
         char = url_encoded[at!: 0]
 
         if I32.eq(char, 0) ||| (I32.eq(char, ?&) &&& len > 0) do
-          # url_encoded
           0x0
           return()
         end
 
         if I32.eq(char, ?=) do
-          url_encoded + 1
+          url_encoded = url_encoded + 1
+          char = url_encoded[at!: 0]
+
+          I32.when? I32.in?(char, [0, ?&]) do
+            0x0
+          else
+            url_encoded
+          end
+
           return()
         end
 
@@ -277,6 +304,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   def initial_i32(), do: 0x0
 
+  def empty?(url_encoded), do: call(:url_encoded_empty?, url_encoded)
   def count(url_encoded), do: call(:url_encoded_count, url_encoded)
   def clone_first(url_encoded), do: call(:url_encoded_clone_first, url_encoded)
   def rest(url_encoded), do: call(:url_encoded_rest, url_encoded)
