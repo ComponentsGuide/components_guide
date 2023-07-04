@@ -34,6 +34,7 @@ defmodule ComponentsGuideWeb.WasmController do
   plug(:put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON)
 
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.HTML
   alias ComponentsGuide.Wasm.Examples.State
 
@@ -90,6 +91,26 @@ defmodule ComponentsGuideWeb.WasmController do
     conn
     |> put_resp_content_type("application/javascript")
     |> send_resp(200, javascript)
+  end
+
+  def to_html(conn, %{"module" => name}) do
+    wasm_mod =
+      case name do
+        "sitemap-form.html" -> ComponentsGuide.Wasm.Examples.SitemapForm
+      end
+      
+    IO.inspect(conn)
+
+    instance = Instance.run(wasm_mod)
+    set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
+    to_html = Instance.capture(instance, String, :to_html, 0)
+    
+    # set_www_form_data.("urls%5B%5D=https%3A%2F%2Fexample.org")
+    set_www_form_data.(conn.query_string)
+
+    conn
+    |> put_resp_content_type("text/html")
+    |> send_resp(200, to_html.())
   end
 end
 

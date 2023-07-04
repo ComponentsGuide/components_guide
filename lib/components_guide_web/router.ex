@@ -22,6 +22,10 @@ defmodule ComponentsGuideWeb.Router do
     get("/:script", WasmController, :script)
   end
 
+  scope "/wasm/to-html", ComponentsGuideWeb do
+    get("/:module", WasmController, :to_html)
+  end
+
   scope "/", ComponentsGuideWeb do
     pipe_through(:browser)
 
