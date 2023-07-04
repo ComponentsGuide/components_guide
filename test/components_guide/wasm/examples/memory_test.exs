@@ -49,7 +49,7 @@ defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
 
     test "wasm size" do
       wasm = Wasm.to_wasm(BumpAllocator)
-      assert byte_size(wasm) == 113
+      assert byte_size(wasm) == 107
     end
 
     test "single allocation" do

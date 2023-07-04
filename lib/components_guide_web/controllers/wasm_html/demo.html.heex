@@ -8,16 +8,18 @@
 </div>
 
 <style>
-  #demo button[formaction] { display: none }
+  #Demo button[formaction] { display: none }
 </style>
-<div id="demo" class="grid md:grid-cols-2">
+<div id="Demo" class="grid md:grid-cols-2">
   <article class="px-2 py-8 bg-white">
-    <%= raw(@index_html) %>
+    <div>
+      <%= raw(@index_html) %>
+    </div>
     <details>
       <summary class="mt-4 pl-2 text-sm cursor-pointer hover:text-lime-700 hover:bg-green-100 transition-all">
         View HTML source
       </summary>
-      <pre style="margin-top: 0"><code class="lang-html"><%= @index_html %></code></pre>
+      <pre style="margin-top: 0"><code class="lang-html"></code></pre>
     </details>
   </article>
   <article class="prose prose-invert">
@@ -34,8 +36,10 @@
     })
   );
 
-  const form = document.querySelector("#demo form");
-  const outputCode = document.querySelector("#demo output > pre > code");
+  const form = document.querySelector("#Demo form");
+  const outputCode = document.querySelector("#Demo output code");
+  const viewSourceDetails = document.querySelector("#Demo details");
+  const viewSourceCode = viewSourceDetails.querySelector("code");
 
   outputCode.innerText = "Loading…";
 
@@ -57,36 +61,45 @@
       const bytes = utf8encoder.encode(stringValue);
       const strPtr = alloc(bytes.length + 1);
       utf8encoder.encodeInto(stringValue, memoryBytes.subarray(strPtr));
+      memoryBytes[strPtr + bytes.length] = 0x0;
       return strPtr;
     }
     
-    function updateSitemap() {
+    const $submit = Symbol("submit");
+    
+    function update(type) {
+      exports.free_all();
       const query = new URLSearchParams(new FormData(form));
       const queryPtr = writeString(query);
-      console.log(queryPtr);
       exports.set_www_form_data(queryPtr);
       
       const xml = readString(exports.xml_sitemap());
       outputCode.textContent = xml;
+      
+      if (type === $submit) {
+        const html = readString(exports.html_index());
+        const newDoc = new DOMParser().parseFromString(html, "text/html");
+        form.innerHTML = newDoc.querySelector("form").innerHTML;
+        viewSourceDetails.open = false;
+      }
+      
       window.Prism.highlightElement(outputCode);
     }
-    function updateHTML() {
-      const query = new URLSearchParams(new FormData(form));
-      const queryPtr = writeString(query);
-      exports.set_www_form_data(queryPtr);
-      const html = readString(exports.html_index());
-      
-      const newDoc = new DOMParser().parseFromString(html, "text/html");
-      form.innerHTML = newDoc.querySelector("form").innerHTML;
-    }
     
-    requestAnimationFrame(updateSitemap);
+    requestAnimationFrame(update);
     
-    //form.addEventListener('change', update);
-    form.addEventListener('input', updateSitemap);
+    form.addEventListener('input', update);
     form.addEventListener('submit', event => {
       event.preventDefault();
-      updateHTML();
+      update($submit);
+    });
+    
+    viewSourceDetails.addEventListener('toggle', () => {
+      if (!viewSourceDetails.open) return;
+      
+      const html = viewSourceDetails.previousElementSibling.innerHTML;
+      viewSourceCode.textContent = `<!doctype html>\n` + html.trim();
+      window.Prism.highlightElement(viewSourceCode);
     });
   });
 </script>

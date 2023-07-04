@@ -75,6 +75,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         #       end
       end
 
+      # TODO: add 32-bit-aligned version so we can use faster instructions.
       func memset(dest: I32.U8.Pointer, u8: I32.U8, byte_count: I32),
         i: I32 do
         loop EachByte do
@@ -136,12 +137,6 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
           unquote(__MODULE__).funcp(:bump_alloc)
         end
 
-        if unquote(opts[:export]) do
-          Orb.wasm do
-            unquote(__MODULE__)._func(:alloc)
-          end
-        end
-
         import unquote(__MODULE__)
       end
     end
@@ -150,6 +145,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       quote do
         Orb.wasm do
           unquote(__MODULE__)._func(:alloc)
+          unquote(__MODULE__)._func(:free_all)
         end
       end
     end
@@ -179,12 +175,8 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
       func(alloc(size: I32), I32, do: call(:bump_alloc, size))
 
-      funcp bump_free_all() do
-        @bump_offset = Constants.bump_init_offset()
-      end
-
       func free_all() do
-        call(:bump_free_all)
+        @bump_offset = Constants.bump_init_offset()
       end
     end
 
