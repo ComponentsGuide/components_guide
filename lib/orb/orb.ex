@@ -348,6 +348,14 @@ defmodule Orb do
       __MODULE__.and_(I32.ge_u(value, lower), I32.le_u(value, upper))
     end
 
+    def in?(value, [0, int]) when is_integer(other) do
+      # Either the value is 0 or the value zeros-out due to the xor,
+      # both multiplying everything to 0.
+      I32.mul(value, I32.xor(int, value)) |> I32.eqz()
+      # Similar cost to:
+      # I32.or(I32.eqz(value), I32.eq(int, value))
+    end
+    
     def in?(value, list) when is_list(list) do
       for {item, index} <- Enum.with_index(list) do
         case index do
