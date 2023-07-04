@@ -1447,18 +1447,31 @@ defmodule Orb do
   defmacro loop({:<-, _, [item, source]}, do: block) do
     result_type = nil
 
+    {set_item, identifier} =
+      case item do
+        {:_, _, _} ->
+          {[], "_"}
+
+        _ ->
+          {quote(
+             do: [
+               unquote(source)[:value],
+               Orb.VariableReference.as_set(unquote(item))
+             ]
+           ), quote(do: unquote(item).identifier)}
+      end
+
     block_items =
       quote(
         do: [
           %IfElse{
             condition: unquote(source),
             when_true: [
-              unquote(source)[:value],
-              Orb.VariableReference.as_set(unquote(item)),
+              unquote(set_item),
               unquote(get_block_items(block)),
               unquote(source)[:next],
               Orb.VariableReference.as_set(unquote(source)),
-              {:br, unquote(item).identifier}
+              {:br, unquote(identifier)}
             ]
           }
         ]
@@ -1466,7 +1479,7 @@ defmodule Orb do
 
     quote do
       %Loop{
-        identifier: unquote(item).identifier,
+        identifier: unquote(identifier),
         result: unquote(result_type),
         body: unquote(block_items)
       }

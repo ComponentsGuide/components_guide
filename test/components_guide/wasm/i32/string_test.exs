@@ -2,7 +2,13 @@ defmodule Orb.I32.String.Test do
   use ExUnit.Case, async: true
 
   alias ComponentsGuide.Wasm.Instance
+  alias ComponentsGuide.Wasm
   alias Orb.I32
+
+  test "wasm size" do
+    wasm = Wasm.to_wasm(I32.String)
+    assert byte_size(wasm) == 152
+  end
 
   test "strlen" do
     inst = Instance.run(I32.String)

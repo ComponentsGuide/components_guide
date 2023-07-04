@@ -7,6 +7,7 @@ defmodule Orb.I32.String do
   @impl Orb.Type
   def wasm_type(), do: :i32
 
+  # TODO: is the byte count of the pointer, or the items?
   @impl Orb.Type
   def byte_count(), do: 1
 
@@ -14,6 +15,35 @@ defmodule Orb.I32.String do
   def fetch(%Orb.VariableReference{} = var_ref, at!: offset) do
     ast = {:i32, :load8_u, Orb.I32.Add.neutralize(var_ref, offset)}
     {:ok, ast}
+  end
+
+  defmodule CharIterator do
+    @behaviour Orb.Type
+    @impl Orb.Type
+    def wasm_type(), do: :i32
+
+    @behaviour Access
+
+    @impl Access
+    def fetch(%Orb.VariableReference{} = var_ref, :value) do
+      {:ok, {:i32, :load8_u, var_ref}}
+    end
+
+    def fetch(%Orb.VariableReference{} = var_ref, :next) do
+      require Orb
+      require Orb.I32
+
+      ast =
+        Orb.snippet do
+          Orb.I32.when? {:i32, :load8_u, Orb.I32.Add.neutralize(var_ref, 1)} do
+            Orb.I32.Add.neutralize(var_ref, 1)
+          else
+            0x0
+          end
+        end
+
+      {:ok, ast}
+    end
   end
 
   use Orb
@@ -43,12 +73,13 @@ defmodule Orb.I32.String do
       end
     end
 
-    func strlen(string_ptr: I32), I32, count: I32 do
+    func strlen(string_ptr: I32.String), I32, count: I32 do
       # while (string_ptr[count] != 0) {
       #   count++;
       # }
 
       # loop EachChar, while: memory32_8![count] do
+
       loop EachChar do
         if memory32_8![I32.add(string_ptr, count)].unsigned do
           count = I32.add(count, 1)
