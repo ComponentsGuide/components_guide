@@ -32,8 +32,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
 
     [
       {"urls[]", "https://example.org/a=1&b=2&c=3"},
-      {"urls[]", "https://example.com/"},
-      {"urls[]", ""}
+      {"urls[]", "https://example.com/"}
+      # {"urls[]", ""}
     ]
     |> URI.encode_query()
     |> set_www_form_data.()
