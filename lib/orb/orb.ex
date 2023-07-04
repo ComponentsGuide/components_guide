@@ -2020,23 +2020,23 @@ defmodule OrbUsing do
 
   defmacro if(condition, [result: result], do: when_true, else: when_false) do
     quote do
-      %Orb.IfElse{
-        result: unquote(result),
-        condition: unquote(condition),
-        when_true: unquote(Orb.get_block_items(when_true)),
-        when_false: unquote(Orb.get_block_items(when_false))
-      }
+      Orb.IfElse.new(
+        unquote(result),
+        unquote(condition),
+        unquote(Orb.get_block_items(when_true)),
+        unquote(Orb.get_block_items(when_false))
+      )
     end
   end
 
   defmacro if(condition, result: result, do: when_true, else: when_false) do
     quote do
-      %Orb.IfElse{
-        result: unquote(result),
-        condition: unquote(condition),
-        when_true: unquote(when_true),
-        when_false: unquote(when_false)
-      }
+      Orb.IfElse.new(
+        unquote(result),
+        unquote(condition),
+        unquote(when_true),
+        unquote(when_false)
+      )
     end
   end
 
