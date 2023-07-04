@@ -181,14 +181,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         path_len = strlen(@path)
 
         extra_len =
-          I32.add([
+          I32.sum!([
             I32.when?(domain_len, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
             I32.when?(path_len, do: I32.add(path_len, byte_size("; Path=")), else: 0),
             I32.when?(@secure, do: byte_size("; Secure"), else: 0),
             I32.when?(@http_only, do: byte_size("; HttpOnly"), else: 0)
           ])
 
-        byte_count = I32.add([name_len, 1, value_len, extra_len])
+        byte_count = I32.sum!([name_len, 1, value_len, extra_len])
 
         # Add 1 for nul-terminator
         str = alloc(I32.add(byte_count, 1))

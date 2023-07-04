@@ -328,7 +328,7 @@ defmodule Orb do
     # Replaced by |||
     # defp _or(a, b), do: {:i32, :or, {a, b}}
 
-    def add(items) when is_list(items) do
+    def sum!(items) when is_list(items) do
       Enum.reduce(items, &add/2)
     end
 

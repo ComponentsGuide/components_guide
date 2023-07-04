@@ -3,6 +3,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
 
   alias ComponentsGuide.Wasm.Instance
   alias ComponentsGuide.Wasm.Examples.HTTPHeaders
+  import ComponentsGuide.Wasm, only: [to_wasm: 1]
 
   describe "CacheControl" do
     alias HTTPHeaders.CacheControl
@@ -73,6 +74,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
 
   describe "SetCookie" do
     alias HTTPHeaders.SetCookie
+
+    test "wasm size" do
+      assert byte_size(to_wasm(SetCookie)) == 892
+    end
 
     test "name and value" do
       inst = SetCookie.start()
