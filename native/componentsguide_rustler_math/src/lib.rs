@@ -31,6 +31,11 @@ fn reverse_string(a: String) -> String {
     return a.chars().rev().collect();
 }
 
+#[nif]
+fn strlen(a: String) -> usize {
+    return a.chars().count();
+}
+
 fn string_error<T: ToString>(error: T) -> Error {
     return Error::Term(Box::new(error.to_string()));
 }
@@ -1205,6 +1210,7 @@ rustler::init!(
     [
         add,
         reverse_string,
+        strlen,
         wasm_list_exports,
         wasm_list_imports,
         wasm_call_i32,

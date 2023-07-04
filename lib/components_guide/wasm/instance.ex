@@ -1,5 +1,6 @@
 defmodule ComponentsGuide.Wasm.Instance do
   alias ComponentsGuide.Wasm
+  alias ComponentsGuide.Wasm.WasmNative
 
   require Logger
 
@@ -145,8 +146,14 @@ defmodule ComponentsGuide.Wasm.Instance do
   defdelegate cast(instance, f, a, b, c), to: Wasm, as: :instance_cast
 
   def alloc_string(instance, string) do
-    offset = call(instance, :alloc, byte_size(string) + 1)
+    # offset = call(instance, :alloc, byte_size(string) + 1)
+    # count = WasmNative.strlen(string)
+    count = byte_size(string)
+
+    # FIXME: With complex strings this count isn’t large enough so we have to add 2 for some reason.
+    offset = call(instance, :alloc, count + 2)
     write_string_nul_terminated(instance, offset, string)
+    # write_memory(instance, offset, String.to_charlist(string))
     offset
   end
 

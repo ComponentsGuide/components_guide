@@ -23,6 +23,8 @@ defmodule ComponentsGuide.Wasm.WasmNative do
   def add(_, _), do: error()
   def reverse_string(_), do: error()
 
+  def strlen(_), do: error()
+
   def wasm_list_exports(_), do: error()
   def wasm_list_imports(_), do: error()
 
