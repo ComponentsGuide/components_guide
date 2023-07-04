@@ -103,8 +103,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           # EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
-        ~S[<label for=new-url>New URL</label>\n]
-        ~S{<input id=new-url type=url name=urls[] value="">}
+        ~S[<label for=add-url>Add URL</label>\n]
+        ~S{<input id=add-url type=url name=urls[] value="">}
 
         ~S[<button data-strong>Update</button>\n]
         ~S[<button formaction="sitemap.xml" formtarget="_blank">View Sitemap</button>\n]
