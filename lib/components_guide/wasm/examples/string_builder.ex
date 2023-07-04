@@ -131,7 +131,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
           {hex, hex}
       end
 
-    snippet do
+    snippet U32 do
       # push(hex)
       # 
       # push(I32.le_u(hex, 9))
@@ -166,8 +166,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       # memory32_8![@bump_offset] =
       #   initial |> I32.add(I32.when?(I32.le_u(following, 9), do: ?0, else: inline(do: ?A - 10)))
 
-      memory32_8![@bump_offset] =
-        I32.u!(initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
+      I32.store8(@bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
 
       # memory32_8![@bump_offset] =
       #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
@@ -176,7 +175,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       # memory32_8![@bump_offset] =
       #   I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
 
-      @bump_offset = I32.add(@bump_offset, 1)
+      @bump_offset = @bump_offset + 1
     end
   end
 
