@@ -45,17 +45,22 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S"""
         <style>
         :root { font-size: 150%; font-family: system-ui, sans-serif; }
-        :root { --size-factor: 1; }
-        h1, h2, h3, h4, h5, h6, input, button { font-size: calc(1rem * var(--size-factor)); }
+        :root { --size-factor: 1; --margin-y: 0; --margin-x: 0 }
+        * { margin: var(--margin-y) var(--margin-x); }
         
-        h1 { --size-factor: 2 }
+        h1, h2, h3, h4, h5, h6, input, button {
+          font-size: calc(1rem * var(--size-factor));
+          line-height: calc(var(--size-factor) * 1rlh)
+        }
+        
+        h1 { --size-factor: 2; --margin-y: 1rlh }
         h2 { --size-factor: 1.5 }
         
         form { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         label { font-weight: bold }
         input { padding: 0.5rem; border: 1px solid currentColor }
         button { padding: 0.5rem 1rem; color: white; background: #222; border: none }
-        fieldset { display: flex; gap: 1rem; align-items: center; border: none }
+        fieldset { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center; border: none; padding: 0 }
         </style>
         """
         
