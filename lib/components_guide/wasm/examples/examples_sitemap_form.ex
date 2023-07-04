@@ -68,7 +68,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         """
 
         ~S[<form>\n]
-        ~S[<h1>Edit URLs</h1>\n]
+        ~S[<h1>Create Sitemap</h1>\n]
 
         query_iterator = @data_url_encoded
         # query_iterator = URLEncoded.each_pair(@data_url_encoded)
