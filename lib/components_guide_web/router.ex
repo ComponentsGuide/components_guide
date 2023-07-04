@@ -16,6 +16,9 @@ defmodule ComponentsGuideWeb.Router do
 
   pipeline :wasm_output do
     plug(:accepts, ["html", "xml"])
+    plug(:fetch_session)
+    plug(:fetch_live_flash)
+    plug(:put_root_layout, {ComponentsGuideWeb.LayoutView, :root})
     # plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
   end
@@ -34,6 +37,8 @@ defmodule ComponentsGuideWeb.Router do
 
   scope "/wasm-demo/:module", ComponentsGuideWeb do
     pipe_through(:wasm_output)
+
+    get("/", WasmController, :root)
 
     get("/:function", WasmController, :output_function)
     # get("/:xml.xml", WasmController, :to_xml)

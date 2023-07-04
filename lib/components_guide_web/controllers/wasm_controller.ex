@@ -23,7 +23,8 @@ defmodule ComponentsGuideWeb.WasmShared do
     "form_state_machine.wasm" => State.Form,
     "http_header_cache_control.wasm" => HTTPHeaders.CacheControl,
     "http_header_set_cookie.wasm" => HTTPHeaders.SetCookie,
-    "website_portfolio.wasm" => HTTPServer.PortfolioSite
+    "website_portfolio.wasm" => HTTPServer.PortfolioSite,
+    "sitemap_form.wasm" => Examples.SitemapForm
   }
 
   defmacro all_modules(), do: Macro.escape(@all_modules)
@@ -93,6 +94,25 @@ defmodule ComponentsGuideWeb.WasmController do
     |> send_resp(200, javascript)
   end
 
+  def root(conn, %{"module" => name}) do
+    wasm_mod =
+      case name do
+        "sitemap-form" -> ComponentsGuide.Wasm.Examples.SitemapForm
+      end
+
+    {function, media_type} =
+      {:html_index, "text/html"}
+
+    instance = Instance.run(wasm_mod)
+    set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
+    to_html = Instance.capture(instance, String, function, 0)
+
+    set_www_form_data.(conn.query_string)
+    html = to_html.()
+
+    render(conn, :demo, index_html: html)
+  end
+
   def output_function(conn, %{"module" => name, "function" => function}) do
     wasm_mod =
       case name do
@@ -104,8 +124,6 @@ defmodule ComponentsGuideWeb.WasmController do
         "index.html" -> {:html_index, "text/html"}
         "sitemap.xml" -> {:xml_sitemap, "text/xml"}
       end
-
-    IO.inspect(conn)
 
     instance = Instance.run(wasm_mod)
     set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)

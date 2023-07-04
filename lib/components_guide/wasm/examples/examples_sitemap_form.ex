@@ -38,9 +38,11 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
       count = URLEncoded.count(@data_url_encoded)
 
       build! do
-        ~S[<!doctype html><html lang=en><meta charset=utf-8>\n]
-        ~S[<meta name=viewport content="width=device-width, initial-scale=1.0">\n]
-        ~S[<title>Sitemap form using WebAssembly</title>]
+        ~S"""
+        <!doctype html><html lang=en><meta charset=utf-8>
+        <meta name=viewport content="width=device-width, initial-scale=1.0">
+        <title>Sitemap form using WebAssembly</title>
+        """
 
         # ~S[<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>]
         ~S"""
@@ -55,7 +57,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         }
 
         h1 { --size-factor: 2; --margin-y: 1rlh }
-        h2 { --size-factor: 1.5 }
 
         form { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         label { font-weight: bold }
@@ -92,9 +93,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
               append_html_escaped!(char: value_char)
             end
 
-            append!(string: ~S[">])
-            append!(string: ~S[</fieldset>])
-            append!(ascii: ?\n)
+            append!(~S[">])
+            append!(~S[</fieldset>\n])
           end
 
           query_iterator = URLEncoded.rest(query_iterator)
@@ -104,7 +104,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         end
 
         ~S[<label for=add-url>Add URL</label>\n]
-        ~S{<input id=add-url type=url name=urls[] value="">}
+        ~S{<input id=add-url type=url name=urls[] value="">\n}
 
         ~S[<button data-strong>Update</button>\n]
         ~S[<button formaction="sitemap.xml" formtarget="_blank">View XML Sitemap</button>\n]

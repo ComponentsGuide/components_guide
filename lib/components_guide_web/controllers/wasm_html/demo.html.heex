@@ -1,0 +1,92 @@
+<div class="p-4 prose prose-invert lg:prose-xml">
+  <p>
+    This is an interactive version live in the browser.
+    <a href="/wasm-demo/sitemap-form/index.html">See a server-only</a>
+    version running from the <em>exact same</em>
+    WebAssembly module.
+  </p>
+</div>
+
+<style>
+  #demo button[formaction] { display: none }
+</style>
+<div id="demo" class="grid md:grid-cols-2">
+  <article class="px-2 py-8 bg-white">
+    <%= raw(@index_html) %>
+    <details>
+      <summary class="mt-4 pl-2 text-sm cursor-pointer hover:text-lime-700 hover:bg-green-100 transition-all">
+        View HTML source
+      </summary>
+      <pre style="margin-top: 0"><code class="lang-html"><%= @index_html %></code></pre>
+    </details>
+  </article>
+  <article class="prose prose-invert">
+    <output>
+      <pre class="break-words whitespace-pre-wrap"><code class="lang-xml"></code></pre>
+    </output>
+  </article>
+</div>
+
+<script type="module">
+  const wasmPromise = WebAssembly.instantiateStreaming(
+    fetch("/wasm/module/sitemap_form.wasm", {
+      credentials: "omit"
+    })
+  );
+
+  const form = document.querySelector("#demo form");
+  const outputCode = document.querySelector("#demo output > pre > code");
+
+  outputCode.innerText = "Loading…";
+
+  const utf8encoder = new TextEncoder();
+  const utf8decoder = new TextDecoder();
+
+  wasmPromise.then(a => {
+    const { memory, alloc, ...exports } = a.instance.exports;
+    const memoryBytes = new Uint8Array(memory.buffer);
+    
+    function readString(ptr) {
+      // Search for null-terminating byte.
+      const endPtr = memoryBytes.indexOf(0, ptr);
+      // Get subsection of memory between start and end, and decode it as UTF-8.
+      return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
+    }
+    function writeString(stringValue) {
+      stringValue = stringValue.toString();
+      const bytes = utf8encoder.encode(stringValue);
+      const strPtr = alloc(bytes.length + 1);
+      utf8encoder.encodeInto(stringValue, memoryBytes.subarray(strPtr));
+      return strPtr;
+    }
+    
+    function updateSitemap() {
+      const query = new URLSearchParams(new FormData(form));
+      const queryPtr = writeString(query);
+      console.log(queryPtr);
+      exports.set_www_form_data(queryPtr);
+      
+      const xml = readString(exports.xml_sitemap());
+      outputCode.textContent = xml;
+      window.Prism.highlightElement(outputCode);
+    }
+    function updateHTML() {
+      const query = new URLSearchParams(new FormData(form));
+      const queryPtr = writeString(query);
+      exports.set_www_form_data(queryPtr);
+      const html = readString(exports.html_index());
+      
+      const newDoc = new DOMParser().parseFromString(html, "text/html");
+      form.innerHTML = newDoc.querySelector("form").innerHTML;
+    }
+    
+    requestAnimationFrame(updateSitemap);
+    
+    //form.addEventListener('change', update);
+    form.addEventListener('input', updateSitemap);
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      updateHTML();
+    });
+  });
+</script>
