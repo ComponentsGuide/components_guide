@@ -1391,9 +1391,10 @@ defmodule Orb do
       when is_tuple(tuple) and elem(tuple, 0) in [:i32, :i32_const, :local_get, :global_get],
       do: tuple
 
+  def push(n) when is_integer(n), do: {:i32_const, n}
   def push(%VariableReference{} = ref), do: ref
 
-  def push(n) when is_integer(n), do: {:i32_const, n}
+  def push(do: [value, {:local_set, local}]), do: [value, {:local_tee, local}]
 
   def push(value, do: block) do
     [
