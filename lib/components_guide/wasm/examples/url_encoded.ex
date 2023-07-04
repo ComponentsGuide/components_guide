@@ -156,10 +156,14 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func _url_encoded_value_next_char(ptr: I32.U8.Pointer), I32.U8.Pointer, next: I32.U8.Pointer do
+    func _url_encoded_value_next_char(ptr: I32.U8.Pointer), I32.U8.Pointer,
+      next: I32.U8.Pointer,
+      next_char: I32.U8 do
       next = I32.when?(I32.eq(I32.load8_u(ptr), ?%), do: 3, else: 1) |> I32.add(ptr)
+      next_char = I32.load8_u(next)
 
-      I32.when? I32.in?(I32.load8_u(next), [0, ?&]) do
+      # I32.when? I32.eqz(I32.mul(next_char, I32.xor(?&, next_char))) do
+      I32.when? I32.in?(next_char, [0, ?&]) do
         0x0
       else
         next

@@ -206,7 +206,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
       # TODO: strip out unused private functions
 
       # assert byte_size(CounterHTML.to_wasm()) == 501
-      assert byte_size(Wasm.to_wasm(CounterHTML)) == 520
+      assert byte_size(Wasm.to_wasm(CounterHTML)) == 518
     end
 
     test "works" do

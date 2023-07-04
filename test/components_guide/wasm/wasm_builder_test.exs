@@ -197,8 +197,7 @@ defmodule OrbTest do
         lt = I32.lt_s(num, 1)
         gt = I32.gt_s(num, 255)
 
-        push(I32.or(lt, gt))
-        I32.eqz()
+        I32.or(lt, gt) |> I32.eqz()
       end
     end
   end
@@ -215,8 +214,7 @@ defmodule OrbTest do
         (local.set $lt)
         (i32.gt_s (local.get $num) (i32.const 255))
         (local.set $gt)
-        (i32.or (local.get $lt) (local.get $gt))
-        (i32.eqz)
+        (i32.eqz (i32.or (local.get $lt) (local.get $gt)))
       )
     )
     """

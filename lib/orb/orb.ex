@@ -275,7 +275,6 @@ defmodule Orb do
     def div_s(a, divisor)
     def rem_u(a, divisor)
     def rem_s(a, divisor)
-    def unquote(:and_)(a, b)
     def unquote(:or)(a, b)
     def xor(a, b)
     def shl(a, b)
@@ -293,12 +292,12 @@ defmodule Orb do
       end
     end
 
-    for op <- Ops.i32(2) do
+    for op <- Ops.i32(2), op not in [:and] do
       case op do
-        :and ->
-          def and_(a, b) do
-            {:i32, unquote(op), {a, b}}
-          end
+        :eq ->
+          def eq(0, n), do: {:i32, :eqz, n}
+          def eq(n, 0), do: {:i32, :eqz, n}
+          def eq(a, b), do: {:i32, :eq, {a, b}}
 
         _ ->
           def unquote(op)(a, b) do
@@ -306,10 +305,6 @@ defmodule Orb do
           end
       end
     end
-
-    # TODO: not sure if I want to keep this pop-from-stack style.
-    # It’s only used by one test.
-    def eqz(), do: {:i32, :eqz}
 
     for op <- Ops.i32(:load) do
       def unquote(op)(offset) do
@@ -330,32 +325,17 @@ defmodule Orb do
       }
     end
 
-    defp _or(a, b), do: {:i32, :or, {a, b}}
-    # TODO: rename to any?
-    def unquote(:or)(a, b, c), do: _or(a, _or(b, c))
-    # def unquote(:or)(a, b, c, d), do: _or(a, _or(b, _or(c, d)))
-    def unquote(:or)(a, b, c, d), do: a |> _or(b |> _or(c |> _or(d)))
-
-    # def unquote(:or)(items) when is_list(items) do
-    #   Enum.reduce(items, &_or/2)
-    # end
+    # Replaced by |||
+    # defp _or(a, b), do: {:i32, :or, {a, b}}
 
     def add(items) when is_list(items) do
       Enum.reduce(items, &add/2)
     end
 
     def in_inclusive_range?(value, lower, upper) do
-      __MODULE__.and_(I32.ge_u(value, lower), I32.le_u(value, upper))
+      {:i32, :and, {I32.ge_u(value, lower), I32.le_u(value, upper)}}
     end
 
-    def in?(value, [0, int]) when is_integer(other) do
-      # Either the value is 0 or the value zeros-out due to the xor,
-      # both multiplying everything to 0.
-      I32.mul(value, I32.xor(int, value)) |> I32.eqz()
-      # Similar cost to:
-      # I32.or(I32.eqz(value), I32.eq(int, value))
-    end
-    
     def in?(value, list) when is_list(list) do
       for {item, index} <- Enum.with_index(list) do
         case index do

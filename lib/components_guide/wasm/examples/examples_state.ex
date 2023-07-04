@@ -307,12 +307,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         #   edit_count = I32.add(edit_count, 1)
         # end
 
-        if I32.or(
-             I32.eq(state, initial),
-             I32.eq(state, edited),
-             I32.eq(state, succeeded),
-             I32.eq(state, failed)
-           ) do
+        if I32.in?(state, [initial, edited, succeeded, failed]) do
           state = edited
           edit_count = I32.add(edit_count, 1)
         end
