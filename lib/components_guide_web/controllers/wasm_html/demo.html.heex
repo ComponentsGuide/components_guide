@@ -71,6 +71,7 @@
         const html = readString(exports.html_index());
         const newDoc = new DOMParser().parseFromString(html, "text/html");
         form.innerHTML = newDoc.querySelector("form").innerHTML;
+        form.querySelector("[autofocus]").focus();
         viewSourceDetails.open = false;
       }
       
