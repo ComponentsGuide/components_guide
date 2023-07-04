@@ -18,13 +18,11 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
     |> URI.encode_query()
     |> set_www_form_data.()
 
-    assert to_html.() == ~S"""
-           <form>
-           count: 2;
-           1 https://example.org/a=1&amp;b=2&amp;c=3
-           2 caf+@!&lt;.org
-           </form>
-           """
+    html = to_html.()
+
+    assert html =~ ~S{<!doctype html>}
+    assert html =~ ~S{value="https://example.org/a=1&amp;b=2&amp;c=3"}
+    assert html =~ ~S{value="caf+@!&lt;.org"}
   end
 
   test "sitemap.xml" do

@@ -41,21 +41,22 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S[<!doctype html><html lang=en><meta charset=utf-8>\n]
         ~S[<meta name=viewport content="width=device-width, initial-scale=1.0">\n]
         ~S[<title>Sitemap form using WebAssembly</title>]
+
         # ~S[<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>]
         ~S"""
         <style>
         :root { font-size: 150%; font-family: system-ui, sans-serif; }
         :root { --size-factor: 1; --margin-y: 0; --margin-x: 0 }
         * { margin: var(--margin-y) var(--margin-x); }
-        
+
         h1, h2, h3, h4, h5, h6, input, button {
           font-size: calc(1rem * var(--size-factor));
           line-height: calc(var(--size-factor) * 1rlh)
         }
-        
+
         h1 { --size-factor: 2; --margin-y: 1rlh }
         h2 { --size-factor: 1.5 }
-        
+
         form { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         label { font-weight: bold }
         input { padding: 0.5rem; border: 1px solid currentColor }
@@ -63,7 +64,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         fieldset { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center; border: none; padding: 0 }
         </style>
         """
-        
+
         ~S[<form>\n]
         ~S[<h1>Edit URLs</h1>\n]
 
@@ -81,7 +82,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             string: ~S[</label>],
             string: ~S{<input type=url name=urls[] id="url-},
             decimal_u32: i + 1,
-            string: ~S{" value="},
+            string: ~S{" value="}
           )
 
           value_char_iterator = URLEncoded.Value.each_char(query_iterator)
@@ -103,7 +104,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
         ~S[<label for=new-url>New URL</label>\n]
         ~S{<input id=new-url type=url name=urls[] value="">}
-        
+
         ~S[<button>Update</button>\n]
 
         ~S[</form>\n]
