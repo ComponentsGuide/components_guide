@@ -104,8 +104,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             if value_char do
               append_html_escaped!(char: value_char)
             end
-
-            # append!(u8: value_char)
           end
 
           ~S"""
