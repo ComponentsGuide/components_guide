@@ -229,7 +229,26 @@ defmodule Orb do
     #   ]
     # end
 
-    def new(result, condition, when_true, when_false) do
+    def new(condition, when_true) do
+      %__MODULE__{
+        result: nil,
+        condition: optimize_condition(condition),
+        when_true: when_true,
+        when_false: nil
+      }
+    end
+
+    def new(condition, when_true, when_false) do
+      %__MODULE__{
+        result: nil,
+        condition: optimize_condition(condition),
+        when_true: when_true,
+        when_false: when_false
+      }
+    end
+
+    def new(result, condition, when_true, when_false)
+        when not is_nil(result) and not is_nil(when_false) do
       %__MODULE__{
         result: result,
         condition: optimize_condition(condition),
@@ -1390,18 +1409,9 @@ defmodule Orb do
   def local(identifier, type), do: {:local, identifier, type}
   def local_get(identifier), do: {:local_get, identifier}
   def local_set(identifier), do: {:local_set, identifier}
+  # TODO: use local_tee when using push(local = …)
   def local_tee(identifier), do: {:local_tee, identifier}
   def local_tee(identifier, value), do: [value, {:local_tee, identifier}]
-
-  defmacro if_(condition, do: when_true, else: when_false) do
-    quote do
-      IfElse.detecting_result_type(
-        unquote(condition),
-        unquote(__get_block_items(when_true)),
-        unquote(__get_block_items(when_false))
-      )
-    end
-  end
 
   def __get_block_items(block) do
     case block do
@@ -1449,7 +1459,6 @@ defmodule Orb do
       quote(
         do:
           IfElse.new(
-            nil,
             # unquote(source),
             unquote(source)[:valid?],
             [
@@ -1458,8 +1467,7 @@ defmodule Orb do
               unquote(source)[:next],
               Orb.VariableReference.as_set(unquote(source)),
               {:br, unquote(identifier)}
-            ],
-            nil
+            ]
           )
       )
 
@@ -1501,10 +1509,8 @@ defmodule Orb do
         condition ->
           quote do:
                   IfElse.new(
-                    nil,
                     unquote(condition),
-                    [unquote(block_items), {:br, unquote(identifier)}],
-                    nil
+                    [unquote(block_items), {:br, unquote(identifier)}]
                   )
       end
 
@@ -1573,9 +1579,9 @@ defmodule Orb do
     do: {:br_if, expand_identifier(identifier, __ENV__), condition}
 
   def return(), do: :return
-  def return(if: condition), do: IfElse.new(nil, condition, :return, nil)
+  def return(if: condition), do: IfElse.new(condition, :return)
   def return(value), do: {:return, value}
-  def return(value, if: condition), do: IfElse.new(nil, condition, {:return, value}, nil)
+  def return(value, if: condition), do: IfElse.new(condition, {:return, value})
 
   def nop(), do: :nop
 
@@ -1586,7 +1592,6 @@ defmodule Orb do
 
   def assert!(condition) do
     IfElse.new(
-      nil,
       condition,
       nop(),
       unreachable!()
@@ -2043,7 +2048,6 @@ defmodule OrbUsing do
   defmacro if(condition, do: when_true, else: when_false) do
     quote do
       Orb.IfElse.new(
-        nil,
         unquote(condition),
         unquote(Orb.__get_block_items(when_true)),
         unquote(Orb.__get_block_items(when_false))
@@ -2054,10 +2058,8 @@ defmodule OrbUsing do
   defmacro if(condition, do: when_true) do
     quote do
       Orb.IfElse.new(
-        nil,
         unquote(condition),
-        unquote(Orb.__get_block_items(when_true)),
-        nil
+        unquote(Orb.__get_block_items(when_true))
       )
     end
   end
