@@ -190,8 +190,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
             append!(ascii: char)
           else
             append!(ascii: ?%)
-            # append!(hex_upper: char >>> 4)
-            # append!(hex_upper: char &&& 15)
+            append!(hex_upper: char >>> 4)
+            append!(hex_upper: char &&& 15)
             # append!(hex_upper: I32.div_u(char, 16))
             # append!(hex_upper: I32.rem_u(char, 16))
 
@@ -202,19 +202,19 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
             # append!(hex_upper: local_tee(:__dup_32, I32.div_u(char, 16)))
             # append!(hex_upper: local_tee(:__dup_32, I32.rem_u(char, 16)))
-            append!(
-              hex_upper:
-                push do
-                  __dup_32 = char >>> 4
-                end
-            )
-
-            append!(
-              hex_upper:
-                push do
-                  __dup_32 = char &&& 15
-                end
-            )
+            #             append!(
+            #               hex_upper:
+            #                 push do
+            #                   __dup_32 = char >>> 4
+            #                 end
+            #             )
+            # 
+            #             append!(
+            #               hex_upper:
+            #                 push do
+            #                   __dup_32 = char &&& 15
+            #                 end
+            #             )
           end
 
           str_ptr = str_ptr + 1
