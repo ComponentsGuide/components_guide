@@ -70,7 +70,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S[<h1>Create Sitemap</h1>\n]
 
         # value_iterator = URLEncoded.each_value(@data_url_encoded)
-        URLEncoded.Value.Iterator.new(mut!(value_iterator), source: @data_url_encoded)
+        # value_iterator = new!(@data_url_encoded)
+        mut!(value_iterator) |> URLEncoded.Value.Iterator.new(@data_url_encoded)
 
         loop value_chars <- value_iterator do
           append!(

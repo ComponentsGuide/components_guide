@@ -364,7 +364,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
         {:ok, next(var)}
       end
 
-      def new(%Orb.MutRef{type: __MODULE__} = mut_ref, source: source) do
+      def new(%Orb.MutRef{type: __MODULE__} = mut_ref, source) do
         Orb.MutRef.store(mut_ref, source)
       end
 
