@@ -792,6 +792,7 @@ defmodule Orb do
 
     {block_items, constants} =
       Macro.prewalk(block_items, [], fn
+        # TODO: remove, replaced by @global_name =
         {:=, _meta1, [{global, _meta2, nil}, input]}, constants
         when is_atom(global) and is_map_key(globals, global) ->
           {[input, global_set(global)], constants}
@@ -1191,12 +1192,14 @@ defmodule Orb do
 
   def do_snippet(locals, block_items) do
     Macro.prewalk(block_items, fn
+      # TODO: remove, replace with I32.store8
       {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, value]} ->
         quote do: {:i32, :store8, unquote(offset), unquote(value)}
 
       {{:., _, [{{:., _, [Access, :get]}, _, [{:memory32_8!, _, nil}, offset]}, :unsigned]}, _, _} ->
         quote do: {:i32, :load8_u, unquote(offset)}
 
+      # TODO: remove, replace with I32.store
       {:=, _, [{{:., _, [Access, :get]}, _, [{:memory32!, _, nil}, offset]}, value]} ->
         quote do: {:i32, :store, unquote(offset), unquote(value)}
 
@@ -1251,6 +1254,11 @@ defmodule Orb do
           end
 
         quote do: {:i32, unquote(store_instruction), unquote(computed_offset), unquote(value)}
+
+      {:=, _, [{local, _, nil}, input]}
+      when is_atom(local) and is_map_key(locals, local) and
+             is_struct(:erlang.map_get(local, locals), Orb.VariableReference) ->
+        [input, quote(do: {:local_set, unquote(local)})]
 
       {:=, _, [{local, _, nil}, input]}
       when is_atom(local) and is_map_key(locals, local) ->
@@ -1600,7 +1608,11 @@ defmodule Orb do
   end
 
   defmodule MutRef do
-    defstruct [:read, :write]
+    defstruct [:read, :write, :type]
+
+    def from(%VariableReference{} = read) do
+      %__MODULE__{read: read, write: VariableReference.as_set(read), type: read.type}
+    end
 
     def from({:global_get, name} = read) do
       %__MODULE__{read: read, write: {:global_set, name}}
@@ -1608,6 +1620,10 @@ defmodule Orb do
 
     def from({:local_get, name} = read) do
       %__MODULE__{read: read, write: {:local_set, name}}
+    end
+
+    def store(%__MODULE__{write: write}, value) do
+      [value, write]
     end
   end
 

@@ -364,6 +364,10 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
         {:ok, next(var)}
       end
 
+      def new(%Orb.MutRef{type: __MODULE__} = mut_ref, source: source) do
+        Orb.MutRef.store(mut_ref, source)
+      end
+
       def new(query) do
         query
         # Orb.call(:url_encoded_first_value_offset, query)
