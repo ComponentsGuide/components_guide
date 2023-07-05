@@ -58,20 +58,24 @@
     
     const $submit = Symbol("submit");
     
-    function update(type, query = new URLSearchParams(new FormData(form))) {
+    function update(input) {
       exports.free_all();
-      //const query = new URLSearchParams(new FormData(form));
+      const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
       const queryPtr = writeString(query);
       exports.set_www_form_data(queryPtr);
       
       const xml = readString(exports.xml_sitemap());
       outputCode.textContent = xml;
       
-      if (type === $submit) {
+      const rerender = input === $submit || input instanceof URLSearchParams;
+      
+      if (input === $submit) {
         const url = new URL(window.location);
         url.search = query;
         history.pushState({}, "", url);
-        
+      }
+      
+      if (rerender) {
         const html = readString(exports.html_index());
         const newDoc = new DOMParser().parseFromString(html, "text/html");
         form.innerHTML = newDoc.querySelector("form").innerHTML;
@@ -100,7 +104,7 @@
     
     window.addEventListener('popstate', () => {
       const { searchParams } = new URL(window.location);
-      update($submit, searchParams);
+      update(searchParams);
     });
   });
 </script>
