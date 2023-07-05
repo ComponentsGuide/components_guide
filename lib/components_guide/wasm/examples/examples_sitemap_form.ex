@@ -31,9 +31,9 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
     func html_index(), I32.String,
       count: I32,
-      query: URLEncoded,
       i: I32,
-      value_char_iterator: URLEncoded.Value.CharIterator,
+      value_iterator: URLEncoded.Value.Iterator,
+      value_chars: URLEncoded.Value.CharIterator,
       value_char: I32.U8 do
       count = URLEncoded.count(@data_url_encoded)
 
@@ -69,35 +69,29 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S[<form>\n]
         ~S[<h1>Create Sitemap</h1>\n]
 
-        query = @data_url_encoded
-        # query = URLEncoded.each_value(@data_url_encoded)
+        value_iterator = URLEncoded.each_value(@data_url_encoded)
 
-        loop EachItem, while: I32.eqz(URLEncoded.empty?(query)) do
-          value_char_iterator = URLEncoded.Value.each_char(query)
+        loop value_chars <- value_iterator do
+          append!(
+            string: ~S[<fieldset>],
+            string: ~S[<label for="url-],
+            decimal_u32: i + 1,
+            string: ~S[">],
+            decimal_u32: i + 1,
+            string: ~S[</label>],
+            string: ~S{<input type=url name=urls[] id="url-},
+            decimal_u32: i + 1,
+            string: ~S{" value="}
+          )
 
-          if value_char_iterator do
-            append!(
-              string: ~S[<fieldset>],
-              string: ~S[<label for="url-],
-              decimal_u32: i + 1,
-              string: ~S[">],
-              decimal_u32: i + 1,
-              string: ~S[</label>],
-              string: ~S{<input type=url name=urls[] id="url-},
-              decimal_u32: i + 1,
-              string: ~S{" value="}
-            )
-
-            loop value_char <- value_char_iterator do
-              # assert!(I32.eqz(I32.eq(value_char, 0)))
-              append_html_escaped!(char: value_char)
-            end
-
-            append!(~S[">])
-            append!(~S[</fieldset>\n])
+          loop value_char <- value_chars do
+            # assert!(I32.eqz(I32.eq(value_char, 0)))
+            append_html_escaped!(char: value_char)
           end
 
-          query = URLEncoded.rest(query)
+          append!(~S[">])
+          append!(~S[</fieldset>\n])
+
           i = i + 1
         end
 
