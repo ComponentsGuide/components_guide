@@ -31,7 +31,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
     func html_index(), I32.String,
       count: I32,
-      query_iterator: URLEncoded,
+      query: URLEncoded,
       i: I32,
       value_char_iterator: URLEncoded.Value.CharIterator,
       value_char: I32.U8 do
@@ -44,7 +44,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         <title>Sitemap form using WebAssembly</title>
         """
 
-        # ~S[<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>]
         ~S"""
         <style>
         :root { font-size: 150%; font-family: system-ui, sans-serif; }
@@ -70,11 +69,11 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S[<form>\n]
         ~S[<h1>Create Sitemap</h1>\n]
 
-        query_iterator = @data_url_encoded
-        # query_iterator = URLEncoded.each_pair(@data_url_encoded)
+        query = @data_url_encoded
+        # query = URLEncoded.each_value(@data_url_encoded)
 
-        loop EachItem, while: I32.eqz(URLEncoded.empty?(query_iterator)) do
-          value_char_iterator = URLEncoded.Value.each_char(query_iterator)
+        loop EachItem, while: I32.eqz(URLEncoded.empty?(query)) do
+          value_char_iterator = URLEncoded.Value.each_char(query)
 
           if value_char_iterator do
             append!(
@@ -98,10 +97,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             append!(~S[</fieldset>\n])
           end
 
-          query_iterator = URLEncoded.rest(query_iterator)
+          query = URLEncoded.rest(query)
           i = i + 1
-
-          # EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
         ~S[<label for=add-url>Add URL</label>\n]
@@ -116,7 +113,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
     func xml_sitemap(), I32.String,
       count: I32,
-      query_iterator: URLEncoded,
+      query: URLEncoded,
       i: I32,
       value_char_iterator: URLEncoded.Value.CharIterator,
       value_char: I32.U8 do
@@ -129,11 +126,10 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         """
         |> append!()
 
-        query_iterator = @data_url_encoded
-        # query_iterator = URLEncoded.each_pair(@data_url_encoded)
+        query = @data_url_encoded
 
-        loop EachItem, while: I32.eqz(URLEncoded.empty?(query_iterator)) do
-          value_char_iterator = URLEncoded.Value.each_char(query_iterator)
+        loop EachItem, while: I32.eqz(URLEncoded.empty?(query)) do
+          value_char_iterator = URLEncoded.Value.each_char(query)
 
           if value_char_iterator do
             ~S"<url>\n<loc>" |> append!()
@@ -151,10 +147,8 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
             |> append!()
           end
 
-          query_iterator = URLEncoded.rest(query_iterator)
+          query = URLEncoded.rest(query)
           i = i + 1
-
-          EachItem.continue(if: URLEncoded.count(query_iterator))
         end
 
         ~S"""
