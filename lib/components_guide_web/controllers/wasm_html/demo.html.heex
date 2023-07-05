@@ -58,9 +58,9 @@
     
     const $submit = Symbol("submit");
     
-    function update(type) {
+    function update(type, query = new URLSearchParams(new FormData(form))) {
       exports.free_all();
-      const query = new URLSearchParams(new FormData(form));
+      //const query = new URLSearchParams(new FormData(form));
       const queryPtr = writeString(query);
       exports.set_www_form_data(queryPtr);
       
@@ -68,6 +68,10 @@
       outputCode.textContent = xml;
       
       if (type === $submit) {
+        const url = new URL(window.location);
+        url.search = query;
+        history.pushState({}, "", url);
+        
         const html = readString(exports.html_index());
         const newDoc = new DOMParser().parseFromString(html, "text/html");
         form.innerHTML = newDoc.querySelector("form").innerHTML;
@@ -92,6 +96,11 @@
       const html = viewSourceDetails.previousElementSibling.innerHTML;
       viewSourceCode.textContent = `<!doctype html>\n` + html.trim();
       window.Prism.highlightElement(viewSourceCode);
+    });
+    
+    window.addEventListener('popstate', () => {
+      const { searchParams } = new URL(window.location);
+      update($submit, searchParams);
     });
   });
 </script>
