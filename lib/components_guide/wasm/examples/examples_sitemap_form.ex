@@ -109,9 +109,9 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
     func xml_sitemap(), I32.String,
       count: I32,
-      query: URLEncoded,
       i: I32,
-      value_char_iterator: URLEncoded.Value.CharIterator,
+      value_iterator: URLEncoded.Value.Iterator,
+      value_chars: URLEncoded.Value.CharIterator,
       value_char: I32.U8 do
       count = URLEncoded.count(@data_url_encoded)
 
@@ -120,37 +120,30 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         <?xml version="1.0" encoding="UTF-8"?>
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
         """
-        |> append!()
 
-        query = @data_url_encoded
+        mut!(value_iterator) |> URLEncoded.Value.Iterator.new(@data_url_encoded)
 
-        loop EachItem, while: I32.eqz(URLEncoded.empty?(query)) do
-          value_char_iterator = URLEncoded.Value.each_char(query)
+        loop value_chars <- value_iterator do
+          ~S"<url>\n<loc>" |> append!()
 
-          if value_char_iterator do
-            ~S"<url>\n<loc>" |> append!()
+          loop value_char <- value_chars do
+            # assert!(I32.eqz(I32.eq(value_char, 0)))
 
-            loop value_char <- value_char_iterator do
-              # assert!(I32.eqz(I32.eq(value_char, 0)))
-
-              append_html_escaped!(char: value_char)
-            end
-
-            ~S"""
-            </loc>
-            </url>
-            """
-            |> append!()
+            append_html_escaped!(char: value_char)
           end
 
-          query = URLEncoded.rest(query)
+          ~S"""
+          </loc>
+          </url>
+          """
+          |> append!()
+
           i = i + 1
         end
 
         ~S"""
         </urlset>
         """
-        |> append!()
       end
     end
   end
