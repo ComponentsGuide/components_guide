@@ -353,7 +353,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
       @impl Access
       def fetch(%Orb.VariableReference{} = var, :valid?) do
-        {:ok, I32.eqz(URLEncoded.empty?(var))}
+        {:ok, URLEncoded.Value.each_char(var)}
       end
 
       def fetch(%Orb.VariableReference{} = var, :value) do
