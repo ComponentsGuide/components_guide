@@ -306,9 +306,9 @@ defmodule ComponentsGuide.WasmTest do
   test "bulk_call/2 global calculates mean" do
     [nil, nil, nil, result] =
       Wasm.bulk_call(CalculateMean, [
-        {"insert", [5]},
-        {"insert", [7]},
-        {"insert", [9]},
+        {"insert", [i32: 5]},
+        {"insert", [i32: 7]},
+        {"insert", [i32: 9]},
         {"calculate_mean", []}
       ])
 

@@ -152,7 +152,7 @@ defmodule ComponentsGuide.Wasm do
 
   def bulk_call(source, calls) do
     for result <- process_source(source) |> WasmNative.wasm_call_bulk(calls) do
-      process_result(result)
+      Wasm.Process.process_result(result)
     end
   end
 
@@ -476,20 +476,6 @@ defmodule ComponentsGuide.Wasm do
     {_identifier, {:wat, source}} = process_source2(source)
     source
   end
-
-  # do: Orb.to_wat(atom)
-
-  defp process_result([]), do: nil
-  defp process_result([a]), do: a
-
-  defp process_result(multiple_items) when is_list(multiple_items),
-    do: List.to_tuple(multiple_items)
-
-  defp process_result({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
-  defp process_result({:error, s}), do: {:error, s}
-
-  defp process_value({:i32, a}), do: a
-  defp process_value({:f32, a}), do: a
 end
 
 defmodule Wasm.Process do

@@ -385,11 +385,11 @@ fn wasm_steps_internal(
 #[derive(NifTuple)]
 struct WasmBulkCall {
     f: String,
-    args: Vec<u32>,
+    args: Vec<WasmSupportedValue>,
 }
 
 #[nif]
-fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<u32>>, Error> {
+fn wasm_call_bulk(wat_source: String, calls: Vec<WasmBulkCall>) -> Result<Vec<Vec<WasmSupportedValue>>, Error> {
     wasm_call_bulk_internal(wat_source, true, calls).map_err(string_error)
 }
 
@@ -397,12 +397,12 @@ fn wasm_call_bulk_internal(
     wat_source: String,
     buffer: bool,
     calls: Vec<WasmBulkCall>,
-) -> Result<Vec<Vec<u32>>, anyhow::Error> {
+) -> Result<Vec<Vec<WasmSupportedValue>>, anyhow::Error> {
     let mut running_instance = RunningInstance::new(WasmModuleDefinition::Wat(wat_source))?;
 
     let results: Result<Vec<_>, _> = calls
         .into_iter()
-        .map(|call| running_instance.call_i32(call.f, call.args))
+        .map(|call| running_instance.call(call.f, call.args))
         .collect();
 
     return Ok(results?);
