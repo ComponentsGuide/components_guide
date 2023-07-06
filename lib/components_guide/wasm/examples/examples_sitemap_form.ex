@@ -13,8 +13,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
   BumpAllocator.export_alloc()
 
-  # wasm_memory(pages: 3)
-
   I32.export_enum([:editing, :rendering_html_form, :rendering_xml_sitemap])
 
   I32.global(
@@ -25,7 +23,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
 
   wasm U32 do
     func set_www_form_data(data_ptr: URLEncoded) do
-      # TODO: validate
       @data_url_encoded = data_ptr
     end
 
@@ -69,8 +66,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
         ~S[<form>\n]
         ~S[<h1>Create Sitemap</h1>\n]
 
-        # value_iterator = URLEncoded.each_value(@data_url_encoded)
-        # value_iterator = new!(@data_url_encoded)
         mut!(value_iterator) |> URLEncoded.Value.Iterator.new(@data_url_encoded)
 
         loop value_chars <- value_iterator do
@@ -87,7 +82,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           )
 
           loop value_char <- value_chars do
-            # assert!(I32.eqz(I32.eq(value_char, 0)))
             append_html_escaped!(char: value_char)
           end
 
@@ -127,8 +121,6 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
           ~S"<url>\n<loc>" |> append!()
 
           loop value_char <- value_chars do
-            # assert!(I32.eqz(I32.eq(value_char, 0)))
-
             append_html_escaped!(char: value_char)
           end
 

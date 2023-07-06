@@ -21,50 +21,75 @@
 </div>
 
 <script type="module">
+  const pluckMethods = (target, methodNames = Object.getOwnPropertyNames(target.constructor.prototype).filter(n => typeof target[n] === "function")) => Object.fromEntries(
+    methodNames.map(methodName => [methodName, target[methodName].bind(target)])
+  );
+  
   const wasmPromise = WebAssembly.instantiateStreaming(
     fetch("/wasm/module/sitemap_form.wasm", {
       credentials: "omit"
     })
   );
+  
 
-  const form = document.querySelector("#Demo form");
-  const outputCode = document.querySelector("#Demo output code");
-  const viewSourceDetails = document.querySelector("#Demo details");
+  const $ = selector => document.querySelector(`#Demo ${selector}`);
+  const form = $("form");
+  const outputCode = $("output code");
+  const viewSourceDetails = $("details");
   const viewSourceCode = viewSourceDetails.querySelector("code");
 
   outputCode.innerText = "Loading…";
 
-  const utf8encoder = new TextEncoder();
-  const utf8decoder = new TextDecoder();
-
-  wasmPromise.then(a => {
-    const { memory, alloc, ...exports } = a.instance.exports;
-    const memoryBytes = new Uint8Array(memory.buffer);
+  /*const utf8 = Object.assign({},
+    pluckMethods(new TextEncoder()),
+    pluckMethods(new TextDecoder()),
+  );*/
+  const utf8 = Object.assign({},
+    pluckMethods(new TextEncoder(), ['encode', 'encodeInto']),
+    pluckMethods(new TextDecoder(), ['decode']),
+  );
+  
+  class MemoryIO {
+    constructor(exports) {
+      this.memoryBytes = new Uint8Array(exports.memory.buffer);
+      this.alloc = exports.alloc;
+    }
     
-    function readString(ptr) {
+    readString(ptr) {
+      const { memoryBytes } = this;
+      
       // Search for null-terminating byte.
       const endPtr = memoryBytes.indexOf(0, ptr);
       // Get subsection of memory between start and end, and decode it as UTF-8.
-      return utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
+      return utf8.decode(memoryBytes.subarray(ptr, endPtr));
     }
-    function writeString(stringValue) {
+    
+    writeString(stringValue) {
+      const { memoryBytes, alloc } = this;
+      
       stringValue = stringValue.toString();
-      const bytes = utf8encoder.encode(stringValue);
+      const bytes = utf8.encode(stringValue);
       const strPtr = alloc(bytes.length + 1);
-      utf8encoder.encodeInto(stringValue, memoryBytes.subarray(strPtr));
+      utf8.encodeInto(stringValue, memoryBytes.subarray(strPtr));
       memoryBytes[strPtr + bytes.length] = 0x0;
       return strPtr;
     }
+  }
+
+  wasmPromise.then(a => {
+    const { exports } = a.instance;
+    //const { readString, writeString } = pluckMethods(new MemoryIO(exports));
+    const io = new MemoryIO(exports);
     
     const $submit = Symbol("submit");
     
     function update(input) {
       exports.free_all();
       const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
-      const queryPtr = writeString(query);
+      const queryPtr = io.writeString(query);
       exports.set_www_form_data(queryPtr);
       
-      const xml = readString(exports.xml_sitemap());
+      const xml = io.readString(exports.xml_sitemap());
       outputCode.textContent = xml;
       
       const rerender = input === $submit || input instanceof URLSearchParams;
@@ -76,7 +101,7 @@
       }
       
       if (rerender) {
-        const html = readString(exports.html_index());
+        const html = io.readString(exports.html_index());
         const newDoc = new DOMParser().parseFromString(html, "text/html");
         form.innerHTML = newDoc.querySelector("form").innerHTML;
         form.querySelector("[autofocus]").focus();
@@ -117,3 +142,4 @@
     <%= @wasm_byte_count %> byte WebAssembly module.
   </p>
 </div>
+http
