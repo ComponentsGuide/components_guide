@@ -37,11 +37,9 @@
 </script>
 
 <script type="module">
-  const wasmPromise = WebAssembly.instantiateStreaming(
-    fetch("/wasm/module/sitemap_form.wasm", {
-      credentials: "omit"
-    })
-  );
+  const wasmPromise = fetch("/wasm/module/sitemap_form.wasm", {
+    credentials: "omit"
+  });
 
   const $ = selector => document.querySelector(`#Demo ${selector}`);
   const $html = $(".HTML");
@@ -80,64 +78,63 @@
     }
   }
 
-  wasmPromise.then(a => {
-    const { exports } = a.instance;
-    const io = new MemoryIO(exports);
-    
-    const $submit = Symbol("submit");
-    
-    function update(input) {
-      const changeURL = input === $submit;
-      const rerender = input === $submit || input instanceof URLSearchParams;
+  const { instance } = await WebAssembly.instantiateStreaming(wasmPromise);
+  const { exports } = instance;
+  const io = new MemoryIO(exports);
+  
+  const $submit = Symbol("submit");
+  
+  function update(input) {
+    const changeURL = input === $submit;
+    const rerender = input === $submit || input instanceof URLSearchParams;
 
-      const form = $html.querySelector("form");
-      
-      exports.free_all();
-      const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
-      const queryPtr = io.writeString(query);
-      exports.set_www_form_data(queryPtr);
-      
-      const xml = io.readString(exports.xml_sitemap());
-      $outputCode.textContent = xml;
-      
-      if (changeURL) {
-        const url = new URL(window.location);
-        url.search = query;
-        history.pushState({}, "", url);
-      }
-      
-      if (rerender) {
-        const html = io.readString(exports.html_index());
-        const newDoc = new DOMParser().parseFromString(html, "text/html");
-        $html.innerHTML = newDoc.documentElement.innerHTML;
-        $html.querySelector("[autofocus]")?.focus();
-        $viewSourceDetails.open = false;
-      }
-      
-      window.Prism.highlightElement($outputCode);
+    const form = $html.querySelector("form");
+    
+    exports.free_all();
+    const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
+    const queryPtr = io.writeString(query);
+    exports.set_www_form_data(queryPtr);
+    
+    const xml = io.readString(exports.xml_sitemap());
+    $outputCode.textContent = xml;
+    
+    if (changeURL) {
+      const url = new URL(window.location);
+      url.search = query;
+      history.pushState({}, "", url);
     }
     
-    requestAnimationFrame(update);
+    if (rerender) {
+      const html = io.readString(exports.html_index());
+      const newDoc = new DOMParser().parseFromString(html, "text/html");
+      $html.innerHTML = newDoc.documentElement.innerHTML;
+      $html.querySelector("[autofocus]")?.focus();
+      $viewSourceDetails.open = false;
+    }
     
-    $html.addEventListener('input', update);
-    $html.addEventListener('submit', event => {
-      event.preventDefault();
-      update($submit);
-    });
+    window.Prism.highlightElement($outputCode);
+  }
+  
+  requestAnimationFrame(update);
+  
+  $html.addEventListener('input', update);
+  $html.addEventListener('submit', event => {
+    event.preventDefault();
+    update($submit);
+  });
+  
+  $viewSourceDetails.addEventListener('toggle', () => {
+    if (!$viewSourceDetails.open) return;
     
-    $viewSourceDetails.addEventListener('toggle', () => {
-      if (!$viewSourceDetails.open) return;
-      
-      const html = $viewSourceDetails.previousElementSibling.innerHTML;
-      const $code = $viewSourceDetails.querySelector("code");
-      $code.textContent = `<!doctype html>\n` + html.trim();
-      window.Prism.highlightElement($code);
-    });
-    
-    window.addEventListener('popstate', () => {
-      const { searchParams } = new URL(window.location);
-      update(searchParams);
-    });
+    const html = $viewSourceDetails.previousElementSibling.innerHTML;
+    const $code = $viewSourceDetails.querySelector("code");
+    $code.textContent = `<!doctype html>\n` + html.trim();
+    window.Prism.highlightElement($code);
+  });
+  
+  window.addEventListener('popstate', () => {
+    const { searchParams } = new URL(window.location);
+    update(searchParams);
   });
 </script>
 
