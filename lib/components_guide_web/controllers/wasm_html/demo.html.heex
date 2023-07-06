@@ -1,9 +1,9 @@
 <style>
-  #Demo button[formaction] { display: none }
+  #Demo button[formaction] { display: none } /* In the SPA we show the XML alongside, so hide the server-form button */
 </style>
 <div id="Demo" class="grid md:grid-cols-2">
   <article class="px-2 py-8 bg-white">
-    <div>
+    <div class="HTML">
       <%= raw(@index_html) %>
     </div>
     <details>
@@ -33,12 +33,11 @@
   
 
   const $ = selector => document.querySelector(`#Demo ${selector}`);
-  const form = $("form");
-  const outputCode = $("output code");
-  const viewSourceDetails = $("details");
-  const viewSourceCode = viewSourceDetails.querySelector("code");
+  const $html = $(".HTML");
+  const $outputCode = $("output code");
+  const $viewSourceDetails = $("details");
 
-  outputCode.innerText = "Loading…";
+  $outputCode.innerText = "Loading…";
 
   const utf8 = Object.assign({},
     pluckMethods(new TextEncoder(), ['encode', 'encodeInto']),
@@ -81,6 +80,8 @@
     function update(input) {
       const changeURL = input === $submit;
       const rerender = input === $submit || input instanceof URLSearchParams;
+
+      const form = $html.querySelector("form");
       
       exports.free_all();
       const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
@@ -88,7 +89,7 @@
       exports.set_www_form_data(queryPtr);
       
       const xml = io.readString(exports.xml_sitemap());
-      outputCode.textContent = xml;
+      $outputCode.textContent = xml;
       
       if (changeURL) {
         const url = new URL(window.location);
@@ -99,28 +100,29 @@
       if (rerender) {
         const html = io.readString(exports.html_index());
         const newDoc = new DOMParser().parseFromString(html, "text/html");
-        form.innerHTML = newDoc.querySelector("form").innerHTML;
-        form.querySelector("[autofocus]").focus();
-        viewSourceDetails.open = false;
+        $html.innerHTML = newDoc.documentElement.innerHTML;
+        $html.querySelector("[autofocus]")?.focus();
+        $viewSourceDetails.open = false;
       }
       
-      window.Prism.highlightElement(outputCode);
+      window.Prism.highlightElement($outputCode);
     }
     
     requestAnimationFrame(update);
     
-    form.addEventListener('input', update);
-    form.addEventListener('submit', event => {
+    $html.addEventListener('input', update);
+    $html.addEventListener('submit', event => {
       event.preventDefault();
       update($submit);
     });
     
-    viewSourceDetails.addEventListener('toggle', () => {
-      if (!viewSourceDetails.open) return;
+    $viewSourceDetails.addEventListener('toggle', () => {
+      if (!$viewSourceDetails.open) return;
       
-      const html = viewSourceDetails.previousElementSibling.innerHTML;
-      viewSourceCode.textContent = `<!doctype html>\n` + html.trim();
-      window.Prism.highlightElement(viewSourceCode);
+      const html = $viewSourceDetails.previousElementSibling.innerHTML;
+      const $code = $viewSourceDetails.querySelector("code");
+      $code.textContent = `<!doctype html>\n` + html.trim();
+      window.Prism.highlightElement($code);
     });
     
     window.addEventListener('popstate', () => {

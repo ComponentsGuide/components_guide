@@ -130,10 +130,11 @@ defmodule ComponentsGuideWeb.WasmController do
     to_html = Instance.capture(instance, String, function, 0)
 
     set_www_form_data.(conn.query_string)
+    html = to_html.()
 
     conn
     |> put_resp_content_type(media_type)
-    |> send_resp(200, to_html.())
+    |> send_resp(200, html)
   end
 
   def to_html(conn, %{"module" => name}) do
