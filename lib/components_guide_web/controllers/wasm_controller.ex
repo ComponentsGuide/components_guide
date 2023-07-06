@@ -129,7 +129,6 @@ defmodule ComponentsGuideWeb.WasmController do
     set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
     to_html = Instance.capture(instance, String, function, 0)
 
-    # set_www_form_data.("urls%5B%5D=https%3A%2F%2Fexample.org")
     set_www_form_data.(conn.query_string)
 
     conn
