@@ -40,10 +40,6 @@
 
   outputCode.innerText = "Loading…";
 
-  /*const utf8 = Object.assign({},
-    pluckMethods(new TextEncoder()),
-    pluckMethods(new TextDecoder()),
-  );*/
   const utf8 = Object.assign({},
     pluckMethods(new TextEncoder(), ['encode', 'encodeInto']),
     pluckMethods(new TextDecoder(), ['decode']),
