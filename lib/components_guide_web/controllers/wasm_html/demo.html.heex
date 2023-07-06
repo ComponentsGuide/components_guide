@@ -35,10 +35,6 @@
 </script>
 
 <script type="module">
-  const wasmPromise = fetch("/wasm/module/sitemap_form.wasm", {
-    credentials: "omit"
-  });
-
   const $ = selector => document.querySelector(`#Demo ${selector}`);
   const $html = $(".HTML");
   const $outputCode = $("output code");
@@ -76,7 +72,9 @@
     }
   }
 
-  const { instance } = await WebAssembly.instantiateStreaming(wasmPromise);
+  const { instance } = await WebAssembly.instantiateStreaming(fetch("/wasm/module/sitemap_form.wasm", {
+    credentials: "omit"
+  }));
   const { exports } = instance;
   const io = new MemoryIO(exports);
   
