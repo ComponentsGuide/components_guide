@@ -44,7 +44,7 @@
 
   const utf8Encoder = new TextEncoder();
   const utf8Decoder = new TextDecoder();
-  
+
   class MemoryIO {
     constructor(exports) {
       this.memoryBytes = new Uint8Array(exports.memory.buffer);
@@ -77,9 +77,9 @@
   }));
   const { exports } = instance;
   const io = new MemoryIO(exports);
-  
+
   const $submit = Symbol("submit");
-  
+
   function update(input) {
     const changeURL = input === $submit;
     const rerender = input === $submit || input instanceof URLSearchParams;
@@ -110,19 +110,19 @@
     
     window.Prism.highlightElement($outputCode);
   }
-  
+
   window.requestAnimationFrame(update);
   window.addEventListener('popstate', () => {
     const { searchParams } = new URL(window.location);
     update(searchParams);
   });
-  
+
   $html.addEventListener('input', update);
   $html.addEventListener('submit', event => {
     event.preventDefault();
     update($submit);
   });
-  
+
   $viewSourceDetails.addEventListener('toggle', () => {
     if (!$viewSourceDetails.open) return;
     

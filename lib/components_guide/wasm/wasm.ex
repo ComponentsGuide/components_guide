@@ -135,7 +135,7 @@ defmodule ComponentsGuide.Wasm do
 
   defp call_apply_raw(source, f, args) do
     f = to_string(f)
-    process_source(source) |> WasmNative.wasm_call(f, args) |> process_result2()
+    process_source(source) |> WasmNative.wasm_call(f, args) |> Wasm.Process.process_result()
   end
 
   # defp transform32(a)
@@ -490,15 +490,6 @@ defmodule ComponentsGuide.Wasm do
 
   defp process_value({:i32, a}), do: a
   defp process_value({:f32, a}), do: a
-
-  defp process_result2([]), do: nil
-  defp process_result2([a]), do: process_value(a)
-
-  defp process_result2(multiple_items) when is_list(multiple_items),
-    do: List.to_tuple(multiple_items |> Enum.map(&process_value/1))
-
-  defp process_result2({:error, "failed to parse WebAssembly module"}), do: {:error, :parse}
-  defp process_result2({:error, s}), do: {:error, s}
 end
 
 defmodule Wasm.Process do
