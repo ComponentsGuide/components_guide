@@ -37,10 +37,6 @@
 </script>
 
 <script type="module">
-  const pluckMethods = (target, methodNames = Object.getOwnPropertyNames(target.constructor.prototype).filter(n => typeof target[n] === "function")) => Object.fromEntries(
-    methodNames.map(methodName => [methodName, target[methodName].bind(target)])
-  );
-  
   const wasmPromise = WebAssembly.instantiateStreaming(
     fetch("/wasm/module/sitemap_form.wasm", {
       credentials: "omit"
@@ -54,11 +50,8 @@
 
   $outputCode.innerText = "Loading…";
 
-  /*const utf8 = Object.assign({},
-    pluckMethods(new TextEncoder(), ['encode', 'encodeInto']),
-    pluckMethods(new TextDecoder(), ['decode']),
-  );*/
-  const utf8 = await window.$use("utf8");
+  const utf8Encoder = new TextEncoder();
+  const utf8Decoder = new TextDecoder();
   
   class MemoryIO {
     constructor(exports) {
@@ -72,16 +65,16 @@
       // Search for null-terminating byte.
       const endPtr = memoryBytes.indexOf(0, ptr);
       // Get subsection of memory between start and end, and decode it as UTF-8.
-      return utf8.decode(memoryBytes.subarray(ptr, endPtr));
+      return utf8Decoder.decode(memoryBytes.subarray(ptr, endPtr));
     }
     
     writeString(stringValue) {
       const { memoryBytes, alloc } = this;
       
       stringValue = stringValue.toString();
-      const bytes = utf8.encode(stringValue);
+      const bytes = utf8Encoder.encode(stringValue);
       const strPtr = alloc(bytes.length + 1);
-      utf8.encodeInto(stringValue, memoryBytes.subarray(strPtr));
+      utf8Encoder.encodeInto(stringValue, memoryBytes.subarray(strPtr));
       memoryBytes[strPtr + bytes.length] = 0x0;
       return strPtr;
     }
