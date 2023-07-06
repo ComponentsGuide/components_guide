@@ -87,9 +87,9 @@
     const rerender = input === $submit || input instanceof URLSearchParams;
 
     const form = $html.querySelector("form");
+    const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
     
     exports.free_all();
-    const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
     const queryPtr = io.writeString(query);
     exports.set_www_form_data(queryPtr);
     
