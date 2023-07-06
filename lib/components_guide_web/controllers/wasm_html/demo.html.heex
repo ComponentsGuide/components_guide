@@ -21,6 +21,22 @@
 </div>
 
 <script type="module">
+  const table = new Map();
+  window.$use = async (key) => table.get(key) ?? import(`/-es/${key}`);
+  window.$register = (key, object) => table.set(key, object);
+</script>
+
+<script type="module">
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  window.$register("utf8", {
+    encode: encoder.encode.bind(encoder),
+    encodeInto: encoder.encodeInto.bind(encoder),
+    decode: decoder.decode.bind(decoder),
+  });
+</script>
+
+<script type="module">
   const pluckMethods = (target, methodNames = Object.getOwnPropertyNames(target.constructor.prototype).filter(n => typeof target[n] === "function")) => Object.fromEntries(
     methodNames.map(methodName => [methodName, target[methodName].bind(target)])
   );
@@ -30,7 +46,6 @@
       credentials: "omit"
     })
   );
-  
 
   const $ = selector => document.querySelector(`#Demo ${selector}`);
   const $html = $(".HTML");
@@ -39,10 +54,11 @@
 
   $outputCode.innerText = "Loading…";
 
-  const utf8 = Object.assign({},
+  /*const utf8 = Object.assign({},
     pluckMethods(new TextEncoder(), ['encode', 'encodeInto']),
     pluckMethods(new TextDecoder(), ['decode']),
-  );
+  );*/
+  const utf8 = await window.$use("utf8");
   
   class MemoryIO {
     constructor(exports) {
