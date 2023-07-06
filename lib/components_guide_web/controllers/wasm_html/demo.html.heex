@@ -3,9 +3,7 @@
 </style>
 <div id="Demo" class="grid md:grid-cols-2">
   <article class="px-2 py-8 bg-white">
-    <div class="HTML">
-      <%= raw(@index_html) %>
-    </div>
+    <div class="HTML"><%= raw(@index_html) %></div>
     <details>
       <summary class="mt-4 pl-2 text-sm cursor-pointer hover:text-lime-700 hover:bg-green-100 transition-all">
         View HTML source
@@ -115,7 +113,11 @@
     window.Prism.highlightElement($outputCode);
   }
   
-  requestAnimationFrame(update);
+  window.requestAnimationFrame(update);
+  window.addEventListener('popstate', () => {
+    const { searchParams } = new URL(window.location);
+    update(searchParams);
+  });
   
   $html.addEventListener('input', update);
   $html.addEventListener('submit', event => {
@@ -130,11 +132,6 @@
     const $code = $viewSourceDetails.querySelector("code");
     $code.textContent = `<!doctype html>\n` + html.trim();
     window.Prism.highlightElement($code);
-  });
-  
-  window.addEventListener('popstate', () => {
-    const { searchParams } = new URL(window.location);
-    update(searchParams);
   });
 </script>
 
