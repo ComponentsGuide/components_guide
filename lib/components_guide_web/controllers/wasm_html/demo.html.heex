@@ -74,12 +74,14 @@
 
   wasmPromise.then(a => {
     const { exports } = a.instance;
-    //const { readString, writeString } = pluckMethods(new MemoryIO(exports));
     const io = new MemoryIO(exports);
     
     const $submit = Symbol("submit");
     
     function update(input) {
+      const changeURL = input === $submit;
+      const rerender = input === $submit || input instanceof URLSearchParams;
+      
       exports.free_all();
       const query = input instanceof URLSearchParams ? input : new URLSearchParams(new FormData(form));
       const queryPtr = io.writeString(query);
@@ -88,9 +90,7 @@
       const xml = io.readString(exports.xml_sitemap());
       outputCode.textContent = xml;
       
-      const rerender = input === $submit || input instanceof URLSearchParams;
-      
-      if (input === $submit) {
+      if (changeURL) {
         const url = new URL(window.location);
         url.search = query;
         history.pushState({}, "", url);
