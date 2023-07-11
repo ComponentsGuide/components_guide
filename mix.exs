@@ -62,11 +62,12 @@ defmodule ComponentsGuide.MixProject do
       {:earmark, "~> 1.4.15"},
       {:paredown, "~> 0.1.0"},
       {:ex_image_info, "~> 0.2.4"},
-      {:rustler, "~> 0.25.0"},
-      {:rustler_precompiled, "~> 0.5.1"},
+      {:rustler, "~> 0.29.0"},
+      {:rustler_precompiled, "~> 0.6"},
       {:exqlite, "~> 0.13.3"},
       {:redix, "~> 1.1"},
-      {:benchee, "~> 1.0", only: :dev}
+      {:benchee, "~> 1.0", only: :dev},
+      {:orb_wasmtime, "~> 0.1.2"}
     ]
   end
 
