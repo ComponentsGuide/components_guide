@@ -347,10 +347,10 @@ defmodule ComponentsGuide.WasmTest do
         # str.each_char do
         #   0x0 ->
         #     return(1)
-        #   
+        #
         #   ?/ ->
         #     return(0)
-        #   
+        #
         #   _ ->
         #     :cont
         # end
@@ -510,8 +510,6 @@ defmodule ComponentsGuide.WasmTest do
   end
 
   test "escapes html" do
-    # dbg(EscapeHTML.to_wat())
-
     [count, result] =
       Wasm.steps(EscapeHTML, [
         {:write_string_nul_terminated, 1024, "hello", true},
