@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.State do
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule StateMachine do
@@ -41,7 +41,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         {:_, _, _} ->
           quote do
             func unquote(name) do
-              Orb.call(:transition_to, unquote(target))
+              Orb.DSL.call(:transition_to, unquote(target))
             end
           end
 
@@ -52,7 +52,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
             func unquote(name) do
               if I32.eq(global_get(:state), unquote(current_state)) do
-                Orb.call(:transition_to, unquote(target))
+                Orb.DSL.call(:transition_to, unquote(target))
               end
             end
           end
@@ -64,7 +64,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       # import Orb
       # alias Orb.{I32, F32}
       import Kernel, except: [if: 2]
-      import OrbUsing
+      import Orb.DSL
 
       {name, []} = Macro.decompose_call(call)
 
@@ -148,9 +148,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   # TODO: Add this file upload example https://twitter.com/jagregory/status/1449265165816393730
 
   defmodule Counter do
-    use Wasm
+    use Orb
 
-    wasm_memory(pages: 1)
+    Memory.pages(1)
     # Memory.increase(pages: 1)
 
     I32.global(count: 0)
@@ -164,14 +164,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       end
     end
 
-    alias ComponentsGuide.Wasm.Instance
-
     def get_current(instance), do: Instance.call(instance, :get_current)
     def increment(instance), do: Instance.call(instance, :increment)
   end
 
   defmodule Loader do
-    use Wasm
+    use Orb
 
     use StateMachine
 
@@ -197,7 +195,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # State.transitions do
     #   @idle ->
     #     [begin: @loading]
-    #     
+    #
     #   @loading ->
     #     [success: @loaded, failure: @failed]
     # end
@@ -205,13 +203,13 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # State.define :state do
     #   :idle ->
     #     [begin: :loading]
-    #     
+    #
     #   :loading ->
     #     [success: :loaded, failure: :failed]
-    #   
+    #
     #   :loaded ->
     #     :terminal
-    #     
+    #
     #   :failed ->
     #     :terminal
     # end
@@ -263,42 +261,31 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       # end
     end
 
-    alias ComponentsGuide.Wasm
-
-    def get_current(instance), do: Wasm.instance_call(instance, "get_current")
-    def begin(instance), do: Wasm.instance_call(instance, "begin")
-    def success(instance), do: Wasm.instance_call(instance, "success")
-    def failure(instance), do: Wasm.instance_call(instance, "failure")
+    def get_current(instance), do: Instance.call(instance, "get_current")
+    def begin(instance), do: Instance.call(instance, "begin")
+    def success(instance), do: Instance.call(instance, "success")
+    def failure(instance), do: Instance.call(instance, "failure")
   end
 
   defmodule Form do
-    use Wasm
+    use Orb
 
-    defwasm exported_globals: [
-              edited: i32(1),
-              submitting: i32(2),
-              succeeded: i32(3),
-              failed: i32(4)
-            ],
-            exported_mutable_globals: [
-              initial: i32(0)
-            ],
-            globals: [
-              state: i32(0),
-              edit_count: i32(0),
-              submitted_edit_count: i32(0)
-            ] do
-      func(get_current(), I32, do: state)
-      func(get_edit_count(), I32, do: edit_count)
-      func(get_submitted_edit_count(), I32, do: submitted_edit_count)
+    I32.export_enum([:edited, :submitting, :succeeded, :failed], 1)
+    I32.export_global(:mutable, initial: 0)
+    I32.global(state: 0, edit_count: 0, submitted_edit_count: 0)
+
+    wasm do
+      func(get_current(), I32, do: @state)
+      func(get_edit_count(), I32, do: @edit_count)
+      func(get_submitted_edit_count(), I32, do: @submitted_edit_count)
 
       func user_can_edit?(), I32 do
-        state |> I32.eq(submitting) |> I32.eqz()
+        @state |> I32.eq(@submitting) |> I32.eqz()
       end
 
       func user_can_submit?(), I32 do
-        state |> I32.eq(submitting) |> I32.eqz()
-        # eq(state, submitting) |> eqz()
+        @state |> I32.eq(@submitting) |> I32.eqz()
+        # eq(@state, @submitting) |> eqz()
       end
 
       func user_did_edit() do
@@ -307,33 +294,32 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         #   edit_count = I32.add(edit_count, 1)
         # end
 
-        if I32.in?(state, [initial, edited, succeeded, failed]) do
-          state = edited
-          edit_count = I32.add(edit_count, 1)
+        if I32.in?(@state, [@initial, @edited, @succeeded, @failed]) do
+          @state = @edited
+          @edit_count = I32.add(@edit_count, 1)
         end
       end
 
       func user_did_submit do
-        if I32.eqz(I32.eq(state, submitting)) do
-          state = submitting
-          submitted_edit_count = edit_count
+        # TODO: use I32.ne()
+        if I32.eqz(I32.eq(@state, @submitting)) do
+          @state = @submitting
+          @submitted_edit_count = @edit_count
         end
       end
 
       func destination_did_succeed do
-        if I32.eq(state, submitting) do
-          state = succeeded
+        if I32.eq(@state, @submitting) do
+          @state = @succeeded
         end
       end
 
       func destination_did_fail do
-        if I32.eq(state, submitting) do
-          state = failed
+        if I32.eq(@state, @submitting) do
+          @state = @failed
         end
       end
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     # def get_current(instance), do: Instance.call(instance, "get_current")
     # def get_edit_count(instance), do: Instance.call(instance, "get_edit_count")
@@ -344,10 +330,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule OfflineStatus do
-    use Wasm
+    use Orb
     use StateMachine
-
-    @states I32.calculate_enum([:offline?, :online?])
 
     # defstate Offline do
     #   on(online, target: Online)
@@ -356,20 +340,17 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     #   on(offline, target: Offline)
     # end
 
-    defwasm exported_globals: [
-              offline?: @states.offline?,
-              online?: @states.online?,
-              listen_to_window: i32(0x100)
-              # listen_to_window_offline: i32(1),
-              # listen_to_window_online: i32(1),
-            ] do
+    I32.export_enum([:offline?, :online?])
+    I32.export_global(:readonly, listen_to_window: 0x100)
+    # listen_to_window_offline: 1,
+    # listen_to_window_online: 1,
+
+    wasm do
       func(get_current(), I32, do: @state)
 
-      on(online(offline?), target: online?)
-      on(offline(online?), target: offline?)
+      on(online(@offline?), target: @online?)
+      on(offline(@online?), target: @offline?)
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def offline(instance), do: Instance.call(instance, :offline)
@@ -377,26 +358,21 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule FocusListener do
-    use Wasm
+    use Orb
     use StateMachine
 
-    defwasm exported_globals: [
-              active: i32(0),
-              inactive: i32(1)
-              # listen_to_document_focusin: i32(1),
-            ],
-            imports: [
-              conditions: [
-                is_focused: func(name: :check_is_active, params: nil, result: I32)
-              ]
-            ] do
+    I32.export_enum([:active, :inactive])
+
+    wasm_import(:conditions,
+      is_focused: Orb.DSL.funcp(name: :check_is_active, params: nil, result: I32)
+    )
+
+    wasm do
       func(get_current(), I32, do: @state)
 
       # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
-      on(focus(inactive), target: active)
+      on(focus(@inactive), target: @active)
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def offline(instance), do: Instance.call(instance, :offline)
@@ -404,34 +380,30 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule Dialog do
-    use Wasm
+    use Orb
 
     # Generate state machine on the fly:
     # /wasm/state-machine/Closed,Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
     # Generate state machine on the fly with initial state Open:
     # /wasm/state-machine/Closed,Open/Open?Closed.open=Open&Open.close=Closed&Open.cancel=Closed
 
-    @states I32.calculate_enum([:closed?, :open?])
-    use StateMachine, initial: @states.closed?
+    use StateMachine, initial: 0
 
     # defstatemachine [:closed?, :open?] do
     #   on(open(closed?), target: open?)
     #   on(close(open?), target: closed?)
     # end
 
-    defwasm exported_globals: [
-              closed?: @states.closed?,
-              open?: @states.open?
-            ] do
+    I32.export_enum([:closed?, :open?])
+
+    wasm do
       func(get_current(), I32, do: @state)
-      on(open(closed?), target: open?)
-      on(close(open?), target: closed?)
+      on(open(@closed?), target: @open?)
+      on(close(@open?), target: @closed?)
       # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
       # TODO: emit did_cancel event
-      on(cancel(open?), target: closed?)
+      on(cancel(@open?), target: @closed?)
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def open(instance), do: Instance.call(instance, :open)
@@ -439,19 +411,16 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule AbortController do
-    use Wasm
+    use Orb
     use StateMachine
 
-    defwasm exported_globals: [
-              active: i32(0),
-              aborted: i32(1)
-            ] do
+    I32.export_enum([:active, :aborted])
+
+    wasm do
       func(aborted?(), I32, do: @state)
 
-      on(abort(active), target: aborted)
+      on(abort(@active), target: @aborted)
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     def aborted?(instance), do: Instance.call(instance, :aborted?)
     def abort(instance), do: Instance.call(instance, :abort)
@@ -459,23 +428,18 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   # Or is it Future?
   defmodule Promise do
-    use Wasm
-    use StateMachine, initial: @states.pending
+    use Orb
+    use StateMachine, initial: 0
+    # use StateMachine, [:pending, :resolved, :rejected], initial: :pending
 
-    @states I32.calculate_enum([:pending, :resolved, :rejected])
+    I32.export_enum([:pending, :resolved, :rejected])
 
-    defwasm exported_globals: [
-              pending: @states.pending,
-              resolved: @states.resolved,
-              rejected: @states.rejected
-            ] do
+    wasm do
       func(get_current(), I32, do: @state)
 
-      on(resolve(pending), target: resolved)
-      on(reject(pending), target: rejected)
+      on(resolve(@pending), target: @resolved)
+      on(reject(@pending), target: @rejected)
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def resolve(instance), do: Instance.call(instance, :resolve)
@@ -483,30 +447,18 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule CSSTransition do
-    use Wasm
+    use Orb
     use StateMachine
 
-    @states I32.calculate_enum([
-              :initial?,
-              :started?,
-              :canceled?,
-              :ended?
-            ])
+    I32.export_enum([:initial?, :started?, :canceled?, :ended?])
 
-    defwasm exported_globals: [
-              initial?: @states.initial?,
-              started?: @states.started?,
-              canceled?: @states.canceled?,
-              ended?: @states.ended?
-            ] do
+    wasm do
       func(get_current(), I32, do: @state)
 
-      on(transitionstart(_), target: started?)
-      on(transitioncancel(_), target: canceled?)
-      on(transitionend(_), target: ended?)
+      on(transitionstart(_), target: @started?)
+      on(transitioncancel(_), target: @canceled?)
+      on(transitionend(_), target: @ended?)
     end
-
-    alias ComponentsGuide.Wasm.Instance
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def transitionstart(instance), do: Instance.call(instance, :transitionstart)
@@ -515,22 +467,28 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule LamportClock do
-    use Wasm
-    alias Wasm.Instance
+    use Orb
+    alias OrbWasmtime.Instance
 
-    defwasm exported_globals: [], exported_mutable_globals: [time: i32(0)] do
+    I32.export_global(:mutable, time: 0)
+
+    wasm do
       func will_send(), I32 do
-        time = I32.add(time, 1)
-        time
+        @time = I32.add(@time, 1)
+        @time
       end
 
-      func received(incoming_time(I32)), I32 do
-        if I32.gt_u(incoming_time, time) do
-          time = incoming_time
+      func received(incoming_time: I32), I32 do
+        if incoming_time > @time do
+          @time = incoming_time
         end
+        # if Orb.DSL.global_get(:incoming_time) > Orb.DSL.global_get(:time) do
+        #   Orb.DSL.global_get(:incoming_time)
+        #   Orb.DSL.global_set(:time)
+        # end
 
-        time = I32.add(time, 1)
-        time
+        @time = @time + 1
+        @time
       end
     end
 
@@ -589,7 +547,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     I32.global(backoff_level: 0)
     # I32.global(inbox_heartbeat: 0)
 
-    wasm_memory(pages: 1)
+    Memory.pages(1)
 
     # wasm_import [
     #   effects: [
@@ -602,7 +560,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       func(info_success_count(), I32, do: @success_count)
 
       # TODO: do this in another way?
-      func(set_token(token: I32)) do
+      func set_token(token: I32) do
         @token = token
       end
 
@@ -736,7 +694,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   end
 
   defmodule FlightBooking do
-    use Wasm
+    use Orb
 
     I32.export_enum([
       :initial?,
@@ -753,7 +711,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use StateMachine, initial: :initial?
     # I32.global(state: @initial?)
 
-    wasm_memory(pages: 1)
+    Memory.pages(1)
 
     wasm do
       func(get_current(), I32, do: @state)

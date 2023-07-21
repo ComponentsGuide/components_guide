@@ -38,7 +38,9 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       @bump_write_level = @bump_write_level - 1
 
       if I32.eqz(@bump_write_level) do
-        I32.store8(@bump_offset, 0x0)
+        # I32.store8(@bump_offset, 0x0)
+        # Memory.store!(I32.U8, @bump_offset, 0x0)
+        {:i32, :store8, @bump_offset, 0x0}
         @bump_offset = I32.add(@bump_offset, 1)
       end
 
@@ -54,8 +56,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def build_begin!(), do: call(:bump_write_start)
-  def build_done!(), do: call(:bump_write_done)
+  def build_begin!(), do: Orb.DSL.call(:bump_write_start)
+  def build_done!(), do: Orb.DSL.call(:bump_write_done)
 
   defmacro build!(do: block) do
     items =
@@ -89,25 +91,30 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   # For nested build functions.
   # We want inner functions to also return strings for easier debugging, not just append.
   def append!(function, a) when is_atom(function) do
+    import Orb.DSL
+
     call(function, a) |> drop()
   end
 
   def append!(function) when is_atom(function) do
+    import Orb.DSL
+
     call(function) |> drop()
   end
 
   def append!({:i32_const_string, _offset, _string} = str_ptr) do
-    call(:bump_write_str, str_ptr)
+    Orb.DSL.call(:bump_write_str, str_ptr)
   end
 
   def append!(string: str_ptr) do
     IO.inspect(str_ptr)
-    call(:bump_write_str, str_ptr)
+    Orb.DSL.call(:bump_write_str, str_ptr)
   end
 
   def append!(u8: char) do
     snippet U32 do
-      I32.store8(@bump_offset, char)
+      # Memory.store!(I32.U8, @bump_offset, char)
+      {:i32, :store8, @bump_offset, char}
       @bump_offset = @bump_offset + 1
     end
   end
@@ -133,11 +140,11 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
     snippet U32 do
       # push(hex)
-      # 
+      #
       # push(I32.le_u(hex, 9))
-      # 
+      #
       # :drop
-      # 
+      #
       # :pop
 
       # memory32_8![@bump_offset] = I32.when?(I32.le_u(hex, 9), do: I32.add(hex, ?0), else: I32.sub(hex, 10) |> I32.add(?A))
@@ -166,7 +173,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       # memory32_8![@bump_offset] =
       #   initial |> I32.add(I32.when?(I32.le_u(following, 9), do: ?0, else: inline(do: ?A - 10)))
 
-      I32.store8(@bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
+      # I32.store8(@bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
+      {:i32, :store8, @bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10)}
 
       # memory32_8![@bump_offset] =
       #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
@@ -194,7 +202,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   #               snippet do
   #                 memory32_8![@bump_offset] = char
   #               end
-  #               
+  #
   #             {:hex_upper, hex} ->
   #               snippet do
   #                 memory32_8![@bump_offset] =
@@ -202,7 +210,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   #               end
   #           end
   #         end
-  # 
+  #
   #         @bump_offset = I32.add(@bump_offset, length(list))
   #       end |> dbg()
   #     end
@@ -233,12 +241,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
   #   defmacro sigil_s({:<<>>, line, pieces}, []) do
   #     dbg(pieces)
-  # 
+  #
   #     pieces =
   #       for piece <- pieces do
   #         piece
   #       end
-  # 
+  #
   #     # {:<<>>, line, pieces}
   #     # dbg({line, pieces})
   #     quote do

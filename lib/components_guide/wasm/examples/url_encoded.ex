@@ -159,8 +159,10 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     func _url_encoded_value_next_char(ptr: I32.U8.Pointer), I32.U8.Pointer,
       next: I32.U8.Pointer,
       next_char: I32.U8 do
-      next = I32.when?(I32.eq(I32.load8_u(ptr), ?%), do: 3, else: 1) |> I32.add(ptr)
-      next_char = I32.load8_u(next)
+      # next = I32.when?(I32.eq(I32.load8_u(ptr), ?%), do: 3, else: 1) |> I32.add(ptr)
+      # next_char = I32.load8_u(next)
+      next = I32.when?(I32.eq({:i32, :load8_u, ptr}, ?%), do: 3, else: 1) |> I32.add(ptr)
+      next_char = {:i32, :load8_u, next}
 
       # I32.when? I32.eqz(I32.mul(next_char, I32.xor(?&, next_char))) do
       I32.when? I32.in?(next_char, [0, ?&]) do
@@ -208,7 +210,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
             #                   __dup_32 = char >>> 4
             #                 end
             #             )
-            # 
+            #
             #             append!(
             #               hex_upper:
             #                 push do
@@ -312,13 +314,13 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     #           append!(string: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))
     #           append!(ascii: ?=)
     #           append!(string: LinkedLists.hd!(LinkedLists.tl!(LinkedLists.hd!(list_ptr))))
-    # 
+    #
     #           list_ptr = LinkedLists.tl!(list_ptr)
-    # 
+    #
     #           if list_ptr do
     #             append!(ascii: ?&)
     #           end
-    # 
+    #
     #           EachPair.continue(if: list_ptr)
     #         end
     #       end
@@ -331,13 +333,13 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   def initial_i32(), do: 0x0
 
-  def empty?(url_encoded), do: call(:url_encoded_empty?, url_encoded)
-  def count(url_encoded), do: call(:url_encoded_count, url_encoded)
-  def clone_first(url_encoded), do: call(:url_encoded_clone_first, url_encoded)
-  def rest(url_encoded), do: call(:url_encoded_rest, url_encoded)
+  def empty?(url_encoded), do: Orb.DSL.call(:url_encoded_empty?, url_encoded)
+  def count(url_encoded), do: Orb.DSL.call(:url_encoded_count, url_encoded)
+  def clone_first(url_encoded), do: Orb.DSL.call(:url_encoded_clone_first, url_encoded)
+  def rest(url_encoded), do: Orb.DSL.call(:url_encoded_rest, url_encoded)
 
   def decode_first_value_www_form(url_encoded),
-    do: call(:url_encoded_decode_first_value_www_form, url_encoded)
+    do: Orb.DSL.call(:url_encoded_decode_first_value_www_form, url_encoded)
 
   def append_url_query(), do: :todo
 
@@ -401,11 +403,11 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
 
       def new(query) do
-        Orb.call(:url_encoded_first_value_offset, query)
+        Orb.DSL.call(:url_encoded_first_value_offset, query)
       end
 
       def next(value_char_iterator) do
-        Orb.call(:_url_encoded_value_next_char, value_char_iterator)
+        Orb.DSL.call(:_url_encoded_value_next_char, value_char_iterator)
       end
     end
 

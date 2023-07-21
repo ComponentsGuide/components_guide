@@ -34,8 +34,7 @@ defmodule ComponentsGuideWeb.WasmController do
   use ComponentsGuideWeb, :controller
   plug(:put_view, html: ComponentsGuideWeb.WasmHTML, json: ComponentsGuideWeb.WasmJSON)
 
-  alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.Examples.HTML
   alias ComponentsGuide.Wasm.Examples.State
 
@@ -161,7 +160,7 @@ end
 defmodule ComponentsGuideWeb.WasmHTML do
   use ComponentsGuideWeb, :html
 
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.HTML.{CounterHTML}
 
   embed_templates("wasm_html/*")

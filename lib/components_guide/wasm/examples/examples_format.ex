@@ -1,11 +1,9 @@
 defmodule ComponentsGuide.Wasm.Examples.Format do
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-  alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
-  alias ComponentsGuide.Wasm.Examples.StringBuilder
 
   defmodule IntToString do
-    use Wasm
+    use Orb
     use BumpAllocator
 
     defmacro __using__(_) do
@@ -20,7 +18,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
     end
 
-    wasm_memory(pages: 2)
+    Memory.pages(2)
 
     wasm do
       func u32toa_count(value(I32)),
@@ -85,8 +83,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
       end
     end
 
-    def u32toa_count(value), do: call(:u32toa_count, value)
-    def u32toa(value, end_offset), do: call(:u32toa, value, end_offset)
-    def write_u32(value, str_ptr), do: call(:write_u32, value, str_ptr)
+    def u32toa_count(value), do: Orb.DSL.call(:u32toa_count, value)
+    def u32toa(value, end_offset), do: Orb.DSL.call(:u32toa, value, end_offset)
+    def write_u32(value, str_ptr), do: Orb.DSL.call(:write_u32, value, str_ptr)
   end
 end

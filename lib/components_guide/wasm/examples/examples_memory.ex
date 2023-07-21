@@ -1,6 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.Memory do
-  alias ComponentsGuide.Wasm
-
   defmodule Copying do
     use Orb
 
@@ -20,7 +18,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
-    wasm_memory(pages: 2)
+    Memory.pages(2)
 
     wasm U32 do
       func memcpy(dest: I32.U8.Pointer, src: I32.U8.Pointer, byte_count: I32),
@@ -90,15 +88,15 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
 
     def memcpy(dest, src, byte_count) do
-      call(:memcpy, dest, src, byte_count)
+      Orb.DSL.call(:memcpy, dest, src, byte_count)
     end
 
     def memcpy(dest: dest, src: src, byte_count: byte_count) do
-      call(:memcpy, dest, src, byte_count)
+      Orb.DSL.call(:memcpy, dest, src, byte_count)
     end
 
     def memset(dest: dest, u8: u8, byte_count: byte_count) do
-      call(:memset, dest, u8, byte_count)
+      Orb.DSL.call(:memset, dest, u8, byte_count)
     end
   end
 
@@ -120,7 +118,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
             IO.inspect(unquote(opts), label: "use BumpAllocator")
 
           true ->
-            wasm_memory(pages: 2)
+            Memory.pages(2)
             # wasm_memory(min_pages: 2)
             # Memory.pages(min: 2)
             # Memory.pages(increase_by: 2)
@@ -150,7 +148,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
-    wasm_memory(pages: 2)
+    Memory.pages(2)
 
     I32.global(
       bump_offset: Constants.bump_init_offset(),
@@ -181,12 +179,13 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     end
 
     def alloc(byte_count) do
-      call(:bump_alloc, byte_count)
+      Orb.DSL.call(:bump_alloc, byte_count)
     end
   end
 
   defmodule LinkedLists do
-    use Wasm
+    alias OrbWasmtime.Instance
+    use Orb
     use BumpAllocator
 
     defmacro __using__(_opts) do
@@ -241,7 +240,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
         # loop current, result: I32 do
         #   0 ->
         #     {:halt, prev}
-        #   
+        #
         #   current ->
         #     next = current[at!: 1]
         #     current[at!: 1] = prev
@@ -307,13 +306,15 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     def hd!(ptr) do
       snippet U32 do
-        I32.load(ptr)
+        # I32.load(ptr)
+        Memory.load!(I32, ptr)
       end
     end
 
     def tl!(ptr) do
       snippet U32 do
-        I32.load(ptr + 4)
+        # I32.load(ptr + 4)
+        Memory.load!(I32, ptr + 4)
       end
     end
 
@@ -333,7 +334,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
          end}
       ]
 
-      ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
+      Instance.run(__MODULE__, imports)
     end
   end
 end

@@ -1,14 +1,15 @@
 defmodule ComponentsGuide.Wasm.Examples.SVGTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.Instance
+
   alias ComponentsGuide.Wasm.Examples.SVG
 
   describe "Square" do
     alias SVG.Square
 
     test "creates a black square" do
-      instance = Square.start()
+      instance = Instance.run(Square)
 
       svg = Square.read_body(instance)
 
@@ -18,7 +19,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVGTest do
     end
 
     test "can set color_hex global" do
-      instance = Square.start()
+      instance = Instance.run(Square)
 
       Instance.set_global(instance, :color_hex, 0xAA33BBFF)
       svg = Square.read_body(instance)

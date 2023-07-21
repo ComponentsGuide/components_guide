@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.HTML do
-  alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
@@ -10,7 +9,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     use BumpAllocator
     use StringBuilder
 
-    wasm_memory(pages: 2)
+    Memory.pages(2)
 
     @escaped_html_table [
       {?&, ~C"&amp;"},
@@ -37,7 +36,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     end
 
     def append_html_escaped!(char: char) do
-      call(:append_char_html_escaped, char)
+      Orb.DSL.call(:append_char_html_escaped, char)
     end
 
     defmacro __using__(_) do
@@ -52,10 +51,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   end
 
   defmodule EscapeHTML do
-    use Wasm
+    use Orb
     use BumpAllocator
 
-    wasm_memory(pages: 2)
+    Memory.pages(2)
 
     @escaped_html_table [
       {?&, ~C"&amp;"},
@@ -72,7 +71,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             bytes_written: I32 do
         bytes_written = 0
 
-        # I32.U8.consume_chars read_offset, char do  
+        # I32.U8.consume_chars read_offset, char do
         # end
 
         loop EachChar, result: I32 do
@@ -115,13 +114,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   end
 
   defmodule HTMLPage do
-    use Wasm
+    use Orb
 
     @wasm_memory 2
     @request_body_write_offset 65536
 
     I32.global(body_chunk_index: 0)
-    I32.export_global(request_body_write_offset: @request_body_write_offset)
+    I32.export_global(:mutable, request_body_write_offset: @request_body_write_offset)
 
     wasm U32 do
       func(get_request_body_write_offset(), I32, do: @request_body_write_offset)
@@ -131,7 +130,8 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       funcp get_is_valid(), I32 do
-        I32.eq(I32.load8_u(@request_body_write_offset), ?g)
+        # I32.eq(I32.load8_u(@request_body_write_offset), ?g)
+        I32.eq({:i32, :load8_u, @request_body_write_offset}, ?g)
       end
 
       func get_status(), I32 do
@@ -161,8 +161,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         @body_chunk_index = @body_chunk_index + 1
       end
     end
-
-    alias ComponentsGuide.Wasm
 
     def get_request_body_write_offset(instance) do
       Instance.get_global(instance, :request_body_write_offset)
@@ -233,11 +231,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #       <button data-action="increment" class="mt-4 inline-block py-1 px-4 bg-white text-black rounded">Increment</button>
     #       """)
 
-    wasm_memory(pages: 1)
+    Memory.pages(1)
 
-    global(
-      count: i32(0),
-      body_chunk_index: i32(0)
+    I32.global(
+      count: 0,
+      body_chunk_index: 0
     )
 
     wasm do
@@ -265,23 +263,23 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       #     end
-      # 
+      #
       #     wasm do
       funcp i32toa(value: I32), I32, working_ptr: I32.U8.Pointer, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
-        @bump_offset = I32.u!(@bump_offset + 11)
+        @bump_offset = @bump_offset + 11
         # We then start from the back, as we have to print the digits in reverse.
         working_ptr = @bump_offset
 
         loop Digits do
-          working_ptr = I32.u!(working_ptr - 1)
+          working_ptr = working_ptr - 1
 
           digit = I32.rem_u(value, 10)
-          value = I32.u!(value / 10)
-          working_ptr[at!: 0] = I32.u!(?0 + digit)
+          value = value / 10
+          working_ptr[at!: 0] = ?0 + digit
 
-          Digits.continue(if: I32.u!(value > 0))
+          Digits.continue(if: value > 0)
         end
 
         working_ptr
@@ -305,23 +303,21 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             0x0
         end
 
-        @body_chunk_index = I32.u!(@body_chunk_index + 1)
+        @body_chunk_index = @body_chunk_index + 1
       end
     end
 
-    alias ComponentsGuide.Wasm
-
     def get_current(instance) do
-      Wasm.instance_call(instance, "get_current")
+      Instance.call(instance, "get_current")
     end
 
     def increment(instance) do
-      Wasm.instance_call(instance, "increment")
+      Instance.call(instance, "increment")
     end
 
     def read_body(instance) do
-      Wasm.instance_call(instance, "rewind")
-      Wasm.instance_call_stream_string_chunks(instance, "next_body_chunk") |> Enum.join()
+      Instance.call(instance, "rewind")
+      Instance.call_joining_string_chunks(instance, "next_body_chunk")
     end
 
     def start(), do: Instance.run(__MODULE__)
@@ -341,13 +337,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     use I32.String
     use StringBuilder
 
-    I32.export_global(step_count: 4)
+    I32.export_global(:mutable, step_count: 4)
     I32.global(step: 1)
 
     wasm U32 do
       func(get_current_step(), I32, do: @step)
 
       funcp _change_step(step: I32) do
+        I32.cond do
+          step < 1 -> 1
+          step > @step_count -> @step_count
+          true -> step
+        end
+
         @step =
           I32.when? step < 1 do
             1
@@ -399,13 +401,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   end
 
   defmodule SitemapBuilder do
-    use Wasm
+    use Orb
     use BumpAllocator
     use LinkedLists
 
     BumpAllocator.export_alloc()
 
-    wasm_memory(pages: 3)
+    Memory.pages(3)
 
     @page_size 64 * 1024
     @bump_start 1 * @page_size
@@ -496,13 +498,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   end
 
   defmodule HTMLFormBuilder do
-    use Wasm
+    use Orb
     use BumpAllocator
     use LinkedLists
 
     BumpAllocator.export_alloc()
 
-    # wasm_memory(pages: 3)
+    # Memory.pages(3)
 
     # @field_types I32.calculate_enum([
     #                :textbox,
@@ -525,7 +527,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     #   ]
     # )
 
-    wasm_import(:log, :int32, func(name: :log32, params: I32, result: I32))
+    wasm_import(:log, int32: Orb.DSL.funcp(name: :log32, params: I32, result: I32))
 
     wasm U32 do
       EscapeHTML.funcp(:escape)
@@ -597,7 +599,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
          end}
       ]
 
-      ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
+      Instance.run(__MODULE__, imports)
     end
   end
 end

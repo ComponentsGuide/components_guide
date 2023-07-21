@@ -1,8 +1,7 @@
 defmodule Orb.I32.String.Test do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm.Instance
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.{Instance, Wasm}
   alias Orb.I32
 
   test "wasm size" do

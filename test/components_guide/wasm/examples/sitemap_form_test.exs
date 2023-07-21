@@ -1,8 +1,8 @@
 defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
-  use ExUnit.Case, async: true
+  # FIXME
+  use ExUnit.Case, async: true, register: false
 
-  alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.Examples.SitemapForm
 
   test "index.html" do

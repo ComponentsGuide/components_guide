@@ -1,10 +1,8 @@
 defmodule ComponentsGuide.Wasm.Examples.Numeric do
-  alias ComponentsGuide.Wasm
-
   defmodule BasicMath do
-    use Wasm
+    use Orb
 
-    defwasm do
+    wasm do
       func i32_double(value(I32)), I32 do
         I32.mul(value, 2)
       end
@@ -16,9 +14,9 @@ defmodule ComponentsGuide.Wasm.Examples.Numeric do
   end
 
   defmodule UnitInterval do
-    use Wasm
+    use Orb
 
-    defwasm do
+    wasm do
       func to_int_in_range(value: F32, min: I32, max: I32), I32 do
         # Math.floor(Math.random() * (max - min + 1)) + min
         I32.add(

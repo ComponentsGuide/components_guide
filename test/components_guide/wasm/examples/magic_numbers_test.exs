@@ -1,7 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.MagicNumbers.Test do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.MagicNumbers
 
   describe "MobileThrottling" do

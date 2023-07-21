@@ -1,25 +1,25 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
-  alias ComponentsGuide.Wasm.Examples.Memory
+  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule PortfolioSite do
     use Orb
-    use Memory.BumpAllocator
+    use BumpAllocator
     use I32.String
     use IntToString
     use StringBuilder
 
-    global(
-      method: I32.String.null(),
-      path: I32.String.null()
+    I32.global(
+      method: 0,
+      path: 0
     )
 
     wasm do
       func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
 
-      I32.prop(:method, as: :set_method)
-      I32.prop(:path, as: :set_path)
+      attr_writer(:method, as: :set_method)
+      attr_writer(:path, as: :set_path)
 
       func get_status(), I32 do
         if I32.String.streq(@method, ~S"GET") |> I32.eqz() do

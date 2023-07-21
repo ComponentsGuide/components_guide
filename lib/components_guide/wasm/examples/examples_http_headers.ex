@@ -1,6 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
-  alias ComponentsGuide.Wasm
   alias ComponentsGuide.Wasm.Examples.Writer
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
@@ -13,12 +13,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # https://hacks.mozilla.org/2017/01/using-immutable-caching-to-speed-up-the-web/
     # https://github.com/jjenzz/pretty-cache-header
 
-    use Wasm
+    use Orb
     use BumpAllocator
     use Copying
-    import Writer
+    use StringBuilder
 
-    def start(), do: Wasm.Instance.run(__MODULE__)
+    def start(), do: OrbWasmtime.Instance.run(__MODULE__)
 
     I32.global(
       private: false,
@@ -62,53 +62,51 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
            # globals: [public: I32],
            writer: I32,
            start: I32 do
-        start = alloc(500)
-        writer = start
-
-        if @public do
-          write!(const("public"))
-        else
-          # if private do
-          if global_get(:private) do
-            write!(const("private"))
+        build! do
+          if @public do
+            append!(string: const("public"))
           else
-            if @no_store do
-              write!(const("no-store"))
+            # if private do
+            if global_get(:private) do
+              append!(string: const("private"))
+            else
+              if @no_store do
+                append!(string: const("no-store"))
+              end
             end
           end
-        end
 
-        if I32.ge_s(@max_age_seconds, 0) do
-          if I32.gt_u(writer, start) do
-            write!(const(", "))
+          if I32.ge_s(@max_age_seconds, 0) do
+            if I32.gt_u(writer, start) do
+              append!(string: const(", "))
+            end
+
+            append!(string: const("max-age="))
+            append!(decimal_u32: @max_age_seconds)
           end
 
-          write!(const("max-age="))
-          write!(u32: @max_age_seconds)
-        end
+          if I32.ge_s(@s_max_age_seconds, 0) do
+            if I32.gt_u(writer, start) do
+              append!(string: const(", "))
+            end
 
-        if I32.ge_s(@s_max_age_seconds, 0) do
-          if I32.gt_u(writer, start) do
-            write!(const(", "))
+            append!(string: const("s-maxage="))
+            append!(decimal_u32: @s_max_age_seconds)
           end
 
-          write!(const("s-maxage="))
-          write!(u32: @s_max_age_seconds)
-        end
+          if @immutable do
+            if I32.gt_u(writer, start) do
+              append!(string: const(", "))
+            end
 
-        if @immutable do
-          if I32.gt_u(writer, start) do
-            write!(const(", "))
+            append!(string: const("immutable"))
           end
 
-          write!(const("immutable"))
-        end
+          if I32.eq(writer, start) do
+            append!(string: const("max-age=0"))
+          end
 
-        if I32.eq(writer, start) do
-          write!(const("max-age=0"))
         end
-
-        start
       end
     end
   end
@@ -116,12 +114,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   defmodule SetCookie do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 
-    use Wasm
+    use Orb
     # use Memory, allocator: :bump
     use BumpAllocator
     use Copying
     use I32.String
-    import Writer
+    use StringBuilder
 
     # defmodule Constants do
     #   @constant_values I32.calculate_enum([:secure, :http_only])
@@ -131,13 +129,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     #   end
     # end
 
-    global(
-      name: I32.String.null(),
-      value: I32.String.null(),
-      domain: I32.String.null(),
-      path: I32.String.null(),
-      secure: i32_boolean(0),
-      http_only: i32_boolean(0)
+    I32.global(
+      name: 0,
+      value: 0,
+      domain: 0,
+      path: 0,
+      secure: false,
+      http_only: false
     )
 
     wasm U32 do
@@ -146,10 +144,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
       func(alloc(byte_count: I32), I32, do: call(:bump_alloc, byte_count))
 
-      I32.prop(:name, as: :set_cookie_name)
-      I32.prop(:value, as: :set_cookie_value)
-      I32.prop(:domain, as: :set_domain)
-      I32.prop(:path, as: :set_path)
+      Orb.DSL.attr_writer(:name, as: :set_cookie_name)
+      Orb.DSL.attr_writer(:value, as: :set_cookie_value)
+      Orb.DSL.attr_writer(:domain, as: :set_domain)
+      Orb.DSL.attr_writer(:path, as: :set_path)
 
       # func set_cookie_value(new_value(I32.String)) do
       #   value = new_value
@@ -180,6 +178,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         domain_len = strlen(@domain)
         path_len = strlen(@path)
 
+        # TODO: remove all this len stuff
         extra_len =
           I32.sum!([
             I32.when?(domain_len > 0, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
@@ -193,33 +192,30 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         # TODO: replace with build!/1
         # Add 1 for nul-terminator
         str = alloc(I32.add(byte_count, 1))
-        writer = str
 
-        write!(@name, name_len)
-        write!(ascii: ?=)
-        write!(@value, value_len)
+        build! do
+          append!(string: @name)
+          append!(ascii: ?=)
+          append!(string: @value)
 
-        if domain_len do
-          write!(const("; Domain="))
-          write!(@domain, domain_len)
+          if domain_len do
+            append!(string: const("; Domain="))
+            append!(string: @domain)
+          end
+
+          if path_len do
+            append!(string: const("; Path="))
+            append!(string: @path)
+          end
+
+          if @secure do
+            append!(string: const("; Secure"))
+          end
+
+          if @http_only do
+            append!(string: const("; HttpOnly"))
+          end
         end
-
-        if path_len do
-          write!(const("; Path="))
-          write!(@path, path_len)
-        end
-
-        if @secure do
-          write!(const("; Secure"))
-        end
-
-        if @http_only do
-          write!(const("; HttpOnly"))
-        end
-
-        assert!(I32.eq(writer, I32.add(str, byte_count)))
-
-        str
       end
     end
   end

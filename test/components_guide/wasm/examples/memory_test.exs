@@ -1,8 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.MemoryTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.Examples.Memory
 
   describe "Copying" do

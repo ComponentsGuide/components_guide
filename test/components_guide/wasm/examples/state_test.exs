@@ -1,15 +1,14 @@
 defmodule ComponentsGuide.Wasm.Examples.StateTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.Examples.State
 
   describe "Counter" do
     alias State.Counter
 
     test "list exports" do
-      assert Counter.exports() == [
+      assert Wasm.list_exports(Counter) == [
                {:memory, "memory"},
                {:func, "get_current"},
                {:func, "increment"}
@@ -18,7 +17,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
     test "works" do
       # Like Agent.start(fun)
-      instance = Counter.start()
+      instance = Instance.run(Counter)
       assert Counter.get_current(instance) == 0
 
       Counter.increment(instance)
@@ -59,24 +58,24 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     alias State.Loader
 
     test "exports" do
-      assert Loader.exports() == [
+      assert Wasm.list_exports(Loader) == [
                #  {{:global, "idle"}, %{type: :i32, mut: true}},
                #  {:global, %{name: "idle", type: :i32, mut: true}},
                {:global, "idle", :i32},
                {:global, "loading", :i32},
                {:global, "loaded", :i32},
                {:global, "failed", :i32},
+               {:func, "get_change_count"},
                {:func, "get_current"},
                {:func, "begin"},
                {:func, "success"},
-               {:func, "failure"},
-               {:func, "get_change_count"}
+               {:func, "failure"}
              ]
     end
 
     test "works" do
       # Like Agent.start(fun)
-      a = Loader.start()
+      a = Instance.run(Loader)
 
       idle = Instance.get_global(a, "idle")
       loading = Instance.get_global(a, "loading")
@@ -91,7 +90,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       Loader.success(a)
       assert Loader.get_current(a) == loaded
 
-      b = Loader.start()
+      b = Instance.run(Loader)
       assert Loader.get_current(b) == idle
 
       Loader.success(b)
@@ -111,7 +110,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
     test "works" do
       # Like Agent.start(fun)
-      a = Form.start()
+      a = Instance.run(Form)
 
       initial = Instance.get_global(a, "initial")
       edited = Instance.get_global(a, "edited")
@@ -154,7 +153,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert get_edit_count.() == 2
       assert user_can_submit?.() == 1
 
-      b = Form.start()
+      b = Instance.run(Form)
       get_current = Instance.capture(b, :get_current, 0)
       user_can_submit? = Instance.capture(a, :user_can_submit?, 0)
 
@@ -172,8 +171,8 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
     # test "validate definition", do: LamportClock.validate_definition!()
 
     test "works" do
-      a = LamportClock.start()
-      b = LamportClock.start()
+      a = Instance.run(LamportClock)
+      b = Instance.run(LamportClock)
 
       assert LamportClock.received(a, 7) == 8
 
@@ -372,7 +371,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
 
     test "works" do
       # IO.puts(FlightBooking.to_wat())
-      instance = FlightBooking.start()
+      instance = Instance.run(FlightBooking)
 
       initial? = Instance.get_global(instance, :initial?)
       destination? = Instance.get_global(instance, :destination?)

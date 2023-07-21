@@ -1,8 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.Instance
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.HTML.BuildHTML
-  alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.URLEncoded
 
   use Orb

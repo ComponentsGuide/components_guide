@@ -1,7 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.NumericTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.Numeric
 
   describe "BasicMath" do

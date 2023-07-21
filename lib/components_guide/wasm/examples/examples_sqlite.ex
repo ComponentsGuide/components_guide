@@ -1,11 +1,11 @@
 defmodule ComponentsGuide.Wasm.Examples.Sqlite do
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.{Instance, Wasm}
 
   defmodule Helpers do
     use Orb
 
-    def sqlite3_exec(sql_ptr), do: call(:sqlite3_exec, sql_ptr)
-    def sqlite3_prepare(sql_ptr), do: call(:sqlite3_prepare, sql_ptr)
+    def sqlite3_exec(sql_ptr), do: Orb.DSL.call(:sqlite3_exec, sql_ptr)
+    def sqlite3_prepare(sql_ptr), do: Orb.DSL.call(:sqlite3_prepare, sql_ptr)
   end
 
   defmodule HeightsTable do
@@ -23,13 +23,13 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
     #   ]
     # )
 
-    defwasm imports: [
-              sqlite3: [
-                exec: func(name: :sqlite3_exec, params: I32, result: I32),
-                # exec: func sqlite3_exec(strptr(I32)), I32,
-                prepare: func(name: :sqlite3_prepare, params: I32, result: I32)
-              ]
-            ] do
+    wasm_import(:sqlite3,
+        exec: Orb.DSL.funcp(name: :sqlite3_exec, params: I32, result: I32),
+        # exec: func sqlite3_exec(strptr(I32)), I32,
+        prepare: Orb.DSL.funcp(name: :sqlite3_prepare, params: I32, result: I32)
+    )
+
+    wasm do
       func init() do
         _ = sqlite3_exec(~S"CREATE TABLE heights(id INTEGER PRIMARY KEY AUTOINCREMENT, feet INT)")
       end
@@ -63,7 +63,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
          fn caller, sql_ptr ->
            # IO.puts("!!!!!!!!!!")
            # IO.inspect(sql_ptr, label: "sqlite3 exec sql_ptr")
-           sql = Wasm.Instance.Caller.read_string_nul_terminated(caller, sql_ptr)
+           sql = Instance.Caller.read_string_nul_terminated(caller, sql_ptr)
            # IO.inspect(sql, label: "sqlite3 exec sql")
            :ok = Exqlite.Sqlite3.execute(db, sql)
            0
@@ -74,7 +74,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
          end}
       ]
 
-      inst = Wasm.Instance.run(__MODULE__, imports)
+      inst = Instance.run(__MODULE__, imports)
       {inst, db}
     end
 

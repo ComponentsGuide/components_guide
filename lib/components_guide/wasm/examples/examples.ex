@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples do
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Instance
 
   defmodule SimpleWeekdayParser do
     use Orb
@@ -10,10 +10,10 @@ defmodule ComponentsGuide.Wasm.Examples do
                      #  I32.from_4_byte_ascii("#{s}\0")
                    end)
 
-    wasm_memory(pages: 1)
-    I32.export_global(input_offset: 1024)
+    Memory.pages(1)
+    I32.export_global(:mutable, input_offset: 1024)
 
-    defwasm do
+    wasm do
       func parse(), I32, i: I32 do
         # If does no end in nul byte, return 0
         if memory32_8![I32.add(@input_offset, 3)].unsigned do
@@ -34,16 +34,27 @@ defmodule ComponentsGuide.Wasm.Examples do
     end
 
     def set_input(instance, string),
-      do: Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
+      do: Instance.write_string_nul_terminated(instance, :input_offset, string)
 
-    def parse(instance), do: Wasm.instance_call(instance, "parse")
+    def parse(instance), do: Instance.call(instance, "parse")
+  end
+
+  defmodule OldOrb do
+    def pack_strings_nul_terminated(start_offset, strings_record) do
+      {lookup_table, _} =
+        Enum.map_reduce(strings_record, start_offset, fn {key, string}, offset ->
+          {{key, %{offset: offset, string: string}}, offset + byte_size(string) + 1}
+        end)
+
+      Map.new(lookup_table)
+    end
   end
 
   defmodule ContentTypeLookup do
-    use Wasm
+    use Orb
 
     @readonly_start 0xFF
-    @strings pack_strings_nul_terminated(@readonly_start,
+    @strings OldOrb.pack_strings_nul_terminated(@readonly_start,
                charset_utf8: ~S[; charset=utf-8],
                text_plain: ~S[text/plain],
                text_html: ~S[text/html],
@@ -52,57 +63,55 @@ defmodule ComponentsGuide.Wasm.Examples do
                image_png: ~S[image/png]
              )
 
-    defwasm imports: [env: [buffer: memory(2)]],
-            # exported_globals: [input_offset: i32(1024)],
-            globals: [chunk1: i32(0), chunk2: i32(0)] do
+    I32.global(chunk1: 0, chunk2: 0)
+
+    wasm do
       func txt do
-        chunk1 = ^@strings.text_plain.offset
-        chunk2 = ^@strings.charset_utf8.offset
+        @chunk1 = ^@strings.text_plain.offset
+        @chunk2 = ^@strings.charset_utf8.offset
       end
 
       func html do
-        chunk1 = ^@strings.text_html.offset
-        chunk2 = ^@strings.charset_utf8.offset
+        @chunk1 = ^@strings.text_html.offset
+        @chunk2 = ^@strings.charset_utf8.offset
       end
 
       func json do
-        chunk1 = ^@strings.application_json.offset
-        chunk2 = ^@strings.charset_utf8.offset
+        @chunk1 = ^@strings.application_json.offset
+        @chunk2 = ^@strings.charset_utf8.offset
       end
 
       func wasm do
-        chunk1 = ^@strings.application_wasm.offset
-        chunk2 = 0x0
+        @chunk1 = ^@strings.application_wasm.offset
+        @chunk2 = 0x0
       end
 
       func png do
-        chunk1 = ^@strings.image_png.offset
-        chunk2 = 0x0
+        @chunk1 = ^@strings.image_png.offset
+        @chunk2 = 0x0
       end
     end
 
     # def set_input(instance, string),
-    #   do: Wasm.instance_write_string_nul_terminated(instance, :input_offset, string)
+    #   do: Instance.write_string_nul_terminated(instance, :input_offset, string)
 
-    # def parse(instance), do: Wasm.instance_call(instance, "parse")
+    # def parse(instance), do: Instance.call(instance, "parse")
   end
 
   defmodule HTTPProxy do
-    use Wasm
+    use Orb
 
     @page_size 64 * 1024
     # @readonly_start 0xFF
     @input_offset 1 * @page_size
 
-    defwasm imports: [
-              env: [buffer: memory(3)],
-              http: [
-                get: func(name: :http_get, params: I32, result: I32)
-              ]
-            ],
-            exported_mutable_globals: [
-              input_offset: i32(@input_offset)
-            ] do
+    wasm_import(:http,
+      get: Orb.DSL.funcp(name: :http_get, params: I32, result: I32)
+    )
+
+    I32.export_global(:mutable, input_offset: @input_offset)
+
+    wasm do
       func get_status(), I32 do
         # 500
         call(:http_get, 0)
@@ -130,22 +139,22 @@ defmodule ComponentsGuide.Wasm.Examples do
         # ]
       ]
 
-      ComponentsGuide.Wasm.run_instance(__MODULE__, imports)
+      OrbWasmtime.Instance.run(__MODULE__, imports)
     end
   end
 
   defmodule WebPageIntegrationTest do
-    use Wasm
+    use Orb
 
-    defwasm imports: [
-              navigate: [
-                visit: func(name: :visit, params: I32, result: I32)
-              ],
-              query: [
-                get_by_role: func(name: :get_by_role, params: I32, result: I32),
-                expect_by_role: func(name: :get_by_role, params: I32)
-              ]
-            ] do
+    wasm_import(:navigate,
+      visit: Orb.DSL.funcp(name: :visit, params: I32, result: I32)
+    )
+    wasm_import(:query,
+      get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
+      expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32)
+    )
+
+    wasm do
       func test_home_page(), I32 do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
@@ -156,17 +165,17 @@ defmodule ComponentsGuide.Wasm.Examples do
   end
 
   defmodule TailwindLike do
-    use Wasm
+    use Orb
 
-    defwasm imports: [
-              navigate: [
-                visit: func(name: :visit, params: I32, result: I32)
-              ],
-              query: [
-                get_by_role: func(name: :get_by_role, params: I32, result: I32),
-                expect_by_role: func(name: :get_by_role, params: I32)
-              ]
-            ] do
+    wasm_import(:navigate,
+      visit: Orb.DSL.funcp(name: :visit, params: I32, result: I32)
+    )
+    wasm_import(:query,
+      get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
+      expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32)
+    )
+
+    wasm do
       func test_home_page(), I32.String do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
@@ -180,9 +189,9 @@ defmodule ComponentsGuide.Wasm.Examples do
   end
 
   defmodule FormState do
-    use Wasm
+    use Orb
 
-    defwasm imports: [] do
+    wasm do
       func on_input(input_name: I32, string_value: I32) do
         # TODO: store string_value under key input_name
         # TODO: add funcs like Keyword.put() to the LinkedLists wasm module

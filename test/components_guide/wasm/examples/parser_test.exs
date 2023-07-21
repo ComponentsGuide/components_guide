@@ -1,7 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.ParserTest do
   use ExUnit.Case, async: true
 
-  alias ComponentsGuide.Wasm.Instance
+  alias OrbWasmtime.Instance
   alias ComponentsGuide.Wasm.Examples.Parser
 
   describe "HexConversion" do
@@ -10,7 +10,7 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
     test "u32_to_hex_lower" do
       # IO.puts(HexConversion.to_wat())
 
-      inst = HexConversion.start()
+      inst = Instance.run(HexConversion)
       u32_to_hex_lower = Instance.capture(inst, :u32_to_hex_lower, 2)
       read = &Instance.read_memory(inst, &1, 8)
 
@@ -42,7 +42,7 @@ defmodule ComponentsGuide.Wasm.Examples.ParserTest do
     alias Parser.DomainNames
 
     test "lookup_domain_name" do
-      inst = DomainNames.start()
+      inst = Instance.run(DomainNames)
       lookup_domain_name = Instance.capture(inst, :lookup_domain_name, 1)
       alloc_string = &Instance.alloc_string(inst, &1)
 

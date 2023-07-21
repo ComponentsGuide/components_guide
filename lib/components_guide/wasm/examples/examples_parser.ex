@@ -1,13 +1,13 @@
 defmodule ComponentsGuide.Wasm.Examples.Parser do
-  alias ComponentsGuide.Wasm
+  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule HexConversion do
-    use Wasm
+    use Orb
 
     # @wasm_memory 1
     # Memory.increase! pages: 1
-    wasm_memory(pages: 1)
+    Memory.pages(1)
 
     wasm U32 do
       func u32_to_hex_lower(
@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
         loop Digits do
           i = i - 1
 
-          digit = rem(value, 16)
+          digit = I32.rem_u(value, 16)
           value = value / 16
 
           if digit > 9 do
@@ -36,12 +36,12 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     end
 
     def u32_to_hex_lower(value, write_to_address) do
-      call(:u32_to_hex_lower, value, write_to_address)
+      Orb.DSL.call(:u32_to_hex_lower, value, write_to_address)
     end
   end
 
   defmodule DomainNames do
-    use Wasm
+    use Orb
     use BumpAllocator
     use I32.String
 
