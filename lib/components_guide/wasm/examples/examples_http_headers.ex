@@ -144,10 +144,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
       func(alloc(byte_count: I32), I32, do: call(:bump_alloc, byte_count))
 
-      Orb.DSL.attr_writer(:name, as: :set_cookie_name)
-      Orb.DSL.attr_writer(:value, as: :set_cookie_value)
-      Orb.DSL.attr_writer(:domain, as: :set_domain)
-      Orb.DSL.attr_writer(:path, as: :set_path)
+      I32.attr_writer(:name, as: :set_cookie_name)
+      I32.attr_writer(:value, as: :set_cookie_value)
+      I32.attr_writer(:domain, as: :set_domain)
+      I32.attr_writer(:path, as: :set_path)
 
       # func set_cookie_value(new_value(I32.String)) do
       #   value = new_value
