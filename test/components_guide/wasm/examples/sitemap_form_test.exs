@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm.Test do
   # FIXME
   use ExUnit.Case, async: true, register: false
 
-  alias OrbWasmtime.{Instance, Wasm}
+  alias OrbWasmtime.Instance
   alias ComponentsGuide.Wasm.Examples.SitemapForm
 
   test "index.html" do
