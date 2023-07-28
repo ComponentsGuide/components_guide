@@ -68,7 +68,7 @@ defmodule ComponentsGuide.MixProject do
       {:redix, "~> 1.1"},
       {:benchee, "~> 1.0", only: :dev},
       {:orb, "~> 0.0.5"},
-      {:orb_wasmtime, "~> 0.1.2"}
+      {:orb_wasmtime, "~> 0.1.7"}
     ]
   end
 
