@@ -1,5 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.Format do
-  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule IntToString do
@@ -80,6 +79,184 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         end
 
         working_offset
+      end
+    end
+
+    def u32toa_count(value), do: Orb.DSL.call(:u32toa_count, value)
+    def u32toa(value, end_offset), do: Orb.DSL.call(:u32toa, value, end_offset)
+    def write_u32(value, str_ptr), do: Orb.DSL.call(:write_u32, value, str_ptr)
+  end
+
+  defmodule FloatToString do
+    use Orb
+    use BumpAllocator
+
+    defmacro __using__(_) do
+      quote do
+        import Orb
+
+        wasm do
+          IntToString.funcp(:format_f32)
+        end
+      end
+    end
+
+    Memory.pages(2)
+
+    wasm F32 do
+      func format_f32(value: F32, str_ptr: I32.U8.Pointer, precision: I32),
+           digit: I32 do
+
+
+          # TODO: handle -0
+          if value < 0 do
+            # Memory.store!(I32.U8, str_ptr, ?-)
+            {:i32, :store8, str_ptr, ?-}
+            str_ptr = I32.add(str_ptr, 1)
+            value = -1 * value;
+          end
+
+          # TODO: handle NaN
+          # if (math.isNan(x)) {
+            #     return writer.writeAll("nan");
+            # }
+          # TODO: handle Infinity
+          # if (math.isPositiveInf(x)) {
+          #     return writer.writeAll("inf");
+          # }
+          if value === 0.0 do
+            {:i32, :store8, str_ptr, ?0}
+            str_ptr = I32.add(str_ptr, 1)
+
+            # if (options.precision) |precision| {
+            #     if (precision != 0) {
+            #         try writer.writeAll(".");
+            #         var i: usize = 0;
+            #         while (i < precision) : (i += 1) {
+            #             try writer.writeAll("0");
+            #         }
+            #     }
+            # }
+
+            return()
+          end
+
+          # non-special case, use errol3
+
+          # var buffer: [32]u8 = undefined;
+          # var float_decimal = errol.errol3(x, buffer[0..]);
+
+          # if (options.precision) |precision| {
+          #     errol.roundToPrecision(&float_decimal, precision, errol.RoundMode.Decimal);
+
+          #     // exp < 0 means the leading is always 0 as errol result is normalized.
+
+          #     var num_digits_whole = if (float_decimal.exp > 0) @intCast(usize, float_decimal.exp) else 0;
+
+          #     // the actual slice into the buffer, we may need to zero-pad between num_digits_whole and this.
+
+          #     var num_digits_whole_no_pad = math.min(num_digits_whole, float_decimal.digits.len);
+
+          #     if (num_digits_whole > 0) {
+          #         // We may have to zero pad, for instance 1e4 requires zero padding.
+
+          #         try writer.writeAll(float_decimal.digits[0..num_digits_whole_no_pad]);
+
+          #         var i = num_digits_whole_no_pad;
+          #         while (i < num_digits_whole) : (i += 1) {
+          #             try writer.writeAll("0");
+          #         }
+          #     } else {
+          #         try writer.writeAll("0");
+          #     }
+
+          #     // {.0} special case doesn't want a trailing '.'
+
+          #     if (precision == 0) {
+          #         return;
+          #     }
+
+          #     try writer.writeAll(".");
+
+          #     // Keep track of fractional count printed for case where we pre-pad then post-pad with 0's.
+
+          #     var printed: usize = 0;
+
+          #     // Zero-fill until we reach significant digits or run out of precision.
+
+          #     if (float_decimal.exp <= 0) {
+          #         const zero_digit_count = @intCast(usize, -float_decimal.exp);
+          #         const zeros_to_print = math.min(zero_digit_count, precision);
+
+          #         var i: usize = 0;
+          #         while (i < zeros_to_print) : (i += 1) {
+          #             try writer.writeAll("0");
+          #             printed += 1;
+          #         }
+
+          #         if (printed >= precision) {
+          #             return;
+          #         }
+          #     }
+
+          #     // Remaining fractional portion, zero-padding if insufficient.
+
+          #     assert(precision >= printed);
+          #     if (num_digits_whole_no_pad + precision - printed < float_decimal.digits.len) {
+          #         try writer.writeAll(float_decimal.digits[num_digits_whole_no_pad .. num_digits_whole_no_pad + precision - printed]);
+          #         return;
+          #     } else {
+          #         try writer.writeAll(float_decimal.digits[num_digits_whole_no_pad..]);
+          #         printed += float_decimal.digits.len - num_digits_whole_no_pad;
+
+          #         while (printed < precision) : (printed += 1) {
+          #             try writer.writeAll("0");
+          #         }
+          #     }
+          # } else {
+
+              # // exp < 0 means the leading is always 0 as errol result is normalized.
+
+              # var num_digits_whole = if (float_decimal.exp > 0) @intCast(usize, float_decimal.exp) else 0;
+
+              # // the actual slice into the buffer, we may need to zero-pad between num_digits_whole and this.
+
+              # var num_digits_whole_no_pad = math.min(num_digits_whole, float_decimal.digits.len);
+
+              # if (num_digits_whole > 0) {
+              #     // We may have to zero pad, for instance 1e4 requires zero padding.
+
+              #     try writer.writeAll(float_decimal.digits[0..num_digits_whole_no_pad]);
+
+              #     var i = num_digits_whole_no_pad;
+              #     while (i < num_digits_whole) : (i += 1) {
+              #         try writer.writeAll("0");
+              #     }
+              # } else {
+              #     try writer.writeAll("0");
+              # }
+
+              # // Omit `.` if no fractional portion
+
+              # if (float_decimal.exp >= 0 and num_digits_whole_no_pad == float_decimal.digits.len) {
+              #     return;
+              # }
+
+              # try writer.writeAll(".");
+
+              # // Zero-fill until we reach significant digits or run out of precision.
+
+              # if (float_decimal.exp < 0) {
+              #     const zero_digit_count = @intCast(usize, -float_decimal.exp);
+
+              #     var i: usize = 0;
+              #     while (i < zero_digit_count) : (i += 1) {
+              #         try writer.writeAll("0");
+              #     }
+              # }
+
+              # try writer.writeAll(float_decimal.digits[num_digits_whole_no_pad..]);
+          # }
       end
     end
 

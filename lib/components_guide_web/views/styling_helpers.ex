@@ -136,7 +136,7 @@ defmodule ComponentsGuideWeb.StylingHelpers do
 
   def to_css(color = {:srgb, _, _, _}, :srgb) do
     {:srgb, r, g, b} = clamp(color)
-    "rgba(#{(r * 255) |> round},#{(g * 255) |> round},#{(b * 255) |> round},1)"
+    "rgba(#{(r * 255) |> round()},#{(g * 255) |> round()},#{(b * 255) |> round()},1)"
   end
 
   def to_css(color, :srgb) do

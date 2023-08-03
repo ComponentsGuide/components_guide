@@ -67,8 +67,8 @@ defmodule ComponentsGuide.MixProject do
       {:exqlite, "~> 0.13.3"},
       {:redix, "~> 1.1"},
       {:benchee, "~> 1.0", only: :dev},
-      {:orb, "~> 0.0.5"},
-      {:orb_wasmtime, "~> 0.1.8"}
+      {:orb, "~> 0.0.6"},
+      {:orb_wasmtime, "~> 0.1.10"}
     ]
   end
 

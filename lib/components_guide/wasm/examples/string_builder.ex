@@ -89,7 +89,26 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   end
 
   # For nested build functions.
-  # We want inner functions to also return strings for easier debugging, not just append.
+  # We want inner functions to also return strings for easier debugging of their result, not just append.
+  def append!(function, a, b, c) when is_atom(function) do
+    import Orb.DSL
+
+    call(function, a, b, c) |> drop()
+  end
+
+  def append!(function, a, b) when is_atom(function) do
+    import Orb.DSL
+
+    call(function, a, b) |> drop()
+  end
+
+  def append!(function, args) when is_atom(function) and is_list(args) do
+    import Orb.DSL
+
+    # TODO: use upcoming version of Orb that accepts list of args
+    {:call, function, args} |> drop()
+  end
+
   def append!(function, a) when is_atom(function) do
     import Orb.DSL
 
@@ -107,7 +126,6 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   end
 
   def append!(string: str_ptr) do
-    IO.inspect(str_ptr)
     Orb.DSL.call(:bump_write_str, str_ptr)
   end
 
@@ -122,9 +140,22 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def append!(ascii: char), do: append!(u8: char)
 
   def append!(decimal_u32: int) do
-    snippet U32 do
+    snippet do
       @bump_offset = IntToString.write_u32(int, @bump_offset)
     end
+  end
+
+  def append!(decimal_f32: f) do
+    # snippet U32 do
+    #   # call(:format_f32, f, @bump_offset) |> I32.add(@bump_offset)
+    #   call(:format_f32, f, {:global_get, :bump_offset}) |> I32.add({:global_get, :bump_offset})
+    #   {:global_set, :bump_offset}
+    # end
+    [
+      # call(:format_f32, f, @bump_offset) |> I32.add(@bump_offset)
+      Orb.DSL.call(:format_f32, f, {:global_get, :bump_offset}) |> Orb.I32.add({:global_get, :bump_offset}),
+      {:global_set, :bump_offset}
+    ]
   end
 
   def append!(hex_upper: hex) do

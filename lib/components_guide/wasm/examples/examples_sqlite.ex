@@ -1,5 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.Sqlite do
-  alias OrbWasmtime.{Instance, Wasm}
+  alias OrbWasmtime.Instance
 
   defmodule Helpers do
     use Orb

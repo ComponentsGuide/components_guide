@@ -1,5 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.Parser do
-  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
 
   defmodule HexConversion do
