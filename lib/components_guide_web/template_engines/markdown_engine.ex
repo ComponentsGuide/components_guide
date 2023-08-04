@@ -74,14 +74,26 @@ defmodule ComponentsGuideWeb.TemplateEngines.MarkdownEngine do
         quote do
           unquote(Code.string_to_quoted!(s, file: path))
 
+          # options = [
+          #   engine: Phoenix.LiveView.TagEngine,
+          #   file: __CALLER__.file,
+          #   line: __CALLER__.line + 1,
+          #   caller: __CALLER__,
+          #   indentation: meta[:indentation] || 0,
+          #   source: expr,
+          #   tag_handler: Phoenix.LiveView.HTMLEngine
+          # ]
+
           unquote(
             html
             |> EEx.compile_string(
-              engine: Phoenix.LiveView.HTMLEngine,
+              engine: Phoenix.LiveView.TagEngine,
+              tag_handler: Phoenix.LiveView.HTMLEngine,
               file: path,
               line: 1,
               caller: __ENV__,
-              source: html
+              source: html,
+              indentation: 0
             )
           )
         end
