@@ -16,7 +16,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   #   # f32: Orb.DSL.funcp(name: :f32, params: F32, result: F32)
   )
 
-  wasm F32 do
+  wasm do
     ColorConversion.funcp()
 
     func to_svg(), I32.String do
@@ -25,19 +25,25 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       end
     end
 
-    funcp do_linear_gradient(), I32.String do
+    funcp do_linear_gradient(), I32.String, i: I32 do
       build! do
         append!(
           string: ~S{<linearGradient id="},
           string: ~S{lab-l-gradient},
           string: ~S{" gradientTransform="scale(1.414) rotate(45)">\n}
         )
+        loop Stops do
+          i = i + 1
+          Stops.continue(if: i < 20)
+        end
         append!(:do_linear_gradient_stop, [0.0, 0.0, 0.0, 0.0])
         append!(:do_linear_gradient_stop, [1.0, 1.0, 1.0, 1.0])
         append!(~S{</linearGradient>\n})
       end
     end
+  end
 
+  wasm F32 do
     funcp do_linear_gradient_stop(fraction: F32, r: F32, g: F32, b: F32), I32 do
       # percentage = "#{index / max * 100}%"
 
