@@ -16,9 +16,8 @@ layout: ../../layouts/MainLayout.astro
 ---
 ```
 
+<script defer src="https://unpkg.com/shiki@0.14.3/dist/index.unpkg.iife.js"></script>
 <script type="module">
-import * as shiki from "https://jspm.dev/shiki";
-
 shiki
     .getHighlighter({
       theme: 'nord'
