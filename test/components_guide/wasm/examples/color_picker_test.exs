@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
   use ExUnit.Case, async: true
 
+  alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.ColorConversion
   alias ComponentsGuide.Wasm.Examples.LabSwatch
 
@@ -46,6 +47,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
 
   test "LabSwatch" do
     IO.puts(LabSwatch.to_wat())
+    assert is_binary(LabSwatch.to_wasm())
     inst =
       Instance.run(LabSwatch, [
         {:math, :powf32,

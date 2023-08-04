@@ -10,7 +10,7 @@ defmodule ComponentsGuideWeb.WasmShared do
 
   @all_modules %{
     "escape_html.wasm" => HTML.EscapeHTML,
-    "url_encode.wasm" => HTML.URLEncoding,
+    "url_encode.wasm" => Examples.URLEncoded,
     "html_page.wasm" => HTML.HTMLPage,
     "counter_html.wasm" => HTML.CounterHTML,
     "svg_square.wasm" => SVG.Square,
@@ -24,7 +24,8 @@ defmodule ComponentsGuideWeb.WasmShared do
     "http_header_cache_control.wasm" => HTTPHeaders.CacheControl,
     "http_header_set_cookie.wasm" => HTTPHeaders.SetCookie,
     "website_portfolio.wasm" => HTTPServer.PortfolioSite,
-    "sitemap_form.wasm" => Examples.SitemapForm
+    "sitemap_form.wasm" => Examples.SitemapForm,
+    "color_lab_swatch.wasm" => Examples.LabSwatch,
   }
 
   defmacro all_modules(), do: Macro.escape(@all_modules)
@@ -63,7 +64,19 @@ defmodule ComponentsGuideWeb.WasmController do
   end
 
   def module(conn, %{"module" => name}) when is_map_key(@modules, name) do
-    wasm = Wasm.to_wasm(@modules[name])
+    mod = @modules[name]
+
+    wasm = cond do
+      function_exported?(mod, :to_wasm, 0) ->
+        mod.to_wasm()
+
+      true -> case Wasm.to_wasm() do
+        {:error, reason} -> raise reason
+        wasm -> wasm
+      end
+    end
+
+    IO.inspect(wasm)
 
     conn
     |> put_resp_content_type("application/wasm", nil)

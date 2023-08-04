@@ -1,9 +1,18 @@
 defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
-  require Orb.DSL
   use Orb
   use ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   use ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.ColorConversion
+
+  # Import.funcp({:math, :powf32}, as: :powf32, params: {F32, F32}, result: F32)
+  # Import.funcp({:format, :f32}, as: :format_f32, params: {F32, I32}, result: I32)
+
+  # wasm_import :math do
+  #   funcp powf32(x: F32, y: F32), F32
+  # end
+  # wasm_import :format do
+  #   funcp :f32, format_f32(f: F32, ptr: I32), I32
+  # end
 
   wasm_import(:math,
     powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
@@ -11,13 +20,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
   wasm_import(:format,
     f32: Orb.DSL.funcp(name: :format_f32, params: {F32, I32}, result: I32)
-  #   # powf32: Orb.DSL.funcp(name: :powf32, params: F32, result: F32)
-  #   i32: Orb.DSL.funcp(name: :i32, params: I32, result: I32)
-  #   # f32: Orb.DSL.funcp(name: :f32, params: F32, result: F32)
   )
 
   wasm do
     ColorConversion.funcp()
+
+    # import_funcp :math, powf32(x: F32, y: F32), F32
 
     func to_svg(), I32.String do
       build! do
@@ -65,5 +73,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       # <stop offset="<%= percentage %>" stop-color="<%= to_css(color, :srgb) %>" />
       # """
     end
+  end
+
+  @wasm File.read!(Path.join(__DIR__, "lab_swatch.wasm"))
+
+  def to_wasm() do
+    @wasm_use_bump_allocator
   end
 end
