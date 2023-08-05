@@ -75,10 +75,19 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
     to_svg = Instance.capture(inst, String, :to_svg, 0)
 
     assert to_svg.() === ~S"""
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-color-property="l">
+    <defs>
     <linearGradient id="lab-l-gradient" gradientTransform="scale(1.414) rotate(45)">
-    <stop offset="0.0" stop-color="rgba(0.0,0.0,0.0,1)" />
-    <stop offset="100.0" stop-color="rgba(255.0,255.0,255.0,1)" />
+    <stop offset="0.0%" stop-color="rgba(0.0,0.0,0.0,1)" />
+    <stop offset="25.0%" stop-color="rgba(59.0,59.0,59.0,1)" />
+    <stop offset="50.0%" stop-color="rgba(119.0,119.0,119.0,1)" />
+    <stop offset="75.0%" stop-color="rgba(185.0,185.0,185.0,1)" />
+    <stop offset="100.0%" stop-color="rgba(255.0,255.0,255.0,1)" />
     </linearGradient>
+    </defs>
+    <rect width="1" height="1" fill="url('#lab-l-gradient')" />
+    <circle data-drag-knob="" cx="0.5" cy="0.5" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
+    </svg>
     """
   end
 end
