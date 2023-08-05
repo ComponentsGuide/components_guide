@@ -70,7 +70,7 @@ defmodule ComponentsGuideWeb.WasmController do
       function_exported?(mod, :to_wasm, 0) ->
         mod.to_wasm()
 
-      true -> case Wasm.to_wasm() do
+      true -> case Wasm.to_wasm(mod) do
         {:error, reason} -> raise reason
         wasm -> wasm
       end
