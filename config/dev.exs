@@ -14,11 +14,12 @@ config :components_guide, ComponentsGuideWeb.Endpoint,
   # reloadable_compilers: [:phoenix, :gettext],
   secret_key_base: "98yN/0NbJtdHMD0KaWg6ISyxFUpTDT/2nus2c96f8kMF76kqY7dqIWKkOL2Uk6SQ",
   watchers: [
-    npm: [
-      "run",
-      "watch",
-      cd: Path.expand("../assets", __DIR__)
-    ],
+    # npm: [
+    #   "run",
+    #   "watch",
+    #   cd: Path.expand("../assets", __DIR__)
+    # ],
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
     redis: {System, :cmd, ["redis-server", ~w(--port 4337)]}
   ]

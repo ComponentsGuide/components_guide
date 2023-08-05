@@ -33,7 +33,7 @@ config :phoenix, :template_engines,
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.14.0",
+  version: "0.17.11",
   default: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
