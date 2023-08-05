@@ -46,7 +46,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
   end
 
   test "LabSwatch" do
-    IO.puts(LabSwatch.to_wat())
+    # IO.puts(LabSwatch.to_wat())
     assert is_binary(LabSwatch.to_wasm())
     inst =
       Instance.run(LabSwatch, [
