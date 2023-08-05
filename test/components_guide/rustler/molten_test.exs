@@ -21,15 +21,18 @@ defmodule ComponentsGuide.Rustler.MoltenTest do
   test "typescript_module/1" do
     # assert Molten.typescript_module("export const a = 5 + 9") == "14"
     assert Molten.typescript_module("const a = 5 + 9; export default a;") == "14"
-  #   assert Molten.typescript_module("null") == "null"
-  #   assert Molten.typescript_module("'hello'") == "hello"
+    assert Molten.typescript_module("export default null") == "null"
+    assert Molten.typescript_module("export default 'hello'") == "hello"
 
-  #   assert Molten.typescript_module("JSON.stringify(Object.keys({ a: 1, b: 2 }))") ==
-  #            ~S(["a","b"])
+    assert Molten.typescript_module("export default JSON.stringify(Object.keys({ a: 1, b: 2 }))") ==
+             ~S(["a","b"])
 
-  #   assert Molten.typescript_module(
-  #            ~S(import { getHighlighter } from "https://deno.land/x/shiki/shiki/mod.ts";)
-  #          ) == ~S(["a","b"])
+    # assert Molten.typescript_module(
+    #          ~S"""
+    #          import { getHighlighter } from "https://deno.land/x/shiki/shiki/mod.ts";
+    #          export default 42;
+    #          """
+    #        ) == ~S(42)
   end
 
   test "parse_js/1" do
