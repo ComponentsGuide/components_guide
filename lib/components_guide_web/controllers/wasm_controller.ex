@@ -25,7 +25,7 @@ defmodule ComponentsGuideWeb.WasmShared do
     "http_header_set_cookie.wasm" => HTTPHeaders.SetCookie,
     "website_portfolio.wasm" => HTTPServer.PortfolioSite,
     "sitemap_form.wasm" => Examples.SitemapForm,
-    "color_lab_swatch.wasm" => Examples.LabSwatch,
+    "color_lab_swatch.wasm" => Examples.LabSwatch
   }
 
   defmacro all_modules(), do: Macro.escape(@all_modules)
@@ -66,15 +66,17 @@ defmodule ComponentsGuideWeb.WasmController do
   def module(conn, %{"module" => name}) when is_map_key(@modules, name) do
     mod = @modules[name]
 
-    wasm = cond do
-      function_exported?(mod, :to_wasm, 0) ->
-        mod.to_wasm()
+    wasm =
+      cond do
+        function_exported?(mod, :to_wasm, 0) ->
+          mod.to_wasm()
 
-      true -> case Wasm.to_wasm(mod) do
-        {:error, reason} -> raise reason
-        wasm -> wasm
+        true ->
+          case Wasm.to_wasm(mod) do
+            {:error, reason} -> raise reason
+            wasm -> wasm
+          end
       end
-    end
 
     IO.inspect(wasm)
 
@@ -104,6 +106,46 @@ defmodule ComponentsGuideWeb.WasmController do
     conn
     |> put_resp_content_type("application/javascript")
     |> send_resp(200, javascript)
+  end
+
+  def root(conn, %{"module" => "color"}) do
+    render(conn, :color)
+  end
+
+  def root(conn, %{"module" => "color_lab_swatch.svg"}) do
+    imports = [
+      {:math, :powf32,
+       fn x, y ->
+         Float.pow(x, y)
+       end},
+      {:format, :f32,
+       fn caller, f, memory_offset ->
+         formatted = Float.to_string(f)
+         len = Instance.Caller.write_string_nul_terminated(caller, memory_offset, formatted)
+
+         # Minus nul-terminator. Maybe write_string_nul_terminated shouldn’t include that in the length?
+         len - 1
+       end},
+      {:log, :int32,
+       fn value ->
+         IO.inspect(value, label: "wasm log int32")
+         0
+       end}
+    ]
+
+    {function, media_type} =
+      {:to_svg, "image/svg+xml"}
+
+    instance = Instance.run(ComponentsGuide.Wasm.Examples.LabSwatch, imports)
+    # set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
+    to_html = Instance.capture(instance, String, function, 0)
+
+    # set_www_form_data.(conn.query_string)
+    html = to_html.()
+
+    conn
+    |> put_resp_content_type(media_type)
+    |> send_resp(200, html)
   end
 
   def root(conn, %{"module" => name}) do
@@ -149,6 +191,7 @@ defmodule ComponentsGuideWeb.WasmController do
     |> send_resp(200, html)
   end
 
+  # TODO: remove this
   def to_html(conn, %{"module" => name}) do
     wasm_mod =
       case name do

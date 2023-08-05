@@ -29,7 +29,14 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
     func to_svg(), I32.String do
       build! do
+        append!(~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-color-property="l">))
+        append!(~S(<defs>))
         append!(:do_linear_gradient)
+        append!(~S(</defs>))
+        append!(~S{<rect width="1" height="1" fill="url('#lab-l-gradient')" />})
+        # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
+        append!(~S{<circle data-drag-knob="" cx="0.5" cy="0.5" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
+        append!(~S{</svg>})
       end
     end
 
@@ -58,7 +65,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       build! do
         append!(~S{<stop offset="})
         append!(decimal_f32: fraction * 100.0)
-        append!(~S{" stop-color="})
+        append!(~S{%" stop-color="})
         append!(~S{rgba(})
         append!(decimal_f32: F32.nearest(r * 255.0))
         append!(~S{,})
