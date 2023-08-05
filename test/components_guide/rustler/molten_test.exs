@@ -19,7 +19,8 @@ defmodule ComponentsGuide.Rustler.MoltenTest do
   end
 
   test "typescript_module/1" do
-    assert Molten.typescript_module("5 + 9") == "14"
+    # assert Molten.typescript_module("export const a = 5 + 9") == "14"
+    assert Molten.typescript_module("const a = 5 + 9; export default a;") == "14"
   #   assert Molten.typescript_module("null") == "null"
   #   assert Molten.typescript_module("'hello'") == "hello"
 

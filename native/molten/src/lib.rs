@@ -6,6 +6,7 @@ use deno_core::url;
 use deno_core::v8::Handle;
 use deno_core::JsRuntime;
 use url::Url;
+use deno_core::v8;
 
 extern crate swc_common;
 extern crate swc_ecma_parser;
@@ -64,7 +65,7 @@ fn typescript_module(env: Env, source: String, pid: LocalPid, caller_ref: Term) 
 
     let rt  = Runtime::new().unwrap();
 
-    rt.block_on(async {
+    let s = rt.block_on(async {
         let mut js_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
             module_loader: Some(Rc::new(deno_core::FsModuleLoader)),
             ..Default::default()
@@ -84,8 +85,27 @@ fn typescript_module(env: Env, source: String, pid: LocalPid, caller_ref: Term) 
         // }).unwrap();
         let realm = js_runtime.create_realm().unwrap();
 
-        //   let namespace_object = js_runtime.get_mod_namespace(module_id);
+        // See: https://stackoverflow.com/questions/76367009/how-to-export-javascript-module-members-to-rust-and-call-them-using-v8-or-deno-c
+        let namespace_global = js_runtime.get_module_namespace(module_id).unwrap();
+        let scope = &mut js_runtime.handle_scope();
+        let local = v8::Local::new(scope, namespace_global);
+        let object = local;
+        // let s = unsafe {
+        //     let value = namespace_global.get_unchecked();
+        //     let s = value.to_rust_string_lossy(&mut scope);
+        //     s
+        // };
+
+        // let props = object.get_property_names(scope, Default::default()).unwrap();
+        // let s = props.to_string(scope).unwrap().to_rust_string_lossy(scope);
+        
+        let key = v8::String::new(scope, "default").unwrap();
+        let export = object.get(scope, key.into()).unwrap();
+        let s = export.to_string(scope).unwrap().to_rust_string_lossy(scope);
+
         env.send(&pid, (atoms::typescript_result(), caller_ref.encode(env), module_id).encode(env));
+
+        s
     });
 
     // std::thread::spawn(move || {
@@ -97,7 +117,8 @@ fn typescript_module(env: Env, source: String, pid: LocalPid, caller_ref: Term) 
     //     // drop(monitor);
     // });
 
-    return "".to_string();
+    // return "".to_string();
+    s
 
     // unsafe {
     //     let value = global.get_unchecked();
