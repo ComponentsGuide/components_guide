@@ -78,6 +78,6 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   @wasm File.read!(Path.join(__DIR__, "lab_swatch.wasm"))
 
   def to_wasm() do
-    @wasm_use_bump_allocator
+    @wasm
   end
 end
