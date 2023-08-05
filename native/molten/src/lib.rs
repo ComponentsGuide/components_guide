@@ -76,7 +76,7 @@ fn typescript_module(env: Env, source: String, pid: LocalPid, caller_ref: Term) 
         let module_id = module_id_future.await.unwrap();
         let result = js_runtime.mod_evaluate(module_id);
         js_runtime.run_event_loop(false).await.unwrap();
-        result.await.unwrap();
+        let _ = result.await.unwrap();
 
         // let realm = js_runtime.create_realm(deno_core::CreateRealmOptions {
         //     module_loader: Some(Rc::new(deno_core::FsModuleLoader)),
