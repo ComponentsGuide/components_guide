@@ -43,7 +43,7 @@ fn js(source: String) -> Result<String, String> {
     // return ret;
     let mut runtime = JsRuntime::new(Default::default());
     // let isolate = runtime.v8_isolate();
-    let global = runtime.execute_script("<anon>", &source).map_err(|e| {
+    let global = runtime.execute_script("<anon>", source.into()).map_err(|e| {
         return format!("{:?}", e);
     })?;
     unsafe {
@@ -71,7 +71,7 @@ fn typescript_module(env: Env, source: String, pid: LocalPid, caller_ref: Term) 
         });
         // let isolate = js_runtime.v8_isolate();
         let url = Url::parse("https://example.net").unwrap();
-        let module_id_future = js_runtime.load_main_module(&url, Some(source));
+        let module_id_future = js_runtime.load_main_module(&url, Some(source.into()));
 
         let module_id = module_id_future.await.unwrap();
         let result = js_runtime.mod_evaluate(module_id);
