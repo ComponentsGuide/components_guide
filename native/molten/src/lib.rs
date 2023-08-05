@@ -1,5 +1,6 @@
 // use std::fmt;
 
+use std::rc::Rc;
 use deno_core;
 use deno_core::url;
 use deno_core::v8::Handle;
@@ -59,16 +60,32 @@ fn typescript_module(env: Env, source: String, pid: LocalPid, caller_ref: Term) 
     // let mut isolate = CoreIsolate::new(StartupData::None, false);
     // let ret = isolate.execute("<anon>", source);
     // return ret;
-    let mut runtime = JsRuntime::new(Default::default());
-    // let isolate = runtime.v8_isolate();
-    let url = Url::parse("https://example.net").unwrap();
-    let module_id_future = runtime.load_main_module(&url, Some(source));
+    // let mut runtime = JsRuntime::new(Default::default());
 
     let rt  = Runtime::new().unwrap();
 
     rt.block_on(async {
-      let module_id = module_id_future.await.unwrap();
-      env.send(&pid, (atoms::typescript_result(), caller_ref.encode(env), module_id).encode(env));
+        let mut js_runtime = deno_core::JsRuntime::new(deno_core::RuntimeOptions {
+            module_loader: Some(Rc::new(deno_core::FsModuleLoader)),
+            ..Default::default()
+        });
+        // let isolate = js_runtime.v8_isolate();
+        let url = Url::parse("https://example.net").unwrap();
+        let module_id_future = js_runtime.load_main_module(&url, Some(source));
+
+        let module_id = module_id_future.await.unwrap();
+        let result = js_runtime.mod_evaluate(module_id);
+        js_runtime.run_event_loop(false).await.unwrap();
+        result.await.unwrap();
+
+        // let realm = js_runtime.create_realm(deno_core::CreateRealmOptions {
+        //     module_loader: Some(Rc::new(deno_core::FsModuleLoader)),
+        //     ..Default::default()
+        // }).unwrap();
+        let realm = js_runtime.create_realm().unwrap();
+
+        //   let namespace_object = js_runtime.get_mod_namespace(module_id);
+        env.send(&pid, (atoms::typescript_result(), caller_ref.encode(env), module_id).encode(env));
     });
 
     // std::thread::spawn(move || {

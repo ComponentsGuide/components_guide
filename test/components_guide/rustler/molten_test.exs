@@ -18,8 +18,8 @@ defmodule ComponentsGuide.Rustler.MoltenTest do
               "Uncaught SyntaxError: Cannot use import statement outside a module\n    at <anon>:1:1"}
   end
 
-  # test "typescript_module/1" do
-  #   assert Molten.typescript_module("5 + 9") == "14"
+  test "typescript_module/1" do
+    assert Molten.typescript_module("5 + 9") == "14"
   #   assert Molten.typescript_module("null") == "null"
   #   assert Molten.typescript_module("'hello'") == "hello"
 
@@ -29,7 +29,7 @@ defmodule ComponentsGuide.Rustler.MoltenTest do
   #   assert Molten.typescript_module(
   #            ~S(import { getHighlighter } from "https://deno.land/x/shiki/shiki/mod.ts";)
   #          ) == ~S(["a","b"])
-  # end
+  end
 
   test "parse_js/1" do
     assert Molten.parse_js("5 + 9") ==
