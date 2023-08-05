@@ -22,6 +22,8 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     f32: Orb.DSL.funcp(name: :format_f32, params: {F32, I32}, result: I32)
   )
 
+  # I32.export_global(:mutable, l: 50)
+
   wasm do
     ColorConversion.funcp()
 
@@ -52,26 +54,36 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
           Stops.continue(if: i < 20)
         end
         append!(:do_linear_gradient_stop, [0.0, 0.0, 0.0, 0.0])
-        append!(:do_linear_gradient_stop, [1.0, 1.0, 1.0, 1.0])
+        append!(:do_linear_gradient_stop, [0.25, 25.0, 0.0, 0.0])
+        append!(:do_linear_gradient_stop, [0.5, 50.0, 0.0, 0.0])
+        append!(:do_linear_gradient_stop, [0.75, 75.0, 0.0, 0.0])
+        append!(:do_linear_gradient_stop, [1.0, 100.0, 0.0, 0.0])
         append!(~S{</linearGradient>\n})
       end
     end
   end
 
   wasm F32 do
-    funcp do_linear_gradient_stop(fraction: F32, r: F32, g: F32, b: F32), I32 do
+    funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32, red: F32, green: F32, blue: F32 do
       # percentage = "#{index / max * 100}%"
+
+      # call(:linear_rgb_to_srgb, r, g, b)
+      # call(:srgb_to_linear_rgb, r, g, b)
+      call(:lab_to_srgb, l, a, b)
+      local_set(:red)
+      local_set(:green)
+      local_set(:blue)
 
       build! do
         append!(~S{<stop offset="})
         append!(decimal_f32: fraction * 100.0)
         append!(~S{%" stop-color="})
         append!(~S{rgba(})
-        append!(decimal_f32: F32.nearest(r * 255.0))
+        append!(decimal_f32: F32.nearest(red * 255.0))
         append!(~S{,})
-        append!(decimal_f32: F32.nearest(g * 255.0))
+        append!(decimal_f32: F32.nearest(green * 255.0))
         append!(~S{,})
-        append!(decimal_f32: F32.nearest(b * 255.0))
+        append!(decimal_f32: F32.nearest(blue * 255.0))
         append!(~S{,1)})
         append!(~S{" />\n})
       end
