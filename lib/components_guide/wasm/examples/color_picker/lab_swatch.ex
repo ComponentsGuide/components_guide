@@ -84,17 +84,19 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     funcp do_linear_gradient(component_id: I32), I32.String, i: F32 do
       build! do
         append!(~S{<linearGradient id="})
+
         if I32.eq(component_id, @component_l) do
           append!(~S{lab-l-gradient})
         end
+
         append!(~S{" gradientTransform="scale(1.414) rotate(45)">\n})
 
         loop Stops do
           append!(:do_linear_gradient_stop, [
             i / 4.0,
             call(:interpolate, i / 4.0, 0.0, 100.0),
-            0.0,
-            0.0
+            @a,
+            @b
           ])
 
           i = i + 1.0
@@ -112,36 +114,36 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   end
 
   wasm F32 do
-    funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32,
-      red: F32,
-      green: F32,
-      blue: F32 do
-      # percentage = "#{index / max * 100}%"
-
-      # call(:linear_rgb_to_srgb, r, g, b)
-      # call(:srgb_to_linear_rgb, r, g, b)
-      call(:lab_to_srgb, l, a, b)
-      local_set(:red)
-      local_set(:green)
-      local_set(:blue)
-
+    funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32 do
       build! do
         append!(~S{<stop offset="})
         append!(decimal_f32: fraction * 100.0)
         append!(~S{%" stop-color="})
-        append!(~S{rgba(})
-        append!(decimal_f32: F32.nearest(red * 255.0))
-        append!(~S{,})
-        append!(decimal_f32: F32.nearest(green * 255.0))
-        append!(~S{,})
-        append!(decimal_f32: F32.nearest(blue * 255.0))
-        append!(~S{,1)})
+        append!(:do_css_color_lab_srgb, l, a, b)
         append!(~S{" />\n})
       end
+    end
 
-      # xml = ~E"""
-      # <stop offset="<%= percentage %>" stop-color="<%= to_css(color, :srgb) %>" />
-      # """
+    funcp do_css_color_lab_srgb(l: F32, a: F32, b: F32), I32.String,
+      red: F32,
+      green: F32,
+      blue: F32 do
+      call(:lab_to_srgb, l, a, b)
+
+      inline for var! <- [:red, :green, :blue] do
+        F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
+        local_set(var!)
+      end
+
+      build! do
+        append!(~S{rgba(})
+        append!(decimal_f32: red)
+        append!(~S{,})
+        append!(decimal_f32: green)
+        append!(~S{,})
+        append!(decimal_f32: blue)
+        append!(~S{,1)})
+      end
     end
   end
 
