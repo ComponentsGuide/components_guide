@@ -1,6 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   use Orb
-  use ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
+  use BumpAllocator
   use ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.ColorConversion
 
@@ -22,7 +23,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     f32: Orb.DSL.funcp(name: :format_f32, params: {F32, I32}, result: I32)
   )
 
-  # I32.export_global(:mutable, l: 50)
+  wasm_import(:log,
+    i32: Orb.DSL.funcp(name: :log_i32, params: I32),
+    f32: Orb.DSL.funcp(name: :log_f32, params: F32)
+  )
+
+  F32.export_global(:mutable, swatch_size: 160.0)
 
   F32.export_global(:mutable,
     l: 50.0,
@@ -30,16 +36,42 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     b: -128
   )
 
-  I32.enum([:component_l, :component_a, :component_b])
+  F32.global(
+    mouse_offset_x: 0.0,
+    mouse_offset_y: 0.0
+  )
+
+  I32.enum([:component_l, :component_a, :component_b], 1)
+  I32.export_global(:mutable, last_changed_component: 0)
+
+  BumpAllocator.export_alloc()
 
   wasm F32 do
     ColorConversion.funcp()
+
+    func l_changed(new_value: F32) do
+      @last_changed_component = @component_l
+    end
+
+    func mousedown_offset(x: F32, y: F32) do
+      call(:log_i32, 42)
+      @mouse_offset_x = x
+      @mouse_offset_y = y
+      @l = ((x / @swatch_size) + (y / @swatch_size)) / 2.0 * 100.0;
+      call(:log_f32, @l)
+    end
 
     # import_funcp :math, powf32(x: F32, y: F32), F32
 
     func to_html(), I32.String do
       build! do
+        # content_tag! "div.flex" do
+        # content_tag! :div, [{"class", "flex"}] do
+        append!(~S{<div class="flex">\n})
         append!(:swatch_svg, @component_l)
+        append!(:swatch_svg, @component_a)
+        append!(:swatch_svg, @component_b)
+        append!(~S{</div>\n})
       end
     end
 
@@ -49,19 +81,39 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       end
     end
 
-    func swatch_svg(swatch: I32), I32.String do
+    func swatch_svg(component_id: I32), I32.String do
       build! do
         append!(
-          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-color-property="l">\n)
+          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action )
         )
 
+        # append!(match: component_id) do
+        #   @component_l ->
+
+        # end
+
+        if I32.eq(component_id, @component_l), do: append!(~S{data-mousedown="l_changed"})
+        if I32.eq(component_id, @component_a), do: append!(~S{data-mousedown="a_changed"})
+        if I32.eq(component_id, @component_b), do: append!(~S{data-mousedown="b_changed"})
+
+        append!(~S(>\n))
+        # append!(~S(">\n))
+
         append!(~S(<defs>\n))
-        append!(:do_linear_gradient, @component_l)
+        append!(:do_linear_gradient, component_id)
         append!(~S(</defs>\n))
-        append!(~S{<rect width="1" height="1" fill="url('#lab-l-gradient')" />\n})
+
+        append!(~S{<rect width="1" height="1" fill="url('#lab-})
+        if I32.eq(component_id, @component_l), do: append!(~S{l})
+        if I32.eq(component_id, @component_a), do: append!(~S{a})
+        if I32.eq(component_id, @component_b), do: append!(~S{b})
+        append!(~S{-gradient')" />\n})
 
         # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
-        append!(:do_drag_knob, 0.5)
+        if I32.eq(component_id, @component_l), do: append!(:do_drag_knob, @l / 100.0)
+        if I32.eq(component_id, @component_a), do: append!(:do_drag_knob, (@a / 127.0) / 2.0 + 0.5)
+        if I32.eq(component_id, @component_b), do: append!(:do_drag_knob, (@b / 127.0) / 2.0 + 0.5)
+        # append!(:do_drag_knob, 0.5)
 
         append!(~S{</svg>\n})
       end
@@ -85,18 +137,22 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       build! do
         append!(~S{<linearGradient id="})
 
-        if I32.eq(component_id, @component_l) do
-          append!(~S{lab-l-gradient})
-        end
+        if I32.eq(component_id, @component_l), do: append!(~S{lab-l-gradient})
+        if I32.eq(component_id, @component_a), do: append!(~S{lab-a-gradient})
+        if I32.eq(component_id, @component_b), do: append!(~S{lab-b-gradient})
 
         append!(~S{" gradientTransform="scale(1.414) rotate(45)">\n})
 
         loop Stops do
-          append!(:do_linear_gradient_stop, [
+          # append!(:do_linear_gradient_stop, [
+          #   i / 4.0,
+          #   call(:interpolate, i / 4.0, 0.0, 100.0),
+          #   @a,
+          #   @b
+          # ])
+          append!(:do_linear_gradient_stop_for, [
             i / 4.0,
-            call(:interpolate, i / 4.0, 0.0, 100.0),
-            @a,
-            @b
+            component_id
           ])
 
           i = i + 1.0
@@ -114,6 +170,19 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   end
 
   wasm F32 do
+    funcp do_linear_gradient_stop_for(fraction: F32, component_id: I32), I32 do
+      I32.match(component_id) do
+        @component_l ->
+          call(:do_linear_gradient_stop, fraction, call(:interpolate, fraction, 0.0, 100.0), @a, @b)
+
+        @component_a ->
+          call(:do_linear_gradient_stop, fraction, @l, call(:interpolate, fraction, -127.0, 127.0), @b)
+
+        @component_b ->
+          call(:do_linear_gradient_stop, fraction, @l, @a, call(:interpolate, fraction, -127.0, 127.0))
+      end
+    end
+
     funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32 do
       build! do
         append!(~S{<stop offset="})
@@ -147,9 +216,15 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     end
   end
 
-  @wasm File.read!(Path.join(__DIR__, "lab_swatch.wasm"))
+  # @wasm File.read!(Path.join(__DIR__, "lab_swatch.wasm"))
 
   def to_wasm() do
-    @wasm
+    File.read!(Path.join(__DIR__, "lab_swatch.wasm"))
+  end
+
+  def write_wat!() do
+    wat_path = Path.join(__DIR__, "lab_swatch.wat")
+    File.write!(wat_path, __MODULE__.to_wat())
+    # System.cmd("wat2wasm", [wat_path])
   end
 end

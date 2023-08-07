@@ -16,7 +16,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   #   i32: Orb.DSL.funcp(name: :i32, params: I32, result: I32)
   #   # f32: Orb.DSL.funcp(name: :f32, params: F32, result: F32)
   )
-  wasm_import(:log, int32: Orb.DSL.funcp(name: :log32, params: I32, result: I32))
+  wasm_import(:log, i32: Orb.DSL.funcp(name: :log_i32, params: I32))
 
   wasm F32 do
     # Copied from: https://augustus-pash.gitbook.io/wasm/maths-algorithms/aprox-sin

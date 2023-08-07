@@ -24,10 +24,15 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
         #    fn x ->
         #      1.0
         #    end}
-        {:log, :int32,
+        {:log, :i32,
          fn value ->
            IO.inspect(value, label: "wasm log int32")
-           0
+           nil
+         end},
+        {:log, :f32,
+         fn value ->
+           IO.inspect(value, label: "wasm log fnt32")
+           nil
          end}
       ])
 
@@ -64,17 +69,23 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
         #    fn x ->
         #      1.0
         #    end}
-        {:log, :int32,
+        {:log, :i32,
          fn value ->
            IO.inspect(value, label: "wasm log int32")
-           0
+           nil
+         end},
+        {:log, :f32,
+         fn value ->
+           IO.inspect(value, label: "wasm log fnt32")
+           nil
          end}
       ])
 
-    to_svg = Instance.capture(inst, String, :to_svg, 0)
+    to_html = Instance.capture(inst, String, :to_html, 0)
 
-    assert to_svg.() === ~S"""
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-color-property="l">
+    assert to_html.() === ~S"""
+    <div class="flex">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-mousedown="lChanged">
     <defs>
     <linearGradient id="lab-l-gradient" gradientTransform="scale(1.414) rotate(45)">
     <stop offset="0.0%" stop-color="rgba(195.0,0.0,0.0,1)" />
@@ -87,6 +98,33 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
     <rect width="1" height="1" fill="url('#lab-l-gradient')" />
     <circle data-drag-knob="" cx="0.5" cy="0.5" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
     </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-mousedown="aChanged">
+    <defs>
+    <linearGradient id="lab-a-gradient" gradientTransform="scale(1.414) rotate(45)">
+    <stop offset="0.0%" stop-color="rgba(255.0,164.0,0.0,1)" />
+    <stop offset="25.0%" stop-color="rgba(255.0,153.0,0.0,1)" />
+    <stop offset="50.0%" stop-color="rgba(255.0,131.0,0.0,1)" />
+    <stop offset="75.0%" stop-color="rgba(255.0,82.0,17.0,1)" />
+    <stop offset="100.0%" stop-color="rgba(255.0,0.0,214.0,1)" />
+    </linearGradient>
+    </defs>
+    <rect width="1" height="1" fill="url('#lab-a-gradient')" />
+    <circle data-drag-knob="" cx="0.8937007784843445" cy="0.8937007784843445" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
+    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-mousedown="bChanged">
+    <defs>
+    <linearGradient id="lab-b-gradient" gradientTransform="scale(1.414) rotate(45)">
+    <stop offset="0.0%" stop-color="rgba(255.0,0.0,164.0,1)" />
+    <stop offset="25.0%" stop-color="rgba(231.0,0.0,230.0,1)" />
+    <stop offset="50.0%" stop-color="rgba(124.0,0.0,255.0,1)" />
+    <stop offset="75.0%" stop-color="rgba(22.0,0.0,255.0,1)" />
+    <stop offset="100.0%" stop-color="rgba(0.0,0.0,255.0,1)" />
+    </linearGradient>
+    </defs>
+    <rect width="1" height="1" fill="url('#lab-b-gradient')" />
+    <circle data-drag-knob="" cx="-0.0039370059967041016" cy="-0.0039370059967041016" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
+    </svg>
+    </div>
     """
   end
 end

@@ -10,6 +10,7 @@ import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
 import "./customElements/enhanced-navigation";
+import "./customElements/wasm-simple-html";
 import "./customElements/wasm-html";
 import "./customElements/wasm-state-machine";
 import "./customElements/wasm-string-builder";
@@ -39,13 +40,14 @@ let liveSocket = new LiveSocket("/live", Socket, {
     SwatchInput: {
       mounted() {
         const mouseEventHandler = (e) => {
-          if (e.which !== 0) {
+          if (e.buttons === 1) {
             const x = e.offsetX,
               y = e.offsetY;
             const maxX = this.el.width.baseVal.value;
             const maxY = this.el.height.baseVal.value;
             const xFraction = x / maxX;
             const yFraction = y / maxY;
+            console.log({maxX, maxY, xFraction})
             const value = (xFraction + yFraction) / 2;
             const { colorProperty } = this.el.dataset;
             this.pushEvent("color_property_changed", { [colorProperty]: `${value}` });

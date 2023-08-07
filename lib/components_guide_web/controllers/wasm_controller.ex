@@ -109,7 +109,48 @@ defmodule ComponentsGuideWeb.WasmController do
   end
 
   def root(conn, %{"module" => "color"}) do
-    render(conn, :color)
+    # render(conn, :color)
+
+    imports = [
+      {:math, :powf32,
+       fn x, y ->
+         Float.pow(x, y)
+       end},
+      {:format, :f32,
+       fn caller, f, memory_offset ->
+         formatted = Float.to_string(f)
+         len = Instance.Caller.write_string_nul_terminated(caller, memory_offset, formatted)
+
+         # Minus nul-terminator. Maybe write_string_nul_terminated shouldn’t include that in the length?
+         len - 1
+       end},
+      {:log, :i32,
+       fn value ->
+         IO.inspect(value, label: "wasm log i32")
+         nil
+       end},
+      {:log, :f32,
+       fn value ->
+         IO.inspect(value, label: "wasm log f32")
+         nil
+       end}
+    ]
+
+    {function, media_type} =
+      {:to_html, "text/html"}
+
+    instance = Instance.run(ComponentsGuide.Wasm.Examples.LabSwatch, imports)
+    # set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
+    to_html = Instance.capture(instance, String, function, 0)
+
+    # set_www_form_data.(conn.query_string)
+
+    html = to_html.()
+
+    render(conn, :color, html: html)
+    # conn
+    # |> put_resp_content_type(media_type)
+    # |> send_resp(200, html)
   end
 
   def root(conn, %{"module" => "color_lab_swatch.svg"}) do
@@ -138,14 +179,14 @@ defmodule ComponentsGuideWeb.WasmController do
 
     instance = Instance.run(ComponentsGuide.Wasm.Examples.LabSwatch, imports)
     # set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
-    to_html = Instance.capture(instance, String, function, 0)
+    to_svg = Instance.capture(instance, String, :to_svg, 0)
 
     # set_www_form_data.(conn.query_string)
-    html = to_html.()
+    svg = to_svg.()
 
     conn
     |> put_resp_content_type(media_type)
-    |> send_resp(200, html)
+    |> send_resp(200, svg)
   end
 
   def root(conn, %{"module" => name}) do

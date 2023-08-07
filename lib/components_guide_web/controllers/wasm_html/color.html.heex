@@ -1,3 +1,4 @@
-<div>
-  <img src="/wasm-demo/color_lab_swatch.svg" width="160" height="160">
-</div>
+<wasm-simple-html class="block">
+  <source src="/wasm/module/color_lab_swatch.wasm" type="application/wasm" />
+  <%= raw(@html) %>
+</wasm-simple-html>
