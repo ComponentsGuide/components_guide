@@ -8,6 +8,8 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   @k :math.pow(29, 3) / :math.pow(3, 3)
   @e :math.pow(6, 3) / :math.pow(29, 3)
 
+  # F32.global(:readonly, e: :math.pow(6, 3) / :math.pow(29, 3))
+
   wasm_import(:math,
     powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
   #   # powf32: Orb.DSL.funcp(name: :powf32, params: F32, result: F32)

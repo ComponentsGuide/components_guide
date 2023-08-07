@@ -31,6 +31,18 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
   describe "Dialog" do
     alias State.Dialog
 
+    test "list exports" do
+      assert Wasm.list_exports(Dialog) == [
+               {:global, "closed?", :i32},
+               {:global, "open?", :i32},
+               {:func, "get_change_count"},
+               {:func, "get_current"},
+               {:func, "open"},
+               {:func, "close"},
+               {:func, "cancel"}
+             ]
+    end
+
     test "works" do
       instance = Instance.run(Dialog)
       get_current = Instance.capture(instance, :get_current, 0)

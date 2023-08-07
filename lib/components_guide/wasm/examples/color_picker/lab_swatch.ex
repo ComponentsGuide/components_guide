@@ -24,6 +24,8 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
   # I32.export_global(:mutable, l: 50)
 
+  I32.enum([:swatch_l, :swatch_a, :swatch_b])
+
   wasm do
     ColorConversion.funcp()
 
@@ -31,13 +33,26 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
     func to_svg(), I32.String do
       build! do
-        append!(~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-color-property="l">\n))
+        append!(:swatch_svg, @swatch_l)
+      end
+    end
+
+    func swatch_svg(swatch: I32), I32.String do
+      build! do
+        append!(
+          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-color-property="l">\n)
+        )
+
         append!(~S(<defs>\n))
         append!(:do_linear_gradient)
         append!(~S(</defs>\n))
         append!(~S{<rect width="1" height="1" fill="url('#lab-l-gradient')" />\n})
+
         # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
-        append!(~S{<circle data-drag-knob="" cx="0.5" cy="0.5" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n})
+        append!(
+          ~S{<circle data-drag-knob="" cx="0.5" cy="0.5" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n}
+        )
+
         append!(~S{</svg>\n})
       end
     end
@@ -49,10 +64,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
           string: ~S{lab-l-gradient},
           string: ~S{" gradientTransform="scale(1.414) rotate(45)">\n}
         )
+
         loop Stops do
           i = i + 1
           Stops.continue(if: i < 20)
         end
+
         append!(:do_linear_gradient_stop, [0.0, 0.0, 0.0, 0.0])
         append!(:do_linear_gradient_stop, [0.25, 25.0, 0.0, 0.0])
         append!(:do_linear_gradient_stop, [0.5, 50.0, 0.0, 0.0])
@@ -64,7 +81,10 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   end
 
   wasm F32 do
-    funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32, red: F32, green: F32, blue: F32 do
+    funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32,
+      red: F32,
+      green: F32,
+      blue: F32 do
       # percentage = "#{index / max * 100}%"
 
       # call(:linear_rgb_to_srgb, r, g, b)

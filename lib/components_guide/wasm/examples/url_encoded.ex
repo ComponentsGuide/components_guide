@@ -327,8 +327,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     #     end
   end
 
-  @behaviour Orb.Type
-  @impl Orb.Type
+  @behaviour Orb.CustomType
+  @impl Orb.CustomType
   def wasm_type(), do: :i32
 
   def initial_i32(), do: 0x0
@@ -347,10 +347,10 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   defmodule Value do
     defmodule Iterator do
-      @behaviour Orb.Type
+      @behaviour Orb.CustomType
       @behaviour Access
 
-      @impl Orb.Type
+      @impl Orb.CustomType
       def wasm_type(), do: :i32
 
       @impl Access
@@ -364,6 +364,16 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
       def fetch(%Orb.VariableReference{} = var, :next) do
         {:ok, next(var)}
+      end
+
+      @impl Access
+      def get_and_update(_data, _key, _function) do
+        raise UndefinedFunctionError, module: __MODULE__, function: :get_and_update, arity: 3
+      end
+
+      @impl Access
+      def pop(_data, _key) do
+        raise UndefinedFunctionError, module: __MODULE__, function: :pop, arity: 2
       end
 
       def new(%Orb.MutRef{type: __MODULE__} = mut_ref, source) do
@@ -382,10 +392,10 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     end
 
     defmodule CharIterator do
-      @behaviour Orb.Type
+      @behaviour Orb.CustomType
       @behaviour Access
 
-      @impl Orb.Type
+      @impl Orb.CustomType
       def wasm_type(), do: :i32
 
       @impl Access

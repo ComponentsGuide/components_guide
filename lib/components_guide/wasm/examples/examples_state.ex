@@ -6,6 +6,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     defmacro __using__(_opts) do
       quote do
         use Orb
+
         Orb.I32.global(state: 0, change_count: 0)
 
         import unquote(__MODULE__)
@@ -26,15 +27,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
 
     defmacro on(call, target: target) do
-      use Orb, inline: true
-      # import Orb
-      # alias Orb.{I32, F32}
-      import Kernel, except: [if: 2]
+      alias Orb.I32
+      require Orb.IfElse.DSL
 
       {name, args} = Macro.decompose_call(call)
       [current_state] = args
-      # IO.inspect(args)
-      # IO.inspect(target)
 
       case current_state do
         # If current state is `_` i.e. being ignored.
@@ -51,7 +48,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
             # Module.register_attribute(__MODULE__, String.to_atom("func_#{unquote(name)}"), accumulate: true)
 
             func unquote(name) do
-              if I32.eq(global_get(:state), unquote(current_state)) do
+              Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(current_state)) do
                 Orb.DSL.call(:transition_to, unquote(target))
               end
             end
@@ -60,11 +57,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     end
 
     defmacro on(call, do: targets) do
-      use Orb, inline: true
-      # import Orb
-      # alias Orb.{I32, F32}
-      import Kernel, except: [if: 2]
-      import Orb.DSL
+      alias Orb.I32
+      require Orb.IfElse.DSL
 
       {name, []} = Macro.decompose_call(call)
 
@@ -122,14 +116,14 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
             [match] ->
               quote do
-                if I32.eq(global_get(:state), unquote(match)) do
+                Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(match)) do
                   unquote(effect)
                 end
               end
 
             matches ->
               quote do
-                if I32.in?(global_get(:state), unquote(matches)) do
+                Orb.IfElse.DSL.if I32.in?(global_get(:state), unquote(matches)) do
                   unquote(effect)
                 end
               end
