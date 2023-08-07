@@ -121,21 +121,21 @@ defmodule ComponentsGuideWeb.ColorLive do
         <rect fill="<%= State.css_srgb(@state) %>" width="1" height="1" />
       </svg>
       <div class="flex">
-        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=l>
+        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" id="l-swatch" phx-hook=SwatchInput data-color-property=l>
           <defs>
             <%= l_gradient_svg %>
           </defs>
           <rect width="1" height="1" fill="url('#lab-l-gradient')" />
           <circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
-        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=a>
+        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" id="a-swatch" phx-hook=SwatchInput data-color-property=a>
           <defs>
             <%= a_gradient_svg %>
           </defs>
           <rect width="1" height="1" fill="url('#lab-a-gradient')" />
           <circle cx="<%= (a / 127.0) / 2.0 + 0.5 %>" cy="<%= (a / 127.0) / 2.0 + 0.5 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
-        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" phx-hook=SwatchInput data-color-property=b>
+        <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" id="b-swatch" phx-hook=SwatchInput data-color-property=b>
           <defs>
             <%= b_gradient_svg %>
           </defs>

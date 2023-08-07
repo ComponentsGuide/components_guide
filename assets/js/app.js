@@ -47,7 +47,6 @@ let liveSocket = new LiveSocket("/live", Socket, {
             const maxY = this.el.height.baseVal.value;
             const xFraction = x / maxX;
             const yFraction = y / maxY;
-            console.log({maxX, maxY, xFraction})
             const value = (xFraction + yFraction) / 2;
             const { colorProperty } = this.el.dataset;
             this.pushEvent("color_property_changed", { [colorProperty]: `${value}` });

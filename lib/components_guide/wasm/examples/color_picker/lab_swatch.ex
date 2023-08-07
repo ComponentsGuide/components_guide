@@ -96,6 +96,15 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         append!(:swatch_svg, @component_a)
         append!(:swatch_svg, @component_b)
         append!(~S{</div>\n})
+        append!(~S{<output class="flex">\n})
+        append!(~S{lab(})
+        append!(decimal_f32: @l)
+        append!(~S{% })
+        append!(decimal_f32: @a)
+        append!(~S{ })
+        append!(decimal_f32: @b)
+        append!(~S{)})
+        append!(~S{</output>\n})
       end
     end
 
@@ -108,7 +117,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     func swatch_svg(component_id: I32), I32.String do
       build! do
         append!(
-          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown-mousemove )
+          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action )
         )
 
         # append!(match: component_id) do
@@ -116,9 +125,9 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
         # end
 
-        if I32.eq(component_id, @component_l), do: append!(~S{data-mousedown="l_changed"})
-        if I32.eq(component_id, @component_a), do: append!(~S{data-mousedown="a_changed"})
-        if I32.eq(component_id, @component_b), do: append!(~S{data-mousedown="b_changed"})
+        if I32.eq(component_id, @component_l), do: append!(~S{data-mousedown="l_changed" data-mousedown-mousemove="l_changed"})
+        if I32.eq(component_id, @component_a), do: append!(~S{data-mousedown="a_changed" data-mousedown-mousemove="a_changed"})
+        if I32.eq(component_id, @component_b), do: append!(~S{data-mousedown="b_changed" data-mousedown-mousemove="b_changed"})
 
         append!(~S(>\n))
         # append!(~S(">\n))
