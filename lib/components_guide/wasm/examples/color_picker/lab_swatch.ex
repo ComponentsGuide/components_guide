@@ -81,13 +81,13 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       (highest - lowest) * t + lowest
     end
 
-    funcp do_linear_gradient(component_index: I32), I32.String, i: F32 do
+    funcp do_linear_gradient(component_id: I32), I32.String, i: F32 do
       build! do
-        append!(
-          string: ~S{<linearGradient id="},
-          string: ~S{lab-l-gradient},
-          string: ~S{" gradientTransform="scale(1.414) rotate(45)">\n}
-        )
+        append!(~S{<linearGradient id="})
+        if I32.eq(component_id, @component_l) do
+          append!(~S{lab-l-gradient})
+        end
+        append!(~S{" gradientTransform="scale(1.414) rotate(45)">\n})
 
         loop Stops do
           append!(:do_linear_gradient_stop, [
