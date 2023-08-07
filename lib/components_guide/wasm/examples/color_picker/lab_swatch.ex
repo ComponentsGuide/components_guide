@@ -53,12 +53,36 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       @last_changed_component = @component_l
     end
 
+    func a_changed(new_value: F32) do
+      @last_changed_component = @component_a
+    end
+
+    func b_changed(new_value: F32) do
+      @last_changed_component = @component_b
+    end
+
+    funcp mouse_offset_changed(x: F32, y: F32), offset: F32 do
+      offset = (x / @swatch_size + y / @swatch_size) / 2.0
+
+      if I32.eq(@last_changed_component, @component_l) do
+        @l = offset * 100.0
+      end
+
+      if I32.eq(@last_changed_component, @component_a) do
+        @a = ((offset * 2.0 - 1.0) * 127.0) |> F32.nearest()
+      end
+
+      if I32.eq(@last_changed_component, @component_b) do
+        @b = ((offset * 2.0 - 1.0) * 127.0) |> F32.nearest()
+      end
+    end
+
     func mousedown_offset(x: F32, y: F32) do
-      call(:log_i32, 42)
-      @mouse_offset_x = x
-      @mouse_offset_y = y
-      @l = ((x / @swatch_size) + (y / @swatch_size)) / 2.0 * 100.0;
-      call(:log_f32, @l)
+      call(:mouse_offset_changed, x, y)
+    end
+
+    func mousemove_offset(x: F32, y: F32) do
+      call(:mouse_offset_changed, x, y)
     end
 
     # import_funcp :math, powf32(x: F32, y: F32), F32
@@ -84,7 +108,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     func swatch_svg(component_id: I32), I32.String do
       build! do
         append!(
-          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action )
+          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown-mousemove )
         )
 
         # append!(match: component_id) do
@@ -111,8 +135,8 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
         # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
         if I32.eq(component_id, @component_l), do: append!(:do_drag_knob, @l / 100.0)
-        if I32.eq(component_id, @component_a), do: append!(:do_drag_knob, (@a / 127.0) / 2.0 + 0.5)
-        if I32.eq(component_id, @component_b), do: append!(:do_drag_knob, (@b / 127.0) / 2.0 + 0.5)
+        if I32.eq(component_id, @component_a), do: append!(:do_drag_knob, @a / 127.0 / 2.0 + 0.5)
+        if I32.eq(component_id, @component_b), do: append!(:do_drag_knob, @b / 127.0 / 2.0 + 0.5)
         # append!(:do_drag_knob, 0.5)
 
         append!(~S{</svg>\n})
@@ -171,15 +195,33 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
   wasm F32 do
     funcp do_linear_gradient_stop_for(fraction: F32, component_id: I32), I32 do
-      I32.match(component_id) do
+      I32.match component_id do
         @component_l ->
-          call(:do_linear_gradient_stop, fraction, call(:interpolate, fraction, 0.0, 100.0), @a, @b)
+          call(
+            :do_linear_gradient_stop,
+            fraction,
+            call(:interpolate, fraction, 0.0, 100.0),
+            @a,
+            @b
+          )
 
         @component_a ->
-          call(:do_linear_gradient_stop, fraction, @l, call(:interpolate, fraction, -127.0, 127.0), @b)
+          call(
+            :do_linear_gradient_stop,
+            fraction,
+            @l,
+            call(:interpolate, fraction, -127.0, 127.0),
+            @b
+          )
 
         @component_b ->
-          call(:do_linear_gradient_stop, fraction, @l, @a, call(:interpolate, fraction, -127.0, 127.0))
+          call(
+            :do_linear_gradient_stop,
+            fraction,
+            @l,
+            @a,
+            call(:interpolate, fraction, -127.0, 127.0)
+          )
       end
     end
 

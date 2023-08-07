@@ -41,11 +41,12 @@ async function initWasmHTML(el, wasmModulePromise) {
   const instance = await WebAssembly.instantiate(wasmModule, imports);
   
   memoryIO = new MemoryIO(instance.exports);
-  const { to_html: toHTML } = instance.exports;
+  const { to_html: toHTML, free_all } = instance.exports;
 
   function update() {
+    free_all?.apply();
     const html = memoryIO.readString(toHTML());
-    console.log("wasm-html render", html)
+    // console.log("wasm-html render", html)
     el.innerHTML = html;
   }
 
@@ -59,13 +60,25 @@ async function initWasmHTML(el, wasmModulePromise) {
 
 
   el.addEventListener("mousedown", (event) => {
-    const action = event.target.closest("[data-action")?.dataset?.mousedown;
-    console.log("ACTION", action, event.offsetX, event.offsetY);
-    if (typeof action === "string") {
-      instance.exports[action]?.apply();
-      instance.exports["mousedown_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+    if (event.buttons === 1) {
+      const action = event.target.closest("[data-action")?.dataset?.mousedown;
+      if (typeof action === "string") {
+        instance.exports[action]?.apply();
+        instance.exports["mousedown_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+      }
+      update();
     }
-    update();
+  });
+
+  el.addEventListener("mousemove", (event) => {
+    if (event.buttons === 1) {
+      const action = event.target.closest("[data-action")?.dataset?.mousedownMousemove;
+      if (typeof action === "string") {
+        instance.exports[action]?.apply();
+        instance.exports["mousemove_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+      }
+      update();
+    }
   });
 
   queueMicrotask(update);
