@@ -16,7 +16,10 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   #   i32: Orb.DSL.funcp(name: :i32, params: I32, result: I32)
   #   # f32: Orb.DSL.funcp(name: :f32, params: F32, result: F32)
   )
-  wasm_import(:log, i32: Orb.DSL.funcp(name: :log_i32, params: I32))
+  wasm_import(:log,
+    i32: Orb.DSL.funcp(name: :log_i32, params: I32),
+    f32: Orb.DSL.funcp(name: :log_f32, params: F32)
+  )
 
   wasm F32 do
     # Copied from: https://augustus-pash.gitbook.io/wasm/maths-algorithms/aprox-sin
@@ -39,7 +42,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     end
 
     funcp lab_to_xyz_component(v: F32), F32, cubed: F32 do
-      cubed = call(:pow, v, 3.0)
+      cubed = call(:powf32, v, 3.0)
 
       if cubed > ^@e, result: F32 do
         cubed
@@ -76,13 +79,13 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
       200.0 * (f1 - f2)
     end
 
-    func linear_rgb_to_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      call(:linear_rgb_to_srgb_component, r)
-      call(:linear_rgb_to_srgb_component, g)
-      call(:linear_rgb_to_srgb_component, b)
+    func linear_srgb_to_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
+      call(:linear_srgb_to_srgb_component, r)
+      call(:linear_srgb_to_srgb_component, g)
+      call(:linear_srgb_to_srgb_component, b)
     end
 
-    funcp linear_rgb_to_srgb_component(c: F32), F32 do
+    funcp linear_srgb_to_srgb_component(c: F32), F32 do
       if c > 0.0031308, result: F32 do
         # 1.055 * :math.pow(c, 1.0 / 2.4) - 0.055
         1.055 * call(:powf32, c, 1.0 / 2.4) - 0.055
@@ -91,13 +94,13 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
       end
     end
 
-    func srgb_to_linear_rgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      call(:srgb_to_linear_rgb_component, r)
-      call(:srgb_to_linear_rgb_component, g)
-      call(:srgb_to_linear_rgb_component, b)
+    func srgb_to_linear_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
+      call(:srgb_to_linear_srgb_component, r)
+      call(:srgb_to_linear_srgb_component, g)
+      call(:srgb_to_linear_srgb_component, b)
     end
 
-    funcp srgb_to_linear_rgb_component(c: F32), F32 do
+    funcp srgb_to_linear_srgb_component(c: F32), F32 do
       if c < 0.04045, result: F32 do
         c / 12.92
       else
@@ -105,15 +108,17 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
       end
     end
 
-    func xyz_to_linear_rgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
-      x * 3.1338561 - y * 1.6168667 - 0.4906146 * z
-      x * -0.9787684 + y * 1.9161415 + 0.0334540 * z
-      x * 0.0719453 - y * 0.2289914 + 1.4052427 * z
+    func xyz_to_linear_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
+      # TODO: decide whether to clamp here
+      # https://github.com/d3/d3-color/issues/33
+      (x * 3.1338561 - y * 1.6168667 - 0.4906146 * z) |> F32.min(1.0) |> F32.max(0.0)
+      (x * -0.9787684 + y * 1.9161415 + 0.0334540 * z) |> F32.min(1.0) |> F32.max(0.0)
+      (x * 0.0719453 - y * 0.2289914 + 1.4052427 * z) |> F32.min(1.0) |> F32.max(0.0)
     end
 
     func xyz_to_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
-      call(:xyz_to_linear_rgb, x, y, z)
-      call(:linear_rgb_to_srgb)
+      call(:xyz_to_linear_srgb, x, y, z)
+      call(:linear_srgb_to_srgb)
     end
 
     func linear_srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
@@ -123,8 +128,8 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     end
 
     func srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      # {r, g, b} |> srgb_to_linear_rgb() |> linear_srgb_to_xyz()
-      call(:srgb_to_linear_rgb, r, g, b)
+      # {r, g, b} |> srgb_to_linear_srgb() |> linear_srgb_to_xyz()
+      call(:srgb_to_linear_srgb, r, g, b)
       call(:linear_srgb_to_xyz)
     end
 

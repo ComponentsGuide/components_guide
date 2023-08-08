@@ -29,7 +29,11 @@ async function initWasmHTML(el, wasmModulePromise) {
     },
     format: {
       f32: (f, memoryOffset) => {
-        const s = String(f);
+        let s = String(f);
+        // We always want a `.0` suffix, even for integers.
+        if (!/[.]/.test(s)) {
+          s = f.toFixed(1);
+        }
         return memoryIO.writeStringAt(s, memoryOffset);
       }
     },
@@ -54,8 +58,8 @@ async function initWasmHTML(el, wasmModulePromise) {
     const action = event.target.dataset.action;
     if (typeof action === "string") {
       instance.exports[action]?.apply();
+      update();
     }
-    update();
   });
 
 
@@ -65,8 +69,8 @@ async function initWasmHTML(el, wasmModulePromise) {
       if (typeof action === "string") {
         instance.exports[action]?.apply();
         instance.exports["mousedown_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+        update();
       }
-      update();
     }
   });
 
@@ -76,8 +80,8 @@ async function initWasmHTML(el, wasmModulePromise) {
       if (typeof action === "string") {
         instance.exports[action]?.apply();
         instance.exports["mousemove_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+        update();
       }
-      update();
     }
   });
 

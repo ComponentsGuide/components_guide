@@ -29,11 +29,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   )
 
   F32.export_global(:mutable, swatch_size: 160.0)
+  F32.export_global(:mutable, quantization: 16.0)
 
   F32.export_global(:mutable,
-    l: 50.0,
-    a: 100,
-    b: -128
+    l: 88.0,
+    a: 94.0,
+    b: 60.0
   )
 
   F32.global(
@@ -91,20 +92,42 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       build! do
         # content_tag! "div.flex" do
         # content_tag! :div, [{"class", "flex"}] do
-        append!(~S{<div class="flex">\n})
+        append!(~S{<div class="flex gap-4">\n})
         append!(:swatch_svg, @component_l)
         append!(:swatch_svg, @component_a)
         append!(:swatch_svg, @component_b)
         append!(~S{</div>\n})
-        append!(~S{<output class="flex">\n})
+
+        append!(:do_output_code)
+      end
+    end
+
+    funcp do_output_code(), I32.String, r: F32, g: F32, b: F32 do
+      build! do
+        append!(~S{<output class="flex mt-4"><pre>\n})
         append!(~S{lab(})
         append!(decimal_f32: @l)
         append!(~S{% })
         append!(decimal_f32: @a)
         append!(~S{ })
-        append!(decimal_f32: @b)
-        append!(~S{)})
-        append!(~S{</output>\n})
+        # append!(decimal_f32: @b)
+        append!(decimal_f32: global_get(:b))
+        append!(~S{)\n})
+
+        # call(:lab_to_srgb, @l, @a, @b)
+        call(:lab_to_srgb, global_get(:l), global_get(:a), global_get(:b))
+        b = :pop
+        g = :pop
+        r = :pop
+        append!(~S{rgb(})
+        append!(decimal_f32: r)
+        append!(~S{ })
+        append!(decimal_f32: g)
+        append!(~S{ })
+        append!(decimal_f32: b)
+        append!(~S{)\n})
+
+        append!(~S{</pre></output>\n})
       end
     end
 
@@ -184,12 +207,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
           #   @b
           # ])
           append!(:do_linear_gradient_stop_for, [
-            i / 4.0,
+            i / @quantization,
             component_id
           ])
 
           i = i + 1.0
-          Stops.continue(if: i <= 4.0)
+          Stops.continue(if: i <= @quantization)
         end
 
         # append!(:do_linear_gradient_stop, [0.0, 0.0, 0.0, 0.0])
@@ -250,7 +273,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       blue: F32 do
       call(:lab_to_srgb, l, a, b)
 
-      inline for var! <- [:red, :green, :blue] do
+      inline for var! <- [:blue, :green, :red] do
         F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
         local_set(var!)
       end
