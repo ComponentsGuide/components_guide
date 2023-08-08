@@ -147,7 +147,7 @@ defmodule ComponentsGuideWeb.WasmController do
 
     html = to_html.()
 
-    render(conn, :color, html: html)
+    render(conn, :color, html: html, page_title: "WebAssembly Lab Color Picker using Orb")
     # conn
     # |> put_resp_content_type(media_type)
     # |> send_resp(200, html)
