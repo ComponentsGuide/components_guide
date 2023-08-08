@@ -8,14 +8,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
   describe "CacheControl" do
     alias HTTPHeaders.CacheControl
 
-    @tag :skip
     test "default" do
       inst = Instance.run(CacheControl)
 
       assert to_string(inst) == "max-age=0"
     end
 
-    @tag :skip
     test "public" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_public)
@@ -23,7 +21,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert to_string(inst) == "public"
     end
 
-    @tag :skip
     test "public, max-age=604800" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_public)
@@ -31,7 +28,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "public, max-age=604800"
     end
 
-    @tag :skip
     test "public, max-age=604800, immutable" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_public)
@@ -40,7 +36,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "public, max-age=604800, immutable"
     end
 
-    @tag :skip
     test "public, max-age=7200, s-maxage=3600" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_public)
@@ -51,14 +46,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
                "public, max-age=7200, s-maxage=3600"
     end
 
-    @tag :skip
     test "private" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_private)
       assert Instance.call_reading_string(inst, :to_string) == "private"
     end
 
-    @tag :skip
     test "private, max-age=604800" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_private)
@@ -66,14 +59,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "private, max-age=604800"
     end
 
-    @tag :skip
     test "no-store" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_no_store)
       assert Instance.call_reading_string(inst, :to_string) == "no-store"
     end
 
-    @tag :skip
     test "immutable" do
       inst = Instance.run(CacheControl)
       Instance.call(inst, :set_immutable)
@@ -81,16 +72,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
     end
   end
 
-  @tag :skip
   describe "SetCookie" do
     alias HTTPHeaders.SetCookie
 
-    @tag :skip
     test "wasm size" do
-      assert byte_size(to_wasm(SetCookie)) == 892
+      assert byte_size(to_wasm(SetCookie)) == 962
     end
 
-    @tag :skip
     test "name and value" do
       inst = Instance.run(SetCookie)
       # put_in(inst[:name], "foo")
@@ -102,7 +90,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "foo=value"
     end
 
-    @tag :skip
     test "domain" do
       inst = Instance.run(SetCookie)
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
@@ -111,7 +98,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "foo=value; Domain=foo.example.com"
     end
 
-    @tag :skip
     test "HttpOnly" do
       inst = Instance.run(SetCookie)
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
@@ -120,7 +106,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "foo=value; HttpOnly"
     end
 
-    @tag :skip
     test "HttpOnly Secure" do
       inst = Instance.run(SetCookie)
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
@@ -130,7 +115,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
       assert Instance.call_reading_string(inst, :to_string) == "foo=value; Secure; HttpOnly"
     end
 
-    @tag :skip
     test "Domain HttpOnly Secure" do
       inst = Instance.run(SetCookie)
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
@@ -143,7 +127,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
                "foo=value; Domain=foo.example.com; Secure; HttpOnly"
     end
 
-    @tag :skip
     test "Domain Path HttpOnly Secure" do
       inst = Instance.run(SetCookie)
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))

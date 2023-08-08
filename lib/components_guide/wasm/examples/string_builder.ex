@@ -14,12 +14,14 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
       import unquote(__MODULE__)
 
+      # global do
+      #   @bump_write_level 0
+      # end
+
       I32.global(bump_write_level: 0)
 
       Orb.wasm do
-        unquote(__MODULE__).funcp(:bump_write_start)
-        unquote(__MODULE__).funcp(:bump_write_done)
-        unquote(__MODULE__).funcp(:bump_write_str)
+        unquote(__MODULE__).funcp()
       end
     end
   end
@@ -54,10 +56,15 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       Copying.memcpy(@bump_offset, str_ptr, len)
       @bump_offset = @bump_offset + len
     end
+
+    funcp bump_written?(), I32 do
+      @bump_offset > @bump_mark
+    end
   end
 
   def build_begin!(), do: Orb.DSL.call(:bump_write_start)
   def build_done!(), do: Orb.DSL.call(:bump_write_done)
+  def appended?(), do: Orb.DSL.call(:bump_written?)
 
   defmacro build!(do: block) do
     items =

@@ -29,7 +29,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       s_max_age_seconds: -1
     )
 
-    wasm do
+    wasm S32 do
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:write_u32)
 
@@ -57,53 +57,48 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         @s_max_age_seconds = age_seconds
       end
 
-      func to_string(),
-           I32.String,
-           # globals: [public: I32],
-           writer: I32,
-           start: I32 do
+      func to_string(), I32.String do
         build! do
           if @public do
-            append!(string: const("public"))
+            append!(~S"public")
           else
-            # if private do
-            if global_get(:private) do
-              append!(string: const("private"))
+            if @private do
+              append!(~S"private")
             else
               if @no_store do
-                append!(string: const("no-store"))
+                append!(~S"no-store")
               end
             end
           end
 
-          if I32.ge_s(@max_age_seconds, 0) do
-            if I32.gt_u(writer, start) do
-              append!(string: const(", "))
+          if @max_age_seconds > 0 do
+            if appended?() do
+              append!(~S", ")
             end
 
-            append!(string: const("max-age="))
+            append!(~S"max-age=")
             append!(decimal_u32: @max_age_seconds)
           end
 
-          if I32.ge_s(@s_max_age_seconds, 0) do
-            if I32.gt_u(writer, start) do
+          if @s_max_age_seconds > 0 do
+            if appended?() do
               append!(string: const(", "))
             end
 
-            append!(string: const("s-maxage="))
+            append!(~S"s-maxage=")
             append!(decimal_u32: @s_max_age_seconds)
           end
 
           if @immutable do
-            if I32.gt_u(writer, start) do
-              append!(string: const(", "))
+            if appended?() do
+              append!(~S", ")
             end
 
-            append!(string: const("immutable"))
+            append!(~S"immutable")
           end
 
-          if I32.eq(writer, start) do
-            append!(string: const("max-age=0"))
+          if not(appended?()) do
+            append!(~S"max-age=0")
           end
 
         end
