@@ -195,10 +195,10 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
            <circle data-drag-knob="" cx="0.7362204790115356" cy="0.7362204790115356" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
            </svg>
            </div>
-           <output class="flex mt-4"><pre>
-           lab(88.0% 94.0 60.0)
-           rgb(255.0 118.0 114.0)
-           </pre></output>
+           <output class="flex flex-col mt-4 font-mono">
+           <p class="flex items-center gap-1"><svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="lab(88.0% 94.0 60.0)" /></svg> lab(88.0% 94.0 60.0)</p>
+           <p class="flex items-center gap-1"><svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="rgb(255.0 118.0 114.0)" /></svg> rgb(255.0 118.0 114.0)</p>
+           </output>
            """
   end
 end

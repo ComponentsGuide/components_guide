@@ -101,14 +101,14 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         append!(~S{<output class="flex flex-col mt-4 font-mono">\n})
 
         append!(~S{<p class="flex items-center gap-1">})
-        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem" fill="red"><rect width="1" height="1" fill="})
+        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="})
         append!(:do_css_lab)
         append!(~S{" /></svg> })
         append!(:do_css_lab)
         append!(~S{</p>\n})
 
         append!(~S{<p class="flex items-center gap-1">})
-        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem" fill="red"><rect width="1" height="1" fill="})
+        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="})
         append!(:do_css_rgb)
         append!(~S{" /></svg> })
         append!(:do_css_rgb)
