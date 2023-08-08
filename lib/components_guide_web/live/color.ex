@@ -116,11 +116,11 @@ defmodule ComponentsGuideWeb.ColorLive do
       )
 
     ~L"""
-    <article class="text-2xl max-w-lg mx-auto text-white">
-      <svg width="<%= swatch_size %>" height="<%= swatch_size %>" viewbox="0 0 1 1">
+    <article class="flex flex-col p-8 gap-4 text-2xl max-w-lg mx-auto text-white">
+      <svg width="<%= swatch_size / 2.0 %>" height="<%= swatch_size / 2.0 %>" viewbox="0 0 1 1">
         <rect fill="<%= State.css_srgb(@state) %>" width="1" height="1" />
       </svg>
-      <div class="flex">
+      <div class="flex gap-4">
         <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" id="l-swatch" phx-hook=SwatchInput data-color-property=l>
           <defs>
             <%= l_gradient_svg %>
