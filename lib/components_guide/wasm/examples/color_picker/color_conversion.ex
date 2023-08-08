@@ -12,9 +12,6 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
 
   wasm_import(:math,
     powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
-  #   # powf32: Orb.DSL.funcp(name: :powf32, params: F32, result: F32)
-  #   i32: Orb.DSL.funcp(name: :i32, params: I32, result: I32)
-  #   # f32: Orb.DSL.funcp(name: :f32, params: F32, result: F32)
   )
   wasm_import(:log,
     i32: Orb.DSL.funcp(name: :log_i32, params: I32),
@@ -22,25 +19,6 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   )
 
   wasm F32 do
-    # Copied from: https://augustus-pash.gitbook.io/wasm/maths-algorithms/aprox-sin
-    funcp pow(base: F32, exponent: F32), F32, out: F32, index: F32 do
-      out = 1.0
-      index = 1.0
-
-      defblock Outer do
-        loop Inner do
-          out = out * base
-
-          index = index + 1.0
-          break(Outer, if: index > exponent)
-
-          Inner.continue()
-        end
-      end
-
-      out
-    end
-
     funcp lab_to_xyz_component(v: F32), F32, cubed: F32 do
       cubed = call(:powf32, v, 3.0)
 

@@ -119,7 +119,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
 
     assert to_html.() === ~S"""
            <div class="flex gap-4">
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown="l_changed" data-mousedown-mousemove="l_changed">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" class="touch-none" data-action data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed">
            <defs>
            <linearGradient id="lab-l-gradient" gradientTransform="scale(1.414) rotate(45)">
            <stop offset="0.0%" stop-color="rgba(97.0,0.0,0.0,1)" />
@@ -144,7 +144,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
            <rect width="1" height="1" fill="url('#lab-l-gradient')" />
            <circle data-drag-knob="" cx="0.8799999952316284" cy="0.8799999952316284" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
            </svg>
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown="a_changed" data-mousedown-mousemove="a_changed">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" class="touch-none" data-action data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed">
            <defs>
            <linearGradient id="lab-a-gradient" gradientTransform="scale(1.414) rotate(45)">
            <stop offset="0.0%" stop-color="rgba(0.0,255.0,89.0,1)" />
@@ -169,7 +169,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
            <rect width="1" height="1" fill="url('#lab-a-gradient')" />
            <circle data-drag-knob="" cx="0.8700787425041199" cy="0.8700787425041199" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
            </svg>
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown="b_changed" data-mousedown-mousemove="b_changed">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" class="touch-none" data-action data-pointerdown="b_changed" data-pointerdown+pointermove="b_changed">
            <defs>
            <linearGradient id="lab-b-gradient" gradientTransform="scale(1.414) rotate(45)">
            <stop offset="0.0%" stop-color="rgba(255.0,143.0,255.0,1)" />
@@ -197,7 +197,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
            </div>
            <output class="flex mt-4"><pre>
            lab(88.0% 94.0 60.0)
-           rgb(0.9999999403953552 0.4646732807159424 0.44878101348876953)
+           rgb(255.0 118.0 114.0)
            </pre></output>
            """
   end

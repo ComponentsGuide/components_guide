@@ -61,23 +61,29 @@ async function initWasmHTML(el, wasmModulePromise) {
     }
   });
 
-  el.addEventListener("mousedown", (event) => {
+  el.addEventListener("pointerdown", (event) => {
     if (event.buttons === 1) {
-      const action = event.target.closest("[data-action")?.dataset?.mousedown;
+      const actionTarget = event.target.closest("[data-action");
+      if (actionTarget == null) return;
+
+      const action = actionTarget.dataset.pointerdown;
       if (typeof action === "string") {
         instance.exports[action]?.apply();
-        instance.exports["mousedown_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+        instance.exports["pointerdown_offset"]?.apply(null, [event.offsetX, event.offsetY]);
         update();
       }
     }
   });
 
-  el.addEventListener("mousemove", (event) => {
+  el.addEventListener("pointermove", (event) => {
     if (event.buttons === 1) {
-      const action = event.target.closest("[data-action")?.dataset?.mousedownMousemove;
+      const actionTarget = event.target.closest("[data-action");
+      if (actionTarget == null) return;
+
+      const action = actionTarget.dataset["pointerdown+pointermove"];
       if (typeof action === "string") {
         instance.exports[action]?.apply();
-        instance.exports["mousemove_offset"]?.apply(null, [event.offsetX, event.offsetY]);
+        instance.exports["pointermove_offset"]?.apply(null, [event.offsetX, event.offsetY]);
         update();
       }
     }

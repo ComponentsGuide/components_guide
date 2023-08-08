@@ -62,7 +62,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       @last_changed_component = @component_b
     end
 
-    funcp mouse_offset_changed(x: F32, y: F32), offset: F32 do
+    funcp pointer_offset_changed(x: F32, y: F32), offset: F32 do
       offset = (x / @swatch_size + y / @swatch_size) / 2.0
 
       if I32.eq(@last_changed_component, @component_l) do
@@ -78,12 +78,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       end
     end
 
-    func mousedown_offset(x: F32, y: F32) do
-      call(:mouse_offset_changed, x, y)
+    func pointerdown_offset(x: F32, y: F32) do
+      call(:pointer_offset_changed, x, y)
     end
 
-    func mousemove_offset(x: F32, y: F32) do
-      call(:mouse_offset_changed, x, y)
+    func pointermove_offset(x: F32, y: F32) do
+      call(:pointer_offset_changed, x, y)
     end
 
     # import_funcp :math, powf32(x: F32, y: F32), F32
@@ -145,12 +145,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     func swatch_svg(component_id: I32), I32.String do
       build! do
         append!(
-          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action )
+          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" class="touch-none" data-action )
         )
 
-        if I32.eq(component_id, @component_l), do: append!(~S{data-mousedown="l_changed" data-mousedown-mousemove="l_changed"})
-        if I32.eq(component_id, @component_a), do: append!(~S{data-mousedown="a_changed" data-mousedown-mousemove="a_changed"})
-        if I32.eq(component_id, @component_b), do: append!(~S{data-mousedown="b_changed" data-mousedown-mousemove="b_changed"})
+        if I32.eq(component_id, @component_l), do: append!(~S{data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed"})
+        if I32.eq(component_id, @component_a), do: append!(~S{data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed"})
+        if I32.eq(component_id, @component_b), do: append!(~S{data-pointerdown="b_changed" data-pointerdown+pointermove="b_changed"})
 
         append!(~S(>\n))
 

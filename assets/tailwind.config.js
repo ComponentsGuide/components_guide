@@ -6,6 +6,7 @@ module.exports = {
     './assets/js/**/*.js',
     './lib/components_guide_web.ex',
     './lib/components_guide_web/**/*.{ex,heex,eex,md}',
+    './lib/components_guide/wasm/**/*.{ex,heex,eex,md}',
   ],
   plugins: [
     require('@tailwindcss/forms'),
