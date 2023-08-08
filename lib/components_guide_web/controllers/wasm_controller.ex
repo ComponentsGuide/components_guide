@@ -150,7 +150,7 @@ defmodule ComponentsGuideWeb.WasmController do
     wasm_size = byte_size(LabSwatch.to_wasm())
 
     render(conn, :color,
-      html: html,
+      initial_html: html,
       page_title: "WebAssembly Lab Color Picker using Orb",
       wasm_size: wasm_size
     )

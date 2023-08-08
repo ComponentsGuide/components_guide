@@ -45,10 +45,10 @@ async function initWasmHTML(el, wasmModulePromise) {
   const instance = await WebAssembly.instantiate(wasmModule, imports);
   
   memoryIO = new MemoryIO(instance.exports);
-  const { to_html: toHTML, free_all } = instance.exports;
+  const { to_html: toHTML, free_all: freeAll } = instance.exports;
 
   function update() {
-    free_all?.apply();
+    freeAll?.apply();
     const html = memoryIO.readString(toHTML());
     el.innerHTML = html;
   }
