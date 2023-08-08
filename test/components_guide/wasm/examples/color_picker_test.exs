@@ -85,7 +85,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
 
     assert to_html.() === ~S"""
     <div class="flex">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-mousedown="lChanged">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown="l_changed" data-mousedown-mousemove="l_changed">
     <defs>
     <linearGradient id="lab-l-gradient" gradientTransform="scale(1.414) rotate(45)">
     <stop offset="0.0%" stop-color="rgba(195.0,0.0,0.0,1)" />
@@ -98,7 +98,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
     <rect width="1" height="1" fill="url('#lab-l-gradient')" />
     <circle data-drag-knob="" cx="0.5" cy="0.5" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
     </svg>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-mousedown="aChanged">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown="a_changed" data-mousedown-mousemove="a_changed">
     <defs>
     <linearGradient id="lab-a-gradient" gradientTransform="scale(1.414) rotate(45)">
     <stop offset="0.0%" stop-color="rgba(255.0,164.0,0.0,1)" />
@@ -111,7 +111,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
     <rect width="1" height="1" fill="url('#lab-a-gradient')" />
     <circle data-drag-knob="" cx="0.8937007784843445" cy="0.8937007784843445" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
     </svg>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-mousedown="bChanged">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action data-mousedown="b_changed" data-mousedown-mousemove="b_changed">
     <defs>
     <linearGradient id="lab-b-gradient" gradientTransform="scale(1.414) rotate(45)">
     <stop offset="0.0%" stop-color="rgba(255.0,0.0,164.0,1)" />
@@ -125,6 +125,8 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
     <circle data-drag-knob="" cx="-0.0039370059967041016" cy="-0.0039370059967041016" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
     </svg>
     </div>
+    <output class="flex">
+    lab(50.0% 100.0 -128.0)</output>
     """
   end
 end
