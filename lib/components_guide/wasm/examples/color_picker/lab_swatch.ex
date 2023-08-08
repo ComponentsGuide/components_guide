@@ -148,17 +148,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
           ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" data-action )
         )
 
-        # append!(match: component_id) do
-        #   @component_l ->
-
-        # end
-
         if I32.eq(component_id, @component_l), do: append!(~S{data-mousedown="l_changed" data-mousedown-mousemove="l_changed"})
         if I32.eq(component_id, @component_a), do: append!(~S{data-mousedown="a_changed" data-mousedown-mousemove="a_changed"})
         if I32.eq(component_id, @component_b), do: append!(~S{data-mousedown="b_changed" data-mousedown-mousemove="b_changed"})
 
         append!(~S(>\n))
-        # append!(~S(">\n))
 
         append!(~S(<defs>\n))
         append!(:do_linear_gradient, component_id)
@@ -205,12 +199,6 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         append!(~S{" gradientTransform="scale(1.414) rotate(45)">\n})
 
         loop Stops do
-          # append!(:do_linear_gradient_stop, [
-          #   i / 4.0,
-          #   call(:interpolate, i / 4.0, 0.0, 100.0),
-          #   @a,
-          #   @b
-          # ])
           append!(:do_linear_gradient_stop_for, [
             i / @quantization,
             component_id
@@ -220,11 +208,6 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
           Stops.continue(if: i <= @quantization)
         end
 
-        # append!(:do_linear_gradient_stop, [0.0, 0.0, 0.0, 0.0])
-        # append!(:do_linear_gradient_stop, [0.25, 25.0, 0.0, 0.0])
-        # append!(:do_linear_gradient_stop, [0.5, 50.0, 0.0, 0.0])
-        # append!(:do_linear_gradient_stop, [0.75, 75.0, 0.0, 0.0])
-        # append!(:do_linear_gradient_stop, [1.0, 100.0, 0.0, 0.0])
         append!(~S{</linearGradient>\n})
       end
     end

@@ -87,7 +87,6 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
 
     funcp linear_srgb_to_srgb_component(c: F32), F32 do
       if c > 0.0031308, result: F32 do
-        # 1.055 * :math.pow(c, 1.0 / 2.4) - 0.055
         1.055 * call(:powf32, c, 1.0 / 2.4) - 0.055
       else
         12.92 * c
@@ -128,7 +127,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     end
 
     func srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      # {r, g, b} |> srgb_to_linear_srgb() |> linear_srgb_to_xyz()
+      # TODO: {r, g, b} |> srgb_to_linear_srgb() |> linear_srgb_to_xyz()
       call(:srgb_to_linear_srgb, r, g, b)
       call(:linear_srgb_to_xyz)
     end

@@ -50,7 +50,6 @@ async function initWasmHTML(el, wasmModulePromise) {
   function update() {
     free_all?.apply();
     const html = memoryIO.readString(toHTML());
-    // console.log("wasm-html render", html)
     el.innerHTML = html;
   }
 
@@ -61,7 +60,6 @@ async function initWasmHTML(el, wasmModulePromise) {
       update();
     }
   });
-
 
   el.addEventListener("mousedown", (event) => {
     if (event.buttons === 1) {
