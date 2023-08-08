@@ -120,11 +120,16 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         g = :pop
         r = :pop
         append!(~S{rgb(})
-        append!(decimal_f32: r)
+        # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(r * 255.0)))
+        # append!(~S{ })
+        # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(g * 255.0)))
+        # append!(~S{ })
+        # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(b * 255.0)))
+        append!(decimal_f32: F32.nearest(r * 255.0))
         append!(~S{ })
-        append!(decimal_f32: g)
+        append!(decimal_f32: F32.nearest(g * 255.0))
         append!(~S{ })
-        append!(decimal_f32: b)
+        append!(decimal_f32: F32.nearest(b * 255.0))
         append!(~S{)\n})
 
         append!(~S{</pre></output>\n})
