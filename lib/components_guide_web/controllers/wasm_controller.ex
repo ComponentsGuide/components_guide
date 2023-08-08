@@ -38,6 +38,7 @@ defmodule ComponentsGuideWeb.WasmController do
   alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.Examples.HTML
   alias ComponentsGuide.Wasm.Examples.State
+  alias ComponentsGuide.Wasm.Examples.LabSwatch
 
   import ComponentsGuideWeb.WasmShared
   @modules all_modules()
@@ -139,15 +140,21 @@ defmodule ComponentsGuideWeb.WasmController do
     {function, media_type} =
       {:to_html, "text/html"}
 
-    instance = Instance.run(ComponentsGuide.Wasm.Examples.LabSwatch, imports)
+    instance = Instance.run(LabSwatch, imports)
     # set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
     to_html = Instance.capture(instance, String, function, 0)
 
     # set_www_form_data.(conn.query_string)
 
     html = to_html.()
+    wasm_size = byte_size(LabSwatch.to_wasm())
 
-    render(conn, :color, html: html, page_title: "WebAssembly Lab Color Picker using Orb")
+    render(conn, :color,
+      html: html,
+      page_title: "WebAssembly Lab Color Picker using Orb",
+      wasm_size: wasm_size
+    )
+
     # conn
     # |> put_resp_content_type(media_type)
     # |> send_resp(200, html)

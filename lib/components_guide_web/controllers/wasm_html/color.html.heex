@@ -1,4 +1,8 @@
-<wasm-simple-html class="block p-8 text-white">
-  <source src="/wasm/module/color_lab_swatch.wasm" type="application/wasm" />
-  <%= raw(@html) %>
-</wasm-simple-html>
+<article class="p-8 text-white">
+  <wasm-simple-html class="block">
+    <source src="/wasm/module/color_lab_swatch.wasm" type="application/wasm" />
+    <%= raw(@html) %>
+  </wasm-simple-html>
+
+  <p class="mt-4">WebAssembly module size: <%= Format.humanize_bytes(@wasm_size) %></p>
+</article>
