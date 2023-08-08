@@ -28,7 +28,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     f32: Orb.DSL.funcp(name: :log_f32, params: F32)
   )
 
-  F32.export_global(:mutable, swatch_size: 160.0)
+  F32.export_global(:mutable, swatch_size: 120.0)
   F32.export_global(:mutable, quantization: 16.0)
 
   F32.export_global(:mutable,
@@ -77,14 +77,8 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         @b = ((offset * 2.0 - 1.0) * 127.0) |> F32.nearest()
       end
     end
-
-    func pointerdown_offset(x: F32, y: F32) do
-      call(:pointer_offset_changed, x, y)
-    end
-
-    func pointermove_offset(x: F32, y: F32) do
-      call(:pointer_offset_changed, x, y)
-    end
+    |> export("pointerdown_offset")
+    |> export("pointermove_offset")
 
     # import_funcp :math, powf32(x: F32, y: F32), F32
 
@@ -144,9 +138,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
     func swatch_svg(component_id: I32), I32.String do
       build! do
-        append!(
-          ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="160" height="160" class="touch-none" data-action )
-        )
+        append!(~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="))
+        append!(decimal_f32: @swatch_size)
+        append!(~S(" height="))
+        append!(decimal_f32: @swatch_size)
+        append!(~S(" class="touch-none" data-action ))
 
         if I32.eq(component_id, @component_l), do: append!(~S{data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed"})
         if I32.eq(component_id, @component_a), do: append!(~S{data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed"})
