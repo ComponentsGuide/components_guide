@@ -96,9 +96,30 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       end
     end
 
-    funcp do_output_code(), I32.String, r: F32, g: F32, b: F32 do
+    funcp do_output_code(), I32.String do
       build! do
-        append!(~S{<output class="flex mt-4"><pre>\n})
+        append!(~S{<output class="flex flex-col mt-4 font-mono">\n})
+
+        append!(~S{<p class="flex items-center gap-1">})
+        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem" fill="red"><rect width="1" height="1" fill="})
+        append!(:do_css_lab)
+        append!(~S{" /></svg> })
+        append!(:do_css_lab)
+        append!(~S{</p>\n})
+
+        append!(~S{<p class="flex items-center gap-1">})
+        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem" fill="red"><rect width="1" height="1" fill="})
+        append!(:do_css_rgb)
+        append!(~S{" /></svg> })
+        append!(:do_css_rgb)
+        append!(~S{</p>\n})
+
+        append!(~S{</output>\n})
+      end
+    end
+
+    func do_css_lab(), I32.String, r: F32, g: F32, b: F32 do
+      build! do
         append!(~S{lab(})
         append!(decimal_f32: @l)
         append!(~S{% })
@@ -106,13 +127,17 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         append!(~S{ })
         # append!(decimal_f32: @b)
         append!(decimal_f32: global_get(:b))
-        append!(~S{)\n})
+        append!(~S{)})
+      end
+    end
 
-        # call(:lab_to_srgb, @l, @a, @b)
-        call(:lab_to_srgb, global_get(:l), global_get(:a), global_get(:b))
-        b = :pop
-        g = :pop
-        r = :pop
+    func do_css_rgb(), I32.String, r: F32, g: F32, b: F32 do
+      call(:lab_to_srgb, global_get(:l), global_get(:a), global_get(:b))
+      b = :pop
+      g = :pop
+      r = :pop
+
+      build! do
         append!(~S{rgb(})
         # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(r * 255.0)))
         # append!(~S{ })
@@ -124,9 +149,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
         append!(decimal_f32: F32.nearest(g * 255.0))
         append!(~S{ })
         append!(decimal_f32: F32.nearest(b * 255.0))
-        append!(~S{)\n})
-
-        append!(~S{</pre></output>\n})
+        append!(~S{)})
       end
     end
 

@@ -8,6 +8,10 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   @k :math.pow(29, 3) / :math.pow(3, 3)
   @e :math.pow(6, 3) / :math.pow(29, 3)
 
+  # Global.expose_attributes([:xn, :yn, :zn, :k, :e])
+
+  # TODO: check against CSS’s https://www.w3.org/TR/css-color-4/#color-conversion-code
+
   # F32.global(:readonly, e: :math.pow(6, 3) / :math.pow(29, 3))
 
   wasm_import(:math,
