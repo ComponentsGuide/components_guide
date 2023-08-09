@@ -60,45 +60,39 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       func to_string(), I32.String do
         build! do
           if @public do
-            append!(~S"public")
+            append!(~S|public|)
           else
             if @private do
-              append!(~S"private")
+              append!(~S|private|)
             else
               if @no_store do
-                append!(~S"no-store")
+                append!(~S|no-store|)
               end
             end
           end
 
           if @max_age_seconds > 0 do
-            if appended?() do
-              append!(~S", ")
-            end
+            if appended?(), do: append!(~S|, |)
 
-            append!(~S"max-age=")
+            append!(~S|max-age=|)
             append!(decimal_u32: @max_age_seconds)
           end
 
           if @s_max_age_seconds > 0 do
-            if appended?() do
-              append!(string: const(", "))
-            end
+            if appended?(), do: append!(~S|, |)
 
-            append!(~S"s-maxage=")
+            append!(~S|s-maxage=|)
             append!(decimal_u32: @s_max_age_seconds)
           end
 
           if @immutable do
-            if appended?() do
-              append!(~S", ")
-            end
+            if appended?(), do: append!(~S|, |)
 
-            append!(~S"immutable")
+            append!(~S|immutable|)
           end
 
           if not(appended?()) do
-            append!(~S"max-age=0")
+            append!(~S|max-age=0|)
           end
 
         end
