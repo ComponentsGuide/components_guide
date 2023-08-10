@@ -2,22 +2,11 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   require Orb.DSL
   use Orb
 
-  with do
-    @xn 0.96422
-    @yn 1.00000
-    @zn 0.82521
-    @k :math.pow(29, 3) / :math.pow(3, 3)
-    @e :math.pow(6, 3) / :math.pow(29, 3)
-  end
-  # export_global :mutable do
-  #   @xn 0.96422
-  #   @yn 1.00000
-  #   @zn 0.82521
-  #   @k :math.pow(29, 3) / :math.pow(3, 3)
-  #   @e :math.pow(6, 3) / :math.pow(29, 3)
-  # end
-
-  # Global.expose_attributes([:xn, :yn, :zn, :k, :e])
+  @xn 0.96422
+  @yn 1.00000
+  @zn 0.82521
+  @k :math.pow(29, 3) / :math.pow(3, 3)
+  @e :math.pow(6, 3) / :math.pow(29, 3)
 
   # TODO: check against CSS’s https://www.w3.org/TR/css-color-4/#color-conversion-code
 
