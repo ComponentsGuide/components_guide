@@ -24,16 +24,16 @@ defmodule ComponentsGuide.Wasm.Examples.MagicNumbers.Test do
 
     @tag :skip
     test "opt" do
-      path_wasm = Path.join(__DIR__, "url_encode.wasm")
-      path_wat = Path.join(__DIR__, "url_encode.wat")
-      path_opt_wasm = Path.join(__DIR__, "url_encode_OPT.wasm")
-      path_opt_wat = Path.join(__DIR__, "url_encode_OPT.wat")
-      wasm = Wasm.to_wasm(URLEncoding)
+      path_wasm = Path.join(__DIR__, "mobile_throttling.wasm")
+      path_wat = Path.join(__DIR__, "mobile_throttling.wat")
+      path_opt_wasm = Path.join(__DIR__, "mobile_throttling_OPT.wasm")
+      path_opt_wat = Path.join(__DIR__, "mobile_throttling_OPT.wat")
+      wasm = Wasm.to_wasm(MobileThrottling)
       File.write!(path_wasm, wasm)
       System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
 
       %{size: size} = File.stat!(path_opt_wasm)
-      assert size == 408
+      assert size == 168
 
       {wat, 0} = System.cmd("wasm2wat", [path_wasm])
       File.write!(path_wat, wat)

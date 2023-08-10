@@ -67,8 +67,6 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
              ]
     end
 
-    # FIXME
-    @tag :skip
     test "works by using correct imported function" do
       instance = HTTPProxy.start()
 

@@ -8,8 +8,6 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite.Test do
   }
 
   describe "HeightsTable" do
-    # FIXME
-    @tag :skip
     test "works" do
       {inst, db} = HeightsTable.start()
       # inst = Instance.run(HeightsTable)

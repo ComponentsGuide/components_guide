@@ -284,7 +284,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTMLTest do
   end
 
   describe "HTMLFormBuilder" do
-    @tag :skip
     test "works" do
       instance = Instance.run(HTMLFormBuilder)
 
