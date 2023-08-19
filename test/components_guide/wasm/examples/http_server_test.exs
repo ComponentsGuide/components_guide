@@ -13,6 +13,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
     test "GET / returns 200", context do
       inst = context[:inst]
       # put_in(inst[:method], "GET")
+      # put_in(inst, [fn :get_and_update, inst, next ->
+      #   value = nil
+      #   # Instance.call(inst, :set_method, Instance.alloc_string(inst, "GET"))
+      #   case next.(value) do
+      #     {get, update} -> {get, Instance.call(inst, :set_method, Instance.alloc_string(inst, update))}
+      #   end
+      # end], "GET")
       Instance.call(inst, :set_method, Instance.alloc_string(inst, "GET"))
       Instance.call(inst, :set_path, Instance.alloc_string(inst, "/"))
 
