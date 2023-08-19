@@ -82,7 +82,7 @@ async function initWasmHTML(el, wasmModulePromise) {
 
       const action = actionTarget.dataset["pointerdown+pointermove"];
       if (typeof action === "string") {
-        instance.exports[action]?.apply();
+        // instance.exports[action]?.apply();
         instance.exports["pointermove_offset"]?.apply(null, [event.offsetX, event.offsetY]);
         update();
       }
