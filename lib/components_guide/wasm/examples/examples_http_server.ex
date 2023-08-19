@@ -9,14 +9,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     use IntToString
     use StringBuilder
 
+    SilverOrb.BumpAllocator.export_alloc()
+
     I32.global(
       method: 0,
       path: 0
     )
 
     wasm do
-      func(alloc(byte_count(I32)), I32, do: call(:bump_alloc, byte_count))
-
       I32.attr_writer(:method, as: :set_method)
       I32.attr_writer(:path, as: :set_path)
 
