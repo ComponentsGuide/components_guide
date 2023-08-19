@@ -1,7 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   use Orb
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-  use BumpAllocator
+  use SilverOrb.BumpAllocator
   use ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.ColorConversion
 
@@ -45,7 +44,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   I32.enum([:component_l, :component_a, :component_b], 1)
   I32.export_global(:mutable, last_changed_component: 0)
 
-  BumpAllocator.export_alloc()
+  SilverOrb.BumpAllocator.export_alloc()
 
   wasm F32 do
     ColorConversion.funcp()
@@ -281,8 +280,10 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       call(:lab_to_srgb, l, a, b)
 
       inline for var! <- [:blue, :green, :red] do
-        F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
-        local_set(var!)
+        wasm F32 do
+          F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
+          local_set(var!)
+        end
       end
 
       build! do

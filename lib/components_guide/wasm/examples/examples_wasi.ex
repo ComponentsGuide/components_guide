@@ -10,12 +10,14 @@ defmodule ComponentsGuide.Wasm.Examples.WASI do
     # export const CLOCKID_MONOTONIC = 1;
     # export const CLOCKID_PROCESS_CPUTIME_ID = 2;
     # export const CLOCKID_THREAD_CPUTIME_ID = 3;
-    @clockid I32.calculate_enum([
+    @clockid [
                :realtime,
                :monotonic,
                :process_cputime_id,
                :thread_cputime_id
-             ])
+             ]
+             |> Enum.with_index()
+             |> Map.new(fn {key, index} -> {key, {:i32_const, index}} end)
 
     wasm_import(:wasi_unstable,
       clock_res_get: Orb.DSL.funcp(name: :clock_res_get, params: [I32, I32], result: I32),

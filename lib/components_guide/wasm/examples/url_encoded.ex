@@ -2,20 +2,20 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   # https://url.spec.whatwg.org/#application/x-www-form-urlencoded
 
   use Orb
-  alias ComponentsGuide.Wasm.Examples.Memory.{BumpAllocator, Copying}
+  alias ComponentsGuide.Wasm.Examples.Memory.{Copying}
   alias ComponentsGuide.Wasm.Examples.StringBuilder
-  alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
+  # alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
-  use BumpAllocator
+  use SilverOrb.BumpAllocator
   use Copying
   use StringBuilder
   # use LinkedLists
 
-  BumpAllocator.export_alloc()
+  SilverOrb.BumpAllocator.export_alloc()
 
   defmacro __using__(_) do
     quote do
-      use BumpAllocator
+      use SilverOrb.BumpAllocator
       use Copying
       use StringBuilder
       use I32.String
@@ -29,7 +29,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   end
 
   wasm U32 do
-    func url_encoded_count(url_encoded: I32.U8.Pointer), I32,
+    func url_encoded_count(url_encoded: I32.U8.UnsafePointer), I32,
       char: I32.U8,
       count: I32,
       pair_char_len: I32 do
@@ -51,7 +51,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       count
     end
 
-    func url_encoded_empty?(url_encoded: I32.U8.Pointer), I32,
+    func url_encoded_empty?(url_encoded: I32.U8.UnsafePointer), I32,
       char: I32.U8,
       pair_char_len: I32 do
       loop EachByte, result: I32 do
@@ -71,7 +71,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func url_encoded_clone_first(url_encoded: I32.U8.Pointer), I32.U8.Pointer,
+    func url_encoded_clone_first(url_encoded: I32.U8.UnsafePointer), I32.U8.UnsafePointer,
       char: I32.U8,
       len: I32 do
       build_begin!()
@@ -96,7 +96,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     end
 
     # Like tl but for url-encoded data
-    func url_encoded_rest(url_encoded: I32.U8.Pointer), I32.U8.Pointer, char: I32.U8, len: I32 do
+    func url_encoded_rest(url_encoded: I32.U8.UnsafePointer), I32.U8.UnsafePointer, char: I32.U8, len: I32 do
       loop EachByte, result: I32 do
         char = url_encoded[at!: 0]
 
@@ -115,15 +115,15 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     end
 
     func url_encoded_decode_first_value_www_form(
-           url_encoded: I32.U8.Pointer,
-           key: I32.U8.Pointer
+           url_encoded: I32.U8.UnsafePointer,
+           key: I32.U8.UnsafePointer
          ),
-         I32.U8.Pointer do
+         I32.U8.UnsafePointer do
       0
     end
 
-    func url_encoded_first_value_offset(url_encoded: I32.U8.Pointer),
-         I32.U8.Pointer,
+    func url_encoded_first_value_offset(url_encoded: I32.U8.UnsafePointer),
+         I32.U8.UnsafePointer,
          char: I32.U8,
          len: I32 do
       loop EachByte, result: I32 do
@@ -156,8 +156,8 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func _url_encoded_value_next_char(ptr: I32.U8.Pointer), I32.U8.Pointer,
-      next: I32.U8.Pointer,
+    func _url_encoded_value_next_char(ptr: I32.U8.UnsafePointer), I32.U8.UnsafePointer,
+      next: I32.U8.UnsafePointer,
       next_char: I32.U8 do
       # next = I32.when?(I32.eq(I32.load8_u(ptr), ?%), do: 3, else: 1) |> I32.add(ptr)
       # next_char = I32.load8_u(next)
@@ -185,10 +185,10 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
         char = str_ptr[at!: 0]
 
         if char do
-          if I32.in_inclusive_range?(char, ?a, ?z)
-             |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
-             |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
-             |> I32.or(I32.in?(char, ~C{+:/?#[]@!$&\'()*,;=~_-.})) do
+          if (char >= ?a &&& char <= ?z) or
+             (char >= ?A &&& char <= ?Z) or
+             (char >= ?0 &&& char <= ?9) or
+             I32.in?(char, ~C{+:/?#[]@!$&\'()*,;=~_-.}) do
             append!(ascii: char)
           else
             append!(ascii: ?%)
@@ -238,10 +238,10 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
           if I32.eq(char, 0x20) do
             append!(ascii: ?+)
           else
-            if I32.in_inclusive_range?(char, ?a, ?z)
-               |> I32.or(I32.in_inclusive_range?(char, ?A, ?Z))
-               |> I32.or(I32.in_inclusive_range?(char, ?0, ?9))
-               |> I32.or(I32.in?(char, ~C{~_-.})) do
+            if (char >= ?a &&& char <= ?z) or
+            (char >= ?A &&& char <= ?Z) or
+            (char >= ?0 &&& char <= ?9) or
+            I32.in?(char, ~C{~_-.}) do
               append!(ascii: char)
             else
               append!(ascii: ?%)
@@ -266,7 +266,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func append_url_encode_query_pair_www_form(key: I32.U8.Pointer, value: I32.U8.Pointer) do
+    func append_url_encode_query_pair_www_form(key: I32.U8.UnsafePointer, value: I32.U8.UnsafePointer) do
       append!(ascii: ?&)
       call(:append_url_encode_www_form, key)
       append!(ascii: ?=)
@@ -308,7 +308,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    #     func url_encode_query_www_form(list_ptr: I32.Pointer), I32.String do
+    #     func url_encode_query_www_form(list_ptr: I32.UnsafePointer), I32.String do
     #       build! do
     #         loop EachPair do
     #           append!(string: LinkedLists.hd!(LinkedLists.hd!(list_ptr)))

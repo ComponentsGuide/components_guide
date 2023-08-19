@@ -1,7 +1,6 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.StringBuilder
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
@@ -14,7 +13,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # https://github.com/jjenzz/pretty-cache-header
 
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use Copying
     use StringBuilder
 
@@ -104,11 +103,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 
     use Orb
-    # use Memory, allocator: :bump
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use Copying
     use I32.String
     use StringBuilder
+
+    SilverOrb.BumpAllocator.export_alloc()
 
     # defmodule Constants do
     #   @constant_values I32.calculate_enum([:secure, :http_only])
@@ -131,7 +131,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       IntToString.funcp(:u32toa_count)
       IntToString.funcp(:u32toa)
 
-      func(alloc(byte_count: I32), I32, do: call(:bump_alloc, byte_count))
+      # func(alloc(byte_count: I32), I32, do: call(:bump_alloc, byte_count))
 
       I32.attr_writer(:name, as: :set_cookie_name)
       I32.attr_writer(:value, as: :set_cookie_value)

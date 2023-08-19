@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPServer.Test do
-  # FIXME
-  use ExUnit.Case, async: true, register: false
+  use ExUnit.Case, async: true
 
   alias OrbWasmtime.Instance
   alias ComponentsGuide.Wasm.Examples.HTTPServer

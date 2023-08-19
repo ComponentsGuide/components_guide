@@ -1,12 +1,11 @@
 defmodule ComponentsGuide.Wasm.Examples.HTML do
   alias OrbWasmtime.{Instance, Wasm}
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
   defmodule BuildHTML do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use StringBuilder
 
     Memory.pages(2)
@@ -52,7 +51,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule EscapeHTML do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
 
     Memory.pages(2)
 
@@ -65,7 +64,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     ]
 
     wasm U32 do
-      funcp escape(read_offset: I32.U8.Pointer, write_offset: I32.U8.Pointer),
+      funcp escape(read_offset: I32.U8.UnsafePointer, write_offset: I32.U8.UnsafePointer),
             I32,
             char: I32.U8,
             bytes_written: I32 do
@@ -79,13 +78,17 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           read_offset = read_offset + 1
 
           inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
-            if I32.eq(char, ^char_to_match!) do
-              inline for char_out! <- ^chars_out! do
-                write_offset[at!: bytes_written] = ^char_out!
-                bytes_written = bytes_written + 1
-              end
+            wasm do
+              if I32.eq(char, ^char_to_match!) do
+                inline for char_out! <- ^chars_out! do
+                  wasm do
+                    write_offset[at!: bytes_written] = ^char_out!
+                    bytes_written = bytes_written + 1
+                  end
+                end
 
-              EachChar.continue()
+                EachChar.continue()
+              end
             end
           end
 
@@ -224,7 +227,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule CounterHTML do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
 
     # @body deftemplate(~E"""
     #       <output class="flex p-4 bg-gray-800"><%= call(:i32toa, count) %></output>
@@ -246,9 +249,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         @count
       end
 
-      func rewind(), ptr: I32.Pointer do
+      func rewind(), ptr: I32.UnsafePointer do
         @body_chunk_index = 0
-        @bump_offset = BumpAllocator.Constants.bump_init_offset()
+        @bump_offset = SilverOrb.BumpAllocator.Constants.bump_init_offset()
 
         ptr = I32.add(64, @bump_offset)
 
@@ -265,7 +268,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       #     end
       #
       #     wasm do
-      funcp i32toa(value: I32), I32, working_ptr: I32.U8.Pointer, digit: I32 do
+      funcp i32toa(value: I32), I32, working_ptr: I32.U8.UnsafePointer, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
         @bump_offset = @bump_offset + 11
@@ -333,7 +336,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     # See: https://buildui.com/courses/framer-motion-recipes/multistep-wizard
 
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use I32.String
     use StringBuilder
 
@@ -402,10 +405,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule SitemapBuilder do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use LinkedLists
 
-    BumpAllocator.export_alloc()
+    SilverOrb.BumpAllocator.export_alloc()
 
     Memory.pages(3)
 
@@ -432,7 +435,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         @body_chunk_index = 0
       end
 
-      func add_url(str_ptr: I32.U8.Pointer) do
+      func add_url(str_ptr: I32.U8.UnsafePointer) do
         @url_list = cons(str_ptr, @url_list)
       end
 
@@ -440,7 +443,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         I32.match @body_chunk_index do
           0 ->
             reverse_in_place!(mut!(@url_list))
-            @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
+            @body_chunk_index = I32.when?(@url_list === 0, do: 4, else: 1)
 
             ~S"""
             <?xml version="1.0" encoding="UTF-8"?>
@@ -458,7 +461,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
           3 ->
             @url_list = tl!(@url_list)
-            @body_chunk_index = @url_list |> I32.eqz?(do: 4, else: 1)
+            @body_chunk_index = I32.when?(@url_list === 0, do: 4, else: 1)
 
             ~S"""
             </loc>
@@ -499,10 +502,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
   defmodule HTMLFormBuilder do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use LinkedLists
 
-    BumpAllocator.export_alloc()
+    SilverOrb.BumpAllocator.export_alloc()
 
     # Memory.pages(3)
 
@@ -532,7 +535,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     wasm U32 do
       EscapeHTML.funcp(:escape)
 
-      func add_textbox(name_ptr: I32.U8.Pointer) do
+      func add_textbox(name_ptr: I32.U8.UnsafePointer) do
         @form_element_list = cons(name_ptr, @form_element_list)
       end
 
@@ -544,7 +547,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
         I32.match @body_chunk_index do
           0 ->
             reverse_in_place!(mut!(@form_element_list))
-            @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
+            @body_chunk_index = I32.when?(@form_element_list === 0, do: 6, else: 1)
 
             ~S[<form>\n]
             return()
@@ -564,7 +567,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
           5 ->
             @form_element_list = tl!(@form_element_list)
-            @body_chunk_index = @form_element_list |> I32.eqz?(do: 6, else: 1)
+            @body_chunk_index = I32.when?(@form_element_list === 0, do: 6, else: 1)
 
             ~S[">\n</label>\n]
 

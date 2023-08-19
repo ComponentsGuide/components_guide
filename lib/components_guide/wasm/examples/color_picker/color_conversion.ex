@@ -12,6 +12,13 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
 
   # F32.global(:readonly, e: :math.pow(6, 3) / :math.pow(29, 3))
 
+  # Import.module :math do
+  #   defwp powf32(x: F32, y: F32), F32
+  # end
+  # Import.module :log do
+  #   defwp i32(x: F32, y: F32), F32, as: :log_i32
+  # end
+
   wasm_import(:math,
     powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
   )

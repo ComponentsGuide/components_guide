@@ -1,6 +1,4 @@
 defmodule ComponentsGuide.Wasm.Examples.Parser do
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-
   defmodule HexConversion do
     use Orb
 
@@ -9,12 +7,7 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
     Memory.pages(1)
 
     wasm U32 do
-      func u32_to_hex_lower(
-             value: I32,
-             write_ptr: I32.U8.Pointer
-           ),
-           i: I32,
-           digit: I32 do
+      func u32_to_hex_lower(value: I32, write_ptr: I32.U8.UnsafePointer), i: I32, digit: I32 do
         i = 8
 
         loop Digits do
@@ -41,13 +34,15 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
 
   defmodule DomainNames do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
     use I32.String
 
-    wasm do
-      func(alloc(byte_size(I32)), I32, do: call(:bump_alloc, byte_size))
+    SilverOrb.BumpAllocator.export_alloc()
 
-      func lookup_domain_name(value(I32.String)), I32 do
+    wasm do
+      # func(alloc(byte_size: I32), I32, do: call(:bump_alloc, byte_size))
+
+      func lookup_domain_name(value: I32.String), I32 do
         I32.String.match value do
           ~S"com" -> 1
           ~S"org" -> 1

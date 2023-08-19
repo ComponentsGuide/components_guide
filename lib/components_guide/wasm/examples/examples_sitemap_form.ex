@@ -1,16 +1,15 @@
 defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
   alias OrbWasmtime.Instance
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.HTML.BuildHTML
   alias ComponentsGuide.Wasm.Examples.URLEncoded
 
   use Orb
-  use BumpAllocator
+  use SilverOrb.BumpAllocator
   # use StringBuilder
   use URLEncoded
   use BuildHTML
 
-  BumpAllocator.export_alloc()
+  SilverOrb.BumpAllocator.export_alloc()
 
   I32.export_enum([:editing, :rendering_html_form, :rendering_xml_sitemap])
 

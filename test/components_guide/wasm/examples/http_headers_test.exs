@@ -76,10 +76,13 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
     alias HTTPHeaders.SetCookie
 
     test "wasm size" do
-      assert byte_size(to_wasm(SetCookie)) == 962
+      # assert byte_size(to_wasm(SetCookie)) == 962
+      assert byte_size(to_wasm(SetCookie)) == 985
     end
 
     test "name and value" do
+      SetCookie.to_wat()
+
       inst = Instance.run(SetCookie)
       # put_in(inst[:name], "foo")
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))

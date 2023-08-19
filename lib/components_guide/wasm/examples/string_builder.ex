@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   use Orb
-  # import ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
@@ -49,7 +48,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       @bump_mark
     end
 
-    funcp bump_write_str(str_ptr: I32.U8.Pointer), len: I32 do
+    funcp bump_write_str(str_ptr: I32.U8.UnsafePointer), len: I32 do
       return(if: I32.eq(str_ptr, @bump_mark))
 
       len = call(:strlen, str_ptr)
@@ -112,8 +111,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def append!(function, args) when is_atom(function) and is_list(args) do
     import Orb.DSL
 
-    # TODO: use upcoming version of Orb that accepts list of args
-    {:call, function, args} |> drop()
+    typed_call(:i32, function, args) |> drop()
   end
 
   def append!(function, a) when is_atom(function) do

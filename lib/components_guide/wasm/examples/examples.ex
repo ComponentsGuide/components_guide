@@ -25,8 +25,10 @@ defmodule ComponentsGuide.Wasm.Examples do
         i = memory32![@input_offset]
 
         # Check equality to each weekday as a i32 e.g. `Mon\0`
-        inline for {day_i32!, index!} <- ^Enum.with_index(@weekdays_i32, 1) do
-          if I32.eq(i, day_i32!), do: return(index!)
+        inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
+          wasm do
+            if I32.eq(i, day_i32!), do: return(index!)
+          end
         end
 
         0

@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.SVG do
   alias OrbWasmtime.Instance
-  # alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
   alias ComponentsGuide.Wasm.Examples.Parser.HexConversion
 
   defmodule Square do

@@ -1,9 +1,7 @@
 defmodule ComponentsGuide.Wasm.Examples.Format do
-  alias ComponentsGuide.Wasm.Examples.Memory.BumpAllocator
-
   defmodule IntToString do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
 
     defmacro __using__(_) do
       quote do
@@ -36,9 +34,9 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         digit_count
       end
 
-      func write_u32(value: I32, str_ptr: I32.U8.Pointer),
+      func write_u32(value: I32, str_ptr: I32.U8.UnsafePointer),
            I32,
-           working_offset: I32.U8.Pointer,
+           working_offset: I32.U8.UnsafePointer,
            last_offset: I32,
            digit: I32 do
         last_offset = I32.add(str_ptr, call(:u32toa_count, value))
@@ -50,7 +48,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
           digit = I32.rem_u(value, 10)
           value = I32.div_u(value, 10)
-          memory32_8![working_offset] = I32.add(?0, digit)
+          Memory.store!(I32.U8, working_offset, I32.add(?0, digit))
+          # memory32_8![working_offset] = I32.add(?0, digit)
 
           Digits.continue(if: I32.gt_u(value, 0))
         end
@@ -89,7 +88,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
   defmodule FloatToString do
     use Orb
-    use BumpAllocator
+    use SilverOrb.BumpAllocator
 
     defmacro __using__(_) do
       quote do
@@ -104,7 +103,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     Memory.pages(2)
 
     wasm F32 do
-      func format_f32(value: F32, str_ptr: I32.U8.Pointer, precision: I32),
+      func format_f32(value: F32, str_ptr: I32.U8.UnsafePointer, precision: I32),
            digit: I32 do
 
 
