@@ -2,12 +2,11 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   # https://url.spec.whatwg.org/#application/x-www-form-urlencoded
 
   use Orb
-  alias ComponentsGuide.Wasm.Examples.Memory.{Copying}
   alias ComponentsGuide.Wasm.Examples.StringBuilder
   # alias ComponentsGuide.Wasm.Examples.Memory.LinkedLists
 
   use SilverOrb.BumpAllocator
-  use Copying
+  use SilverOrb.Mem
   use StringBuilder
   # use LinkedLists
 
@@ -16,7 +15,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
   defmacro __using__(_) do
     quote do
       use SilverOrb.BumpAllocator
-      use Copying
+      use SilverOrb.Mem
       use StringBuilder
       use I32.String
 

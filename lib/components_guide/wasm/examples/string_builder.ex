@@ -1,13 +1,12 @@
 defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   use Orb
-  alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
-  use Copying
+  use SilverOrb.Mem
 
   defmacro __using__(_) do
     quote do
-      use Copying
+      use SilverOrb.Mem
       use I32.String
       use IntToString
 
@@ -52,7 +51,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       return(if: I32.eq(str_ptr, @bump_mark))
 
       len = call(:strlen, str_ptr)
-      Copying.memcpy(@bump_offset, str_ptr, len)
+      SilverOrb.Mem.memcpy(@bump_offset, str_ptr, len)
       @bump_offset = @bump_offset + len
     end
 
@@ -252,8 +251,6 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   #     end
 
   def join!(list!) when is_list(list!) do
-    alias ComponentsGuide.Wasm.Examples.Memory.Copying
-
     snippet do
       build_begin!()
 
@@ -261,7 +258,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
         case item! do
           {:i32_const_string, strptr, string} ->
             [
-              Copying.memcpy(global_get(:bump_offset), strptr, byte_size(string)),
+              SilverOrb.Mem.memcpy(global_get(:bump_offset), strptr, byte_size(string)),
               I32.add(global_get(:bump_offset), byte_size(string)),
               global_set(:bump_offset)
             ]

@@ -1,7 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
-  alias ComponentsGuide.Wasm.Examples.Writer
   alias ComponentsGuide.Wasm.Examples.StringBuilder
-  alias ComponentsGuide.Wasm.Examples.Memory.Copying
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule CacheControl do
@@ -14,7 +12,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     use Orb
     use SilverOrb.BumpAllocator
-    use Copying
+    use SilverOrb.Mem
     use StringBuilder
 
     def start(), do: OrbWasmtime.Instance.run(__MODULE__)
@@ -104,7 +102,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     use Orb
     use SilverOrb.BumpAllocator
-    use Copying
+    use SilverOrb.Mem
     use I32.String
     use StringBuilder
 
