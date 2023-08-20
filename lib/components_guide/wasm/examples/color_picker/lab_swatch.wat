@@ -78,7 +78,7 @@
       (i32.store8 (i32.add (local.get $dest) (local.get $i)) (i32.load8_u (i32.add (local.get $src) (local.get $i))))
       (i32.add (local.get $i) (i32.const 1))
       (local.set $i)
-      br $EachByte
+      (br $EachByte)
     )
   )
   (func $memset (param $dest i32) (param $u8 i32) (param $byte_count i32)
@@ -93,7 +93,7 @@
       (i32.store8 (i32.add (local.get $dest) (local.get $i)) (local.get $u8))
       (i32.add (local.get $i) (i32.const 1))
       (local.set $i)
-      br $EachByte
+      (br $EachByte)
     )
   )
   (func $streq (param $address_a i32) (param $address_b i32) (result i32)
@@ -116,7 +116,7 @@
         (then
           (i32.add (local.get $i) (i32.const 1))
           (local.set $i)
-          br $EachByte
+          (br $EachByte)
         )
       )
       (return (i32.const 0))
@@ -130,7 +130,7 @@
         (then
           (i32.add (local.get $count) (i32.const 1))
           (local.set $count)
-          br $EachChar
+          (br $EachChar)
         )
       )
     )
@@ -147,7 +147,7 @@
       (i32.div_u (local.get $value) (i32.const 10))
       (local.set $value)
       (i32.gt_u (local.get $value) (i32.const 0))
-      br_if $Digits
+      (br_if $Digits)
     )
     (local.get $digit_count)
   )
@@ -165,7 +165,7 @@
       (local.set $value)
       (i32.store8 (local.get $working_offset) (i32.add (i32.const 48) (local.get $digit)))
       (i32.gt_u (local.get $value) (i32.const 0))
-      br_if $Digits
+      (br_if $Digits)
     )
     (local.get $working_offset)
   )
@@ -186,7 +186,7 @@
       (local.set $value)
       (i32.store8 (local.get $working_offset) (i32.add (i32.const 48) (local.get $digit)))
       (i32.gt_u (local.get $value) (i32.const 0))
-      br_if $Digits
+      (br_if $Digits)
     )
     (local.get $last_offset)
   )
@@ -202,7 +202,7 @@
     (global.set $bump_write_level)
   )
   (func $bump_write_done (result i32)
-    (global.get $bump_write_level)
+    (i32.gt_u (global.get $bump_write_level) (i32.const 0))
     (if 
       (then
         nop
@@ -237,8 +237,8 @@
     (i32.add (global.get $bump_offset) (local.get $len))
     (global.set $bump_offset)
   )
-  (func $alloc (export "alloc") (param $size i32) (result i32)
-    (call $bump_alloc (local.get $size))
+  (func $bump_written? (result i32)
+    (i32.gt_u (global.get $bump_offset) (global.get $bump_mark))
   )
   (func $free_all (export "free_all")
     (i32.const 65536)
@@ -249,7 +249,7 @@
     (call $powf32 (local.get $v) (f32.const 3.0))
     (local.set $cubed)
     (f32.gt (local.get $cubed) (f32.const 0.008856451679035631))
-    (if (result f32) 
+    (if (result f32)
       (then
         (local.get $cubed)
       )
@@ -274,7 +274,7 @@
   )
   (func $xyz_to_lab_component (param $c f32) (result f32)
     (f32.gt (local.get $c) (f32.const 0.008856451679035631))
-    (if (result f32) 
+    (if (result f32)
       (then
         (call $powf32 (local.get $c) (f32.div (f32.const 1.0) (f32.const 3.0)))
       )
@@ -304,7 +304,7 @@
   )
   (func $linear_srgb_to_srgb_component (param $c f32) (result f32)
     (f32.gt (local.get $c) (f32.const 0.0031308))
-    (if (result f32) 
+    (if (result f32)
       (then
         (f32.sub (f32.mul (f32.const 1.055) (call $powf32 (local.get $c) (f32.div (f32.const 1.0) (f32.const 2.4)))) (f32.const 0.055))
       )
@@ -320,7 +320,7 @@
   )
   (func $srgb_to_linear_srgb_component (param $c f32) (result f32)
     (f32.lt (local.get $c) (f32.const 0.04045))
-    (if (result f32) 
+    (if (result f32)
       (then
         (f32.div (local.get $c) (f32.const 12.92))
       )
@@ -354,6 +354,9 @@
   (func $srgb_to_lab (param $r f32) (param $g f32) (param $b f32) (result f32 f32 f32)
     (call $srgb_to_xyz (local.get $r) (local.get $g) (local.get $b))
     (call $xyz_to_lab)
+  )
+  (export "alloc" (func $bump_alloc))  (func $interpolate (param $t f32) (param $lowest f32) (param $highest f32) (result f32)
+    (f32.add (f32.mul (f32.sub (local.get $highest) (local.get $lowest)) (local.get $t)) (local.get $lowest))
   )
   (func $l_changed (export "l_changed") (param $new_value f32)
     (global.get $component_l)
@@ -451,11 +454,11 @@
     (local $g f32)
     (local $b f32)
     (call $lab_to_srgb (global.get $l) (global.get $a) (global.get $b))
-
+    
     (local.set $b)
-
+    
     (local.set $g)
-
+    
     (local.set $r)
     (call $bump_write_start)
     (call $bump_write_str (i32.const 502))
@@ -563,9 +566,6 @@
     (call $bump_write_str (i32.const 966))
     (call $bump_write_done)
   )
-  (func $interpolate (param $t f32) (param $lowest f32) (param $highest f32) (result f32)
-    (f32.add (f32.mul (f32.sub (local.get $highest) (local.get $lowest)) (local.get $t)) (local.get $lowest))
-  )
   (func $do_linear_gradient (param $component_id i32) (result i32)
     (local $i f32)
     (call $bump_write_start)
@@ -595,7 +595,7 @@
       (f32.add (local.get $i) (f32.const 1.0))
       (local.set $i)
       (f32.le (local.get $i) (global.get $quantization))
-      br_if $Stops
+      (br_if $Stops)
     )
     (call $bump_write_str (i32.const 1145))
     (call $bump_write_done)
@@ -606,21 +606,21 @@
       (if 
         (then
           (call $do_linear_gradient_stop (local.get $fraction) (call $interpolate (local.get $fraction) (f32.const 0.0) (f32.const 100.0)) (global.get $a) (global.get $b))
-          br $i32_match
+          (br $i32_match)
         )
       )
       (i32.eq (local.get $component_id) (global.get $component_a))
       (if 
         (then
           (call $do_linear_gradient_stop (local.get $fraction) (global.get $l) (call $interpolate (local.get $fraction) (f32.const -127.0) (f32.const 127.0)) (global.get $b))
-          br $i32_match
+          (br $i32_match)
         )
       )
       (i32.eq (local.get $component_id) (global.get $component_b))
       (if 
         (then
           (call $do_linear_gradient_stop (local.get $fraction) (global.get $l) (global.get $a) (call $interpolate (local.get $fraction) (f32.const -127.0) (f32.const 127.0)))
-          br $i32_match
+          (br $i32_match)
         )
       )
       unreachable

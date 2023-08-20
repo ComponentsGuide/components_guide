@@ -46,6 +46,12 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
   SilverOrb.BumpAllocator.export_alloc()
 
+  wasm_mode(F32)
+
+  # defw l_changed(new_value: F32) do
+  #   @last_changed_component = @component_l
+  # end
+
   wasm F32 do
     ColorConversion.funcp()
 
@@ -80,221 +86,220 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     |> export("pointermove_offset")
 
     # import_funcp :math, powf32(x: F32, y: F32), F32
+  end
 
-    func to_html(), I32.String do
-      build! do
-        # content_tag! "div.flex" do
-        # content_tag! :div, [{"class", "flex"}] do
-        append!(~S{<div class="flex gap-4">\n})
-        append!(:swatch_svg, @component_l)
-        append!(:swatch_svg, @component_a)
-        append!(:swatch_svg, @component_b)
-        append!(~S{</div>\n})
+  defw to_html(), I32.String do
+    build! do
+      # content_tag! "div.flex" do
+      # content_tag! :div, [{"class", "flex"}] do
+      append!(~S{<div class="flex gap-4">\n})
+      append!(:swatch_svg, @component_l)
+      append!(:swatch_svg, @component_a)
+      append!(:swatch_svg, @component_b)
+      append!(~S{</div>\n})
 
-        append!(:do_output_code)
-      end
-    end
-
-    funcp do_output_code(), I32.String do
-      build! do
-        append!(~S{<output class="flex flex-col mt-4 font-mono">\n})
-
-        append!(~S{<p class="flex items-center gap-1">})
-        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="})
-        append!(:do_css_lab)
-        append!(~S{" /></svg> })
-        append!(:do_css_lab)
-        append!(~S{</p>\n})
-
-        append!(~S{<p class="flex items-center gap-1">})
-        append!(~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="})
-        append!(:do_css_rgb)
-        append!(~S{" /></svg> })
-        append!(:do_css_rgb)
-        append!(~S{</p>\n})
-
-        append!(~S{</output>\n})
-      end
-    end
-
-    func do_css_lab(), I32.String, r: F32, g: F32, b: F32 do
-      build! do
-        append!(~S{lab(})
-        append!(decimal_f32: @l)
-        append!(~S{% })
-        append!(decimal_f32: @a)
-        append!(~S{ })
-        # append!(decimal_f32: @b)
-        append!(decimal_f32: global_get(:b))
-        append!(~S{)})
-      end
-    end
-
-    func do_css_rgb(), I32.String, r: F32, g: F32, b: F32 do
-      typed_call({F32, F32, F32}, :lab_to_srgb, [global_get(:l), global_get(:a), global_get(:b)])
-      b = :pop
-      g = :pop
-      r = :pop
-
-      build! do
-        append!(~S{rgb(})
-        # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(r * 255.0)))
-        # append!(~S{ })
-        # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(g * 255.0)))
-        # append!(~S{ })
-        # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(b * 255.0)))
-        append!(decimal_f32: F32.nearest(r * 255.0))
-        append!(~S{ })
-        append!(decimal_f32: F32.nearest(g * 255.0))
-        append!(~S{ })
-        append!(decimal_f32: F32.nearest(b * 255.0))
-        append!(~S{)})
-      end
-    end
-
-    func to_svg(), I32.String do
-      build! do
-        append!(:swatch_svg, @component_l)
-      end
-    end
-
-    func swatch_svg(component_id: I32), I32.String do
-      build! do
-        append!(~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="))
-        append!(decimal_f32: @swatch_size)
-        append!(~S(" height="))
-        append!(decimal_f32: @swatch_size)
-        append!(~S(" class="touch-none" data-action ))
-
-        if I32.eq(component_id, @component_l), do: append!(~S{data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed"})
-        if I32.eq(component_id, @component_a), do: append!(~S{data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed"})
-        if I32.eq(component_id, @component_b), do: append!(~S{data-pointerdown="b_changed" data-pointerdown+pointermove="b_changed"})
-
-        append!(~S(>\n))
-
-        append!(~S(<defs>\n))
-        append!(:do_linear_gradient, component_id)
-        append!(~S(</defs>\n))
-
-        append!(~S{<rect width="1" height="1" fill="url('#lab-})
-        if I32.eq(component_id, @component_l), do: append!(~S{l})
-        if I32.eq(component_id, @component_a), do: append!(~S{a})
-        if I32.eq(component_id, @component_b), do: append!(~S{b})
-        append!(~S{-gradient')" />\n})
-
-        # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
-        if I32.eq(component_id, @component_l), do: append!(:do_drag_knob, @l / 100.0)
-        if I32.eq(component_id, @component_a), do: append!(:do_drag_knob, @a / 127.0 / 2.0 + 0.5)
-        if I32.eq(component_id, @component_b), do: append!(:do_drag_knob, @b / 127.0 / 2.0 + 0.5)
-        # append!(:do_drag_knob, 0.5)
-
-        append!(~S{</svg>\n})
-      end
-    end
-
-    funcp do_drag_knob(offset: F32), I32.String do
-      build! do
-        append!(~S{<circle data-drag-knob="" cx="})
-        append!(decimal_f32: offset)
-        append!(~S{" cy="})
-        append!(decimal_f32: offset)
-        append!(~S{" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n})
-      end
-    end
-
-    funcp interpolate(t: F32, lowest: F32, highest: F32), F32 do
-      (highest - lowest) * t + lowest
-    end
-
-    funcp do_linear_gradient(component_id: I32), I32.String, i: F32 do
-      build! do
-        append!(~S{<linearGradient id="})
-
-        if I32.eq(component_id, @component_l), do: append!(~S{lab-l-gradient})
-        if I32.eq(component_id, @component_a), do: append!(~S{lab-a-gradient})
-        if I32.eq(component_id, @component_b), do: append!(~S{lab-b-gradient})
-
-        append!(~S{" gradientTransform="scale(1.414) rotate(45)">\n})
-
-        loop Stops do
-          append!(:do_linear_gradient_stop_for, [
-            i / @quantization,
-            component_id
-          ])
-
-          i = i + 1.0
-          Stops.continue(if: i <= @quantization)
-        end
-
-        append!(~S{</linearGradient>\n})
-      end
+      _ = do_output_code()
     end
   end
 
-  wasm F32 do
-    funcp do_linear_gradient_stop_for(fraction: F32, component_id: I32), I32 do
-      I32.match component_id do
-        @component_l ->
-          call(
-            :do_linear_gradient_stop,
-            fraction,
-            call(:interpolate, fraction, 0.0, 100.0),
-            @a,
-            @b
-          )
+  defwp do_output_code(), I32.String do
+    build! do
+      append!(~S{<output class="flex flex-col mt-4 font-mono">\n})
 
-        @component_a ->
-          call(
-            :do_linear_gradient_stop,
-            fraction,
-            @l,
-            call(:interpolate, fraction, -127.0, 127.0),
-            @b
-          )
+      append!(~S{<p class="flex items-center gap-1">})
 
-        @component_b ->
-          call(
-            :do_linear_gradient_stop,
-            fraction,
-            @l,
-            @a,
-            call(:interpolate, fraction, -127.0, 127.0)
-          )
+      append!(
+        ~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="}
+      )
+
+      do_css_lab()
+      append!(~S{" /></svg> })
+      do_css_lab()
+      append!(~S{</p>\n})
+
+      append!(~S{<p class="flex items-center gap-1">})
+
+      append!(
+        ~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="}
+      )
+
+      do_css_rgb()
+      append!(~S{" /></svg> })
+      do_css_rgb()
+      append!(~S{</p>\n})
+
+      append!(~S{</output>\n})
+    end
+  end
+
+  defwp do_css_lab(), r: F32, g: F32, b: F32 do
+    append!(~S{lab(})
+    append!(decimal_f32: @l)
+    append!(~S{% })
+    append!(decimal_f32: @a)
+    append!(~S{ })
+    # append!(decimal_f32: @b)
+    append!(decimal_f32: global_get(:b))
+    append!(~S{)})
+  end
+
+  defwp do_css_rgb(), r: F32, g: F32, b: F32 do
+    typed_call({F32, F32, F32}, :lab_to_srgb, [@l, @a, global_get(:b)])
+    b = :pop
+    g = :pop
+    r = :pop
+
+    append!(~S{rgb(})
+    # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(r * 255.0)))
+    # append!(~S{ })
+    # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(g * 255.0)))
+    # append!(~S{ })
+    # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(b * 255.0)))
+    append!(decimal_f32: F32.nearest(r * 255.0))
+    append!(~S{ })
+    append!(decimal_f32: F32.nearest(g * 255.0))
+    append!(~S{ })
+    append!(decimal_f32: F32.nearest(b * 255.0))
+    append!(~S{)})
+  end
+
+  defw to_svg(), I32.String do
+    swatch_svg(@component_l)
+  end
+
+  defwp swatch_svg(component_id: I32), I32.String do
+    build! do
+      append!(~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width="))
+      append!(decimal_f32: @swatch_size)
+      append!(~S(" height="))
+      append!(decimal_f32: @swatch_size)
+      append!(~S(" class="touch-none" data-action ))
+
+      if I32.eq(component_id, @component_l),
+        do: append!(~S{data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed"})
+
+      if I32.eq(component_id, @component_a),
+        do: append!(~S{data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed"})
+
+      if I32.eq(component_id, @component_b),
+        do: append!(~S{data-pointerdown="b_changed" data-pointerdown+pointermove="b_changed"})
+
+      append!(~S(>\n))
+
+      append!(~S(<defs>\n))
+      _ = do_linear_gradient(component_id)
+      append!(~S(</defs>\n))
+
+      append!(~S{<rect width="1" height="1" fill="url('#lab-})
+      if I32.eq(component_id, @component_l), do: append!(~S{l})
+      if I32.eq(component_id, @component_a), do: append!(~S{a})
+      if I32.eq(component_id, @component_b), do: append!(~S{b})
+      append!(~S{-gradient')" />\n})
+
+      # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
+      if I32.eq(component_id, @component_l), do: do_drag_knob(@l / 100.0)
+      if I32.eq(component_id, @component_a), do: do_drag_knob(@a / 127.0 / 2.0 + 0.5)
+      if I32.eq(component_id, @component_b), do: do_drag_knob(@b / 127.0 / 2.0 + 0.5)
+      # append!(:do_drag_knob, 0.5)
+
+      append!(~S{</svg>\n})
+    end
+  end
+
+  defwp do_drag_knob(offset: F32) do
+    _ = build! do
+      append!(~S{<circle data-drag-knob="" cx="})
+      append!(decimal_f32: offset)
+      append!(~S{" cy="})
+      append!(decimal_f32: offset)
+      append!(~S{" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n})
+    end
+  end
+
+  defwp interpolate(t: F32, lowest: F32, highest: F32), F32 do
+    (highest - lowest) * t + lowest
+  end
+
+  defwp do_linear_gradient(component_id: I32), I32.String, i: F32 do
+    build! do
+      append!(~S{<linearGradient id="})
+
+      if I32.eq(component_id, @component_l), do: append!(~S{lab-l-gradient})
+      if I32.eq(component_id, @component_a), do: append!(~S{lab-a-gradient})
+      if I32.eq(component_id, @component_b), do: append!(~S{lab-b-gradient})
+
+      append!(~S{" gradientTransform="scale(1.414) rotate(45)">\n})
+
+      loop Stops do
+        _ = do_linear_gradient_stop_for(i / @quantization, component_id)
+
+        i = i + 1.0
+        Stops.continue(if: i <= @quantization)
+      end
+
+      append!(~S{</linearGradient>\n})
+    end
+  end
+
+  defwp do_linear_gradient_stop_for(fraction: F32, component_id: I32), I32 do
+    I32.match component_id do
+      @component_l ->
+        do_linear_gradient_stop(
+          fraction,
+          interpolate(fraction, 0.0, 100.0),
+          @a,
+          @b
+        )
+
+      @component_a ->
+        do_linear_gradient_stop(
+          fraction,
+          @l,
+          interpolate(fraction, -127.0, 127.0),
+          @b
+        )
+
+      @component_b ->
+        do_linear_gradient_stop(
+          fraction,
+          @l,
+          @a,
+          interpolate(fraction, -127.0, 127.0)
+        )
+    end
+  end
+
+  defwp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32 do
+    build! do
+      append!(~S{<stop offset="})
+      append!(decimal_f32: fraction * 100.0)
+      append!(~S{%" stop-color="})
+      _ = do_css_color_lab_srgb(l, a, b)
+      append!(~S{" />\n})
+    end
+  end
+
+  defwp do_css_color_lab_srgb(l: F32, a: F32, b: F32), I32.String,
+    red: F32,
+    green: F32,
+    blue: F32 do
+    typed_call({F32, F32, F32}, :lab_to_srgb, [l, a, b])
+
+    inline for var! <- [mut!(blue), mut!(green), mut!(red)] do
+      wasm F32 do
+        F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
+        var!.write
       end
     end
 
-    funcp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32 do
-      build! do
-        append!(~S{<stop offset="})
-        append!(decimal_f32: fraction * 100.0)
-        append!(~S{%" stop-color="})
-        append!(:do_css_color_lab_srgb, l, a, b)
-        append!(~S{" />\n})
-      end
-    end
-
-    funcp do_css_color_lab_srgb(l: F32, a: F32, b: F32), I32.String,
-      red: F32,
-      green: F32,
-      blue: F32 do
-      typed_call({F32, F32, F32}, :lab_to_srgb, [l, a, b])
-
-      inline for var! <- [:blue, :green, :red] do
-        wasm F32 do
-          F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
-          local_set(var!)
-        end
-      end
-
-      build! do
-        append!(~S{rgba(})
-        append!(decimal_f32: red)
-        append!(~S{,})
-        append!(decimal_f32: green)
-        append!(~S{,})
-        append!(decimal_f32: blue)
-        append!(~S{,1)})
-      end
+    build! do
+      append!(~S{rgba(})
+      append!(decimal_f32: red)
+      append!(~S{,})
+      append!(decimal_f32: green)
+      append!(~S{,})
+      append!(decimal_f32: blue)
+      append!(~S{,1)})
     end
   end
 
