@@ -127,9 +127,9 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   defwp do_css_lab(), I32.String, r: F32, g: F32, b: F32 do
     build! do
       ~S{lab(}
-      append!(decimal_f32: @l)
+      @l
       ~S{% }
-      append!(decimal_f32: @a)
+      @a
       ~S{ }
       # append!(decimal_f32: @b)
       append!(decimal_f32: global_get(:b))
@@ -150,11 +150,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(g * 255.0)))
       # ~S{ }
       # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(b * 255.0)))
-      append!(decimal_f32: F32.nearest(r * 255.0))
+      F32.nearest(r * 255.0)
       ~S{ }
-      append!(decimal_f32: F32.nearest(g * 255.0))
+      F32.nearest(g * 255.0)
       ~S{ }
-      append!(decimal_f32: F32.nearest(b * 255.0))
+      F32.nearest(b * 255.0)
       ~S{)}
     end
   end
@@ -166,9 +166,9 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   defwp swatch_svg(component_id: I32), I32.String do
     build! do
       ~S(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" width=")
-      append!(decimal_f32: @swatch_size)
+      @swatch_size
       ~S(" height=")
-      append!(decimal_f32: @swatch_size)
+      @swatch_size
       ~S(" class="touch-none" data-action )
 
       if I32.eq(component_id, @component_l),
@@ -205,9 +205,9 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   defwp do_drag_knob(offset: F32) do
     _ = build! do
       ~S{<circle data-drag-knob="" cx="}
-      append!(decimal_f32: offset)
+      offset
       ~S{" cy="}
-      append!(decimal_f32: offset)
+      offset
       ~S{" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n}
     end
   end
@@ -267,11 +267,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
   defwp do_linear_gradient_stop(fraction: F32, l: F32, a: F32, b: F32), I32 do
     build! do
-      append!(~S{<stop offset="})
-      append!(decimal_f32: fraction * 100.0)
-      append!(~S{%" stop-color="})
-      _ = do_css_color_lab_srgb(l, a, b)
-      append!(~S{" />\n})
+      ~S{<stop offset="}
+      fraction * 100.0
+      ~S{%" stop-color="}
+      do_css_color_lab_srgb(l, a, b)
+      ~S{" />\n}
     end
   end
 
@@ -289,13 +289,13 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     end
 
     build! do
-      append!(~S{rgba(})
-      append!(decimal_f32: red)
-      append!(~S{,})
-      append!(decimal_f32: green)
-      append!(~S{,})
-      append!(decimal_f32: blue)
-      append!(~S{,1)})
+      ~S{rgba(}
+      red
+      ~S{,}
+      green
+      ~S{,}
+      blue
+      ~S{,1)}
     end
   end
 

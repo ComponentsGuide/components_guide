@@ -93,7 +93,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def build_item({:i32_const_string, _offset, _value} = term) do
+  def build_item(%Orb.Constants.NulTerminatedString{} = term) do
     append!(string: term)
   end
 
@@ -104,6 +104,15 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
         } = instruction
       ) do
     [instruction, :drop]
+  end
+
+  def build_item(
+        %struct{
+          type: type,
+          # operation: {:global_get, _}
+        } = instruction
+      ) when struct in [Orb.Instruction, Orb.VariableReference] and type in [:f32, Orb.F32, F32] do
+    append!(decimal_f32: instruction)
   end
 
   def build_item(term), do: term
@@ -140,7 +149,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     typed_call(I32, function, []) |> drop()
   end
 
-  def append!({:i32_const_string, _offset, _string} = str_ptr) do
+  def append!(%Orb.Constants.NulTerminatedString{} = str_ptr) do
     Orb.DSL.typed_call(nil, :bump_write_str, [str_ptr])
   end
 
