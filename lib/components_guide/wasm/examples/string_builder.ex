@@ -97,6 +97,15 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     append!(string: term)
   end
 
+  def build_item(
+        %Orb.Instruction{
+          type: Orb.I32.String,
+          operation: {:call, _}
+        } = instruction
+      ) do
+    [instruction, :drop]
+  end
+
   def build_item(term), do: term
 
   # For nested build functions.
