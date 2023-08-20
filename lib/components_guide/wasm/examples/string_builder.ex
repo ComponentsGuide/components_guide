@@ -208,8 +208,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       # memory32_8![@bump_offset] =
       #   initial |> I32.add(I32.when?(I32.le_u(following, 9), do: ?0, else: inline(do: ?A - 10)))
 
-      # I32.store8(@bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
-      {:i32, :store8, @bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10)}
+      Memory.store!(I32.U8, @bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
 
       # memory32_8![@bump_offset] =
       #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))

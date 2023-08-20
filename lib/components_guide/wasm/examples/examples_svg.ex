@@ -30,7 +30,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
             ~S[<rect width="64" height="64" fill="]
 
           2 ->
-            memory32_8![0x10000] = ?#
+            Memory.store!(I32.U8, 0x10000, ?#)
             HexConversion.u32_to_hex_lower(@color_hex, 0x10001)
             push(0x10000)
 

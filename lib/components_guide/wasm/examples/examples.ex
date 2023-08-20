@@ -16,13 +16,13 @@ defmodule ComponentsGuide.Wasm.Examples do
     wasm do
       func parse(), I32, i: I32 do
         # If does no end in nul byte, return 0
-        if memory32_8![I32.add(@input_offset, 3)].unsigned do
+        if Memory.load!(I32.U8, I32.add(@input_offset, 3)) do
           return(0)
         end
 
         # Write nul byte at end
-        memory32_8![I32.add(@input_offset, 3)] = 0
-        i = memory32![@input_offset]
+        Memory.store!(I32.U8, I32.add(@input_offset, 3), 0)
+        i = Memory.load!(I32, @input_offset)
 
         # Check equality to each weekday as a i32 e.g. `Mon\0`
         inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
