@@ -46,11 +46,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         @immutable = 1
       end
 
-      func set_max_age(age_seconds(I32)) do
+      func set_max_age(age_seconds: I32) do
         @max_age_seconds = age_seconds
       end
 
-      func set_shared_max_age(age_seconds(I32)) do
+      func set_shared_max_age(age_seconds: I32) do
         @s_max_age_seconds = age_seconds
       end
 

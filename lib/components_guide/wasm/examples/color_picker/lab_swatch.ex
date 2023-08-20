@@ -131,7 +131,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     end
 
     func do_css_rgb(), I32.String, r: F32, g: F32, b: F32 do
-      call(:lab_to_srgb, global_get(:l), global_get(:a), global_get(:b))
+      typed_call({F32, F32, F32}, :lab_to_srgb, [global_get(:l), global_get(:a), global_get(:b)])
       b = :pop
       g = :pop
       r = :pop
@@ -277,7 +277,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       red: F32,
       green: F32,
       blue: F32 do
-      call(:lab_to_srgb, l, a, b)
+      typed_call({F32, F32, F32}, :lab_to_srgb, [l, a, b])
 
       inline for var! <- [:blue, :green, :red] do
         wasm F32 do

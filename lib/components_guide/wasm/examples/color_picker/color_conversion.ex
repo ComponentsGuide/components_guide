@@ -27,9 +27,14 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     f32: Orb.DSL.funcp(name: :log_f32, params: F32)
   )
 
+  # defw_import powf32(_: F32, _: F32), F32, to: :math, as: :powf32
+  # Import.module :math do
+  #   defw powf32(_: F32, _: F32), F32, as: :powf32
+  # end
+
   wasm F32 do
-    funcp lab_to_xyz_component(v: F32), F32, cubed: F32 do
-      cubed = call(:powf32, v, 3.0)
+    func lab_to_xyz_component(v: F32), F32, cubed: F32 do
+      cubed = typed_call(F32, :powf32, [v, 3.0])
 
       if cubed > ^@e, result: F32 do
         cubed
@@ -43,23 +48,23 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
       fx = a / 500.0 + fy
       fz = fy - b / 200.0
 
-      call(:lab_to_xyz_component, fx) * ^@xn
-      call(:lab_to_xyz_component, fy) * ^@yn
-      call(:lab_to_xyz_component, fz) * ^@zn
+      typed_call(F32, :lab_to_xyz_component, [fx]) * ^@xn
+      typed_call(F32, :lab_to_xyz_component, [fy]) * ^@yn
+      typed_call(F32, :lab_to_xyz_component, [fz]) * ^@zn
     end
 
     funcp xyz_to_lab_component(c: F32), F32 do
       if c > ^@e, result: F32 do
-        call(:powf32, c, 1.0 / 3.0)
+        typed_call(F32, :powf32, [c, 1.0 / 3.0])
       else
         (^@k * c + 16.0) / 116.0
       end
     end
 
     func xyz_to_lab(x: F32, y: F32, z: F32), {F32, F32, F32}, f0: F32, f1: F32, f2: F32 do
-      f0 = call(:xyz_to_lab_component, x / ^@xn)
-      f1 = call(:xyz_to_lab_component, y / ^@yn)
-      f2 = call(:xyz_to_lab_component, z / ^@zn)
+      f0 = typed_call(F32, :xyz_to_lab_component, [x / ^@xn])
+      f1 = typed_call(F32, :xyz_to_lab_component, [y / ^@yn])
+      f2 = typed_call(F32, :xyz_to_lab_component, [z / ^@zn])
 
       116.0 * f1 - 16.0
       500.0 * (f0 - f1)
@@ -67,30 +72,30 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     end
 
     func linear_srgb_to_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      call(:linear_srgb_to_srgb_component, r)
-      call(:linear_srgb_to_srgb_component, g)
-      call(:linear_srgb_to_srgb_component, b)
+      typed_call(F32, :linear_srgb_to_srgb_component, [r])
+      typed_call(F32, :linear_srgb_to_srgb_component, [g])
+      typed_call(F32, :linear_srgb_to_srgb_component, [b])
     end
 
     funcp linear_srgb_to_srgb_component(c: F32), F32 do
       if c > 0.0031308, result: F32 do
-        1.055 * call(:powf32, c, 1.0 / 2.4) - 0.055
+        1.055 * typed_call(F32, :powf32, [c, 1.0 / 2.4]) - 0.055
       else
         12.92 * c
       end
     end
 
     func srgb_to_linear_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      call(:srgb_to_linear_srgb_component, r)
-      call(:srgb_to_linear_srgb_component, g)
-      call(:srgb_to_linear_srgb_component, b)
+      typed_call(F32, :srgb_to_linear_srgb_component, [r])
+      typed_call(F32, :srgb_to_linear_srgb_component, [g])
+      typed_call(F32, :srgb_to_linear_srgb_component, [b])
     end
 
     funcp srgb_to_linear_srgb_component(c: F32), F32 do
       if c < 0.04045, result: F32 do
         c / 12.92
       else
-        call(:powf32, (c + 0.055) / 1.055, 2.4)
+        typed_call(F32, :powf32, [(c + 0.055) / 1.055, 2.4])
       end
     end
 
@@ -103,8 +108,8 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     end
 
     func xyz_to_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
-      call(:xyz_to_linear_srgb, x, y, z)
-      call(:linear_srgb_to_srgb)
+      typed_call({F32, F32, F32}, :xyz_to_linear_srgb, [x, y, z])
+      typed_call({F32, F32, F32}, :linear_srgb_to_srgb, [])
     end
 
     func linear_srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
@@ -115,18 +120,18 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
 
     func srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
       # TODO: {r, g, b} |> srgb_to_linear_srgb() |> linear_srgb_to_xyz()
-      call(:srgb_to_linear_srgb, r, g, b)
-      call(:linear_srgb_to_xyz)
+      typed_call({F32, F32, F32}, :srgb_to_linear_srgb, [r, g, b])
+      typed_call({F32, F32, F32}, :linear_srgb_to_xyz, [])
     end
 
     func lab_to_srgb(l: F32, a: F32, b: F32), {F32, F32, F32} do
-      call(:lab_to_xyz, l, a, b)
-      call(:xyz_to_srgb)
+      typed_call({F32, F32, F32}, :lab_to_xyz, [l, a, b])
+      typed_call({F32, F32, F32}, :xyz_to_srgb, [])
     end
 
     func srgb_to_lab(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      call(:srgb_to_xyz, r, g, b)
-      call(:xyz_to_lab)
+      typed_call({F32, F32, F32}, :srgb_to_xyz, [r, g, b])
+      typed_call({F32, F32, F32}, :xyz_to_lab, [])
     end
   end
 end

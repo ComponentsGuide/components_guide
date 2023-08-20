@@ -6,20 +6,25 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       quote do
         use Orb
 
+        alias Orb.Instruction
+
         Orb.I32.global(state: 0, change_count: 0)
 
         import unquote(__MODULE__)
 
         wasm Orb.U32 do
           funcp transition_to(new_state: Orb.I32) do
-            local_get(:new_state)
-            global_set(:state)
-            Orb.I32.add(global_get(:change_count), 1)
-            global_set(:change_count)
+            Instruction.global_set(Orb.I32, :state, Instruction.local_get(Orb.I32, :new_state))
+
+            Instruction.global_set(
+              Orb.I32,
+              :change_count,
+              Orb.I32.add(Instruction.global_get(Orb.I32, :change_count), 1)
+            )
           end
 
           func get_change_count(), Orb.I32 do
-            global_get(:change_count)
+            Instruction.global_get(Orb.I32, :change_count)
           end
         end
       end
@@ -36,8 +41,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         # If current state is `_` i.e. being ignored.
         {:_, _, _} ->
           quote do
-            func unquote(name) do
-              Orb.DSL.call(:transition_to, unquote(target))
+            func unquote(Macro.escape(name)) do
+              Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
             end
           end
 
@@ -46,9 +51,9 @@ defmodule ComponentsGuide.Wasm.Examples.State do
           quote do
             # Module.register_attribute(__MODULE__, String.to_atom("func_#{unquote(name)}"), accumulate: true)
 
-            func unquote(name) do
+            func unquote(Macro.escape(name)) do
               Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(current_state)) do
-                Orb.DSL.call(:transition_to, unquote(target))
+                Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
               end
             end
           end
@@ -475,6 +480,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         if incoming_time > @time do
           @time = incoming_time
         end
+
         # if Orb.DSL.global_get(:incoming_time) > Orb.DSL.global_get(:time) do
         #   Orb.DSL.global_get(:incoming_time)
         #   Orb.DSL.global_set(:time)
@@ -657,10 +663,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         end
       end
 
-      func(get_current(), I32, do: call(:get_public_state))
+      func(get_current(), I32, do: typed_call(I32, :get_public_state, []))
 
       func get_path(), I32.String, state: I32 do
-        state = call(:get_public_state)
+        state = typed_call(I32, :get_public_state, [])
 
         I32.match state do
           @initial -> ~S[/initial]

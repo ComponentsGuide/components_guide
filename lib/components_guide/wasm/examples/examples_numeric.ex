@@ -3,11 +3,11 @@ defmodule ComponentsGuide.Wasm.Examples.Numeric do
     use Orb
 
     wasm do
-      func i32_double(value(I32)), I32 do
+      func i32_double(value: I32), I32 do
         I32.mul(value, 2)
       end
 
-      func f32_double(value(F32)), F32 do
+      func f32_double(value: F32), F32 do
         F32.mul(value, 2.0)
       end
     end

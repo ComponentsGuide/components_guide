@@ -2,7 +2,10 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   use Orb
   alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
+  use SilverOrb.BumpAllocator
   use SilverOrb.Mem
+
+  I32.global(bump_write_level: 0)
 
   defmacro __using__(_) do
     quote do
@@ -40,7 +43,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       if I32.eqz(@bump_write_level) do
         # I32.store8(@bump_offset, 0x0)
         # Memory.store!(I32.U8, @bump_offset, 0x0)
-        {:i32, :store8, @bump_offset, 0x0}
+        Memory.store!(I32.U8, @bump_offset, 0x0)
+        # {:i32, :store8, @bump_offset, 0x0}
         @bump_offset = I32.add(@bump_offset, 1)
       end
 
@@ -50,7 +54,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     funcp bump_write_str(str_ptr: I32.U8.UnsafePointer), len: I32 do
       return(if: I32.eq(str_ptr, @bump_mark))
 
-      len = call(:strlen, str_ptr)
+      len = typed_call(I32, :strlen, [str_ptr])
       SilverOrb.Mem.memcpy(@bump_offset, str_ptr, len)
       @bump_offset = @bump_offset + len
     end
@@ -60,9 +64,9 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def build_begin!(), do: Orb.DSL.call(:bump_write_start)
-  def build_done!(), do: Orb.DSL.call(:bump_write_done)
-  def appended?(), do: Orb.DSL.call(:bump_written?)
+  def build_begin!(), do: Orb.DSL.typed_call(nil, :bump_write_start, [])
+  def build_done!(), do: Orb.DSL.typed_call(I32, :bump_write_done, [])
+  def appended?(), do: Orb.DSL.typed_call(I32, :bump_written?, [])
 
   defmacro build!(do: block) do
     items =
@@ -98,45 +102,45 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def append!(function, a, b, c) when is_atom(function) do
     import Orb.DSL
 
-    call(function, a, b, c) |> drop()
+    typed_call(I32, function, [a, b, c]) |> drop()
   end
 
   def append!(function, a, b) when is_atom(function) do
     import Orb.DSL
 
-    call(function, a, b) |> drop()
+    typed_call(I32, function, [a, b]) |> drop()
   end
 
   def append!(function, args) when is_atom(function) and is_list(args) do
     import Orb.DSL
 
-    typed_call(:i32, function, args) |> drop()
+    typed_call(I32, function, args) |> drop()
   end
 
   def append!(function, a) when is_atom(function) do
     import Orb.DSL
 
-    call(function, a) |> drop()
+    typed_call(I32, function, [a]) |> drop()
   end
 
   def append!(function) when is_atom(function) do
     import Orb.DSL
 
-    call(function) |> drop()
+    typed_call(I32, function, []) |> drop()
   end
 
   def append!({:i32_const_string, _offset, _string} = str_ptr) do
-    Orb.DSL.call(:bump_write_str, str_ptr)
+    Orb.DSL.typed_call(nil, :bump_write_str, [str_ptr])
   end
 
   def append!(string: str_ptr) do
-    Orb.DSL.call(:bump_write_str, str_ptr)
+    Orb.DSL.typed_call(nil, :bump_write_str, [str_ptr])
   end
 
   def append!(u8: char) do
     snippet U32 do
-      # Memory.store!(I32.U8, @bump_offset, char)
-      {:i32, :store8, @bump_offset, char}
+      Memory.store!(I32.U8, @bump_offset, char)
+      # {:i32, :store8, @bump_offset, char}
       @bump_offset = @bump_offset + 1
     end
   end
@@ -155,11 +159,11 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     #   call(:format_f32, f, {:global_get, :bump_offset}) |> I32.add({:global_get, :bump_offset})
     #   {:global_set, :bump_offset}
     # end
-    [
+    snippet do
       # call(:format_f32, f, @bump_offset) |> I32.add(@bump_offset)
-      Orb.DSL.call(:format_f32, f, {:global_get, :bump_offset}) |> Orb.I32.add({:global_get, :bump_offset}),
-      {:global_set, :bump_offset}
-    ]
+      @bump_offset = Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
+      # {:global_set, :bump_offset}
+    end
   end
 
   def append!(hex_upper: hex) do
@@ -263,7 +267,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
             ]
 
           str_ptr ->
-            call(:bump_write_str, str_ptr)
+            typed_call(nil, :bump_write_str, [str_ptr])
         end
       end
 

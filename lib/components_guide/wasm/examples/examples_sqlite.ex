@@ -4,8 +4,8 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
   defmodule Helpers do
     use Orb
 
-    def sqlite3_exec(sql_ptr), do: Orb.DSL.call(:sqlite3_exec, sql_ptr)
-    def sqlite3_prepare(sql_ptr), do: Orb.DSL.call(:sqlite3_prepare, sql_ptr)
+    def sqlite3_exec(sql_ptr), do: Orb.DSL.typed_call(I32, :sqlite3_exec, [sql_ptr])
+    def sqlite3_prepare(sql_ptr), do: Orb.DSL.typed_call(I32, :sqlite3_prepare, [sql_ptr])
   end
 
   defmodule HeightsTable do
@@ -34,7 +34,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
         _ = sqlite3_exec(~S"CREATE TABLE heights(id INTEGER PRIMARY KEY AUTOINCREMENT, feet INT)")
       end
 
-      func add_height(height(I32)),
+      func add_height(height: I32),
         i: I32 do
         _ = sqlite3_exec(~S"INSERT INTO heights(feet) VALUES (99)")
 

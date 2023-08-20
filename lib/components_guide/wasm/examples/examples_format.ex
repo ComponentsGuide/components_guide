@@ -18,7 +18,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     Memory.pages(2)
 
     wasm do
-      func u32toa_count(value(I32)),
+      func u32toa_count(value: I32),
            I32,
            digit_count: I32,
            digit: I32 do
@@ -56,7 +56,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         last_offset
       end
 
-      func u32toa(value(I32), end_offset(I32)),
+      func u32toa(value: I32, end_offset: I32),
            I32,
            working_offset: I32,
            digit: I32 do
@@ -108,8 +108,8 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
           # TODO: handle -0
           if value < 0 do
-            # Memory.store!(I32.U8, str_ptr, ?-)
-            {:i32, :store8, str_ptr, ?-}
+            Memory.store!(I32.U8, str_ptr, ?-)
+            # {:i32, :store8, str_ptr, ?-}
             str_ptr = I32.add(str_ptr, 1)
             value = -1 * value;
           end
@@ -123,7 +123,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
           #     return writer.writeAll("inf");
           # }
           if value === 0.0 do
-            {:i32, :store8, str_ptr, ?0}
+            Memory.store!(I32.U8, str_ptr, ?0)
             str_ptr = I32.add(str_ptr, 1)
 
             # if (options.precision) |precision| {

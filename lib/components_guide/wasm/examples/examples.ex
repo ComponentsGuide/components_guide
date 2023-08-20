@@ -116,7 +116,7 @@ defmodule ComponentsGuide.Wasm.Examples do
     wasm do
       func get_status(), I32 do
         # 500
-        call(:http_get, 0)
+        typed_call(I32, :http_get, [0])
       end
     end
 
@@ -153,15 +153,15 @@ defmodule ComponentsGuide.Wasm.Examples do
     )
     wasm_import(:query,
       get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
-      expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32)
+      expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: {I32, I32})
     )
 
     wasm do
       func test_home_page(), I32 do
         # imports.visit("/")
         # imports.expect_by_role("link", "Home")
-        call(:visit, const("/"))
-        call(:expect_by_role, const("link"), const("Home"))
+        typed_call(I32, :visit, [const("/")])
+        typed_call(I32, :expect_by_role, [const("link"), const("Home")])
       end
     end
   end

@@ -133,12 +133,11 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       funcp get_is_valid(), I32 do
-        # I32.eq(I32.load8_u(@request_body_write_offset), ?g)
-        I32.eq({:i32, :load8_u, @request_body_write_offset}, ?g)
+        I32.eq(Memory.load!(I32.U8, @request_body_write_offset), ?g)
       end
 
       func get_status(), I32 do
-        I32.when?(call(:get_is_valid), do: 200, else: 400)
+        I32.when?(typed_call(I32, :get_is_valid, []), do: 200, else: 400)
       end
 
       func get_headers(), I32 do
@@ -151,7 +150,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S"<!doctype html>"
 
           1 ->
-            if call(:get_is_valid), result: I32 do
+            if typed_call(I32, :get_is_valid, []), result: I32 do
               ~S"<h1>Good</h1>"
             else
               ~S"<h1>Bad</h1>"
