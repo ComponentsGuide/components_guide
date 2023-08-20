@@ -92,11 +92,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     build! do
       # content_tag! "div.flex" do
       # content_tag! :div, [{"class", "flex"}] do
-      append!(~S{<div class="flex gap-4">\n})
-      append!(:swatch_svg, @component_l)
-      append!(:swatch_svg, @component_a)
-      append!(:swatch_svg, @component_b)
-      append!(~S{</div>\n})
+      ~S{<div class="flex gap-4">\n}
+      _ = swatch_svg(@component_l)
+      _ = swatch_svg(@component_a)
+      _ = swatch_svg(@component_b)
+      ~S{</div>\n}
 
       _ = do_output_code()
     end
@@ -104,31 +104,23 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
   defwp do_output_code(), I32.String do
     build! do
-      append!(~S{<output class="flex flex-col mt-4 font-mono">\n})
+      ~S{<output class="flex flex-col mt-4 font-mono">\n}
 
-      append!(~S{<p class="flex items-center gap-1">})
-
-      append!(
-        ~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="}
-      )
-
+      ~S{<p class="flex items-center gap-1">}
+      ~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="}
       do_css_lab()
-      append!(~S{" /></svg> })
+      ~S{" /></svg> }
       do_css_lab()
-      append!(~S{</p>\n})
+      ~S{</p>\n}
 
-      append!(~S{<p class="flex items-center gap-1">})
-
-      append!(
-        ~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="}
-      )
-
+      ~S{<p class="flex items-center gap-1">}
+      ~S{<svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="}
       do_css_rgb()
-      append!(~S{" /></svg> })
+      ~S{" /></svg> }
       do_css_rgb()
-      append!(~S{</p>\n})
+      ~S{</p>\n}
 
-      append!(~S{</output>\n})
+      ~S{</output>\n}
     end
   end
 

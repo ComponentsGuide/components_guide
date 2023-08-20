@@ -355,10 +355,7 @@
     (call $srgb_to_xyz (local.get $r) (local.get $g) (local.get $b))
     (call $xyz_to_lab)
   )
-  (export "alloc" (func $bump_alloc))  (func $interpolate (param $t f32) (param $lowest f32) (param $highest f32) (result f32)
-    (f32.add (f32.mul (f32.sub (local.get $highest) (local.get $lowest)) (local.get $t)) (local.get $lowest))
-  )
-  (func $l_changed (export "l_changed") (param $new_value f32)
+  (export "alloc" (func $bump_alloc))  (func $l_changed (export "l_changed") (param $new_value f32)
     (global.get $component_l)
     (global.set $last_changed_component)
   )
@@ -416,27 +413,22 @@
     (call $bump_write_str (i32.const 339))
     (call $bump_write_str (i32.const 375))
     (call $do_css_lab)
-    drop
     (call $bump_write_str (i32.const 459))
     (call $do_css_lab)
-    drop
     (call $bump_write_str (i32.const 471))
     (call $bump_write_str (i32.const 339))
     (call $bump_write_str (i32.const 375))
     (call $do_css_rgb)
-    drop
     (call $bump_write_str (i32.const 459))
     (call $do_css_rgb)
-    drop
     (call $bump_write_str (i32.const 471))
     (call $bump_write_str (i32.const 478))
     (call $bump_write_done)
   )
-  (func $do_css_lab (export "do_css_lab") (result i32)
+  (func $do_css_lab
     (local $r f32)
     (local $g f32)
     (local $b f32)
-    (call $bump_write_start)
     (call $bump_write_str (i32.const 490))
     (i32.add (call $format_f32 (global.get $l) (global.get $bump_offset)) (global.get $bump_offset))
     (global.set $bump_offset)
@@ -447,9 +439,8 @@
     (i32.add (call $format_f32 (global.get $b) (global.get $bump_offset)) (global.get $bump_offset))
     (global.set $bump_offset)
     (call $bump_write_str (i32.const 500))
-    (call $bump_write_done)
   )
-  (func $do_css_rgb (export "do_css_rgb") (result i32)
+  (func $do_css_rgb
     (local $r f32)
     (local $g f32)
     (local $b f32)
@@ -460,7 +451,6 @@
     (local.set $g)
     
     (local.set $r)
-    (call $bump_write_start)
     (call $bump_write_str (i32.const 502))
     (i32.add (call $format_f32 (f32.nearest (f32.mul (local.get $r) (f32.const 255.0))) (global.get $bump_offset)) (global.get $bump_offset))
     (global.set $bump_offset)
@@ -471,15 +461,11 @@
     (i32.add (call $format_f32 (f32.nearest (f32.mul (local.get $b) (f32.const 255.0))) (global.get $bump_offset)) (global.get $bump_offset))
     (global.set $bump_offset)
     (call $bump_write_str (i32.const 500))
-    (call $bump_write_done)
   )
   (func $to_svg (export "to_svg") (result i32)
-    (call $bump_write_start)
     (call $swatch_svg (global.get $component_l))
-    drop
-    (call $bump_write_done)
   )
-  (func $swatch_svg (export "swatch_svg") (param $component_id i32) (result i32)
+  (func $swatch_svg (param $component_id i32) (result i32)
     (call $bump_write_start)
     (call $bump_write_str (i32.const 507))
     (i32.add (call $format_f32 (global.get $swatch_size) (global.get $bump_offset)) (global.get $bump_offset))
@@ -535,27 +521,24 @@
     (if 
       (then
         (call $do_drag_knob (f32.div (global.get $l) (f32.const 100.0)))
-        drop
       )
     )
     (i32.eq (local.get $component_id) (global.get $component_a))
     (if 
       (then
         (call $do_drag_knob (f32.add (f32.div (f32.div (global.get $a) (f32.const 127.0)) (f32.const 2.0)) (f32.const 0.5)))
-        drop
       )
     )
     (i32.eq (local.get $component_id) (global.get $component_b))
     (if 
       (then
         (call $do_drag_knob (f32.add (f32.div (f32.div (global.get $b) (f32.const 127.0)) (f32.const 2.0)) (f32.const 0.5)))
-        drop
       )
     )
     (call $bump_write_str (i32.const 919))
     (call $bump_write_done)
   )
-  (func $do_drag_knob (param $offset f32) (result i32)
+  (func $do_drag_knob (param $offset f32)
     (call $bump_write_start)
     (call $bump_write_str (i32.const 928))
     (i32.add (call $format_f32 (local.get $offset) (global.get $bump_offset)) (global.get $bump_offset))
@@ -565,6 +548,10 @@
     (global.set $bump_offset)
     (call $bump_write_str (i32.const 966))
     (call $bump_write_done)
+    drop
+  )
+  (func $interpolate (param $t f32) (param $lowest f32) (param $highest f32) (result f32)
+    (f32.add (f32.mul (f32.sub (local.get $highest) (local.get $lowest)) (local.get $t)) (local.get $lowest))
   )
   (func $do_linear_gradient (param $component_id i32) (result i32)
     (local $i f32)

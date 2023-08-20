@@ -70,21 +70,17 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
   defmacro build!(do: block) do
     items =
-      case block do
-        {:__block__, _, items} -> items
-        term -> List.wrap(term)
-      end
+      List.wrap(
+        case block do
+          {:__block__, _, items} -> items
+          term -> term
+        end
+      )
 
     items =
       for item <- items do
-        case item do
-          {:data_for_constant, _meta, _args} = node ->
-            # quote(bind_quoted: [node: node], do: append!(node))
-            # quote(do: append!(node))
-            {:append!, [], [node]}
-
-          other ->
-            other
+        quote do
+          unquote(__MODULE__).build_item(unquote(item))
         end
       end
 
@@ -96,6 +92,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       ]
     end
   end
+
+  def build_item({:i32_const_string, _offset, _value} = term) do
+    append!(string: term)
+  end
+
+  def build_item(term), do: term
 
   # For nested build functions.
   # We want inner functions to also return strings for easier debugging of their result, not just append.
@@ -161,7 +163,9 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     # end
     snippet do
       # call(:format_f32, f, @bump_offset) |> I32.add(@bump_offset)
-      @bump_offset = Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
+      @bump_offset =
+        Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
+
       # {:global_set, :bump_offset}
     end
   end
@@ -212,7 +216,11 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       # memory32_8![@bump_offset] =
       #   initial |> I32.add(I32.when?(I32.le_u(following, 9), do: ?0, else: inline(do: ?A - 10)))
 
-      Memory.store!(I32.U8, @bump_offset, initial + I32.when?(following <= 9, do: ?0, else: ?A - 10))
+      Memory.store!(
+        I32.U8,
+        @bump_offset,
+        initial + I32.when?(following <= 9, do: ?0, else: ?A - 10)
+      )
 
       # memory32_8![@bump_offset] =
       #   I32.when?(I32.le_u(initial, 9), do: I32.add(following, ?0), else: I32.sub(following, 10) |> I32.add(?A))
