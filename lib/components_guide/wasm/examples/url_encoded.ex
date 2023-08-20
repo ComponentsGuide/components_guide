@@ -332,13 +332,13 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   def initial_i32(), do: 0x0
 
-  def empty?(url_encoded), do: Orb.DSL.call(:url_encoded_empty?, url_encoded)
-  def count(url_encoded), do: Orb.DSL.call(:url_encoded_count, url_encoded)
-  def clone_first(url_encoded), do: Orb.DSL.call(:url_encoded_clone_first, url_encoded)
-  def rest(url_encoded), do: Orb.DSL.call(:url_encoded_rest, url_encoded)
+  def empty?(url_encoded), do: Orb.DSL.typed_call(I32, :url_encoded_empty?, [url_encoded])
+  def count(url_encoded), do: Orb.DSL.typed_call(I32, :url_encoded_count, [url_encoded])
+  def clone_first(url_encoded), do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_clone_first, [url_encoded])
+  def rest(url_encoded), do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_rest, [url_encoded])
 
   def decode_first_value_www_form(url_encoded),
-    do: Orb.DSL.call(:url_encoded_decode_first_value_www_form, url_encoded)
+    do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_decode_first_value_www_form, [url_encoded])
 
   def append_url_query(), do: :todo
 
