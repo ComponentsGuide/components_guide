@@ -1,6 +1,5 @@
 defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
   alias ComponentsGuide.Wasm.Examples.StringBuilder
-  alias ComponentsGuide.Wasm.Examples.Format.IntToString
 
   defmodule CacheControl do
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching

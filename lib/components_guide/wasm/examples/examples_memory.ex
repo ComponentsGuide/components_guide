@@ -26,7 +26,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
     wasm U32 do
       func cons(hd: I32.UnsafePointer, tl: I32.UnsafePointer), I32.UnsafePointer, ptr: I32.UnsafePointer do
-        ptr = call(:bump_alloc, 8)
+        ptr = typed_call(I32.UnsafePointer, :bump_alloc, [8])
         ptr[at!: 0] = hd
         ptr[at!: 1] = tl
         ptr
@@ -134,10 +134,10 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
       end
     end
 
-    def reverse_in_place!(%Orb.MutRef{read: read, write: write}) do
+    def reverse_in_place!(%Orb.MutRef{read: read!, write: write!}) do
       snippet U32 do
-        call(:reverse_in_place, read)
-        write
+        typed_call(I32.UnsafePointer, :reverse_in_place, [read!])
+        write!
       end
     end
 

@@ -95,7 +95,9 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     end
 
     # Like tl but for url-encoded data
-    func url_encoded_rest(url_encoded: I32.U8.UnsafePointer), I32.U8.UnsafePointer, char: I32.U8, len: I32 do
+    func url_encoded_rest(url_encoded: I32.U8.UnsafePointer), I32.U8.UnsafePointer,
+      char: I32.U8,
+      len: I32 do
       loop EachByte, result: I32 do
         char = url_encoded[at!: 0]
 
@@ -185,9 +187,9 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
         if char do
           if (char >= ?a &&& char <= ?z) or
-             (char >= ?A &&& char <= ?Z) or
-             (char >= ?0 &&& char <= ?9) or
-             I32.in?(char, ~C{+:/?#[]@!$&\'()*,;=~_-.}) do
+               (char >= ?A &&& char <= ?Z) or
+               (char >= ?0 &&& char <= ?9) or
+               I32.in?(char, ~C{+:/?#[]@!$&\'()*,;=~_-.}) do
             append!(ascii: char)
           else
             append!(ascii: ?%)
@@ -238,9 +240,9 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
             append!(ascii: ?+)
           else
             if (char >= ?a &&& char <= ?z) or
-            (char >= ?A &&& char <= ?Z) or
-            (char >= ?0 &&& char <= ?9) or
-            I32.in?(char, ~C{~_-.}) do
+                 (char >= ?A &&& char <= ?Z) or
+                 (char >= ?0 &&& char <= ?9) or
+                 I32.in?(char, ~C{~_-.}) do
               append!(ascii: char)
             else
               append!(ascii: ?%)
@@ -265,11 +267,14 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
     end
 
-    func append_url_encode_query_pair_www_form(key: I32.U8.UnsafePointer, value: I32.U8.UnsafePointer) do
+    func append_url_encode_query_pair_www_form(
+           key: I32.U8.UnsafePointer,
+           value: I32.U8.UnsafePointer
+         ) do
       append!(ascii: ?&)
-      call(:append_url_encode_www_form, key)
+      typed_call(nil, :append_url_encode_www_form, [key])
       append!(ascii: ?=)
-      call(:append_url_encode_www_form, value)
+      typed_call(nil, :append_url_encode_www_form, [value])
     end
 
     func url_encode_www_form(str_ptr: I32.String),
@@ -278,21 +283,21 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
          abc: I32,
          __dup_32: I32 do
       build! do
-        call(:append_url_encode_www_form, str_ptr)
+        typed_call(nil, :append_url_encode_www_form, [str_ptr])
       end
     end
 
     func decode_char_www_form(str: I32.String), I32, c0: I32.U8, c1: I32.U8, c2: I32.U8 do
       c0 = str[at!: 0]
 
-      return(0, if: I32.eqz(c0))
+      return(?\0, if: c0 === ?\0)
 
       I32.match c0 do
         ?% ->
           c1 = str[at!: 1]
 
-          I32.when? I32.eqz(c1) do
-            0
+          I32.when? c1 === ?\0 do
+            ?\0
           else
             c2 = str[at!: 2]
 
@@ -334,11 +339,18 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
   def empty?(url_encoded), do: Orb.DSL.typed_call(I32, :url_encoded_empty?, [url_encoded])
   def count(url_encoded), do: Orb.DSL.typed_call(I32, :url_encoded_count, [url_encoded])
-  def clone_first(url_encoded), do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_clone_first, [url_encoded])
-  def rest(url_encoded), do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_rest, [url_encoded])
+
+  def clone_first(url_encoded),
+    do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_clone_first, [url_encoded])
+
+  def rest(url_encoded),
+    do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_rest, [url_encoded])
 
   def decode_first_value_www_form(url_encoded),
-    do: Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_decode_first_value_www_form, [url_encoded])
+    do:
+      Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_decode_first_value_www_form, [
+        url_encoded
+      ])
 
   def append_url_query(), do: :todo
 
@@ -404,7 +416,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
 
       def fetch(%Orb.VariableReference{} = var, :value) do
-        {:ok, {:call, :decode_char_www_form, [var]}}
+        {:ok, Orb.DSL.typed_call(I32, :decode_char_www_form, [var])}
       end
 
       def fetch(%Orb.VariableReference{} = var, :next) do
@@ -412,11 +424,11 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
       end
 
       def new(query) do
-        Orb.DSL.call(:url_encoded_first_value_offset, query)
+        Orb.DSL.typed_call(I32.U8.UnsafePointer, :url_encoded_first_value_offset, [query])
       end
 
       def next(value_char_iterator) do
-        Orb.DSL.call(:_url_encoded_value_next_char, value_char_iterator)
+        Orb.DSL.call(I32.U8.UnsafePointer, :_url_encoded_value_next_char, [value_char_iterator])
       end
     end
 
