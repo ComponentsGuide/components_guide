@@ -310,20 +310,19 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  #   defmacro sigil_s({:<<>>, line, pieces}, []) do
-  #     dbg(pieces)
-  #
-  #     pieces =
-  #       for piece <- pieces do
-  #         piece
-  #       end
-  #
-  #     # {:<<>>, line, pieces}
-  #     # dbg({line, pieces})
-  #     quote do
-  #       write!(unquote(pieces))
-  #     end
+  # defmacro sigil_E({:<<>>, line, pieces}, []) do
+  #   dbg(pieces)
+
+  #   items = build_block(pieces)
+
+  #   quote do
+  #     [
+  #       build_begin!(),
+  #       unquote(items),
+  #       build_done!()
+  #     ]
   #   end
+  # end
 
   defmodule DSL do
     alias ComponentsGuide.Wasm.Examples.StringBuilder

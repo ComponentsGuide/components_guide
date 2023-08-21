@@ -203,6 +203,8 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   end
 
   defwp do_drag_knob(offset: F32) do
+    # ~E(<circle data-drag-knob="" cx="<%= offset %>" cy="<%= offset %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n)
+
     _ = build! do
       ~S{<circle data-drag-knob="" cx="}
       offset
