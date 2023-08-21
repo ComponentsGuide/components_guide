@@ -27,9 +27,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     )
 
     wasm S32 do
-      IntToString.funcp(:u32toa_count)
-      IntToString.funcp(:format_u32)
-
       func set_private() do
         @private = 1
       end

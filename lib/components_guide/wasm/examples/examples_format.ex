@@ -8,15 +8,14 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
         import Orb
 
         wasm do
-          IntToString.funcp(:u32toa_count)
-          IntToString.funcp(:format_u32)
+          IntToString.funcp()
         end
       end
     end
 
     Memory.pages(2)
 
-    defw u32toa_count(value: I32),
+    defw format_u32_char_count(value: I32),
          I32,
          digit_count: I32,
          digit: I32 do
@@ -33,11 +32,11 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
     end
 
     defw format_u32(value: I32, str_ptr: I32.U8.UnsafePointer),
-          I32,
+          I32.U8.UnsafePointer,
           working_offset: I32.U8.UnsafePointer,
           last_offset: I32,
           digit: I32 do
-      last_offset = I32.add(str_ptr, u32toa_count(value))
+      last_offset = I32.add(str_ptr, format_u32_char_count(value))
       # We then start from the back, as we have to print the digits in reverse.
       working_offset = last_offset
 
