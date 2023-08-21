@@ -126,34 +126,6 @@
     end
     local.get 1)
   (func (;6;) (type 2) (param i32 i32) (result i32)
-    (local i32 i32)
-    local.get 1
-    local.set 2
-    loop  ;; label = @1
-      local.get 2
-      i32.const 1
-      i32.sub
-      local.set 2
-      local.get 0
-      i32.const 10
-      i32.rem_u
-      local.set 3
-      local.get 0
-      i32.const 10
-      i32.div_u
-      local.set 0
-      local.get 2
-      i32.const 48
-      local.get 3
-      i32.add
-      i32.store8
-      local.get 0
-      i32.const 0
-      i32.gt_u
-      br_if 0 (;@1;)
-    end
-    local.get 2)
-  (func (;7;) (type 2) (param i32 i32) (result i32)
     (local i32 i32 i32)
     local.get 1
     local.get 0
@@ -186,7 +158,7 @@
       br_if 0 (;@1;)
     end
     local.get 3)
-  (func (;8;) (type 3)
+  (func (;7;) (type 3)
     global.get 2
     i32.eqz
     if  ;; label = @1
@@ -197,7 +169,7 @@
     i32.const 1
     i32.add
     global.set 2)
-  (func (;9;) (type 4) (result i32)
+  (func (;8;) (type 4) (result i32)
     global.get 2
     i32.const 0
     i32.gt_u
@@ -222,7 +194,7 @@
       global.set 0
     end
     global.get 1)
-  (func (;10;) (type 5) (param i32)
+  (func (;9;) (type 5) (param i32)
     (local i32)
     local.get 0
     global.get 1
@@ -241,14 +213,14 @@
     local.get 1
     i32.add
     global.set 0)
-  (func (;11;) (type 4) (result i32)
+  (func (;10;) (type 4) (result i32)
     global.get 0
     global.get 1
     i32.gt_u)
-  (func (;12;) (type 3)
+  (func (;11;) (type 3)
     i32.const 65536
     global.set 0)
-  (func (;13;) (type 0) (param i32) (result i32)
+  (func (;12;) (type 0) (param i32) (result i32)
     (local i32 i32 i32)
     loop  ;; label = @1
       local.get 0
@@ -283,7 +255,7 @@
       br_if 0 (;@1;)
     end
     local.get 2)
-  (func (;14;) (type 0) (param i32) (result i32)
+  (func (;13;) (type 0) (param i32) (result i32)
     (local i32 i32)
     loop (result i32)  ;; label = @1
       local.get 0
@@ -309,9 +281,9 @@
       local.set 0
       br 0 (;@1;)
     end)
-  (func (;15;) (type 0) (param i32) (result i32)
+  (func (;14;) (type 0) (param i32) (result i32)
     (local i32 i32)
-    call 8
+    call 7
     loop (result i32)  ;; label = @1
       local.get 0
       i32.load8_u
@@ -327,7 +299,7 @@
       i32.and
       i32.or
       if  ;; label = @2
-        call 9
+        call 8
         return
       end
       local.get 1
@@ -353,7 +325,7 @@
       local.set 0
       br 0 (;@1;)
     end)
-  (func (;16;) (type 0) (param i32) (result i32)
+  (func (;15;) (type 0) (param i32) (result i32)
     (local i32 i32)
     loop (result i32)  ;; label = @1
       local.get 0
@@ -389,9 +361,9 @@
       local.set 0
       br 0 (;@1;)
     end)
-  (func (;17;) (type 2) (param i32 i32) (result i32)
+  (func (;16;) (type 2) (param i32 i32) (result i32)
     i32.const 0)
-  (func (;18;) (type 0) (param i32) (result i32)
+  (func (;17;) (type 0) (param i32) (result i32)
     (local i32 i32)
     loop (result i32)  ;; label = @1
       local.get 0
@@ -451,7 +423,7 @@
       local.set 0
       br 0 (;@1;)
     end)
-  (func (;19;) (type 0) (param i32) (result i32)
+  (func (;18;) (type 0) (param i32) (result i32)
     (local i32 i32)
     local.get 0
     i32.load8_u
@@ -479,9 +451,9 @@
     else
       local.get 1
     end)
-  (func (;20;) (type 0) (param i32) (result i32)
+  (func (;19;) (type 0) (param i32) (result i32)
     (local i32 i32 i32)
-    call 8
+    call 7
     loop  ;; label = @1
       local.get 0
       i32.load8_u
@@ -671,8 +643,8 @@
         br 1 (;@1;)
       end
     end
-    call 9)
-  (func (;21;) (type 5) (param i32)
+    call 8)
+  (func (;20;) (type 5) (param i32)
     (local i32 i32 i32)
     loop  ;; label = @1
       local.get 0
@@ -800,7 +772,7 @@
         br 1 (;@1;)
       end
     end)
-  (func (;22;) (type 6) (param i32 i32)
+  (func (;21;) (type 6) (param i32 i32)
     global.get 0
     i32.const 38
     i32.store8
@@ -809,7 +781,7 @@
     i32.add
     global.set 0
     local.get 0
-    call 21
+    call 20
     global.get 0
     i32.const 61
     i32.store8
@@ -818,14 +790,14 @@
     i32.add
     global.set 0
     local.get 1
-    call 21)
-  (func (;23;) (type 0) (param i32) (result i32)
+    call 20)
+  (func (;22;) (type 0) (param i32) (result i32)
     (local i32 i32 i32)
-    call 8
+    call 7
     local.get 0
-    call 21
-    call 9)
-  (func (;24;) (type 0) (param i32) (result i32)
+    call 20
+    call 8)
+  (func (;23;) (type 0) (param i32) (result i32)
     (local i32 i32 i32)
     local.get 0
     i32.load8_u
@@ -887,17 +859,17 @@
   (global (;1;) (mut i32) (i32.const 0))
   (global (;2;) (mut i32) (i32.const 0))
   (export "memory" (memory 0))
-  (export "free_all" (func 12))
+  (export "free_all" (func 11))
   (export "alloc" (func 0))
-  (export "url_encoded_count" (func 13))
-  (export "url_encoded_empty?" (func 14))
-  (export "url_encoded_clone_first" (func 15))
-  (export "url_encoded_rest" (func 16))
-  (export "url_encoded_decode_first_value_www_form" (func 17))
-  (export "url_encoded_first_value_offset" (func 18))
-  (export "_url_encoded_value_next_char" (func 19))
-  (export "url_encode_rfc3986" (func 20))
-  (export "append_url_encode_www_form" (func 21))
-  (export "append_url_encode_query_pair_www_form" (func 22))
-  (export "url_encode_www_form" (func 23))
-  (export "decode_char_www_form" (func 24)))
+  (export "url_encoded_count" (func 12))
+  (export "url_encoded_empty?" (func 13))
+  (export "url_encoded_clone_first" (func 14))
+  (export "url_encoded_rest" (func 15))
+  (export "url_encoded_decode_first_value_www_form" (func 16))
+  (export "url_encoded_first_value_offset" (func 17))
+  (export "_url_encoded_value_next_char" (func 18))
+  (export "url_encode_rfc3986" (func 19))
+  (export "append_url_encode_www_form" (func 20))
+  (export "append_url_encode_query_pair_www_form" (func 21))
+  (export "url_encode_www_form" (func 22))
+  (export "decode_char_www_form" (func 23)))

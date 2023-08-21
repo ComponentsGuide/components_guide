@@ -169,7 +169,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
   def append!(decimal_u32: int) do
     snippet do
-      @bump_offset = IntToString.write_u32(int, @bump_offset)
+      @bump_offset = IntToString.format_u32(int, @bump_offset)
     end
   end
 

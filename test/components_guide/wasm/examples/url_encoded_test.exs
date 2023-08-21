@@ -233,7 +233,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded.Test do
   end
 
   test "wasm byte size" do
-    assert byte_size(Wasm.to_wasm(URLEncoded)) == 2005
+    assert byte_size(Wasm.to_wasm(URLEncoded)) == 1952
   end
 
   test "optimize with wasm-opt" do

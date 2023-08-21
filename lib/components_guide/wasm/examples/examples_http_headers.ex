@@ -28,7 +28,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
 
     wasm S32 do
       IntToString.funcp(:u32toa_count)
-      IntToString.funcp(:write_u32)
+      IntToString.funcp(:format_u32)
 
       func set_private() do
         @private = 1
@@ -126,11 +126,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     )
 
     wasm U32 do
-      IntToString.funcp(:u32toa_count)
-      IntToString.funcp(:u32toa)
-
-      # func(alloc(byte_count: I32), I32, do: call(:bump_alloc, byte_count))
-
       I32.attr_writer(:name, as: :set_cookie_name)
       I32.attr_writer(:value, as: :set_cookie_value)
       I32.attr_writer(:domain, as: :set_domain)
