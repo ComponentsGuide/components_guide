@@ -11,7 +11,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
   defmodule HeightsTable do
     use Orb
 
-    @wasm_memory 2
+    Memory.pages(2)
 
     import Helpers
 
@@ -24,9 +24,9 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
     # )
 
     wasm_import(:sqlite3,
-        exec: Orb.DSL.funcp(name: :sqlite3_exec, params: I32, result: I32),
-        # exec: func sqlite3_exec(strptr(I32)), I32,
-        prepare: Orb.DSL.funcp(name: :sqlite3_prepare, params: I32, result: I32)
+        exec: Orb.DSL.funcp(name: :sqlite3_exec, params: I32.String, result: I32),
+        # exec: func sqlite3_exec(strptr: I32.String), I32,
+        prepare: Orb.DSL.funcp(name: :sqlite3_prepare, params: I32.String, result: I32)
     )
 
     wasm do

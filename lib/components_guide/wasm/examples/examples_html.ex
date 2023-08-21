@@ -119,7 +119,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
   defmodule HTMLPage do
     use Orb
 
-    @wasm_memory 2
+    Memory.pages(2)
     @request_body_write_offset 65536
 
     I32.global(body_chunk_index: 0)
