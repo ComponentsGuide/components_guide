@@ -169,7 +169,7 @@
     )
     (local.get $working_offset)
   )
-  (func $format_u32 (param $value i32) (param $str_ptr i32) (result i32)
+  (func $write_u32 (param $value i32) (param $str_ptr i32) (result i32)
     (local $working_offset i32)
     (local $last_offset i32)
     (local $digit i32)

@@ -172,24 +172,24 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       ~S(" class="touch-none" data-action )
 
       if I32.eq(component_id, @component_l),
-        do: append!(~S{data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed"})
+        do: ~S{data-pointerdown="l_changed" data-pointerdown+pointermove="l_changed"}
 
       if I32.eq(component_id, @component_a),
-        do: append!(~S{data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed"})
+        do: ~S{data-pointerdown="a_changed" data-pointerdown+pointermove="a_changed"}
 
       if I32.eq(component_id, @component_b),
-        do: append!(~S{data-pointerdown="b_changed" data-pointerdown+pointermove="b_changed"})
+        do: ~S{data-pointerdown="b_changed" data-pointerdown+pointermove="b_changed"}
 
       ~S(>\n)
 
       ~S(<defs>\n)
-      _ = do_linear_gradient(component_id)
+      do_linear_gradient(component_id)
       ~S(</defs>\n)
 
       ~S{<rect width="1" height="1" fill="url('#lab-}
-      if I32.eq(component_id, @component_l), do: append!(~S{l})
-      if I32.eq(component_id, @component_a), do: append!(~S{a})
-      if I32.eq(component_id, @component_b), do: append!(~S{b})
+      if I32.eq(component_id, @component_l), do: ~S(l)
+      if I32.eq(component_id, @component_a), do: ~S(a)
+      if I32.eq(component_id, @component_b), do: ~S(b)
       ~S{-gradient')" />\n}
 
       # append!(~S{<circle data-drag-knob cx="<%= l / 100.0 %>" cy="<%= l / 100.0 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />})
@@ -220,9 +220,9 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
     build! do
       ~S{<linearGradient id="}
 
-      if I32.eq(component_id, @component_l), do: append!(~S{lab-l-gradient})
-      if I32.eq(component_id, @component_a), do: append!(~S{lab-a-gradient})
-      if I32.eq(component_id, @component_b), do: append!(~S{lab-b-gradient})
+      if I32.eq(component_id, @component_l), do: ~S{lab-l-gradient}
+      if I32.eq(component_id, @component_a), do: ~S{lab-a-gradient}
+      if I32.eq(component_id, @component_b), do: ~S{lab-b-gradient}
 
       ~S{" gradientTransform="scale(1.414) rotate(45)">\n}
 
