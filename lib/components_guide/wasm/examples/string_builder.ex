@@ -69,6 +69,18 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def appended?(), do: Orb.DSL.typed_call(I32, :bump_written?, [])
 
   defmacro build!(do: block) do
+    items = build_block(block)
+
+    quote do
+      [
+        build_begin!(),
+        unquote(items),
+        build_done!()
+      ]
+    end
+  end
+
+  def build_block(block) do
     items =
       List.wrap(
         case block do
@@ -77,19 +89,15 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
         end
       )
 
-    items =
-      for item <- items do
-        quote do
+    for item <- items do
+      quote do
+        with do
+          import Orb.IfElse.DSL, only: []
+          import unquote(__MODULE__).DSL
+
           unquote(__MODULE__).build_item(unquote(item))
         end
       end
-
-    quote do
-      [
-        build_begin!(),
-        unquote(items),
-        build_done!()
-      ]
     end
   end
 
@@ -108,10 +116,11 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
   def build_item(
         %struct{
-          type: type,
+          type: type
           # operation: {:global_get, _}
         } = instruction
-      ) when struct in [Orb.Instruction, Orb.VariableReference] and type in [:f32, Orb.F32, F32] do
+      )
+      when struct in [Orb.Instruction, Orb.VariableReference] and type in [:f32, Orb.F32, F32] do
     append!(decimal_f32: instruction)
   end
 
@@ -315,4 +324,27 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   #       write!(unquote(pieces))
   #     end
   #   end
+
+  defmodule DSL do
+    alias ComponentsGuide.Wasm.Examples.StringBuilder
+
+    defmacro if(condition, do: when_true, else: when_false) do
+      quote do
+        Orb.IfElse.new(
+          unquote(condition),
+          unquote(StringBuilder.build_block(when_true)),
+          unquote(StringBuilder.build_block(when_false))
+        )
+      end
+    end
+
+    defmacro if(condition, do: when_true) do
+      quote do
+        Orb.IfElse.new(
+          unquote(condition),
+          unquote(StringBuilder.build_block(when_true))
+        )
+      end
+    end
+  end
 end
