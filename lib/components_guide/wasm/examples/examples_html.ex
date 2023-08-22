@@ -107,7 +107,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       end
 
       func escape_html(), I32 do
-        call(:escape, 1024, 1024 + 1024)
+        typed_call(I32, :escape, [1024, 1024 + 1024])
       end
     end
 
