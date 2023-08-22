@@ -606,13 +606,13 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       func get_backoff_delay(), I32 do
         I32.match @backoff_level do
           0 -> 0
-          1 -> ^Enum.at(@backoff_delays, 0)
-          2 -> ^Enum.at(@backoff_delays, 1)
-          3 -> ^Enum.at(@backoff_delays, 2)
-          4 -> ^Enum.at(@backoff_delays, 3)
-          5 -> ^Enum.at(@backoff_delays, 4)
-          6 -> ^Enum.at(@backoff_delays, 5)
-          _ -> ^Enum.at(@backoff_delays, 6)
+          1 -> inline do: Enum.at(@backoff_delays, 0)
+          2 -> inline do: Enum.at(@backoff_delays, 1)
+          3 -> inline do: Enum.at(@backoff_delays, 2)
+          4 -> inline do: Enum.at(@backoff_delays, 3)
+          5 -> inline do: Enum.at(@backoff_delays, 4)
+          6 -> inline do: Enum.at(@backoff_delays, 5)
+          _ -> inline do: Enum.at(@backoff_delays, 6)
         end
       end
 
