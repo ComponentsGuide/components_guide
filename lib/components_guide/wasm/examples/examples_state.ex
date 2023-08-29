@@ -39,8 +39,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         # If current state is `_` i.e. being ignored.
         {:_, _, _} ->
           quote do
-            func unquote(Macro.escape(name)) do
-              Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
+            wasm do
+              func unquote(Macro.escape(name)) do
+                transition_to(unquote(target))
+                # Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
+              end
             end
           end
 
@@ -49,9 +52,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
           quote do
             # Module.register_attribute(__MODULE__, String.to_atom("func_#{unquote(name)}"), accumulate: true)
 
-            func unquote(Macro.escape(name)) do
-              Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(current_state)) do
-                Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
+            wasm do
+              func unquote(Macro.escape(name)) do
+                Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(current_state)) do
+                  transition_to(unquote(target))
+                  # Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
+                end
               end
             end
           end
@@ -133,8 +139,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         end
 
       quote do
-        func unquote(name) do
-          unquote(statements)
+        wasm do
+          func unquote(name) do
+            unquote(statements)
+          end
         end
       end
     end
@@ -151,13 +159,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.global(count: 0)
 
-    wasm U32 do
-      func(get_current(), I32, do: @count)
+    defw(get_current(), I32, do: @count)
 
-      func increment(), I32 do
-        @count = @count + 1
-        @count
-      end
+    defw increment(), I32 do
+      @count = @count + 1
+      @count
     end
 
     def get_current(instance), do: Instance.call(instance, :get_current)
@@ -170,13 +176,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.export_enum([:idle, :loading, :loaded, :failed])
 
-    wasm do
-      func(get_current(), I32, do: @state)
+    defw(get_current(), I32, do: @state)
 
-      on(load(@idle), target: @loading)
-      on(success(@loading), target: @loaded)
-      on(failure(@loading), target: @failed)
-    end
+    on(load(@idle), target: @loading)
+    on(success(@loading), target: @loaded)
+    on(failure(@loading), target: @failed)
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def load(instance), do: Instance.call(instance, :load)
@@ -187,54 +191,68 @@ defmodule ComponentsGuide.Wasm.Examples.State do
   defmodule Form do
     use Orb
 
+    # global do
+    #   @initial 0
+    # end
+    # globalp do
+    #   @state 0
+    #   @edit_count 0
+    #   @submitted_edit_count 0
+    # end
+
+    # global_enum 1 do
+    #   @edited
+    #   @submitting
+    #   @succeeded
+    #   @failed
+    # end
+
     I32.export_enum([:edited, :submitting, :succeeded, :failed], 1)
     I32.export_global(:mutable, initial: 0)
     I32.global(state: 0, edit_count: 0, submitted_edit_count: 0)
 
-    wasm do
-      func(get_current(), I32, do: @state)
-      func(get_edit_count(), I32, do: @edit_count)
-      func(get_submitted_edit_count(), I32, do: @submitted_edit_count)
+    defw(get_current(), I32, do: @state)
+    defw(get_edit_count(), I32, do: @edit_count)
+    defw(get_submitted_edit_count(), I32, do: @submitted_edit_count)
 
-      func user_can_edit?(), I32 do
-        @state |> I32.eq(@submitting) |> I32.eqz()
+    defw user_can_edit?(), I32 do
+      @state |> I32.eq(@submitting) |> I32.eqz()
+    end
+
+    defw user_can_submit?(), I32 do
+      @state |> I32.eq(@submitting) |> I32.eqz()
+      # eq(@state, @submitting) |> eqz()
+    end
+
+    defw user_did_edit() do
+      # if I32.magic(state in [initial, edited]) do
+      #   state = edited
+      #   edit_count = I32.add(edit_count, 1)
+      # end
+
+      if I32.in?(@state, [@initial, @edited, @succeeded, @failed]) do
+        @state = @edited
+        @edit_count = I32.add(@edit_count, 1)
       end
+    end
 
-      func user_can_submit?(), I32 do
-        @state |> I32.eq(@submitting) |> I32.eqz()
-        # eq(@state, @submitting) |> eqz()
+    defw user_did_submit do
+      # TODO: use I32.ne()
+      if I32.eqz(I32.eq(@state, @submitting)) do
+        @state = @submitting
+        @submitted_edit_count = @edit_count
       end
+    end
 
-      func user_did_edit() do
-        # if I32.magic(state in [initial, edited]) do
-        #   state = edited
-        #   edit_count = I32.add(edit_count, 1)
-        # end
-
-        if I32.in?(@state, [@initial, @edited, @succeeded, @failed]) do
-          @state = @edited
-          @edit_count = I32.add(@edit_count, 1)
-        end
+    defw destination_did_succeed do
+      if I32.eq(@state, @submitting) do
+        @state = @succeeded
       end
+    end
 
-      func user_did_submit do
-        # TODO: use I32.ne()
-        if I32.eqz(I32.eq(@state, @submitting)) do
-          @state = @submitting
-          @submitted_edit_count = @edit_count
-        end
-      end
-
-      func destination_did_succeed do
-        if I32.eq(@state, @submitting) do
-          @state = @succeeded
-        end
-      end
-
-      func destination_did_fail do
-        if I32.eq(@state, @submitting) do
-          @state = @failed
-        end
+    defw destination_did_fail do
+      if I32.eq(@state, @submitting) do
+        @state = @failed
       end
     end
 
@@ -262,12 +280,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     # listen_to_window_offline: 1,
     # listen_to_window_online: 1,
 
-    wasm do
-      func(get_current(), I32, do: @state)
+    defw(get_current(), I32, do: @state)
 
-      on(online(@offline?), target: @online?)
-      on(offline(@online?), target: @offline?)
-    end
+    on(online(@offline?), target: @online?)
+    on(offline(@online?), target: @offline?)
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def offline(instance), do: Instance.call(instance, :offline)
@@ -284,12 +300,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
       is_focused: Orb.DSL.funcp(name: :check_is_active, params: nil, result: I32)
     )
 
-    wasm do
-      func(get_current(), I32, do: @state)
+    defw(get_current(), I32, do: @state)
 
-      # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
-      on(focus(@inactive), target: @active)
-    end
+    # on(focusin(active), ask: :check_is_active, true: active, false: inactive)
+    on(focus(@inactive), target: @active)
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def offline(instance), do: Instance.call(instance, :offline)
@@ -313,14 +327,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.export_enum([:closed?, :open?])
 
-    wasm do
-      func(get_current(), I32, do: @state)
-      on(open(@closed?), target: @open?)
-      on(close(@open?), target: @closed?)
-      # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
-      # TODO: emit did_cancel event
-      on(cancel(@open?), target: @closed?)
-    end
+    defw(get_current(), I32, do: @state)
+    on(open(@closed?), target: @open?)
+    on(close(@open?), target: @closed?)
+    # See: http://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/cancel_event
+    # TODO: emit did_cancel event
+    on(cancel(@open?), target: @closed?)
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def open(instance), do: Instance.call(instance, :open)
@@ -333,11 +345,8 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.export_enum([:active, :aborted])
 
-    wasm do
-      func(aborted?(), I32, do: @state)
-
-      on(abort(@active), target: @aborted)
-    end
+    defw(aborted?(), I32, do: @state)
+    on(abort(@active), target: @aborted)
 
     def aborted?(instance), do: Instance.call(instance, :aborted?)
     def abort(instance), do: Instance.call(instance, :abort)
@@ -351,12 +360,10 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.export_enum([:pending, :resolved, :rejected])
 
-    wasm do
-      func(get_current(), I32, do: @state)
+    defw(get_current(), I32, do: @state)
 
-      on(resolve(@pending), target: @resolved)
-      on(reject(@pending), target: @rejected)
-    end
+    on(resolve(@pending), target: @resolved)
+    on(reject(@pending), target: @rejected)
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def resolve(instance), do: Instance.call(instance, :resolve)
@@ -369,13 +376,11 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.export_enum([:initial?, :started?, :canceled?, :ended?])
 
-    wasm do
-      func(get_current(), I32, do: @state)
+    defw(get_current(), I32, do: @state)
 
-      on(transitionstart(_), target: @started?)
-      on(transitioncancel(_), target: @canceled?)
-      on(transitionend(_), target: @ended?)
-    end
+    on(transitionstart(_), target: @started?)
+    on(transitioncancel(_), target: @canceled?)
+    on(transitionend(_), target: @ended?)
 
     def get_current(instance), do: Instance.call(instance, :get_current)
     def transitionstart(instance), do: Instance.call(instance, :transitionstart)
@@ -389,25 +394,23 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     I32.export_global(:mutable, time: 0)
 
-    wasm do
-      func will_send(), I32 do
-        @time = I32.add(@time, 1)
-        @time
+    defw will_send(), I32 do
+      @time = I32.add(@time, 1)
+      @time
+    end
+
+    defw received(incoming_time: I32), I32 do
+      if incoming_time > @time do
+        @time = incoming_time
       end
 
-      func received(incoming_time: I32), I32 do
-        if incoming_time > @time do
-          @time = incoming_time
-        end
+      # if Orb.DSL.global_get(:incoming_time) > Orb.DSL.global_get(:time) do
+      #   Orb.DSL.global_get(:incoming_time)
+      #   Orb.DSL.global_set(:time)
+      # end
 
-        # if Orb.DSL.global_get(:incoming_time) > Orb.DSL.global_get(:time) do
-        #   Orb.DSL.global_get(:incoming_time)
-        #   Orb.DSL.global_set(:time)
-        # end
-
-        @time = @time + 1
-        @time
-      end
+      @time = @time + 1
+      @time
     end
 
     def read(instance), do: Instance.get_global(instance, :time)
@@ -473,140 +476,138 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     #   ]
     # ]
 
-    wasm U32 do
-      func(get_search_params(), I32, do: 0x0)
-      func(info_success_count(), I32, do: @success_count)
+    defw(get_search_params(), I32, do: 0x0)
+    defw(info_success_count(), I32, do: @success_count)
 
-      # TODO: do this in another way?
-      func set_token(token: I32) do
-        @token = token
+    # TODO: do this in another way?
+    defw set_token(token: I32) do
+      @token = token
+    end
+
+    on reconnect() do
+      _ ->
+        {@auth_backoff, success_count: 0}
+    end
+
+    on disconnect() do
+      _ -> @idle_initial
+    end
+
+    on connect() do
+      @idle_initial, @idle_failed -> I32.when?(@token, do: @connecting_busy, else: @auth_busy)
+    end
+
+    # TODO: pass token
+    on auth_succeeded() do
+      @auth_busy -> @connecting_busy
+    end
+
+    on connecting_succeeded() do
+      @connecting_busy ->
+        {@ok_connected, success_count: :increment}
+        # @connecting_busy ->
+        #   {@ok_connected,
+        #    snippet U32 do
+        #      @success_count = @success_count + 1
+        #    end}
+    end
+
+    on pong() do
+      @ok_awaiting_pong -> @ok_connected
+    end
+
+    on pong_timedout() do
+      @ok_awaiting_pong -> @connecting_busy
+    end
+
+    on socket_received_error() do
+      @ok_connected, @ok_awaiting_pong -> {@connecting_backoff, backoff_level: 1}
+    end
+
+    defw get_backoff_delay(), I32 do
+      I32.match @backoff_level do
+        0 -> 0
+        1 -> inline(do: Enum.at(@backoff_delays, 0))
+        2 -> inline(do: Enum.at(@backoff_delays, 1))
+        3 -> inline(do: Enum.at(@backoff_delays, 2))
+        4 -> inline(do: Enum.at(@backoff_delays, 3))
+        5 -> inline(do: Enum.at(@backoff_delays, 4))
+        6 -> inline(do: Enum.at(@backoff_delays, 5))
+        _ -> inline(do: Enum.at(@backoff_delays, 6))
       end
+    end
 
-      on reconnect() do
-        _ ->
-          {@auth_backoff, success_count: 0}
+    on navigator_offline() do
+      @ok_connected -> @ok_awaiting_pong
+    end
+
+    on window_did_focus() do
+      @ok_connected ->
+        # {@ok_awaiting_pong, [:heartbeat]}
+        @ok_awaiting_pong
+    end
+
+    defw timer_ms_heartbeat(), I32 do
+      I32.match @state do
+        @ok_connected -> 30_000
+        _ -> 0
       end
+    end
 
-      on disconnect() do
-        _ -> @idle_initial
+    defw timeout_ms_pong(), I32 do
+      I32.match @state do
+        @ok_awaiting_pong -> 2_000
+        _ -> 0
       end
+    end
 
-      on connect() do
-        @idle_initial, @idle_failed -> I32.when?(@token, do: @connecting_busy, else: @auth_busy)
-      end
+    defw effect_heartbeat?(), I32 do
+      I32.in?(@state, [@ok_awaiting_pong])
+    end
 
-      # TODO: pass token
-      on auth_succeeded() do
-        @auth_busy -> @connecting_busy
-      end
+    defwp get_public_state(), I32 do
+      I32.match @state do
+        @idle_initial ->
+          @initial
 
-      on connecting_succeeded() do
-        @connecting_busy ->
-          {@ok_connected, success_count: :increment}
-          # @connecting_busy ->
-          #   {@ok_connected,
-          #    snippet U32 do
-          #      @success_count = @success_count + 1
-          #    end}
-      end
+        @idle_failed ->
+          @disconnected
 
-      on pong() do
-        @ok_awaiting_pong -> @ok_connected
-      end
+        @auth_busy, @auth_backoff, @connecting_busy, @connecting_backoff ->
+          I32.when?(@success_count > 0, do: @reconnecting, else: @connecting)
 
-      on pong_timedout() do
-        @ok_awaiting_pong -> @connecting_busy
-      end
-
-      on socket_received_error() do
-        @ok_connected, @ok_awaiting_pong -> {@connecting_backoff, backoff_level: 1}
-      end
-
-      func get_backoff_delay(), I32 do
-        I32.match @backoff_level do
-          0 -> 0
-          1 -> inline do: Enum.at(@backoff_delays, 0)
-          2 -> inline do: Enum.at(@backoff_delays, 1)
-          3 -> inline do: Enum.at(@backoff_delays, 2)
-          4 -> inline do: Enum.at(@backoff_delays, 3)
-          5 -> inline do: Enum.at(@backoff_delays, 4)
-          6 -> inline do: Enum.at(@backoff_delays, 5)
-          _ -> inline do: Enum.at(@backoff_delays, 6)
-        end
-      end
-
-      on navigator_offline() do
-        @ok_connected -> @ok_awaiting_pong
-      end
-
-      on window_did_focus() do
         @ok_connected ->
-          # {@ok_awaiting_pong, [:heartbeat]}
-          @ok_awaiting_pong
+          @connected
+
+        @ok_awaiting_pong ->
+          @connected
       end
+    end
 
-      func timer_ms_heartbeat(), I32 do
-        I32.match @state do
-          @ok_connected -> 30_000
-          _ -> 0
-        end
+    defw(get_current(), I32, do: get_public_state())
+
+    defw get_path(), I32.String, state: I32 do
+      state = get_public_state()
+
+      I32.match state do
+        @initial -> ~S[/initial]
+        @connecting -> ~S[/connecting]
+        @connected -> ~S[/connected]
+        @reconnecting -> ~S[/reconnecting]
+        @disconnected -> ~S[/disconnected]
       end
+    end
 
-      func timeout_ms_pong(), I32 do
-        I32.match @state do
-          @ok_awaiting_pong -> 2_000
-          _ -> 0
-        end
-      end
-
-      func effect_heartbeat?(), I32 do
-        I32.in?(@state, [@ok_awaiting_pong])
-      end
-
-      funcp get_public_state(), I32 do
-        I32.match @state do
-          @idle_initial ->
-            @initial
-
-          @idle_failed ->
-            @disconnected
-
-          @auth_busy, @auth_backoff, @connecting_busy, @connecting_backoff ->
-            I32.when?(@success_count > 0, do: @reconnecting, else: @connecting)
-
-          @ok_connected ->
-            @connected
-
-          @ok_awaiting_pong ->
-            @connected
-        end
-      end
-
-      func(get_current(), I32, do: typed_call(I32, :get_public_state, []))
-
-      func get_path(), I32.String, state: I32 do
-        state = typed_call(I32, :get_public_state, [])
-
-        I32.match state do
-          @initial -> ~S[/initial]
-          @connecting -> ~S[/connecting]
-          @connected -> ~S[/connected]
-          @reconnecting -> ~S[/reconnecting]
-          @disconnected -> ~S[/disconnected]
-        end
-      end
-
-      func get_debug_path(), I32.String do
-        I32.match @state do
-          @idle_initial -> ~S[/idle_initial]
-          @idle_failed -> ~S[/idle_failed]
-          @auth_busy -> ~S[/auth_busy]
-          @auth_backoff -> ~S[/auth_backoff]
-          @connecting_busy -> ~S[/connecting_busy]
-          @connecting_backoff -> ~S[/connecting_backoff]
-          @ok_connected -> ~S[/ok_connected]
-          @ok_awaiting_pong -> ~S[/ok_awaiting_pong]
-        end
+    defw get_debug_path(), I32.String do
+      I32.match @state do
+        @idle_initial -> ~S[/idle_initial]
+        @idle_failed -> ~S[/idle_failed]
+        @auth_busy -> ~S[/auth_busy]
+        @auth_backoff -> ~S[/auth_backoff]
+        @connecting_busy -> ~S[/connecting_busy]
+        @connecting_backoff -> ~S[/connecting_backoff]
+        @ok_connected -> ~S[/ok_connected]
+        @ok_awaiting_pong -> ~S[/ok_awaiting_pong]
       end
     end
   end
@@ -631,25 +632,23 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     Memory.pages(1)
 
-    wasm do
-      func(get_current(), I32, do: @state)
-      func(get_search_params(), I32, do: 0x0)
+    defw(get_current(), I32, do: @state)
+    defw(get_search_params(), I32, do: 0x0)
 
-      on next() do
-        @initial? -> @destination?
-        @destination? -> @dates?
-        @dates? -> @flights?
-        @flights? -> @seats?
-      end
+    on next() do
+      @initial? -> @destination?
+      @destination? -> @dates?
+      @dates? -> @flights?
+      @flights? -> @seats?
+    end
 
-      func get_path(), I32.String do
-        I32.match @state do
-          @initial? -> ~S[/book]
-          @destination? -> ~S[/destination]
-          @dates? -> ~S[/dates]
-          @flights? -> ~S[/flights]
-          @seats? -> ~S[/seats]
-        end
+    defw get_path(), I32.String do
+      I32.match @state do
+        @initial? -> ~S[/book]
+        @destination? -> ~S[/destination]
+        @dates? -> ~S[/dates]
+        @flights? -> ~S[/flights]
+        @seats? -> ~S[/seats]
       end
     end
   end
