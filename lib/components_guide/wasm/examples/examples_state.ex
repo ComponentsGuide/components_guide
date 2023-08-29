@@ -12,20 +12,18 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
         import unquote(__MODULE__)
 
-        wasm Orb.U32 do
-          funcp transition_to(new_state: Orb.I32) do
-            Instruction.global_set(Orb.I32, :state, Instruction.local_get(Orb.I32, :new_state))
+        defwp transition_to(new_state: Orb.I32) do
+          Instruction.global_set(Orb.I32, :state, Instruction.local_get(Orb.I32, :new_state))
 
-            Instruction.global_set(
-              Orb.I32,
-              :change_count,
-              Orb.I32.add(Instruction.global_get(Orb.I32, :change_count), 1)
-            )
-          end
+          Instruction.global_set(
+            Orb.I32,
+            :change_count,
+            Orb.I32.add(Instruction.global_get(Orb.I32, :change_count), 1)
+          )
+        end
 
-          func get_change_count(), Orb.I32 do
-            Instruction.global_get(Orb.I32, :change_count)
-          end
+        defw get_change_count(), Orb.I32 do
+          Instruction.global_get(Orb.I32, :change_count)
         end
       end
     end
