@@ -19,60 +19,62 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
     wasm do
       I32.attr_writer(:method, as: :set_method)
       I32.attr_writer(:path, as: :set_path)
+    end
 
-      func get_status(), I32 do
-        if I32.String.streq(@method, ~S"GET") |> I32.eqz() do
-          return(405)
-        end
+    defw get_status(), I32 do
+      I32.String.match @method do
+        ~S"GET" ->
+          I32.String.match @path do
+            ~S"/" ->
+              200
 
-        I32.String.match @path do
-          ~S"/" ->
-            200
+            ~S"/about" ->
+              200
 
-          ~S"/about" ->
-            200
+            _ ->
+              404
+          end
 
-          _ ->
-            404
-        end
+        _ ->
+          405
+      end
+    end
+
+    defw get_body(), I32.String do
+      if not I32.String.streq(@method, ~S"GET") do
+        return(~S"""
+        <!doctype html>
+        <h1>Method not allowed</h1>
+        """)
       end
 
-      func get_body(), I32.String do
-        if I32.String.streq(@method, ~S"GET") |> I32.eqz() do
-          return(~S"""
+      I32.String.match @path do
+        ~S"/" ->
+          ~S"""
           <!doctype html>
-          <h1>Method not allowed</h1>
-          """)
-        end
+          <h1>Welcome</h1>
+          """
 
-        I32.String.match @path do
-          ~S"/" ->
+        ~S"/about" ->
+          ~S"""
+          <!doctype html>
+          <h1>About</h1>
+          """
+
+        _ ->
+          build! do
             ~S"""
             <!doctype html>
-            <h1>Welcome</h1>
             """
+            ~S"<h1>Not found: "
+            append!(string: @path)
+            ~S"</h1>\n"
+          end
 
-          ~S"/about" ->
-            ~S"""
-            <!doctype html>
-            <h1>About</h1>
-            """
-
-          _ ->
-            join!([
-              ~S"""
-              <!doctype html>
-              """,
-              ~S"<h1>Not found: ",
-              @path,
-              ~S"</h1>\n"
-            ])
-
-            # ~E"""
-            # <!doctype html>
-            # <h1>Not found: <%= path %></h1>
-            # """
-        end
+          # ~E"""
+          # <!doctype html>
+          # <h1>Not found: <%= path %></h1>
+          # """
       end
     end
   end

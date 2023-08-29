@@ -185,6 +185,8 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       ~S(<defs>\n)
       do_linear_gradient(component_id)
       ~S(</defs>\n)
+      # const(Enum.join(["</defs>", "\n"]))
+      # const(Enum.join(~HTML</defs>, "\n"]))
 
       ~S{<rect width="1" height="1" fill="url('#lab-}
       if I32.eq(component_id, @component_l), do: ~S(l)

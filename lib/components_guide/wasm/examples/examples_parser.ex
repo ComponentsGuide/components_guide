@@ -8,7 +8,9 @@ defmodule ComponentsGuide.Wasm.Examples.Parser do
 
     wasm_mode(U32)
 
-    defw u32_to_hex_lower(value: I32, write_ptr: I32.U8.UnsafePointer), i: I32, digit: I32 do
+    defw u32_to_hex_lower(value: I32, write_ptr: I32.U8.UnsafePointer),
+      i: I32,
+      digit: I32 do
       i = 8
 
       loop Digits do

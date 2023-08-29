@@ -109,10 +109,8 @@ defmodule ComponentsGuideWeb.WasmController do
     |> send_resp(200, javascript)
   end
 
-  def root(conn, %{"module" => "color"}) do
-    # render(conn, :color)
-
-    imports = [
+  defp color_imports do
+    [
       {:math, :powf32,
        fn x, y ->
          Float.pow(x, y)
@@ -136,28 +134,19 @@ defmodule ComponentsGuideWeb.WasmController do
          nil
        end}
     ]
+  end
 
-    {function, media_type} =
-      {:to_html, "text/html"}
-
-    instance = Instance.run(LabSwatch, imports)
-    # set_www_form_data = Instance.capture(instance, :set_www_form_data, 1)
-    to_html = Instance.capture(instance, String, function, 0)
-
-    # set_www_form_data.(conn.query_string)
-
-    html = to_html.()
+  def root(conn, %{"module" => "color"}) do
+    instance = Instance.run(LabSwatch, color_imports())
+    initial_html = Instance.call_reading_string(instance, :to_html)
+    # to_html = Instance.capture(instance, String, :to_html, 0)
     wasm_size = byte_size(LabSwatch.to_wasm())
 
     render(conn, :color,
-      initial_html: html,
+      initial_html: initial_html,
       page_title: "WebAssembly Lab Color Picker using Orb",
       wasm_size: wasm_size
     )
-
-    # conn
-    # |> put_resp_content_type(media_type)
-    # |> send_resp(200, html)
   end
 
   def root(conn, %{"module" => "color_lab_swatch.svg"}) do

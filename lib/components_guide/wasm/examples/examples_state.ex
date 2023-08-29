@@ -168,101 +168,22 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
   defmodule Loader do
     use Orb
-
     use StateMachine
-
-    # defmodule LoadableMachine do
-    #   use Machine,
-    #     states: [:idle, :loading, :loaded, :failed]
-
-    # defstate Idle do
-    #   on(:start), do: Loading
-    # end
-
-    #   def on(:idle, :start), do: :loading
-    #   def entry(:loading), do: :load
-    #   def on(:loading, :success), do: :loaded
-    #   def on(:loading, :failure), do: :failed
-
-    #   on succeeded(:loading), do: :loaded
-    #   on failed(:loading), do: :failed
-    # end
 
     I32.export_enum([:idle, :loading, :loaded, :failed])
 
-    # State.transitions do
-    #   @idle ->
-    #     [begin: @loading]
-    #
-    #   @loading ->
-    #     [success: @loaded, failure: @failed]
-    # end
-
-    # State.define :state do
-    #   :idle ->
-    #     [begin: :loading]
-    #
-    #   :loading ->
-    #     [success: :loaded, failure: :failed]
-    #
-    #   :loaded ->
-    #     :terminal
-    #
-    #   :failed ->
-    #     :terminal
-    # end
-
     wasm do
-      # @idle 0
-      # @loading 1
-      # @loaded 2
-      # @failed 3
-
       func(get_current(), I32, do: @state)
 
-      # defstates :state do
-      #   state Idle do
-      #     :begin -> Loading
-      #   end
-
-      #   state Loading do
-      #     :success -> Loaded
-      #     :failure -> Failed
-      #   end
-
-      #   state Loaded do
-      #   end
-
-      #   state Failed do
-      #   end
-      # end
-
-      # on(begin(idle), target: loading, action: :load)
-      # on(begin(idle -> loading, action: :load))
-      on(begin(@idle), target: @loading)
+      on(load(@idle), target: @loading)
       on(success(@loading), target: @loaded)
       on(failure(@loading), target: @failed)
-
-      # state_machine state do
-      #   idle ->
-      #     on(begin, target: loading)
-
-      #   loading ->
-      #     on(success, target: loaded)
-      #     on(failure, target: failed)
-
-      #   loaded ->
-      #     nil
-
-      #   failed ->
-      #     nil
-      # end
     end
 
-    def get_current(instance), do: Instance.call(instance, "get_current")
-    def begin(instance), do: Instance.call(instance, "begin")
-    def success(instance), do: Instance.call(instance, "success")
-    def failure(instance), do: Instance.call(instance, "failure")
+    def get_current(instance), do: Instance.call(instance, :get_current)
+    def load(instance), do: Instance.call(instance, :load)
+    def success(instance), do: Instance.call(instance, :success)
+    def failure(instance), do: Instance.call(instance, :failure)
   end
 
   defmodule Form do

@@ -79,7 +79,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
                {:global, "failed", :i32},
                {:func, "get_change_count"},
                {:func, "get_current"},
-               {:func, "begin"},
+               {:func, "load"},
                {:func, "success"},
                {:func, "failure"}
              ]
@@ -97,7 +97,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       assert MapSet.new([idle, loading, loaded, failed]) |> MapSet.size() == 4
 
       assert Loader.get_current(a) == idle
-      Loader.begin(a)
+      Loader.load(a)
       assert Loader.get_current(a) == loading
       Loader.success(a)
       assert Loader.get_current(a) == loaded
@@ -110,7 +110,7 @@ defmodule ComponentsGuide.Wasm.Examples.StateTest do
       Loader.failure(b)
       assert Loader.get_current(b) == idle
 
-      Loader.begin(b)
+      Loader.load(b)
       assert Loader.get_current(b) == loading
       Loader.failure(b)
       assert Loader.get_current(b) == failed
