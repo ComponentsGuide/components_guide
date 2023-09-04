@@ -11,37 +11,6 @@
 
 <hr />
 
-<h2>Rust</h2>
-<h3>Add numbers</h3>
-<.code_block lang="rust">
-  fn add(a: i64, b: i64) -> i64 {
-  a + b
-  }
-</.code_block>
-<.code_block lang="elixir">
-  Math.add(5, 11)
-</.code_block>
-<.code_block lang="elixir" code={ComponentsGuide.Wasm.WasmNative.add(5, 11) |> inspect()} />
-
-<h3>Reverse string</h3>
-<.code_block lang="rust">
-  fn reverse_string(a: String) -> String {
-  return a.chars().rev().collect();
-  }
-</.code_block>
-<.code_block lang="elixir">
-  Math.reverse_string("hello")
-</.code_block>
-<.code_block
-  lang="elixir"
-  code={ComponentsGuide.Wasm.WasmNative.reverse_string("hello") |> inspect()}
-/>
-
-<hr />
-
 <h2>WebAssembly + Wasmtime running via Rust</h2>
 <.code_block lang="wasm" code={@wasm_source} />
-<.code_block lang="elixir">
-  Math.call(@wasm_source, "answer")
-</.code_block>
-<.code_block lang="elixir" code={ComponentsGuide.Wasm.call(@wasm_source, "answer") |> inspect()} />
+<.code_block lang="elixir" code={OrbWasmtime.Wasm.call(@wasm_source, "answer") |> inspect()} />
