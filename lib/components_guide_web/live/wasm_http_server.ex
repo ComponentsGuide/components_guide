@@ -2,7 +2,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
   use ComponentsGuideWeb,
       {:live_view,
        container:
-         {:div, class: "max-w-6xl mx-auto px-3 prose prose-invert text-lg text-white pb-24"}}
+         {:div, class: "max-w-3xl mx-auto px-3 prose prose-invert text-lg text-white pb-24"}}
 
   alias OrbWasmtime.Wasm
   alias ComponentsGuide.Wasm.Examples.HTTPServer.PortfolioSite
@@ -50,6 +50,8 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
     assigns = Map.put(assigns, :suggestions, @suggestions)
 
     ~H"""
+    <h1 class="pt-12 text-center">The exact same <%= Format.humanize_bytes(Wasm.to_wasm(PortfolioSite)) %> WebAssembly module written in Orb.</h1>
+
     <datalist id="path_suggestions">
       <option :for={suggestion <- @suggestions} value={suggestion}></option>
     </datalist>
@@ -60,7 +62,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
       phx-change="submitted"
       class="max-w-md mx-auto space-y-2"
     >
-      <h2>On server:</h2>
+      <h2>WebAssembly rendered on server via LiveView:</h2>
       <div class="flex flex-col items-start gap-4">
         <.input
           field={@form[:user_method]}
@@ -98,7 +100,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
       phx-update="ignore"
     >
       <form class="max-w-md mx-auto space-y-2">
-        <h2>In browser:</h2>
+      <h2>WebAssembly rendered in browser via custom elements:</h2>
         <div class="flex flex-col items-start gap-4">
           <.input
             name="set_method"
@@ -122,8 +124,6 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
         </output>
       </form>
     </wasm-http-server>
-
-    <p class="text-center">Wasm Bytes: <%= byte_size(Wasm.to_wasm(PortfolioSite)) %></p>
     """
   end
 

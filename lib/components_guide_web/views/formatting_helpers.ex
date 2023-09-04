@@ -15,6 +15,10 @@ defmodule ComponentsGuideWeb.FormattingHelpers do
     "#{count} B"
   end
 
+  def humanize_bytes(binary) when is_binary(binary) do
+    binary |> byte_size() |> humanize_bytes()
+  end
+
   # def humanize_bytes(bytes) when is_binary(bytes) do
   #   humanize_bytes(byte_size(bytes))
   # end
