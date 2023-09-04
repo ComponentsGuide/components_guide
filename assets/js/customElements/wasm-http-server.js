@@ -88,8 +88,11 @@ function initWasmHTML(el, wasmInstancePromise) {
       // Get subsection of memory between start and end, and decode it as UTF-8.
       const text = utf8decoder.decode(memoryBytes.subarray(ptr, endPtr));
       // slots.get("to_string").innerText = text;
-      slots.get("get_status").innerText = status;
-      slots.get("get_body").innerText = text;
+      slots.get("get_status").textContent = status;
+
+      const bodySlot = slots.get("get_body");
+      bodySlot.textContent = text;
+      window.Prism.highlightElement(bodySlot);
     }
 
     // When a checkbox or input changes, then update.

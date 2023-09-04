@@ -50,11 +50,15 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
     assigns = Map.put(assigns, :suggestions, @suggestions)
 
     ~H"""
+    <datalist id="path_suggestions">
+      <option :for={suggestion <- @suggestions} value={suggestion}></option>
+    </datalist>
+
     <.form
       for={@form}
       id="wasm_http_server_form"
       phx-change="submitted"
-      class="max-w-2xl mx-auto space-y-2"
+      class="max-w-md mx-auto space-y-2"
     >
       <h2>On server:</h2>
       <div class="flex flex-col items-start gap-4">
@@ -73,22 +77,19 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
           placeholder="Enter path"
           list="path_suggestions"
         />
-        <datalist id="path_suggestions">
-          <option :for={suggestion <- @suggestions} value={suggestion}></option>
-        </datalist>
       </div>
     </.form>
 
-    <output form="wasm_http_server_form" class="not-prose block pt-4">
-      <%= if @state.status do %>
-        <p>Status: <%= @state.status %></p>
-      <% end %>
-      <%= if @state.body do %>
-        <pre><code class="lang-html"><%= @state.body %></code></pre>
-      <% end %>
-    </output>
-
-    <h2>In browser:</h2>
+    <div class="max-w-md mx-auto space-y-2">
+      <output form="wasm_http_server_form" class="not-prose block pt-4">
+        <%= if @state.status do %>
+          <p>Status: <%= @state.status %></p>
+        <% end %>
+        <%= if @state.body do %>
+          <pre><code class="lang-html" id="server-body" phx-hook="PreCode"><%= @state.body %></code></pre>
+        <% end %>
+      </output>
+    </div>
 
     <wasm-http-server
       src="/wasm/module/website_portfolio.wasm"
@@ -96,7 +97,8 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
       id="wasm-html-1"
       phx-update="ignore"
     >
-      <form class="flex flex-col text-left gap-2">
+      <form class="max-w-md mx-auto space-y-2">
+        <h2>In browser:</h2>
         <div class="flex flex-col items-start gap-4">
           <.input
             name="set_method"
@@ -105,16 +107,23 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
             value="GET"
             placeholder="Enter HTTP method e.g. GET"
           />
-          <.input name="set_path" type="text" label="Path" value="/about" placeholder="Enter path" />
+          <.input
+            name="set_path"
+            type="text"
+            label="Path"
+            value="/about"
+            placeholder="Enter path"
+            list="path_suggestions"
+          />
         </div>
-        <output class="not-prose pt-4">
+        <output class="not-prose block pt-4">
           <p>Status: <span slot="get_status"></span></p>
-          <pre><code class="lang-html"><span slot="get_body"></span></code></pre>
+          <pre><code class="lang-html" slot="get_body"></code></pre>
         </output>
       </form>
     </wasm-http-server>
 
-    <p>Wasm Bytes: <%= byte_size(Wasm.to_wasm(PortfolioSite)) %></p>
+    <p class="text-center">Wasm Bytes: <%= byte_size(Wasm.to_wasm(PortfolioSite)) %></p>
     """
   end
 
