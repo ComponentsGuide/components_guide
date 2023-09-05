@@ -165,9 +165,11 @@ defmodule ComponentsGuideWeb.ColorLive do
         <dd><%= State.hex(@state) %>
         <dt class="font-bold">CSS:
         <dd><pre class="text-base whitespace-pre-wrap"><code><%= State.css_srgb(@state) %></code></pre>
-        <dt class="font-bold">Gradient CSS:
-        <dd><pre class="text-base whitespace-pre-wrap"><code><%= l_gradient %></code></pre>
       </dl>
+      <details>
+        <summary>Gradient CSS</summary>
+        <pre class="text-base whitespace-pre-wrap"><code><%= l_gradient %></code></pre>
+      </details>
     </article>
     """
   end
