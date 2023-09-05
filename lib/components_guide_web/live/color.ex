@@ -48,6 +48,7 @@ defmodule ComponentsGuideWeb.ColorLive do
     def b(%__MODULE__{color: {:lab, _, _, b}}), do: b
 
     def css_srgb(%__MODULE__{color: color}), do: StylingHelpers.to_css(color, :srgb)
+    def css_lab(%__MODULE__{color: color}), do: StylingHelpers.to_css(color, :lab)
     def css(%__MODULE__{color: color}), do: StylingHelpers.to_css(color, nil)
 
     defp to_srgb(%__MODULE__{color: color}) do
@@ -74,7 +75,7 @@ defmodule ComponentsGuideWeb.ColorLive do
   end
 
   def render(assigns) do
-    swatch_size = 160
+    swatch_size = 120
     {:lab, l, a, b} = assigns.state.color
 
     gradient_steps = 20
@@ -116,10 +117,8 @@ defmodule ComponentsGuideWeb.ColorLive do
       )
 
     ~L"""
-    <article class="flex flex-col p-8 gap-4 text-2xl max-w-lg mx-auto text-white">
-      <svg width="<%= swatch_size / 2.0 %>" height="<%= swatch_size / 2.0 %>" viewbox="0 0 1 1">
-        <rect fill="<%= State.css_srgb(@state) %>" width="1" height="1" />
-      </svg>
+    <article class="flex flex-col p-8 gap-4 max-w-lg mx-auto text-white">
+      <h1>LiveView</h1>
       <div class="flex gap-4">
         <svg viewBox="0 0 1 1" width="<%= swatch_size %>" height="<%= swatch_size %>" id="l-swatch" phx-hook=SwatchInput data-color-property=l>
           <defs>
@@ -143,7 +142,7 @@ defmodule ComponentsGuideWeb.ColorLive do
           <circle cx="<%= (b / 127.0) / 2.0 + 0.5 %>" cy="<%= (b / 127.0) / 2.0 + 0.5 %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />
         </svg>
       </div>
-      <form phx-change="lab_changed" class="flex flex-col">
+      <form phx-change="lab_changed" class="flex flex-col" hidden>
         <label>
           L
           <input type=range name=l min="0" max="100" value="<%= State.l(@state) %>" phx-value-component=l>
@@ -160,16 +159,15 @@ defmodule ComponentsGuideWeb.ColorLive do
           <span><%= b %></span>
         </label>
       </form>
-      <dl>
-        <dt class="font-bold">Hex:
-        <dd><%= State.hex(@state) %>
-        <dt class="font-bold">CSS:
-        <dd><pre class="text-base whitespace-pre-wrap"><code><%= State.css_srgb(@state) %></code></pre>
-      </dl>
-      <details>
-        <summary>Gradient CSS</summary>
-        <pre class="text-base whitespace-pre-wrap"><code><%= l_gradient %></code></pre>
-      </details>
+      <output class="flex flex-col font-mono">
+        <p class="flex items-center gap-1"><svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="<%= State.css_lab(@state) %>"></rect></svg> <%= State.css_lab(@state) %></p>
+        <p class="flex items-center gap-1"><svg viewBox="0 0 1 1" width="1rem" height="1rem"><rect width="1" height="1" fill="<%= State.css_srgb(@state) %>"></rect></svg> <%= State.css_srgb(@state) %></p>
+        <p hidden><%= State.hex(@state) %></p>
+        <details hidden>
+          <summary>Gradient CSS</summary>
+          <pre class="text-base whitespace-pre-wrap"><code><%= l_gradient %></code></pre>
+        </details>
+      </output>
     </article>
     """
   end

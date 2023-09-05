@@ -143,6 +143,10 @@ defmodule ComponentsGuideWeb.StylingHelpers do
     color |> convert(:srgb) |> to_css(:srgb)
   end
 
+  def to_css({:lab, l, a, b}, :lab) do
+    "lab(#{l |> round}% #{a |> round} #{b |> round})"
+  end
+
   def to_css({:lab, l, a, b}, nil) do
     "lab(#{l |> round}% #{a |> round} #{b |> round})"
   end
