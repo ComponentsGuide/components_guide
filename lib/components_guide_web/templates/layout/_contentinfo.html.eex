@@ -1,6 +1,9 @@
 <footer role="contentinfo" class="container pt-16 pb-6 text-gray-500 border-t border-gray-800 tracking-wide">
-  <div class="text-center text-xl text-white" data-links="underline-on-hover">
+  <div hidden class="text-center text-xl text-white" data-links="underline-on-hover">
     Follow <a href="https://twitter.com/ComponentsGuide">@ComponentsGuide</a> on Twitter for the latest articles.
+  </div>
+  <div class="text-center text-xl text-white" data-links="underline-on-hover">
+    Follow <a href="https://twitter.com/RoyalIcing">@RoyalIcing</a> on Twitter for the latest.
   </div>
 
   <div class="X pt-8 pb-12">
