@@ -135,7 +135,7 @@ defmodule ComponentsGuideWeb.WasmHTTPServerLive do
 
     socket =
       socket
-      |> assign(page_title: "Wasm Inspector")
+      |> assign(page_title: "WebAssembly HTTP Server")
       |> assign_state(state)
       |> assign(form: to_form(%{}))
 
