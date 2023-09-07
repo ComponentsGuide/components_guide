@@ -22,6 +22,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   wasm_import(:math,
     powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
   )
+
   wasm_import(:log,
     i32: Orb.DSL.funcp(name: :log_i32, params: I32),
     f32: Orb.DSL.funcp(name: :log_f32, params: F32)
@@ -32,106 +33,110 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   #   defw powf32(_: F32, _: F32), F32, as: :powf32
   # end
 
-  wasm F32 do
-    func lab_to_xyz_component(v: F32), F32, cubed: F32 do
-      cubed = typed_call(F32, :powf32, [v, 3.0])
+  wasm_mode(F32)
 
-      if cubed > ^@e, result: F32 do
-        cubed
-      else
-        (116.0 * v - 16.0) / ^@k
-      end
+  defp powf32(a, b) do
+    Orb.DSL.typed_call(F32, :powf32, [a, b])
+  end
+
+  defwp lab_to_xyz_component(v: F32), F32, cubed: F32 do
+    cubed = typed_call(F32, :powf32, [v, 3.0])
+
+    if cubed > ^@e, result: F32 do
+      cubed
+    else
+      (116.0 * v - 16.0) / ^@k
     end
+  end
 
-    func lab_to_xyz(l: F32, a: F32, b: F32), {F32, F32, F32}, fy: F32, fx: F32, fz: F32 do
-      fy = (l + 16.0) / 116.0
-      fx = a / 500.0 + fy
-      fz = fy - b / 200.0
+  defw lab_to_xyz(l: F32, a: F32, b: F32), {F32, F32, F32}, fy: F32, fx: F32, fz: F32 do
+    fy = (l + 16.0) / 116.0
+    fx = a / 500.0 + fy
+    fz = fy - b / 200.0
 
-      typed_call(F32, :lab_to_xyz_component, [fx]) * ^@xn
-      typed_call(F32, :lab_to_xyz_component, [fy]) * ^@yn
-      typed_call(F32, :lab_to_xyz_component, [fz]) * ^@zn
+    lab_to_xyz_component(fx) * ^@xn
+    lab_to_xyz_component(fy) * ^@yn
+    lab_to_xyz_component(fz) * ^@zn
+  end
+
+  defwp xyz_to_lab_component(c: F32), F32 do
+    if c > ^@e, result: F32 do
+      powf32(c, 1.0 / 3.0)
+    else
+      (^@k * c + 16.0) / 116.0
     end
+  end
 
-    funcp xyz_to_lab_component(c: F32), F32 do
-      if c > ^@e, result: F32 do
-        typed_call(F32, :powf32, [c, 1.0 / 3.0])
-      else
-        (^@k * c + 16.0) / 116.0
-      end
+  defw xyz_to_lab(x: F32, y: F32, z: F32), {F32, F32, F32}, f0: F32, f1: F32, f2: F32 do
+    f0 = xyz_to_lab_component(x / ^@xn)
+    f1 = xyz_to_lab_component(y / ^@yn)
+    f2 = xyz_to_lab_component(z / ^@zn)
+
+    116.0 * f1 - 16.0
+    500.0 * (f0 - f1)
+    200.0 * (f1 - f2)
+  end
+
+  defw linear_srgb_to_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
+    linear_srgb_to_srgb_component(r)
+    linear_srgb_to_srgb_component(g)
+    linear_srgb_to_srgb_component(b)
+  end
+
+  defwp linear_srgb_to_srgb_component(c: F32), F32 do
+    if c > 0.0031308, result: F32 do
+      1.055 * typed_call(F32, :powf32, [c, 1.0 / 2.4]) - 0.055
+    else
+      12.92 * c
     end
+  end
 
-    func xyz_to_lab(x: F32, y: F32, z: F32), {F32, F32, F32}, f0: F32, f1: F32, f2: F32 do
-      f0 = typed_call(F32, :xyz_to_lab_component, [x / ^@xn])
-      f1 = typed_call(F32, :xyz_to_lab_component, [y / ^@yn])
-      f2 = typed_call(F32, :xyz_to_lab_component, [z / ^@zn])
+  defw srgb_to_linear_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
+    srgb_to_linear_srgb_component(r)
+    srgb_to_linear_srgb_component(g)
+    srgb_to_linear_srgb_component(b)
+  end
 
-      116.0 * f1 - 16.0
-      500.0 * (f0 - f1)
-      200.0 * (f1 - f2)
+  defwp srgb_to_linear_srgb_component(c: F32), F32 do
+    if c < 0.04045, result: F32 do
+      c / 12.92
+    else
+      typed_call(F32, :powf32, [(c + 0.055) / 1.055, 2.4])
     end
+  end
 
-    func linear_srgb_to_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      typed_call(F32, :linear_srgb_to_srgb_component, [r])
-      typed_call(F32, :linear_srgb_to_srgb_component, [g])
-      typed_call(F32, :linear_srgb_to_srgb_component, [b])
-    end
+  defw xyz_to_linear_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
+    # TODO: decide whether to clamp here
+    # https://github.com/d3/d3-color/issues/33
+    (x * 3.1338561 - y * 1.6168667 - 0.4906146 * z) |> F32.min(1.0) |> F32.max(0.0)
+    (x * -0.9787684 + y * 1.9161415 + 0.0334540 * z) |> F32.min(1.0) |> F32.max(0.0)
+    (x * 0.0719453 - y * 0.2289914 + 1.4052427 * z) |> F32.min(1.0) |> F32.max(0.0)
+  end
 
-    funcp linear_srgb_to_srgb_component(c: F32), F32 do
-      if c > 0.0031308, result: F32 do
-        1.055 * typed_call(F32, :powf32, [c, 1.0 / 2.4]) - 0.055
-      else
-        12.92 * c
-      end
-    end
+  defw xyz_to_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
+    xyz_to_linear_srgb(x, y, z)
+    typed_call({F32, F32, F32}, :linear_srgb_to_srgb, [])
+  end
 
-    func srgb_to_linear_srgb(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      typed_call(F32, :srgb_to_linear_srgb_component, [r])
-      typed_call(F32, :srgb_to_linear_srgb_component, [g])
-      typed_call(F32, :srgb_to_linear_srgb_component, [b])
-    end
+  defw linear_srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
+    0.4360747 * r + 0.3850649 * g + 0.1430804 * b
+    0.2225045 * r + 0.7168786 * g + 0.0606169 * b
+    0.0139322 * r + 0.0971045 * g + 0.7141733 * b
+  end
 
-    funcp srgb_to_linear_srgb_component(c: F32), F32 do
-      if c < 0.04045, result: F32 do
-        c / 12.92
-      else
-        typed_call(F32, :powf32, [(c + 0.055) / 1.055, 2.4])
-      end
-    end
+  defw srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
+    # TODO: {r, g, b} |> srgb_to_linear_srgb() |> linear_srgb_to_xyz()
+    srgb_to_linear_srgb(r, g, b)
+    typed_call({F32, F32, F32}, :linear_srgb_to_xyz, [])
+  end
 
-    func xyz_to_linear_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
-      # TODO: decide whether to clamp here
-      # https://github.com/d3/d3-color/issues/33
-      (x * 3.1338561 - y * 1.6168667 - 0.4906146 * z) |> F32.min(1.0) |> F32.max(0.0)
-      (x * -0.9787684 + y * 1.9161415 + 0.0334540 * z) |> F32.min(1.0) |> F32.max(0.0)
-      (x * 0.0719453 - y * 0.2289914 + 1.4052427 * z) |> F32.min(1.0) |> F32.max(0.0)
-    end
+  defw lab_to_srgb(l: F32, a: F32, b: F32), {F32, F32, F32} do
+    lab_to_xyz(l, a, b)
+    typed_call({F32, F32, F32}, :xyz_to_srgb, [])
+  end
 
-    func xyz_to_srgb(x: F32, y: F32, z: F32), {F32, F32, F32} do
-      typed_call({F32, F32, F32}, :xyz_to_linear_srgb, [x, y, z])
-      typed_call({F32, F32, F32}, :linear_srgb_to_srgb, [])
-    end
-
-    func linear_srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      0.4360747 * r + 0.3850649 * g + 0.1430804 * b
-      0.2225045 * r + 0.7168786 * g + 0.0606169 * b
-      0.0139322 * r + 0.0971045 * g + 0.7141733 * b
-    end
-
-    func srgb_to_xyz(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      # TODO: {r, g, b} |> srgb_to_linear_srgb() |> linear_srgb_to_xyz()
-      typed_call({F32, F32, F32}, :srgb_to_linear_srgb, [r, g, b])
-      typed_call({F32, F32, F32}, :linear_srgb_to_xyz, [])
-    end
-
-    func lab_to_srgb(l: F32, a: F32, b: F32), {F32, F32, F32} do
-      typed_call({F32, F32, F32}, :lab_to_xyz, [l, a, b])
-      typed_call({F32, F32, F32}, :xyz_to_srgb, [])
-    end
-
-    func srgb_to_lab(r: F32, g: F32, b: F32), {F32, F32, F32} do
-      typed_call({F32, F32, F32}, :srgb_to_xyz, [r, g, b])
-      typed_call({F32, F32, F32}, :xyz_to_lab, [])
-    end
+  defw srgb_to_lab(r: F32, g: F32, b: F32), {F32, F32, F32} do
+    srgb_to_xyz(r, g, b)
+    typed_call({F32, F32, F32}, :xyz_to_lab, [])
   end
 end
