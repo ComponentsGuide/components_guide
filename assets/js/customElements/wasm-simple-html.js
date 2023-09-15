@@ -2,7 +2,7 @@ import { MemoryIO } from "../wasm/memoryIO";
 
 class WasmSimpleHTML extends HTMLElement {
   connectedCallback() {
-    const wasmURL = this.dataset.url ?? this.getAttribute("src") ?? this.querySelector("source[type='application/wasm']")?.src;
+    const wasmURL = this.getAttribute("src") ?? this.querySelector("source[type='application/wasm']")?.src;
     if (!wasmURL) throw Error("Expected URL");
 
     // const wasmInstancePromise = WebAssembly.instantiateStreaming(fetch(wasmURL, { credentials: "omit" }), imports)
