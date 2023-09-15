@@ -11,7 +11,7 @@ import topbar from "../vendor/topbar";
 
 import "./customElements/enhanced-navigation";
 import "./customElements/wasm-simple-html";
-import "./customElements/wasm-html";
+import "./customElements/wasm-chunked-html";
 import "./customElements/wasm-state-machine";
 import "./customElements/wasm-string-builder";
 import "./customElements/wasm-http-server";

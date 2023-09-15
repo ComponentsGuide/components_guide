@@ -1,4 +1,4 @@
-class WasmHTML extends HTMLElement {
+class WasmChunkedHTML extends HTMLElement {
   connectedCallback() {
     console.log("WASM CONNECTED", this)
     const wasmURL = this.dataset.url ?? this.getAttribute("src") ?? this.querySelector("source[type='application/wasm']")?.src;
@@ -94,4 +94,4 @@ function initWasmHTML(el, wasmInstancePromise) {
   });
 }
 
-customElements.define("wasm-html", WasmHTML);
+customElements.define("wasm-chunked-html", WasmChunkedHTML);
