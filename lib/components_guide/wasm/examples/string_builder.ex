@@ -105,6 +105,10 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     append!(string: term)
   end
 
+  def build_item(term) when is_binary(term) do
+    append!(string: term)
+  end
+
   def build_item(
         %Orb.Instruction{
           type: Orb.I32.String,
