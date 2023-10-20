@@ -4,7 +4,7 @@ defmodule ComponentsGuide.CollectedRepo do
 
   def run_isolated!(_content_id), do: raise(:todo)
 
-  def new_module(_content_id, _imports), do: raise(:unimplemented)
+  def new_instance_definition(_content_id, _imports), do: raise(:unimplemented)
   # Replace with a gen server
-  def start_module(_module), do: raise(:unimplemented)
+  def start_instance(_instance_definition), do: raise(:unimplemented)
 end

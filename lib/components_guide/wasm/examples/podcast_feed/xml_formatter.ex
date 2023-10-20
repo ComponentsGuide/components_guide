@@ -6,25 +6,25 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
 
   defwi xml_escape(str: I32.String), I32.String do
     build! do
+      ~S"<![CDATA["
       # ~S"<![CDATA["
-      # ~S"<![CDATA["
-      ~S"<!["
-      ~S"CDATA["
+      # ~S"<!["
+      # ~S"CDATA["
       append!(string: str)
       ~S"]]>"
     end
   end
 
-  def xml_open_newline(tag) when is_atom(tag) do
-    xml_open_newline(Orb.DSL.const(Atom.to_string(tag)))
+  def xml_open(tag) when is_atom(tag) do
+    xml_open(Orb.DSL.const(Atom.to_string(tag)))
   end
 
-  defwi xml_open_newline(tag: I32.String), I32.String do
+  defwi xml_open(tag: I32.String), I32.String do
     build! do
       # "<" <> tag <> ">"
       "<"
       append!(string: tag)
-      ">\n"
+      ">"
     end
   end
 
