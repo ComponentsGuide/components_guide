@@ -19,6 +19,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
              Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
                1
            end},
+          {:datasource, :get_episode_pub_date_utc, fn id -> 0 end},
+          {:datasource, :get_episode_duration_seconds, fn id -> 0 end},
           {:datasource, :write_episode_title,
            fn caller, id, write_at ->
              s = "Episode #{id + 1}"
@@ -26,7 +28,42 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
              Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
                1
            end},
-          {:datasource, :write_episode_description, fn caller, id, write_at -> write_at end}
+          {:datasource, :write_episode_author,
+           fn caller, id, write_at ->
+             s = "Some author"
+
+             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+               1
+           end},
+          {:datasource, :write_episode_description,
+           fn caller, id, write_at ->
+             s = "Description for #{id + 1}"
+
+             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+               1
+           end},
+           {:datasource, :write_episode_link_url,
+           fn caller, id, write_at ->
+             s = ""
+
+             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+               1
+           end},
+           {:datasource, :write_episode_mp3_url,
+           fn caller, id, write_at ->
+             s = ""
+
+             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+               1
+           end},
+           {:datasource, :get_episode_mp3_byte_count, fn id -> 0 end},
+           {:datasource, :write_episode_content_html,
+           fn caller, id, write_at ->
+             s = ""
+
+             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+               1
+           end},
         ]
       )
 
@@ -58,6 +95,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     assert xml_select(item2, "//title[1]", :text) == "Episode 2"
     assert xml_select(item1, "//itunes:title[1]", :text) == "Episode 1"
     assert xml_select(item2, "//itunes:title[1]", :text) == "Episode 2"
+    assert xml_select(item1, "//description[1]", :text) == "Description for 1"
+    assert xml_select(item2, "//description[1]", :text) == "Description for 2"
   end
 
   defp xml_parse(xml) do

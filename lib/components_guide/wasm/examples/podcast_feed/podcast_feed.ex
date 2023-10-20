@@ -25,6 +25,10 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
     @episode_mp3_byte_count 0
   end
 
+  defmodule EpisodeID do
+    def wasm_type(), do: :i32
+  end
+
   # defwimport(populate_episode_at_index(episode_index: I32),
   #   to: :datasource,
   #   as: :datasource_populate_episode
@@ -41,43 +45,27 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
   wasm_import(:datasource,
     get_episodes_count: Orb.DSL.funcp(name: :get_episodes_count, result: I32),
-    write_episode_id: Orb.DSL.funcp(name: :write_episode_id, params: {I32, I32}, result: I32),
+    write_episode_id: Orb.DSL.funcp(name: :write_episode_id, params: {EpisodeID, I32}, result: I32),
+    get_episode_pub_date_utc: Orb.DSL.funcp(name: :get_episode_pub_date_utc, params: EpisodeID, result: I32),
+    get_episode_duration_seconds: Orb.DSL.funcp(name: :get_episode_duration_seconds, params: EpisodeID, result: I32),
     write_episode_title:
-      Orb.DSL.funcp(name: :write_episode_title, params: {I32, I32}, result: I32),
+      Orb.DSL.funcp(name: :write_episode_title, params: {EpisodeID, I32}, result: I32),
+    write_episode_author:
+      Orb.DSL.funcp(name: :write_episode_author, params: {EpisodeID, I32}, result: I32),
     write_episode_description:
-      Orb.DSL.funcp(name: :write_episode_description, params: {I32, I32}, result: I32)
+      Orb.DSL.funcp(name: :write_episode_description, params: {EpisodeID, I32}, result: I32),
+    write_episode_link_url:
+      Orb.DSL.funcp(name: :write_episode_link_url, params: {EpisodeID, I32}, result: I32),
+    write_episode_mp3_url:
+      Orb.DSL.funcp(name: :write_episode_mp3_url, params: {EpisodeID, I32}, result: I32),
+    get_episode_mp3_byte_count:
+      Orb.DSL.funcp(name: :get_episode_mp3_byte_count, params: EpisodeID, result: I32),
+    write_episode_content_html:
+      Orb.DSL.funcp(name: :write_episode_content_html, params: {EpisodeID, I32}, result: I32)
   )
-
-  # CSVReader.import :episodes, [:id, :pub_date_unix, :title]
-
-  # attr_writer :title, "hello"
-
-  defw set_episode_count(count: I32) do
-    @episode_count = count
-  end
-
-  defw set_pub_date_unix(unix_time: I32) do
-    @episode_pub_date_unix = unix_time
-  end
-
-  defw set_episode_duration(hours: I32, minutes: I32, seconds: I32) do
-    @episode_duration_hours = hours
-    @episode_duration_minutes = minutes
-    @episode_duration_seconds = seconds
-  end
-
-  defw set_episode_mp3_byte_count(byte_count: I32) do
-    @episode_mp3_byte_count = byte_count
-  end
 
   # 64KiB
   # Memory.add_named_pages(:episode_description_html, 1)
-
-  # defw get_episode_description_html_page_range(), {I32, I32} do
-  #   # Memory.page_range(2, 2)
-  #   push(2)
-  #   push(2)
-  # end
 
   # There are a few ways to implement this:
   # 1. Pass every episode in as some sort of data structure. e.g.
@@ -131,6 +119,21 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
     # loop Episodes when episode_index <= episode_count do
     loop Episodes do
+      # _ = XML.build! :item do
+      #   element :guid, isPermaLink: "false" do
+      #     @bump_offset =
+      #       @bump_offset + typed_call(I32, :write_episode_id, [episode_index, @bump_offset])
+      #   end
+      # end
+
+      # XML.build! item: [
+      #   guid: {[isPermaLink: "false"], [
+      #     write_episode_data(:id, episode_index)
+      #   ]},
+      #   title: write_episode_data(:title, episode_index),
+      #   "itunes:title": write_episode_data(:title, episode_index)
+      # ]
+
       _ =
         build! do
           xml_open(:item)
@@ -145,14 +148,33 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
           ~S[</guid>\n]
 
           xml_open(:title)
-          @bump_offset = @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
+
+          @bump_offset =
+            @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
+
           xml_close_newline(:title)
 
           xml_open(:"itunes:title")
-          @bump_offset = @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
+
+          @bump_offset =
+            @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
+
           xml_close_newline(:"itunes:title")
 
-          # @bump_offset = @bump_offset + typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
+          xml_open(:description)
+
+          @bump_offset =
+            @bump_offset +
+              typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
+
+          xml_close_newline(:description)
+          xml_open(:"itunes:subtitle")
+
+          @bump_offset =
+            @bump_offset +
+              typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
+
+          xml_close_newline(:"itunes:subtitle")
 
           xml_close_newline(:item)
         end
