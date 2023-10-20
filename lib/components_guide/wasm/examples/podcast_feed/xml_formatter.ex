@@ -17,30 +17,16 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
 
   def open(tag, attributes \\ []) when is_atom(tag) do
     [
-      append!(ascii: ?<),
-      append!(string: Orb.DSL.const(Atom.to_string(tag))),
+      append!(string: "<#{tag}"),
       for {attribute_name, value} <- attributes do
         [
-          append!(ascii: 0x20),
-          append!(string: Orb.DSL.const(Atom.to_string(attribute_name))),
-          append!(ascii: ?=),
-          append!(ascii: ?"),
-          # FIXME: we aren’t escaping the attribute
-          append!(string: Orb.DSL.const(value)),
+          append!(string: " #{attribute_name}=\""),
+          append!(string: value),
           append!(ascii: ?")
         ]
       end,
       append!(ascii: ?>)
     ]
-  end
-
-  defwi xml_open(tag: I32.String), I32.String do
-    build! do
-      # "<" <> tag <> ">"
-      "<"
-      append!(string: tag)
-      ">"
-    end
   end
 
   def close_newline(tag) when is_atom(tag) do

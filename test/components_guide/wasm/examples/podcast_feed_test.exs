@@ -76,7 +76,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     text_xml_func = Instance.capture(inst, String, :text_xml, 0)
     text_xml = text_xml_func.()
 
-    IO.puts(PodcastFeed.to_wat())
+    # IO.puts(PodcastFeed.to_wat())
 
     # assert text_xml === ""
 
