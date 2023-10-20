@@ -2,7 +2,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   use Orb
   use SilverOrb.BumpAllocator
   use ComponentsGuide.Wasm.Examples.StringBuilder
-  use ComponentsGuide.Wasm.PodcastFeed.XMLFormatter
+  use ComponentsGuide.Wasm.PodcastFeed.XMLFormatter, as: XML
 
   SilverOrb.BumpAllocator.export_alloc()
 
@@ -104,7 +104,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
       _ =
         build! do
-          xml_open(:item)
+          XML.open(:item)
 
           ~S[<guid isPermaLink="false">]
           ~S"<![CDATA["
@@ -115,36 +115,36 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
           ~S"]]>"
           ~S[</guid>\n]
 
-          xml_open(:title)
+          XML.open(:title)
 
           @bump_offset =
             @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
 
-          xml_close_newline(:title)
+          XML.close_newline(:title)
 
-          xml_open(:"itunes:title")
+          XML.open(:"itunes:title")
 
           @bump_offset =
             @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
 
-          xml_close_newline(:"itunes:title")
+          XML.close_newline(:"itunes:title")
 
-          xml_open(:description)
+          XML.open(:description)
 
           @bump_offset =
             @bump_offset +
               typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
 
-          xml_close_newline(:description)
-          xml_open(:"itunes:subtitle")
+          XML.close_newline(:description)
+          XML.open(:"itunes:subtitle")
 
           @bump_offset =
             @bump_offset +
               typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
 
-          xml_close_newline(:"itunes:subtitle")
+          XML.close_newline(:"itunes:subtitle")
 
-          xml_close_newline(:item)
+          XML.close_newline(:item)
         end
 
       episode_index = episode_index + 1
@@ -167,14 +167,18 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       # This then causes the module to clear its local memory, resetting the bump
       # offset to the very beginning again.
 
-      xml_open(:channel)
-      xml_element(:title, @title)
+      XML.open(:channel)
+      XML.element(:title, @title)
 
-      xml_element(:description, @description)
-      xml_element(:"itunes:subtitle", @description)
-      xml_element(:"itunes:author", @author)
-      xml_element(:link, @link)
-      xml_element(:language, @language)
+      # XML.build(:description) do
+      #   @description
+      # end
+
+      XML.element(:description, @description)
+      XML.element(:"itunes:subtitle", @description)
+      XML.element(:"itunes:author", @author)
+      XML.element(:link, @link)
+      XML.element(:language, @language)
 
       write_episodes_xml()
 
@@ -182,22 +186,22 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       # The instance has its own memory, which avoids tricky memory
       # allocation problems in this module while we are streaming out.
       # CSVReader.each :episodes do
-      #   xml_element(:guid, [isPermaLink: "false"], CSVReader.read(:id))
-      #   xml_element(:pubDate, CSVReader.read(:pub_date_unix))
-      #   xml_element(:title, CSVReader.read(:title))
+      #   XML.element(:guid, [isPermaLink: "false"], CSVReader.read(:id))
+      #   XML.element(:pubDate, CSVReader.read(:pub_date_unix))
+      #   XML.element(:title, CSVReader.read(:title))
       # end
 
       # csv_read! [:id, :pub_date_unix, :title] do
       #   # The only problem is the output XML order is determined by the
       #   # input CSV, not us. Not a big deal for this use case.
       #   :id ->
-      #     xml_element(:guid, [isPermaLink: "false"], csv_value_each_char)
+      #     XML.element(:guid, [isPermaLink: "false"], csv_value_each_char)
 
       #   :pub_data_unix ->
-      #     xml_element(:pubDate, csv_value_each_char)
+      #     XML.element(:pubDate, csv_value_each_char)
 
       #   :title ->
-      #     xml_element(:title, csv_value_each_char)
+      #     XML.element(:title, csv_value_each_char)
       # end
 
       # loop ReadCSV do
@@ -206,7 +210,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       #   end
       # end
 
-      xml_close_newline(:channel)
+      XML.close_newline(:channel)
       "</rss>\n"
     end
   end

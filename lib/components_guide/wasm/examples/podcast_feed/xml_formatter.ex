@@ -15,7 +15,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  def xml_open(tag) when is_atom(tag) do
+  def open(tag) when is_atom(tag) do
     xml_open(Orb.DSL.const(Atom.to_string(tag)))
   end
 
@@ -28,7 +28,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  def xml_close_newline(tag) when is_atom(tag) do
+  def close_newline(tag) when is_atom(tag) do
     xml_close_newline(Orb.DSL.const(Atom.to_string(tag)))
   end
 
@@ -41,7 +41,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  def xml_element(tag, child) when is_atom(tag) do
+  def element(tag, child) when is_atom(tag) do
     tag = Orb.DSL.const(Atom.to_string(tag))
     xml_element(tag, child)
   end
@@ -56,6 +56,13 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
       ~S"</"
       append!(string: tag)
       ~S">\n"
+    end
+  end
+
+  defmacro __using__(as: some_alias) do
+    quote do
+      require unquote(__MODULE__), as: unquote(some_alias)
+      Orb.include(unquote(__MODULE__))
     end
   end
 
