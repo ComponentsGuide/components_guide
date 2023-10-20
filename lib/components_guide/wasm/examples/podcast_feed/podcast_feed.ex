@@ -164,11 +164,14 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   defw text_xml(), I32.String do
     build! do
       ~S[<?xml version="1.0" encoding="UTF-8"?>\n]
-      ~S[<rss version="2.0"]
-      ~S[ xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"]
-      ~S[ xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"]
-      ~S[ xmlns:dc="http://purl.org/dc/elements/1.1/"]
-      ~S[ xmlns:content="http://purl.org/rss/1.0/modules/content/">\n]
+
+      XML.open(:rss,
+        version: "2.0",
+        "xmlns:itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+        "xmlns:googleplay": "http://www.google.com/schemas/play-podcasts/1.0",
+        "xmlns:dc": "http://purl.org/dc/elements/1.1/",
+        "xmlns:content": "http://purl.org/rss/1.0/modules/content/",
+      )
 
       # flush!() # Tell an imported callback to read the current data from memory.
       # This then causes the module to clear its local memory, resetting the bump
@@ -177,11 +180,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       XML.open(:channel)
       XML.element(:title, @title)
 
-      XML.build :description do
-        append!(string: @description)
-      end
-
-      # XML.element(:description, @description)
+      XML.element(:description, @description)
       XML.element(:"itunes:subtitle", @description)
       XML.element(:"itunes:author", @author)
       XML.element(:link, @link)
@@ -218,7 +217,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       # end
 
       XML.close_newline(:channel)
-      "</rss>\n"
+      XML.close_newline(:rss)
     end
   end
 end

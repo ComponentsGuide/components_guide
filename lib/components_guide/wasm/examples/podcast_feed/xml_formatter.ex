@@ -15,8 +15,23 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  def open(tag) when is_atom(tag) do
-    xml_open(Orb.DSL.const(Atom.to_string(tag)))
+  def open(tag, attributes \\ []) when is_atom(tag) do
+    [
+      append!(ascii: ?<),
+      append!(string: Orb.DSL.const(Atom.to_string(tag))),
+      for {attribute_name, value} <- attributes do
+        [
+          append!(ascii: 0x20),
+          append!(string: Orb.DSL.const(Atom.to_string(attribute_name))),
+          append!(ascii: ?=),
+          append!(ascii: ?"),
+          # FIXME: we aren’t escaping the attribute
+          append!(string: Orb.DSL.const(value)),
+          append!(ascii: ?")
+        ]
+      end,
+      append!(ascii: ?>)
+    ]
   end
 
   defwi xml_open(tag: I32.String), I32.String do
@@ -62,21 +77,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
   defmacro build(tag, attributes \\ [], do: block) do
     quote do
       [
-        # Orb.DSL.drop(unquote(__MODULE__).open(unquote(tag))),
-        append!(ascii: ?<),
-        append!(string: Atom.to_string(unquote(tag))),
-        for {attribute_name, value} <- unquote(attributes) do
-          [
-            append!(ascii: 0x20),
-            append!(string: Orb.DSL.const(Atom.to_string(attribute_name))),
-            append!(ascii: ?=),
-            append!(ascii: ?"),
-            # FIXME: we aren’t escaping the attribute
-            append!(string: Orb.DSL.const(value)),
-            append!(ascii: ?")
-          ]
-        end,
-        append!(ascii: ?>),
+        unquote(__MODULE__).open(unquote(tag), unquote(attributes)),
         # append!(ascii: ?!),
         # unquote_splicing(for item <- Orb.__get_block_items(block) do
         #   case item do
