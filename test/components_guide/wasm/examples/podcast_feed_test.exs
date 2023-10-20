@@ -42,28 +42,28 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
              Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
                1
            end},
-           {:datasource, :write_episode_link_url,
+          {:datasource, :write_episode_link_url,
            fn caller, id, write_at ->
              s = ""
 
              Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
                1
            end},
-           {:datasource, :write_episode_mp3_url,
+          {:datasource, :write_episode_mp3_url,
            fn caller, id, write_at ->
              s = ""
 
              Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
                1
            end},
-           {:datasource, :get_episode_mp3_byte_count, fn id -> 0 end},
-           {:datasource, :write_episode_content_html,
+          {:datasource, :get_episode_mp3_byte_count, fn id -> 0 end},
+          {:datasource, :write_episode_content_html,
            fn caller, id, write_at ->
              s = ""
 
              Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
                1
-           end},
+           end}
         ]
       )
 
@@ -118,5 +118,27 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
 
   defp xml_text_content(el) do
     el |> :xmerl_xs.value_of() |> List.to_string()
+  end
+
+  @tag :skip
+  test "output optimized wasm" do
+    path_wasm = Path.join(__DIR__, "podcast_feed_xml.wasm")
+    path_wat = Path.join(__DIR__, "podcast_feed_xml.wat")
+    path_opt_wasm = Path.join(__DIR__, "podcast_feed_xml_OPT.wasm")
+    path_opt_wat = Path.join(__DIR__, "podcast_feed_xml_OPT.wat")
+    wasm = Wasm.to_wasm(PodcastFeed)
+    File.write!(path_wasm, wasm)
+    System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
+
+    %{size: size} = File.stat!(path_wasm)
+    assert size == 2419
+
+    %{size: size} = File.stat!(path_opt_wasm)
+    assert size == 1868
+
+    {wat, 0} = System.cmd("wasm2wat", [path_wasm])
+    File.write!(path_wat, wat)
+    {opt_wat, 0} = System.cmd("wasm2wat", [path_opt_wasm])
+    File.write!(path_opt_wat, opt_wat)
   end
 end
