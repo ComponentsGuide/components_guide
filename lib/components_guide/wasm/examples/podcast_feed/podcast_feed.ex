@@ -80,40 +80,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   # 2 is like the delegate pattern in Cocoa, but means there’s back-and-forth
   # between the wasm instance and the host.
 
-  def guard(do: condition, else: result) do
-    require Orb.DSL
-
-    Orb.DSL.wasm do
-      if not condition do
-        result
-      end
-    end
-  end
-
-  def guard(condition, else: result) do
-    require Orb.DSL
-
-    Orb.DSL.wasm do
-      if not condition do
-        result
-      end
-    end
-  end
-
   defw write_episodes_xml(), episode_count: I32, episode_index: I32 do
     episode_count = typed_call(I32, :get_episodes_count, [])
-    # return do
-    #   episode_count === 0
-    # end
-    # return() when episode_count === 0
-
-    guard do
-      episode_count > 0
-    else
-      return()
-    end
-
-    guard(episode_count > 0, else: return())
 
     if episode_count === 0, do: return()
 
