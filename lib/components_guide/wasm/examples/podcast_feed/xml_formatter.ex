@@ -59,13 +59,34 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  defmacro build(tag, do: block) do
+  defmacro build(tag, attributes \\ [], do: block) do
     quote do
       [
-        Orb.DSL.drop(unquote(__MODULE__).open(unquote(tag))),
-        # Orb.DSL.drop(build! do: unquote(block))
-        unquote(Orb.__get_block_items(block)),
-        # unquote(block),
+        # Orb.DSL.drop(unquote(__MODULE__).open(unquote(tag))),
+        append!(ascii: ?<),
+        append!(string: Atom.to_string(unquote(tag))),
+        for {attribute_name, value} <- unquote(attributes) do
+          [
+            append!(ascii: 0x20),
+            append!(string: Orb.DSL.const(Atom.to_string(attribute_name))),
+            append!(ascii: ?=),
+            append!(ascii: ?"),
+            # FIXME: we aren’t escaping the attribute
+            append!(string: Orb.DSL.const(value)),
+            append!(ascii: ?")
+          ]
+        end,
+        append!(ascii: ?>),
+        # append!(ascii: ?!),
+        # unquote_splicing(for item <- Orb.__get_block_items(block) do
+        #   case item do
+        #     6 -> 9
+        #   end
+        #   # item
+        # end),
+        append!(string: ~S"<![CDATA["),
+        unquote_splicing(Orb.__get_block_items(block)),
+        append!(string: ~S"]]>"),
         Orb.DSL.drop(unquote(__MODULE__).close_newline(unquote(tag)))
       ]
     end

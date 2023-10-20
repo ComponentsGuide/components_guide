@@ -45,9 +45,12 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
   wasm_import(:datasource,
     get_episodes_count: Orb.DSL.funcp(name: :get_episodes_count, result: I32),
-    write_episode_id: Orb.DSL.funcp(name: :write_episode_id, params: {EpisodeID, I32}, result: I32),
-    get_episode_pub_date_utc: Orb.DSL.funcp(name: :get_episode_pub_date_utc, params: EpisodeID, result: I32),
-    get_episode_duration_seconds: Orb.DSL.funcp(name: :get_episode_duration_seconds, params: EpisodeID, result: I32),
+    write_episode_id:
+      Orb.DSL.funcp(name: :write_episode_id, params: {EpisodeID, I32}, result: I32),
+    get_episode_pub_date_utc:
+      Orb.DSL.funcp(name: :get_episode_pub_date_utc, params: EpisodeID, result: I32),
+    get_episode_duration_seconds:
+      Orb.DSL.funcp(name: :get_episode_duration_seconds, params: EpisodeID, result: I32),
     write_episode_title:
       Orb.DSL.funcp(name: :write_episode_title, params: {EpisodeID, I32}, result: I32),
     write_episode_author:
@@ -80,6 +83,17 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   # 2 is like the delegate pattern in Cocoa, but means there’s back-and-forth
   # between the wasm instance and the host.
 
+  def write_episode_data(key, episode_index) do
+    Orb.snippet do
+      @bump_offset =
+        @bump_offset +
+          typed_call(I32, String.to_existing_atom("write_episode_#{key}"), [
+            episode_index,
+            @bump_offset
+          ])
+    end
+  end
+
   defw write_episodes_xml(), episode_count: I32, episode_index: I32 do
     episode_count = typed_call(I32, :get_episodes_count, [])
 
@@ -104,45 +118,38 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
       _ =
         build! do
+          # XML.build :item do
+          #   {:guid, isPermaLink: "false"} ->
+          #     write_episode_data(:id, episode_index)
+
+          #   :title ->
+          #     write_episode_data(:title, episode_index)
+          # end
+
           XML.open(:item)
+          # XML.build :item do
 
-          ~S[<guid isPermaLink="false">]
-          ~S"<![CDATA["
+          XML.build :guid, isPermaLink: "false" do
+            write_episode_data(:id, episode_index)
+          end
 
-          @bump_offset =
-            @bump_offset + typed_call(I32, :write_episode_id, [episode_index, @bump_offset])
+          XML.build :title do
+            write_episode_data(:title, episode_index)
+          end
 
-          ~S"]]>"
-          ~S[</guid>\n]
+          XML.build :"itunes:title" do
+            write_episode_data(:title, episode_index)
+          end
 
-          XML.open(:title)
+          XML.build :description do
+            write_episode_data(:description, episode_index)
+          end
 
-          @bump_offset =
-            @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
+          XML.build :"itunes:subtitle" do
+            write_episode_data(:description, episode_index)
+          end
 
-          XML.close_newline(:title)
-
-          XML.open(:"itunes:title")
-
-          @bump_offset =
-            @bump_offset + typed_call(I32, :write_episode_title, [episode_index, @bump_offset])
-
-          XML.close_newline(:"itunes:title")
-
-          XML.open(:description)
-
-          @bump_offset =
-            @bump_offset +
-              typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
-
-          XML.close_newline(:description)
-          XML.open(:"itunes:subtitle")
-
-          @bump_offset =
-            @bump_offset +
-              typed_call(I32, :write_episode_description, [episode_index, @bump_offset])
-
-          XML.close_newline(:"itunes:subtitle")
+          # end
 
           XML.close_newline(:item)
         end
@@ -170,7 +177,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       XML.open(:channel)
       XML.element(:title, @title)
 
-      XML.build(:description) do
+      XML.build :description do
         append!(string: @description)
       end
 

@@ -91,8 +91,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     assert length(found_items) == 2
 
     [item1, item2] = found_items
-    assert xml_select(item1, "//guid[1]", :text) == "1"
-    assert xml_select(item2, "//guid[1]", :text) == "2"
+    assert xml_select(item1, "//guid[@isPermaLink='false'][1]", :text) == "1"
+    assert xml_select(item2, "//guid[@isPermaLink='false'][1]", :text) == "2"
     assert xml_select(item1, "//title[1]", :text) == "Episode 1"
     assert xml_select(item2, "//title[1]", :text) == "Episode 2"
     assert xml_select(item1, "//itunes:title[1]", :text) == "Episode 1"
