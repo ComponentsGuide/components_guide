@@ -59,6 +59,18 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
+  defmacro build(tag, do: block) do
+    quote do
+      [
+        Orb.DSL.drop(unquote(__MODULE__).open(unquote(tag))),
+        # Orb.DSL.drop(build! do: unquote(block))
+        unquote(Orb.__get_block_items(block)),
+        # unquote(block),
+        Orb.DSL.drop(unquote(__MODULE__).close_newline(unquote(tag)))
+      ]
+    end
+  end
+
   defmacro __using__(as: some_alias) do
     quote do
       require unquote(__MODULE__), as: unquote(some_alias)

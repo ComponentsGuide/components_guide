@@ -170,11 +170,11 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       XML.open(:channel)
       XML.element(:title, @title)
 
-      # XML.build(:description) do
-      #   @description
-      # end
+      XML.build(:description) do
+        append!(string: @description)
+      end
 
-      XML.element(:description, @description)
+      # XML.element(:description, @description)
       XML.element(:"itunes:subtitle", @description)
       XML.element(:"itunes:author", @author)
       XML.element(:link, @link)

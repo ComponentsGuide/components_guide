@@ -76,6 +76,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     text_xml_func = Instance.capture(inst, String, :text_xml, 0)
     text_xml = text_xml_func.()
 
+    # assert text_xml === ""
+
     assert text_xml =~ ~S"""
            <?xml version="1.0" encoding="UTF-8"?>
            """
