@@ -30,4 +30,8 @@ defmodule ComponentsGuide.Wasm.Examples.Collected.CollectedPress do
     @repo_name ""
     @path "/"
   end
+
+  defw text_html(), I32.String do
+    "<!doctype html>"
+  end
 end
