@@ -20,7 +20,7 @@ defmodule ComponentsGuide.Wasm.Examples.Collected.CollectedPress do
     use Orb.Import
 
     defw(load_repo_content_text(path: I32.String, write_ptr: I32), I32)
-    defw(render_markdown_to_html(path: I32.String, write_ptr: I32), I32)
+    defw(render_markdown_to_html(markdown: I32.String, write_ptr: I32), I32)
   end
 
   importw(Datasource, :datasource)
