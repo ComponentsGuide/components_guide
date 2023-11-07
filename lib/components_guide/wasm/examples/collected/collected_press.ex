@@ -16,12 +16,14 @@ defmodule ComponentsGuide.Wasm.Examples.Collected.CollectedPress do
 
   I32.export_enum([:url_to_proxy_provided, :response_provided])
 
-  wasm_import(:datasource,
-    load_repo_content_text:
-      Orb.DSL.funcp(name: :load_repo_content_text, params: {I32.String}, result: I32.String),
-    render_markdown_to_html:
-      Orb.DSL.funcp(name: :render_markdown_to_html, params: {I32.String}, result: I32.String)
-  )
+  defmodule Datasource do
+    use Orb.Import
+
+    defw(load_repo_content_text(path: I32.String, write_ptr: I32), I32)
+    defw(render_markdown_to_html(path: I32.String, write_ptr: I32), I32)
+  end
+
+  importw(Datasource, :datasource)
 
   global :export_mutable do
     @repo_owner ""
