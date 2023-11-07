@@ -69,27 +69,27 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     wasm do
       func txt do
-        @chunk1 = ^@strings.text_plain.offset
-        @chunk2 = ^@strings.charset_utf8.offset
+        @chunk1 = inline do: @strings.text_plain.offset
+        @chunk2 = inline do: @strings.charset_utf8.offset
       end
 
       func html do
-        @chunk1 = ^@strings.text_html.offset
-        @chunk2 = ^@strings.charset_utf8.offset
+        @chunk1 = inline do: @strings.text_html.offset
+        @chunk2 = inline do: @strings.charset_utf8.offset
       end
 
       func json do
-        @chunk1 = ^@strings.application_json.offset
-        @chunk2 = ^@strings.charset_utf8.offset
+        @chunk1 = inline do: @strings.application_json.offset
+        @chunk2 = inline do: @strings.charset_utf8.offset
       end
 
       func wasm do
-        @chunk1 = ^@strings.application_wasm.offset
+        @chunk1 = inline do: @strings.application_wasm.offset
         @chunk2 = 0x0
       end
 
       func png do
-        @chunk1 = ^@strings.image_png.offset
+        @chunk1 = inline do: @strings.image_png.offset
         @chunk2 = 0x0
       end
     end

@@ -42,10 +42,10 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   defwp lab_to_xyz_component(v: F32), F32, cubed: F32 do
     cubed = typed_call(F32, :powf32, [v, 3.0])
 
-    if cubed > ^@e, result: F32 do
+    if cubed > inline(do: @e), result: F32 do
       cubed
     else
-      (116.0 * v - 16.0) / ^@k
+      (116.0 * v - 16.0) / inline(do: @k)
     end
   end
 
@@ -54,23 +54,23 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     fx = a / 500.0 + fy
     fz = fy - b / 200.0
 
-    lab_to_xyz_component(fx) * ^@xn
-    lab_to_xyz_component(fy) * ^@yn
-    lab_to_xyz_component(fz) * ^@zn
+    lab_to_xyz_component(fx) * inline(do: @xn)
+    lab_to_xyz_component(fy) * inline(do: @yn)
+    lab_to_xyz_component(fz) * inline(do: @zn)
   end
 
   defwp xyz_to_lab_component(c: F32), F32 do
-    if c > ^@e, result: F32 do
+    if c > inline(do: @e), result: F32 do
       powf32(c, 1.0 / 3.0)
     else
-      (^@k * c + 16.0) / 116.0
+      (inline(do: @k) * c + 16.0) / 116.0
     end
   end
 
   defw xyz_to_lab(x: F32, y: F32, z: F32), {F32, F32, F32}, f0: F32, f1: F32, f2: F32 do
-    f0 = xyz_to_lab_component(x / ^@xn)
-    f1 = xyz_to_lab_component(y / ^@yn)
-    f2 = xyz_to_lab_component(z / ^@zn)
+    f0 = xyz_to_lab_component(x / inline(do: @xn))
+    f1 = xyz_to_lab_component(y / inline(do: @yn))
+    f2 = xyz_to_lab_component(z / inline(do: @zn))
 
     116.0 * f1 - 16.0
     500.0 * (f0 - f1)

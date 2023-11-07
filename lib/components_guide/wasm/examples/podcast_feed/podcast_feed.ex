@@ -26,7 +26,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   end
 
   defmodule EpisodeID do
-    def wasm_type(), do: :i32
+    def wasm_type(), do: Orb.I32.wasm_type()
   end
 
   # defwimport(populate_episode_at_index(episode_index: I32),
@@ -34,7 +34,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   #   as: :datasource_populate_episode
   # )
 
-  # defwimport :datasource do
+  # importw :datasource do
   #   defwp(populate_episode_at_index(episode_index: I32), as: :datasource_populate_episode)
   # end
 
@@ -43,32 +43,36 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   # Global.import()
   # wasm_import(:datasource, populate_episode_at_index: Orb.DSL.funcp(name: :datasource_populate_episode, params: I32))
 
-  wasm_import(:datasource,
-    get_episodes_count: Orb.DSL.funcp(name: :get_episodes_count, result: I32),
-    write_episode_id:
-      Orb.DSL.funcp(name: :write_episode_id, params: {EpisodeID, I32}, result: I32),
-    get_episode_pub_date_utc:
-      Orb.DSL.funcp(name: :get_episode_pub_date_utc, params: EpisodeID, result: I32),
-    get_episode_duration_seconds:
-      Orb.DSL.funcp(name: :get_episode_duration_seconds, params: EpisodeID, result: I32),
-    write_episode_title:
-      Orb.DSL.funcp(name: :write_episode_title, params: {EpisodeID, I32}, result: I32),
-    write_episode_author:
-      Orb.DSL.funcp(name: :write_episode_author, params: {EpisodeID, I32}, result: I32),
-    write_episode_description:
-      Orb.DSL.funcp(name: :write_episode_description, params: {EpisodeID, I32}, result: I32),
-    write_episode_link_url:
-      Orb.DSL.funcp(name: :write_episode_link_url, params: {EpisodeID, I32}, result: I32),
-    write_episode_mp3_url:
-      Orb.DSL.funcp(name: :write_episode_mp3_url, params: {EpisodeID, I32}, result: I32),
-    get_episode_mp3_byte_count:
-      Orb.DSL.funcp(name: :get_episode_mp3_byte_count, params: EpisodeID, result: I32),
-    write_episode_content_html:
-      Orb.DSL.funcp(name: :write_episode_content_html, params: {EpisodeID, I32}, result: I32)
-  )
+  defmodule Datasource do
+    use Orb.Import
+
+    defw(get_episodes_count(), I32)
+    defw(get_episode_pub_date_utc(episode_id: EpisodeID), I64)
+    defw(get_episode_duration_seconds(episode_id: EpisodeID), I32)
+    defw(write_episode_id(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_title(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_author(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_description(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_link_url(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_mp3_url(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(get_episode_mp3_byte_count(episode_id: EpisodeID), I32)
+    defw(write_episode_content_html(episode_id: EpisodeID, write_ptr: I32), I32)
+
+    def write_episode_data(key, episode_index, write_ptr) do
+      func_name = String.to_existing_atom("write_episode_#{key}")
+      apply(Datasource, func_name, [
+        episode_index,
+        write_ptr
+      ])
+    end
+  end
+
+  importw(Datasource, :datasource)
 
   # 64KiB
   # Memory.add_named_pages(:episode_description_html, 1)
+
+  # Arena.def XMLOutput, 2
 
   # There are a few ways to implement this:
   # 1. Pass every episode in as some sort of data structure. e.g.
@@ -86,16 +90,12 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   def write_episode_data(key, episode_index) do
     Orb.snippet do
       @bump_offset =
-        @bump_offset +
-          typed_call(I32, String.to_existing_atom("write_episode_#{key}"), [
-            episode_index,
-            @bump_offset
-          ])
+        @bump_offset + Datasource.write_episode_data(key, episode_index, @bump_offset)
     end
   end
 
   defw write_episodes_xml(), episode_count: I32, episode_index: I32 do
-    episode_count = typed_call(I32, :get_episodes_count, [])
+    episode_count = Datasource.get_episodes_count()
 
     if episode_count === 0, do: return()
 
@@ -170,7 +170,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
         "xmlns:itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
         "xmlns:googleplay": "http://www.google.com/schemas/play-podcasts/1.0",
         "xmlns:dc": "http://purl.org/dc/elements/1.1/",
-        "xmlns:content": "http://purl.org/rss/1.0/modules/content/",
+        "xmlns:content": "http://purl.org/rss/1.0/modules/content/"
       )
 
       # flush!() # Tell an imported callback to read the current data from memory.

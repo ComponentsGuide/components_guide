@@ -20,9 +20,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
     wasm U32 do
       funcp append_char_html_escaped(char: I32.U8) do
-        inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
-          if I32.eq(char, ^char_to_match!) do
-            inline for char_out! <- ^chars_out! do
+        inline for {char_to_match!, chars_out!} <- @escaped_html_table do
+          if I32.eq(char, char_to_match!) do
+            inline for char_out! <- chars_out! do
               append!(u8: char_out!)
             end
 
@@ -77,12 +77,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           char = read_offset[at!: 0]
           read_offset = read_offset + 1
 
-          inline for {char_to_match!, chars_out!} <- ^@escaped_html_table do
+          inline for {char_to_match!, chars_out!} <- @escaped_html_table do
             wasm do
-              if I32.eq(char, ^char_to_match!) do
-                inline for char_out! <- ^chars_out! do
+              if I32.eq(char, char_to_match!) do
+                inline for char_out! <- chars_out! do
                   wasm do
-                    write_offset[at!: bytes_written] = ^char_out!
+                    write_offset[at!: bytes_written] = char_out!
                     bytes_written = bytes_written + 1
                   end
                 end

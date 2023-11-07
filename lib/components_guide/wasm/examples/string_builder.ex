@@ -296,7 +296,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     snippet do
       build_begin!()
 
-      inline for item! <- ^list! do
+      inline for item! <- list! do
         case item! do
           {:i32_const_string, strptr, string} ->
             [
