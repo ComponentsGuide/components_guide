@@ -90,7 +90,7 @@ sqlite>
     - *e.g. Tweets on Twitter cannot be edited, only deleted.*
     - *e.g. Uploaded videos on YouTube cannot be edited, only deleted.*
 - Can help with syncing: *retrieve only the values I do not yet have.*
-    - *e.g. Committed files in Git become immutable objects stored in `.git/objects/`.*
+    - *e.g. Committed files in Git become immutable objects stored in `.git/objects/`. When you `git fetch` new objects are downloaded from your remote.*
 
 ----
 
@@ -108,7 +108,7 @@ sqlite>
 
 ----
 
-<h2 id=versioned>Versioned operations</h2>
+<h2 id=versioned>Versioned interfaces</h2>
 
 - Will allow a previously valid request to still work.
 - No breaking changes without the user opting into them.
