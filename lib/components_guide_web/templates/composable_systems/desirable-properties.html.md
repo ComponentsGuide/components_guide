@@ -53,6 +53,9 @@ abc
 - *e.g. Auto-incrementing SQL primary key*
   - Con: might be predictable as it is _deterministic_.
 - *e.g. UUID (RFC 4122)*
+- *e.g. A `id` attribute used for linking a `<label>` to its `<input>`*
+- *e.g. A key for a React element within an array*
+  - It only has to be unique within the array.
 - *e.g. SHA256 hash digest (RFC 6234)*
 
 ```bash

@@ -13,6 +13,7 @@ defmodule ComponentsGuideWeb.WebStandardsController do
     "http-headers",
     "media-queries",
     "promise",
+    "robots-txt",
   ]
 
   def show(conn, %{"id" => article}) when article in @articles do
