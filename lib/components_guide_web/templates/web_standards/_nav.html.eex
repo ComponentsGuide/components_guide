@@ -1,10 +1,11 @@
 <nav class="pt-6 pb-4">
   <ul y-y x-x=md class="text-xl font-bold" data-links="p-3">
-    <li><%= link("Why?", to: '/web-standards') %>
     <li><%= link("URL", to: '/web-standards/url') %>
     <li><%= link("HTML", to: '/web-standards/html') %>
-    <li><%= link("Promise", to: '/web-standards/promise') %>
     <li><%= link("HTTP Headers", to: '/web-standards/http-headers') %>
     <li><%= link("HTTP Caching", to: '/web-standards/http-caching') %>
+    <li><%= link("Media Queries", to: '/web-standards/media-queries') %>
+    <li><%= link("Promise", to: '/web-standards/promise') %>
+    <li><%= link("Robots.txt", to: '/web-standards/robots-txt') %>
   </ul>
 </nav>

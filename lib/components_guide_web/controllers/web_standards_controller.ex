@@ -8,11 +8,11 @@ defmodule ComponentsGuideWeb.WebStandardsController do
 
   @articles [
     "url",
-    "promise",
     "http-caching",
     "html",
     "http-headers",
-    "idempotent-javascript-operations"
+    "media-queries",
+    "promise",
   ]
 
   def show(conn, %{"id" => article}) when article in @articles do
