@@ -8,7 +8,6 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
     i = Instance.run(ParseU8)
     Instance.write_memory(i, 0x100, [0, 0, 0, 0])
     Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
-    # Instance.write_string_nul_terminated(i, 0x100, str)
     Instance.call(i, :parse_uint8_naive, 0x100, byte_size(str))
   end
 
@@ -18,8 +17,8 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
 
   def fastswar(str) when is_binary(str) do
     i = Instance.run(ParseU8)
+    Instance.write_memory(i, 0x100, [0, 0, 0, 0])
     Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
-    # Instance.write_string_nul_terminated(i, 0x100, str)
     Instance.call(i, :parse_uint8_fastswar, 0x100, byte_size(str))
   end
 
@@ -37,8 +36,8 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
     #   {str, Instance.call(i, func, 0x100, byte_size(str))}
     # end
     Stream.map(strings, fn str ->
+      Instance.write_memory(i, 0x100, [0, 0, 0, 0])
       Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
-      # Instance.write_string_nul_terminated(i, 0x100, str)
       {str, Instance.call(i, func, 0x100, byte_size(str))}
     end)
   end
