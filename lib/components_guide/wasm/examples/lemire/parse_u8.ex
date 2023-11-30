@@ -6,17 +6,14 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8 do
   use Orb
 
   Memory.pages(1)
-
-  # Orb.string_type(Memory.Range)
-
   wasm_mode(U32)
+  # Orb.string_type(Memory.Range)
 
   defw parse_uint8_naive(str: I32.String, len: I32), {I32, I32},
     i: I32,
     r: I32,
     d: I32,
-    n: I32,
-    y: I32 do
+    n: I32 do
     r = len &&& 0x3
 
     loop EachChar do
@@ -37,7 +34,7 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8 do
     n
   end
 
-  defw parse_uint8_fastswar(str: I32.String, len: I32), {I32, I32}, digits: I32, y: I32 do
+  defw parse_uint8_fastswar(str: I32.String, len: I32), {I32, I32}, digits: I32, n: I32 do
     if len === 0 or len > 3 do
       0
       0
@@ -50,14 +47,20 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8 do
       |> I32.xor(0x30303030)
       |> I32.shl((4 - len) * 8)
 
-    y =
+    n =
       digits
       |> I32.mul(0x640A01)
       |> I32.rotr(24)
+      |> I32.band(0x000000FF)
 
-    I32.rotl(digits |> I32.band(0xFF00FF00), 8)
-    |> I32.or(I32.rotr(digits |> I32.band(0x00FF00FF), 8)) < 0x020506
+    # Check are valid digits
+    I32.eqz((digits ||| 0x06060606 + digits) &&& 0xF0F0F0F0)
+    # Check is <= 255 (after converting to big-endian)
+    |> I32.band(
+      I32.rotl(digits |> I32.band(0xFF00FF00), 8)
+      |> I32.or(I32.rotr(digits |> I32.band(0x00FF00FF), 8)) <= 0x020505
+    )
 
-    y |> I32.band(0x000000FF)
+    n
   end
 end

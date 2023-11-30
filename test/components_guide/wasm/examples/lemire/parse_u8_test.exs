@@ -6,7 +6,9 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
 
   def naive(str) when is_binary(str) do
     i = Instance.run(ParseU8)
-    Instance.write_string_nul_terminated(i, 0x100, str)
+    Instance.write_memory(i, 0x100, [0, 0, 0, 0])
+    Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
+    # Instance.write_string_nul_terminated(i, 0x100, str)
     Instance.call(i, :parse_uint8_naive, 0x100, byte_size(str))
   end
 
@@ -16,23 +18,29 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
 
   def fastswar(str) when is_binary(str) do
     i = Instance.run(ParseU8)
-    Instance.write_string_nul_terminated(i, 0x100, str)
+    Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
+    # Instance.write_string_nul_terminated(i, 0x100, str)
     Instance.call(i, :parse_uint8_fastswar, 0x100, byte_size(str))
   end
 
-  def fastswar(strings) when is_list(strings) do
+  def fastswar(strings) do
     multi(strings, :parse_uint8_fastswar)
   end
 
   defp multi(strings, func)
-       when is_list(strings)
        when func in ~w(parse_uint8_naive parse_uint8_fastswar)a do
     i = Instance.run(ParseU8)
 
-    for str <- strings do
-      Instance.write_string_nul_terminated(i, 0x100, str)
+    # for str <- strings do
+    #   Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
+    #   # Instance.write_string_nul_terminated(i, 0x100, str)
+    #   {str, Instance.call(i, func, 0x100, byte_size(str))}
+    # end
+    Stream.map(strings, fn str ->
+      Instance.write_memory(i, 0x100, str |> :binary.bin_to_list())
+      # Instance.write_string_nul_terminated(i, 0x100, str)
       {str, Instance.call(i, func, 0x100, byte_size(str))}
-    end
+    end)
   end
 
   test "naive" do
@@ -58,6 +66,11 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
     end
   end
 
+  defp fuzz_chars() do
+    0..0xFFFFFF
+    |> Stream.map(fn b -> <<b::integer-size(32)>> end)
+  end
+
   test "fastswar" do
     {1, 0} = fastswar("0")
     {1, 1} = fastswar("1")
@@ -69,6 +82,9 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
     {0, _} = fastswar("256")
     {0, _} = fastswar("257")
     {0, _} = fastswar("258")
+    {0, _} = fastswar("abc")
+    {0, _} = fastswar("\0")
+    {0, _} = fastswar("\0\0\0\0")
 
     for result <- fastswar(for i <- 0..255, do: "#{i}") do
       assert {str, {1, i}} = result
@@ -78,5 +94,23 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
     for result <- fastswar(for i <- 256..9999, do: "#{i}") do
       assert {_, {0, _}} = result
     end
+
+    fuzz_chars()
+    |> Stream.take_every(13..17 |> Enum.random())
+    |> Stream.chunk_every(1024)
+    |> Stream.each(fn batch ->
+      fastswar(batch) |> Enum.each(fn result ->
+        assert {str, result} = result
+
+        case Integer.parse(str) do
+          {i, ""} ->
+            assert {1, i} = result
+
+          :error ->
+            assert {0, _} = result
+        end
+      end)
+    end)
+    |> Stream.run()
   end
 end
