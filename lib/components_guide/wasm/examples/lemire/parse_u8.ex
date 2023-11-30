@@ -7,6 +7,8 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8 do
 
   Memory.pages(1)
 
+  # Orb.string_type(Memory.Range)
+
   wasm_mode(U32)
 
   defw parse_uint8_naive(str: I32.String, len: I32), {I32, I32},
@@ -36,16 +38,26 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8 do
   end
 
   defw parse_uint8_fastswar(str: I32.String, len: I32), {I32, I32}, digits: I32, y: I32 do
-    # <<< 8
-    digits = Memory.load!(I32, str)
-    # memcpy(&digits.as_int, str, sizeof(digits));
-    digits = I32.xor(digits, 0x30303030)
-    # digits.as_int <<= (4 - (len & 0x3)) * 8;
-    digits = I32.shl(digits, (4 - (len &&& 0x3)) * 8)
-    y = (0x640A0100 * digits) >>> 32 &&& 0xFF
-    # *num = (uint8_t)(y);
-    (digits &&& 0xF0F0F0F0) === 0 &&& y < 256 &&& len !== 0 &&& len < 4
-    # digits &&& 0xF0F0F0F0
-    y
+    if len === 0 or len > 3 do
+      0
+      0
+      return()
+    end
+
+    digits =
+      Memory.load!(I32, str)
+      # Loads as little-endian
+      |> I32.xor(0x30303030)
+      |> I32.shl((4 - len) * 8)
+
+    y =
+      digits
+      |> I32.mul(0x640A01)
+      |> I32.rotr(24)
+
+    I32.rotl(digits |> I32.band(0xFF00FF00), 8)
+    |> I32.or(I32.rotr(digits |> I32.band(0x00FF00FF), 8)) < 0x020506
+
+    y |> I32.band(0x000000FF)
   end
 end
