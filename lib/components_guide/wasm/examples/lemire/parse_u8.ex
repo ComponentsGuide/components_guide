@@ -50,7 +50,7 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8 do
     n =
       digits
       |> I32.mul(0x640A01)
-      |> I32.rotr(24)
+      |> I32.shr_u(24)
       |> I32.band(0x000000FF)
 
     # Check are valid digits
