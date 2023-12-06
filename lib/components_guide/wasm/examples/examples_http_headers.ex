@@ -145,63 +145,30 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       end
 
       func to_string(),
-           I32.String,
-           str: I32,
-           byte_count: I32,
-           writer: I32,
-           name_len: I32,
-           value_len: I32,
-           domain_len: I32,
-           path_len: I32,
-           extra_len: I32 do
-        name_len = strlen(@name)
-        value_len = strlen(@value)
-        domain_len = strlen(@domain)
-        path_len = strlen(@path)
-
-        # I32.sum do
-        #   if(domain_len > 0, do: I32.add(domain_len, byte_size("; Domain=")), else: 0)
-        #   if(path_len > 0, do: I32.add(path_len, byte_size("; Path=")), else: 0)
-        #   if(@secure, do: byte_size("; Secure"), else: 0)
-        #   if(@http_only, do: byte_size("; HttpOnly"), else: 0)
-        # end
-
-        # TODO: remove all this len stuff
-        extra_len =
-          I32.sum!([
-            if(domain_len > 0, do: domain_len + byte_size("; Domain="), else: 0),
-            if(path_len > 0, do: path_len + byte_size("; Path="), else: 0),
-            if(@secure, do: byte_size("; Secure"), else: 0),
-            if(@http_only, do: byte_size("; HttpOnly"), else: 0)
-          ] |> Enum.map(&Orb.TypeNarrowable.type_narrow_to(&1, I32)))
-
-        byte_count = I32.sum!([name_len, 1, value_len, extra_len])
-
-        # TODO: replace with build!/1
-        # Add 1 for nul-terminator
-        str = alloc(byte_count + 1)
-
+           I32.String do
         build! do
+          # @name <> ?= <> @value
           append!(string: @name)
           append!(ascii: ?=)
           append!(string: @value)
 
-          if domain_len do
-            append!(string: const("; Domain="))
+          if strlen(@domain) > 0 do
+            # "; Domain=" <> @domain
+            "; Domain="
             append!(string: @domain)
           end
 
-          if path_len do
-            append!(string: const("; Path="))
+          if strlen(@path) > 0 do
+            "; Path="
             append!(string: @path)
           end
 
           if @secure do
-            append!(string: const("; Secure"))
+            "; Secure"
           end
 
           if @http_only do
-            append!(string: const("; HttpOnly"))
+            "; HttpOnly"
           end
         end
       end

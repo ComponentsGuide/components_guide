@@ -76,7 +76,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
     alias HTTPHeaders.SetCookie
 
     test "wasm size" do
-      assert byte_size(to_wasm(SetCookie)) == 932
+      assert byte_size(to_wasm(SetCookie)) == 836
     end
 
     test "name and value" do

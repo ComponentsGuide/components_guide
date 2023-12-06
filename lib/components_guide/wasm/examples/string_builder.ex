@@ -166,6 +166,10 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [str_ptr])
   end
 
+  def append!(constant) when is_binary(constant) do
+    Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [constant])
+  end
+
   def append!(string: str_ptr) do
     Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [str_ptr])
   end
