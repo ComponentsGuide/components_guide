@@ -197,6 +197,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     end
   end
 
+  defmodule ContentSecurityPolicy do
+    use Orb
+
+    global do
+      @private 0
+      @public 0
+      @no_store 0
+      @immutable 0
+      @max_age_seconds -1
+      @s_max_age_seconds -1
+    end
+  end
+
   defmodule SimpleHeader do
     # TODO: Implement this algorithm: https://fetch.spec.whatwg.org/#simple-header
   end
