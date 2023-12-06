@@ -111,14 +111,14 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     #   end
     # end
 
-    I32.global(
-      name: 0,
-      value: 0,
-      domain: 0,
-      path: 0,
-      secure: false,
-      http_only: false
-    )
+    global do
+      @name 0
+      @value 0
+      @domain 0
+      @path 0
+      @secure 0
+      @http_only 0
+    end
 
     # defw set_cookie_name(new_value: I32.String) do
     #   @name = new_value
@@ -159,20 +159,27 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
         domain_len = strlen(@domain)
         path_len = strlen(@path)
 
+        # I32.sum do
+        #   if(domain_len > 0, do: I32.add(domain_len, byte_size("; Domain=")), else: 0)
+        #   if(path_len > 0, do: I32.add(path_len, byte_size("; Path=")), else: 0)
+        #   if(@secure, do: byte_size("; Secure"), else: 0)
+        #   if(@http_only, do: byte_size("; HttpOnly"), else: 0)
+        # end
+
         # TODO: remove all this len stuff
         extra_len =
           I32.sum!([
-            I32.when?(domain_len > 0, do: I32.add(domain_len, byte_size("; Domain=")), else: 0),
-            I32.when?(path_len > 0, do: I32.add(path_len, byte_size("; Path=")), else: 0),
-            I32.when?(@secure, do: byte_size("; Secure"), else: 0),
-            I32.when?(@http_only, do: byte_size("; HttpOnly"), else: 0)
-          ])
+            if(domain_len > 0, do: domain_len + byte_size("; Domain="), else: 0),
+            if(path_len > 0, do: path_len + byte_size("; Path="), else: 0),
+            if(@secure, do: byte_size("; Secure"), else: 0),
+            if(@http_only, do: byte_size("; HttpOnly"), else: 0)
+          ] |> Enum.map(&Orb.TypeNarrowable.type_narrow_to(&1, I32)))
 
         byte_count = I32.sum!([name_len, 1, value_len, extra_len])
 
         # TODO: replace with build!/1
         # Add 1 for nul-terminator
-        str = alloc(I32.add(byte_count, 1))
+        str = alloc(byte_count + 1)
 
         build! do
           append!(string: @name)
