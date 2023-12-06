@@ -64,7 +64,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def build_begin!(), do: Orb.DSL.typed_call(nil, :bump_write_start, [])
+  def build_begin!(), do: Orb.DSL.typed_call(:unknown_effect, :bump_write_start, [])
   def build_done!(), do: Orb.DSL.typed_call(I32, :bump_write_done, [])
   def appended?(), do: Orb.DSL.typed_call(I32, :bump_written?, [])
 
@@ -115,7 +115,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
           operation: {:call, _}
         } = instruction
       ) do
-    [instruction, :drop]
+    Orb.Stack.drop(instruction)
   end
 
   def build_item(
@@ -163,11 +163,11 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   end
 
   def append!(%Orb.Constants.NulTerminatedString{} = str_ptr) do
-    Orb.DSL.typed_call(nil, :bump_write_str, [str_ptr])
+    Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [str_ptr])
   end
 
   def append!(string: str_ptr) do
-    Orb.DSL.typed_call(nil, :bump_write_str, [str_ptr])
+    Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [str_ptr])
   end
 
   def append!(u8: char) do
@@ -306,7 +306,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
             ]
 
           str_ptr ->
-            typed_call(nil, :bump_write_str, [str_ptr])
+            typed_call(:unknown_effect, :bump_write_str, [str_ptr])
         end
       end
 

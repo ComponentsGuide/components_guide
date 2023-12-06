@@ -140,9 +140,9 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   defwp do_css_rgb(), I32.String, r: F32, g: F32, b: F32 do
     build! do
       typed_call({F32, F32, F32}, :lab_to_srgb, [@l, @a, global_get(:b)])
-      b = :pop
-      g = :pop
-      r = :pop
+      b = Orb.Stack.pop(F32)
+      g = Orb.Stack.pop(F32)
+      r = Orb.Stack.pop(F32)
 
       ~S{rgb(}
       # append!(decimal_i32: I32.trunc_f32_u(F32.nearest(r * 255.0)))
@@ -287,7 +287,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
 
     inline for var! <- [mut!(blue), mut!(green), mut!(red)] do
       wasm F32 do
-        F32.nearest(:pop * 255.0) |> F32.min(255.0) |> F32.max(0.0)
+        F32.nearest(Orb.Stack.pop(I32) * 255.0) |> F32.min(255.0) |> F32.max(0.0)
         var!.write
       end
     end

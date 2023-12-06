@@ -43,7 +43,7 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
   end
 
   test "naive" do
-    IO.puts(ParseU8.to_wat())
+    # IO.puts(ParseU8.to_wat())
     {1, 0} = naive("0")
     {1, 1} = naive("1")
     {1, 7} = naive("7")
@@ -95,7 +95,14 @@ defmodule ComponentsGuide.Wasm.Examples.Lemire.ParseU8Test do
     end
 
     fuzz_chars()
-    |> Stream.take_every(13..17 |> Enum.random())
+    # |> Stream.take_every(13..17 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
+    |> Stream.take_every(2..3 |> Enum.random())
     |> Stream.chunk_every(1024)
     |> Stream.each(fn batch ->
       fastswar(batch) |> Enum.each(fn result ->

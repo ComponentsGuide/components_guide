@@ -35,7 +35,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     end
 
     def append_html_escaped!(char: char) do
-      Orb.DSL.call(:append_char_html_escaped, char)
+      Orb.DSL.typed_call(:unknown_effect, :append_char_html_escaped, char)
     end
 
     defmacro __using__(_) do

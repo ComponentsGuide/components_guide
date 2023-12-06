@@ -50,11 +50,16 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         # If we are checking what the current state is.
         current_state ->
           quote do
+            alias Orb.Instruction
+
             # Module.register_attribute(__MODULE__, String.to_atom("func_#{unquote(name)}"), accumulate: true)
 
             wasm do
               func unquote(Macro.escape(name)) do
-                Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(current_state)) do
+                Orb.IfElse.DSL.if I32.eq(
+                                    Instruction.global_get(Orb.I32, :state),
+                                    unquote(current_state)
+                                  ) do
                   transition_to(unquote(target))
                   # Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
                 end
@@ -66,6 +71,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
     defmacro on(call, do: targets) do
       alias Orb.I32
+      alias Orb.Instruction
       require Orb.IfElse.DSL
 
       {name, []} = Macro.decompose_call(call)
@@ -77,25 +83,22 @@ defmodule ComponentsGuide.Wasm.Examples.State do
               {target, global_mutations} when is_list(global_mutations) ->
                 quote do
                   [
-                    unquote(target),
-                    global_set(:state),
+                    Instruction.global_set(Orb.I32, :state, unquote(target)),
                     unquote(
                       for {global_name, mutation} <- global_mutations do
                         case mutation do
                           :increment ->
                             quote do
-                              [
-                                I32.add(global_get(unquote(global_name)), 1),
-                                global_set(unquote(global_name))
-                              ]
+                              Instruction.global_set(
+                                Orb.I32,
+                                unquote(global_name),
+                                I32.add(Instruction.global_get(Orb.I32, unquote(global_name)), 1)
+                              )
                             end
 
                           n when is_integer(n) ->
                             quote do
-                              [
-                                push(unquote(n)),
-                                global_set(unquote(global_name))
-                              ]
+                              Instruction.global_set(Orb.I32, unquote(global_name), unquote(n))
                             end
                         end
                       end
@@ -106,14 +109,18 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
               {target, {:snippet, _, _} = snippet} ->
                 quote do
-                  [unquote(target), global_set(:state), unquote(snippet), :return]
+                  [
+                    Instruction.global_set(Orb.I32, :state, unquote(target)),
+                    unquote(snippet),
+                    :return
+                  ]
                 end
 
               target ->
                 IO.inspect(target)
 
                 quote do
-                  [unquote(target), global_set(:state), :return]
+                  [Instruction.global_set(Orb.I32, :state, unquote(target)), :return]
                 end
             end
 
@@ -124,14 +131,17 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
             [match] ->
               quote do
-                Orb.IfElse.DSL.if I32.eq(global_get(:state), unquote(match)) do
+                Orb.IfElse.DSL.if I32.eq(Instruction.global_get(Orb.I32, :state), unquote(match)) do
                   unquote(effect)
                 end
               end
 
             matches ->
               quote do
-                Orb.IfElse.DSL.if I32.in?(global_get(:state), unquote(matches)) do
+                Orb.IfElse.DSL.if I32.in?(
+                                    Instruction.global_get(Orb.I32, :state),
+                                    unquote(matches)
+                                  ) do
                   unquote(effect)
                 end
               end
@@ -295,6 +305,12 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     use StateMachine
 
     I32.export_enum([:active, :inactive])
+
+    defmodule Conditions do
+      use Orb.Import
+
+      defw check_is_active(), I32
+    end
 
     wasm_import(:conditions,
       is_focused: Orb.DSL.funcp(name: :check_is_active, params: nil, result: I32)

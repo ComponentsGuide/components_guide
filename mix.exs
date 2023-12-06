@@ -67,8 +67,8 @@ defmodule ComponentsGuide.MixProject do
       {:exqlite, "~> 0.13.3"},
       {:redix, "~> 1.1"},
       {:benchee, "~> 1.0", only: :dev},
-      {:orb, "~> 0.0.24"},
-      {:silver_orb, "~> 0.0.4"},
+      {:orb, "~> 0.0.30"},
+      {:silver_orb, "~> 0.0.5"},
       # {:orb, path: "../../Collected/orb", override: true},
       # {:silver_orb, path: "../../Collected/silver_orb", override: true},
       {:orb_wasmtime, "~> 0.1.10"}

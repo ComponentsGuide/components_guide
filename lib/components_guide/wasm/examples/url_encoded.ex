@@ -272,9 +272,9 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
            value: I32.U8.UnsafePointer
          ) do
       append!(ascii: ?&)
-      typed_call(nil, :append_url_encode_www_form, [key])
+      typed_call(:unknown_effect, :append_url_encode_www_form, [key])
       append!(ascii: ?=)
-      typed_call(nil, :append_url_encode_www_form, [value])
+      typed_call(:unknown_effect, :append_url_encode_www_form, [value])
     end
 
     func url_encode_www_form(str_ptr: I32.String),
@@ -283,7 +283,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
          abc: I32,
          __dup_32: I32 do
       build! do
-        typed_call(nil, :append_url_encode_www_form, [str_ptr])
+        typed_call(:unknown_effect, :append_url_encode_www_form, [str_ptr])
       end
     end
 

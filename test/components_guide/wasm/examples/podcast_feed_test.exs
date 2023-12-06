@@ -67,6 +67,11 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
         ]
       )
 
+    # {title_offset, title_max_bytes} = Instance.call(inst, :get_title_memory_range)
+    # title = "SOME TITLE" |> &[&1, ?\0] |> List.to_string()
+    # assert byte_size(title) <= title_max_bytes
+    # Instance.write_memory(inst, title_offset, title)
+
     title = Instance.alloc_string(inst, "SOME TITLE")
     Instance.set_global(inst, :title, title)
 
@@ -77,8 +82,6 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     text_xml = text_xml_func.()
 
     # IO.puts(PodcastFeed.to_wat())
-
-    # assert text_xml === ""
 
     assert text_xml =~ ~S"""
            <?xml version="1.0" encoding="UTF-8"?>

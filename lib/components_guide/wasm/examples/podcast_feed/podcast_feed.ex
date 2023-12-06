@@ -3,6 +3,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   use SilverOrb.BumpAllocator
   use ComponentsGuide.Wasm.Examples.StringBuilder
   use ComponentsGuide.Wasm.PodcastFeed.XMLFormatter, as: XML
+  require SilverOrb.Arena
 
   SilverOrb.BumpAllocator.export_alloc()
 
@@ -60,7 +61,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
     def write_episode_data(key, episode_index, write_ptr) do
       func_name = String.to_existing_atom("write_episode_#{key}")
-      apply(Datasource, func_name, [
+      apply(__MODULE__, func_name, [
         episode_index,
         write_ptr
       ])
@@ -69,10 +70,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
   importw(Datasource, :datasource)
 
-  # 64KiB
-  # Memory.add_named_pages(:episode_description_html, 1)
-
-  # Arena.def XMLOutput, 2
+  # SilverOrb.Arena.def(DatasourceArena, pages: 1)
 
   # There are a few ways to implement this:
   # 1. Pass every episode in as some sort of data structure. e.g.
