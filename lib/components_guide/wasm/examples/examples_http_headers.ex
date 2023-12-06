@@ -25,8 +25,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       s_max_age_seconds: -1
     )
 
-    wasm_mode(S32)
-
     defw set_private() do
       # @privacy = Privacy.private()
       @private = 1
