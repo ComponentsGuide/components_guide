@@ -11,28 +11,28 @@ defmodule ComponentsGuide.Wasm.Examples do
                    end)
 
     Memory.pages(1)
-    I32.export_global(:mutable, input_offset: 1024)
 
-    wasm do
-      func parse(), I32, i: I32 do
-        # If does no end in nul byte, return 0
-        if Memory.load!(I32.U8, I32.add(@input_offset, 3)) do
-          return(0)
-        end
+    global :export_mutable do
+      @input_offset 1024
+    end
 
-        # Write nul byte at end
-        Memory.store!(I32.U8, I32.add(@input_offset, 3), 0)
-        i = Memory.load!(I32, @input_offset)
-
-        # Check equality to each weekday as a i32 e.g. `Mon\0`
-        inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
-          wasm do
-            if I32.eq(i, day_i32!), do: return(index!)
-          end
-        end
-
-        0
+    defw parse(), I32, i: I32 do
+      # If does no end in nul byte, return 0
+      if Memory.load!(I32.U8, @input_offset + 3) do
+        return(0)
       end
+
+      # Load all 4 bytes (32-bits)
+      i = Memory.load!(I32, @input_offset)
+
+      # Check equality to each weekday as a i32 e.g. `Mon\0`
+      inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
+        wasm do
+          if I32.eq(i, day_i32!), do: return(index!)
+        end
+      end
+
+      0
     end
 
     def set_input(instance, string),
@@ -69,27 +69,27 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     wasm do
       func txt do
-        @chunk1 = inline do: @strings.text_plain.offset
-        @chunk2 = inline do: @strings.charset_utf8.offset
+        @chunk1 = inline(do: @strings.text_plain.offset)
+        @chunk2 = inline(do: @strings.charset_utf8.offset)
       end
 
       func html do
-        @chunk1 = inline do: @strings.text_html.offset
-        @chunk2 = inline do: @strings.charset_utf8.offset
+        @chunk1 = inline(do: @strings.text_html.offset)
+        @chunk2 = inline(do: @strings.charset_utf8.offset)
       end
 
       func json do
-        @chunk1 = inline do: @strings.application_json.offset
-        @chunk2 = inline do: @strings.charset_utf8.offset
+        @chunk1 = inline(do: @strings.application_json.offset)
+        @chunk2 = inline(do: @strings.charset_utf8.offset)
       end
 
       func wasm do
-        @chunk1 = inline do: @strings.application_wasm.offset
+        @chunk1 = inline(do: @strings.application_wasm.offset)
         @chunk2 = 0x0
       end
 
       func png do
-        @chunk1 = inline do: @strings.image_png.offset
+        @chunk1 = inline(do: @strings.image_png.offset)
         @chunk2 = 0x0
       end
     end
@@ -151,6 +151,7 @@ defmodule ComponentsGuide.Wasm.Examples do
     wasm_import(:navigate,
       visit: Orb.DSL.funcp(name: :visit, params: I32, result: I32)
     )
+
     wasm_import(:query,
       get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
       expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: {I32, I32})
@@ -172,6 +173,7 @@ defmodule ComponentsGuide.Wasm.Examples do
     wasm_import(:navigate,
       visit: Orb.DSL.funcp(name: :visit, params: I32, result: I32)
     )
+
     wasm_import(:query,
       get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
       expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32)
