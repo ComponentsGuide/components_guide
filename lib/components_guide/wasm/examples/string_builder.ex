@@ -113,7 +113,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     append!(string: term)
   end
 
-  def append!(%{type: Orb.I32.String} = str_ptr) do
+  def build_item(%{type: Orb.I32.String} = str_ptr) do
     append!(string: str_ptr)
   end
 

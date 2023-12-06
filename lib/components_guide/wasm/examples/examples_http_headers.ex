@@ -25,68 +25,76 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       s_max_age_seconds: -1
     )
 
-    wasm S32 do
-      func set_private() do
-        @private = 1
-      end
+    wasm_mode(S32)
 
-      func set_public() do
-        @public = 1
-      end
+    defw set_private() do
+      # @privacy = Privacy.private()
+      @private = 1
+    end
 
-      func set_no_store() do
-        @no_store = 1
-      end
+    defw set_public() do
+      @public = 1
+    end
 
-      func set_immutable() do
-        @immutable = 1
-      end
+    defw set_no_store() do
+      @no_store = 1
+    end
 
-      func set_max_age(age_seconds: I32) do
-        @max_age_seconds = age_seconds
-      end
+    defw set_immutable() do
+      @immutable = 1
+    end
 
-      func set_shared_max_age(age_seconds: I32) do
-        @s_max_age_seconds = age_seconds
-      end
+    defw set_max_age(age_seconds: 0..100_000_000) do
+      @max_age_seconds = age_seconds
+    end
 
-      func to_string(), I32.String do
-        build! do
-          if @public do
-            ~S|public|
+    defw set_shared_max_age(age_seconds: 0..100_000_000) do
+      @s_max_age_seconds = age_seconds
+    end
+
+    defw to_string(), I32.String do
+      build! do
+        if @public do
+          "public"
+        else
+          if @private do
+            "private"
           else
-            if @private do
-              ~S|private|
-            else
-              if @no_store do
-                ~S|no-store|
-              end
+            if @no_store do
+              "no-store"
             end
           end
+        end
 
-          if @max_age_seconds > 0 do
-            if appended?(), do: ~S|, |
+        # cond do
+        #   @public -> "public"
+        #   @private -> "private"
+        #   @no_store -> "no-store"
+        #   true -> _
+        # end
 
-            ~S|max-age=|
-            append!(decimal_u32: @max_age_seconds)
-          end
+        if @max_age_seconds > 0 do
+          if appended?(), do: ", "
 
-          if @s_max_age_seconds > 0 do
-            if appended?(), do: ~S|, |
+          "max-age="
+          append!(decimal_u32: @max_age_seconds)
+        end
 
-            ~S|s-maxage=|
-            append!(decimal_u32: @s_max_age_seconds)
-          end
+        if @s_max_age_seconds > 0 do
+          if appended?(), do: ", "
 
-          if @immutable do
-            if appended?(), do: ~S|, |
+          "s-maxage="
+          append!(decimal_u32: @s_max_age_seconds)
+        end
 
-            ~S|immutable|
-          end
+        if @immutable do
+          if appended?(), do: ", "
 
-          if not appended?() do
-            ~S|max-age=0|
-          end
+          "immutable"
+        end
+
+        if not appended?() do
+          "max-age=0"
         end
       end
     end
@@ -148,19 +156,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
          I32.String do
       build! do
         # @name <> ?= <> @value
-        append!(@name)
+        @name
         append!(ascii: ?=)
-        append!(@value)
+        @value
 
         if strlen(@domain) > 0 do
           # "; Domain=" <> @domain
           "; Domain="
-          append!(@domain)
+          @domain
         end
 
         if strlen(@path) > 0 do
           "; Path="
-          append!(@path)
+          @path
         end
 
         if @secure do
