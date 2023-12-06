@@ -84,7 +84,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
             ~S|immutable|
           end
 
-          if not(appended?()) do
+          if not appended?() do
             ~S|max-age=0|
           end
         end
@@ -119,6 +119,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
       secure: false,
       http_only: false
     )
+
+    # defw set_cookie_name(new_value: I32.String) do
+    #   @name = new_value
+    # end
 
     wasm U32 do
       I32.attr_writer(:name, as: :set_cookie_name)

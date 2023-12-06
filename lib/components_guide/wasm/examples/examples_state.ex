@@ -309,12 +309,14 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     defmodule Conditions do
       use Orb.Import
 
-      defw check_is_active(), I32
+      defw is_focused(), I32
     end
 
-    wasm_import(:conditions,
-      is_focused: Orb.DSL.funcp(name: :check_is_active, params: nil, result: I32)
-    )
+    importw(Conditions, :conditions)
+
+    # wasm_import(:conditions,
+    #   is_focused: Orb.DSL.funcp(name: :check_is_active, params: nil, result: I32)
+    # )
 
     defw(get_current(), I32, do: @state)
 
