@@ -65,18 +65,18 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   end
 
   def build_begin!(), do: Orb.DSL.typed_call(:unknown_effect, :bump_write_start, [])
-  def build_done!(), do: Orb.DSL.typed_call(I32, :bump_write_done, [])
+  def build_done!(), do: Orb.DSL.typed_call(Orb.I32.String, :bump_write_done, [])
   def appended?(), do: Orb.DSL.typed_call(I32, :bump_written?, [])
 
   defmacro build!(do: block) do
     items = build_block(block)
 
     quote do
-      [
+      Orb.InstructionSequence.new(Orb.I32.String, [
         build_begin!(),
-        unquote(items),
+        Orb.InstructionSequence.new(:unknown_effect, unquote(items)),
         build_done!()
-      ]
+      ])
     end
   end
 
@@ -99,6 +99,10 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
         end
       end
     end
+  end
+
+  def build_item(%Orb.Constants.NulTerminatedString{string: ""}) do
+    :nop
   end
 
   def build_item(%Orb.Constants.NulTerminatedString{} = term) do
@@ -135,31 +139,35 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def append!(function, a, b, c) when is_atom(function) do
     import Orb.DSL
 
-    typed_call(I32, function, [a, b, c]) |> drop()
+    typed_call(I32, function, [a, b, c]) |> Orb.Stack.drop()
   end
 
   def append!(function, a, b) when is_atom(function) do
     import Orb.DSL
 
-    typed_call(I32, function, [a, b]) |> drop()
+    typed_call(I32, function, [a, b]) |> Orb.Stack.drop()
   end
 
   def append!(function, args) when is_atom(function) and is_list(args) do
     import Orb.DSL
 
-    typed_call(I32, function, args) |> drop()
+    typed_call(I32, function, args) |> Orb.Stack.drop()
   end
 
   def append!(function, a) when is_atom(function) do
     import Orb.DSL
 
-    typed_call(I32, function, [a]) |> drop()
+    typed_call(I32, function, [a]) |> Orb.Stack.drop()
   end
 
   def append!(function) when is_atom(function) do
     import Orb.DSL
 
-    typed_call(I32, function, []) |> drop()
+    typed_call(I32, function, []) |> Orb.Stack.drop()
+  end
+
+  def append!(%Orb.Constants.NulTerminatedString{string: ""}) do
+    :nop
   end
 
   def append!(%Orb.Constants.NulTerminatedString{} = str_ptr) do

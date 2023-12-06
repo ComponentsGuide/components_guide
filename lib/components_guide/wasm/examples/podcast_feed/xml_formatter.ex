@@ -74,7 +74,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
         append!(string: ~S"<![CDATA["),
         unquote_splicing(Orb.__get_block_items(block)),
         append!(string: ~S"]]>"),
-        Orb.DSL.drop(unquote(__MODULE__).close_newline(unquote(tag)))
+        Orb.Stack.drop(unquote(__MODULE__).close_newline(unquote(tag)))
       ]
     end
   end

@@ -112,64 +112,63 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
     # end
 
     global do
-      @name 0
-      @value 0
-      @domain 0
-      @path 0
+      @name ""
+      @value ""
+      @domain ""
+      @path ""
       @secure 0
       @http_only 0
     end
 
-    # defw set_cookie_name(new_value: I32.String) do
-    #   @name = new_value
-    # end
+    defw set_cookie_name(new_value: I32.String) do
+      @name = new_value
+    end
 
-    wasm U32 do
-      I32.attr_writer(:name, as: :set_cookie_name)
-      I32.attr_writer(:value, as: :set_cookie_value)
-      I32.attr_writer(:domain, as: :set_domain)
-      I32.attr_writer(:path, as: :set_path)
+    defw set_cookie_value(new_value: I32.String) do
+      @value = new_value
+    end
 
-      # func set_cookie_value(new_value(I32.String)) do
-      #   value = new_value
-      # end
+    defw set_domain(new_value: I32.String) do
+      @domain = new_value
+    end
 
-      # I32.Boolean.attr_one_way(:secure, as: :set_secure)
+    defw set_path(new_path: I32.String) do
+      @path = new_path
+    end
 
-      func set_secure() do
-        @secure = 1
-      end
+    defw set_secure() do
+      @secure = 1
+    end
 
-      func set_http_only() do
-        @http_only = 1
-      end
+    defw set_http_only() do
+      @http_only = 1
+    end
 
-      func to_string(),
-           I32.String do
-        build! do
-          # @name <> ?= <> @value
-          append!(string: @name)
-          append!(ascii: ?=)
-          append!(string: @value)
+    defw to_string(),
+         I32.String do
+      build! do
+        # @name <> ?= <> @value
+        append!(string: @name)
+        append!(ascii: ?=)
+        append!(string: @value)
 
-          if strlen(@domain) > 0 do
-            # "; Domain=" <> @domain
-            "; Domain="
-            append!(string: @domain)
-          end
+        if strlen(@domain) > 0 do
+          # "; Domain=" <> @domain
+          "; Domain="
+          append!(string: @domain)
+        end
 
-          if strlen(@path) > 0 do
-            "; Path="
-            append!(string: @path)
-          end
+        if strlen(@path) > 0 do
+          "; Path="
+          append!(string: @path)
+        end
 
-          if @secure do
-            "; Secure"
-          end
+        if @secure do
+          "; Secure"
+        end
 
-          if @http_only do
-            "; HttpOnly"
-          end
+        if @http_only do
+          "; HttpOnly"
         end
       end
     end

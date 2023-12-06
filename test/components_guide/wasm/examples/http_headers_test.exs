@@ -94,6 +94,9 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders.Test do
 
     test "domain" do
       inst = Instance.run(SetCookie)
+
+      # Instance.write_string!(inst, "foo", :cookie_name_range)
+
       Instance.call(inst, :set_cookie_name, Instance.alloc_string(inst, "foo"))
       Instance.call(inst, :set_cookie_value, Instance.alloc_string(inst, "value"))
       Instance.call(inst, :set_domain, Instance.alloc_string(inst, "foo.example.com"))
