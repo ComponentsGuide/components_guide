@@ -101,6 +101,10 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
+  def build_item(string) when is_binary(string) do
+    append!(string: string)
+  end
+
   def build_item(%Orb.Constants.NulTerminatedString{string: ""}) do
     :nop
   end
@@ -109,8 +113,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     append!(string: term)
   end
 
-  def build_item(term) when is_binary(term) do
-    append!(string: term)
+  def append!(%{type: Orb.I32.String} = str_ptr) do
+    append!(string: str_ptr)
   end
 
   def build_item(
@@ -166,6 +170,10 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     typed_call(I32, function, []) |> Orb.Stack.drop()
   end
 
+  def append!(constant) when is_binary(constant) do
+    Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [constant])
+  end
+
   def append!(%Orb.Constants.NulTerminatedString{string: ""}) do
     :nop
   end
@@ -174,8 +182,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [str_ptr])
   end
 
-  def append!(constant) when is_binary(constant) do
-    Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [constant])
+  def append!(%{type: Orb.I32.String} = str_ptr) do
+    Orb.DSL.typed_call(:unknown_effect, :bump_write_str, [str_ptr])
   end
 
   def append!(string: str_ptr) do

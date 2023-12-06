@@ -148,19 +148,19 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPHeaders do
          I32.String do
       build! do
         # @name <> ?= <> @value
-        append!(string: @name)
+        append!(@name)
         append!(ascii: ?=)
-        append!(string: @value)
+        append!(@value)
 
         if strlen(@domain) > 0 do
           # "; Domain=" <> @domain
           "; Domain="
-          append!(string: @domain)
+          append!(@domain)
         end
 
         if strlen(@path) > 0 do
           "; Path="
-          append!(string: @path)
+          append!(@path)
         end
 
         if @secure do
