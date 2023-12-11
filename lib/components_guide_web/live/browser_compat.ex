@@ -1,18 +1,23 @@
 defmodule ComponentsGuideWeb.BrowserCompatLive do
   use ComponentsGuideWeb,
-      {:live_view, container: {:div, class: "max-w-6xl mx-auto text-lg text-white pb-24"}}
+      {:live_view,
+       container: {:div, class: "max-w-6xl mt-8 mx-auto prose md:prose-xl prose-invert pb-24"}}
 
   alias ComponentsGuide.Fetch
   alias ComponentsGuideWeb.BrowserCompatComponents, as: Components
 
-  @data_url "https://unpkg.com/@mdn/browser-compat-data@5.4.5/data.json"
+  @data_version "5.4.5"
+  @data_url "https://unpkg.com/@mdn/browser-compat-data@#{@data_version}/data.json"
   # https://nodejs.org/en/blog
   # https://nodejs.org/en/feed/blog.xml
 
   defmodule State do
-    defstruct data: nil
+    defstruct data: nil, primary: nil, secondary: nil
 
     def default(), do: %__MODULE__{}
+
+    def set_primary(%__MODULE__{} = state, primary), do: put_in(state.primary, primary)
+    def set_secondary(%__MODULE__{} = state, secondary), do: put_in(state.secondary, secondary)
 
     def add_response(
           %__MODULE__{} = state,
@@ -23,11 +28,38 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
     end
   end
 
+  @cached_data Fetch.Request.new!(@data_url, method: "GET") |> Fetch.load!()
+
+  @impl true
+  def mount(%{}, _session, socket) do
+    state =
+      State.default()
+      |> State.add_response(@cached_data)
+
+    socket
+    |> set_state(state)
+    |> result(:ok)
+  end
+
+  def handle_params(params, _path, socket) do
+    socket =
+      socket
+      |> set_state(fn state ->
+        state
+        |> State.set_primary(params["primary"])
+        |> State.set_secondary(params["secondary"])
+      end)
+
+    {:noreply, socket}
+  end
+
+  defp data_url, do: @data_url
+
   @impl true
   def render(assigns) do
     ~H"""
     <.form
-      :let={f}
+      hidden
       for={:editor}
       id="browser_compat_form"
       phx-submit="submitted"
@@ -62,29 +94,42 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
       })
     </script>
 
-    <output form="view_source_form" class="prose prose-invert block pt-4 max-w-none text-center">
-      <%= if @state.data do %>
-        <pre><%= inspect(Map.keys(@state.data), pretty: true) %></pre>
-        <Components.html_element
-          title="<search>"
-          tag="search"
-          data={@state.data["html"]["elements"]["search"]}
-        />
+    <%= if @state.data do %>
+      <%= if @state.primary === "browsers" do %>
+        <h1 class="text-center">Browser</h1>
+        <Components.browsers browser_data={@state.data["browsers"]} browser={@state.secondary} />
         <details>
           <summary>Browsers</summary>
           <pre><%= inspect(@state.data["browsers"], pretty: true) %></pre>
         </details>
-        <pre><%= inspect(Map.keys(@state.data["html"]), pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["html"]["elements"]), pretty: true) %></pre>
-        <pre><%= inspect(@state.data["html"]["elements"]["search"], pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["html"]["global_attributes"]), pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["http"]["headers"]), pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["http"]["status"]), pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["webassembly"]), pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["css"]), pretty: true) %></pre>
-        <pre><%= inspect(Map.keys(@state.data["javascript"]), pretty: true) %></pre>
       <% end %>
-    </output>
+
+      <%!-- <pre><%= inspect(Map.keys(@state.data), pretty: true) %></pre> --%>
+      <Components.html_element
+        title="<search>"
+        tag="search"
+        data={@state.data["html"]["elements"]["search"]}
+      />
+      <pre><%= inspect(Map.keys(@state.data["browsers"]), pretty: true) %></pre>
+      <pre><%= inspect(Map.keys(@state.data["html"]), pretty: true) %></pre>
+      <pre><%= inspect(Map.keys(@state.data["html"]["elements"]), pretty: true) %></pre>
+      <pre><%= inspect(@state.data["html"]["elements"]["search"], pretty: true) %></pre>
+      <pre><%= inspect(Map.keys(@state.data["html"]["global_attributes"]), pretty: true) %></pre>
+      <h2>HTTP</h2>
+      <pre><%= inspect(Map.keys(@state.data["http"]["headers"]), pretty: true) %></pre>
+      <pre><%= inspect(Map.keys(@state.data["http"]["status"]), pretty: true) %></pre>
+      <h2>CSS</h2>
+      <pre><%= inspect(Map.keys(@state.data["css"]), pretty: true) %></pre>
+      <h2>JavaScript</h2>
+      <pre><%= inspect(Map.keys(@state.data["javascript"]), pretty: true) %></pre>
+      <pre><%= inspect(Map.keys(@state.data["api"]), pretty: true) %></pre>
+      <h2>WebAssembly</h2>
+      <pre><%= inspect(Map.keys(@state.data["webassembly"]), pretty: true) %></pre>
+    <% end %>
+
+    <div class="mt-16 text-center">
+      <.link href={data_url()}>Raw JSON data <%= @state.data["__meta"]["version"] %></.link>
+    </div>
     <style>
       dt[hidden] + dd {
         display: none;
@@ -125,17 +170,10 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
   end
 
   @impl true
-  def mount(%{}, _session, socket) do
-    # socket = set_state(socket, State.default())
-    # {:ok, socket}
-    socket |> set_state(State.default()) |> result(:ok)
-  end
-
-  @impl true
   def handle_event("submitted", _form_values, socket) do
     case Fetch.Request.new(@data_url, method: "GET") do
       {:ok, request} ->
-        response = Fetch.load!(request)
+        response = @cached_data
         # socket = socket |> set_state(&State.add_response(&1, response))
         socket =
           set_state(socket, fn state ->
@@ -148,4 +186,22 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
         {:noreply, socket}
     end
   end
+
+  # @impl true
+  # def handle_event("submitted", _form_values, socket) do
+  #   case Fetch.Request.new(@data_url, method: "GET") do
+  #     {:ok, request} ->
+  #       response = Fetch.load!(request)
+  #       # socket = socket |> set_state(&State.add_response(&1, response))
+  #       socket =
+  #         set_state(socket, fn state ->
+  #           state |> State.add_response(response)
+  #         end)
+
+  #       {:noreply, socket}
+
+  #     {:error, _reason} ->
+  #       {:noreply, socket}
+  #   end
+  # end
 end

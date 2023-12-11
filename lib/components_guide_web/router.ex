@@ -110,6 +110,8 @@ defmodule ComponentsGuideWeb.Router do
     live("/latency-calculator", LatencyCalculatorLive)
 
     live("/browser-compat", BrowserCompatLive)
+    live("/browser-compat/:primary", BrowserCompatLive)
+    live("/browser-compat/:primary/:secondary", BrowserCompatLive)
 
     live("/wasm-inspector", WasmInspectorLive)
 

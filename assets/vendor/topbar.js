@@ -1,44 +1,18 @@
 /**
  * @license MIT
- * topbar 1.0.0, 2021-01-06
- * https://buunguyen.github.io/topbar
+ * topbar 2.0.0, 2023-02-04
+ * http://buunguyen.github.io/topbar
  * Copyright (c) 2021 Buu Nguyen
  */
 (function (window, document) {
   "use strict";
 
-  // https://gist.github.com/paulirish/1579671
-  (function () {
-    var lastTime = 0;
-    var vendors = ["ms", "moz", "webkit", "o"];
-    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-      window.requestAnimationFrame =
-        window[vendors[x] + "RequestAnimationFrame"];
-      window.cancelAnimationFrame =
-        window[vendors[x] + "CancelAnimationFrame"] ||
-        window[vendors[x] + "CancelRequestAnimationFrame"];
-    }
-    if (!window.requestAnimationFrame)
-      window.requestAnimationFrame = function (callback, element) {
-        var currTime = new Date().getTime();
-        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-        var id = window.setTimeout(function () {
-          callback(currTime + timeToCall);
-        }, timeToCall);
-        lastTime = currTime + timeToCall;
-        return id;
-      };
-    if (!window.cancelAnimationFrame)
-      window.cancelAnimationFrame = function (id) {
-        clearTimeout(id);
-      };
-  })();
-
   var canvas,
-    progressTimerId,
-    fadeTimerId,
     currentProgress,
     showing,
+    progressTimerId = null,
+    fadeTimerId = null,
+    delayTimerId = null,
     addEvent = function (elem, type, handler) {
       if (elem.addEventListener) elem.addEventListener(type, handler, false);
       else if (elem.attachEvent) elem.attachEvent("on" + type, handler);
@@ -95,21 +69,26 @@
         for (var key in opts)
           if (options.hasOwnProperty(key)) options[key] = opts[key];
       },
-      show: function () {
+      show: function (delay) {
         if (showing) return;
-        showing = true;
-        if (fadeTimerId !== null) window.cancelAnimationFrame(fadeTimerId);
-        if (!canvas) createCanvas();
-        canvas.style.opacity = 1;
-        canvas.style.display = "block";
-        topbar.progress(0);
-        if (options.autoRun) {
-          (function loop() {
-            progressTimerId = window.requestAnimationFrame(loop);
-            topbar.progress(
-              "+" + 0.05 * Math.pow(1 - Math.sqrt(currentProgress), 2)
-            );
-          })();
+        if (delay) {
+          if (delayTimerId) return;
+          delayTimerId = setTimeout(() => topbar.show(), delay);
+        } else  {
+          showing = true;
+          if (fadeTimerId !== null) window.cancelAnimationFrame(fadeTimerId);
+          if (!canvas) createCanvas();
+          canvas.style.opacity = 1;
+          canvas.style.display = "block";
+          topbar.progress(0);
+          if (options.autoRun) {
+            (function loop() {
+              progressTimerId = window.requestAnimationFrame(loop);
+              topbar.progress(
+                "+" + 0.05 * Math.pow(1 - Math.sqrt(currentProgress), 2)
+              );
+            })();
+          }
         }
       },
       progress: function (to) {
@@ -125,6 +104,8 @@
         return currentProgress;
       },
       hide: function () {
+        clearTimeout(delayTimerId);
+        delayTimerId = null;
         if (!showing) return;
         showing = false;
         if (progressTimerId != null) {
