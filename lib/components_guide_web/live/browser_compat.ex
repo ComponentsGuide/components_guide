@@ -1,7 +1,7 @@
 defmodule ComponentsGuideWeb.BrowserCompatLive do
   use ComponentsGuideWeb,
       {:live_view,
-       container: {:div, class: "max-w-6xl mt-8 mx-auto prose md:prose-xl prose-invert pb-24"}}
+       container: {:div, class: "max-w-7xl mt-8 mx-auto prose md:prose-xl prose-invert pb-24"}}
 
   alias ComponentsGuide.Fetch
   alias ComponentsGuideWeb.BrowserCompatComponents, as: Components
@@ -58,18 +58,6 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.form
-      hidden
-      for={:editor}
-      id="browser_compat_form"
-      phx-submit="submitted"
-      class="max-w-2xl mt-12 mx-auto space-y-2"
-    >
-      <div class="flex">
-        <button type="submit" class="px-3 py-1 text-blue-100 bg-blue-600 rounded">Load</button>
-      </div>
-    </.form>
-
     <script type="module">
       window.customElements.define('view-source-filter', class extends HTMLElement {
         connectedCallback() {
@@ -101,6 +89,15 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
         <details>
           <summary>Browsers</summary>
           <pre><%= inspect(@state.data["browsers"], pretty: true) %></pre>
+        </details>
+      <% end %>
+
+      <%= if @state.primary === "html" do %>
+        <h1 class="text-center">HTML</h1>
+        <Components.html html_data={@state.data["html"]} tag={@state.secondary} />
+        <details>
+          <summary>HTML</summary>
+          <pre><%= inspect(@state.data["html"], pretty: true) %></pre>
         </details>
       <% end %>
 
