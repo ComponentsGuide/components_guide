@@ -63,7 +63,7 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
           <.link
             patch={~p"/browser-compat/browsers/#{key}"}
             aria-current={if @browser === key, do: "page", else: "false"}
-            class="py-1 px-4 font-medium text-white aria-[current=page]:bg-blue-900"
+            class="py-1 px-4 font-medium text-white aria-[current=page]:bg-blue-900 border-l-2 border-transparent aria-[current=page]:border-blue-500"
           >
             <%= @browser_data[key]["name"] %>
           </.link>
@@ -128,13 +128,13 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     """
   end
 
-  def html(assigns) do
+  def html_elements(assigns) do
     ~H"""
     <div class="relative grid grid-cols-[max-content_auto] not-prose bg-white/5">
       <nav class="flex flex-col text-left bg-white/5">
-        <%= for tag <- Enum.sort(Map.keys(@html_data["elements"])) do %>
+        <%= for tag <- Enum.sort_by(Map.keys(@html_data), &String.downcase/1) do %>
           <.link
-            patch={~p"/browser-compat/html/#{tag}"}
+            patch={~p"/browser-compat/#{assigns[:primary] || "html"}/#{tag}"}
             aria-current={if @tag === tag, do: "page", else: "false"}
             class="py-1 px-4 font-mono font-medium text-white aria-[current=page]:bg-blue-900 border-l-2 border-transparent aria-[current=page]:border-blue-500"
           >
@@ -143,19 +143,20 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
         <% end %>
       </nav>
       <article class="">
-        <%= if @html_data["elements"][@tag] do %>
-          <.html_entry tag={@tag} data={@html_data["elements"][@tag]} />
+        <%= if @html_data[@tag] do %>
+          <.html_entry primary={@primary} tag={@tag} data={@html_data[@tag]} />
         <% end %>
       </article>
     </div>
     """
   end
 
-  defp html_main(tag, key, map) do
-    text = case key do
+  defp html_main(primary, tag, key, map) do
+    text = case {primary, key} do
       # "__compat" -> "<#{tag}>"
-      "__compat" -> tag
-      key -> "[#{key}]"
+      {_, "__compat"} -> tag
+      {"html", key} -> "[#{key}]"
+      {_, key} -> key
     end
 
     compat =
@@ -204,16 +205,6 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     """
   end
 
-  defp html_spec_url(map) do
-    case map do
-      %{"spec_url" => spec_url} ->
-        spec_url
-
-      _ ->
-        nil
-    end
-  end
-
   defp html_browser_data(browser, map) when browser in @browser_keys do
     compat =
       case map do
@@ -231,13 +222,20 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
 
       %{
         "support" => %{
+          ^browser => %{"version_added" => true}
+        }
+      } ->
+        "all"
+
+      %{
+        "support" => %{
           ^browser => %{"version_added" => version}
         }
       } ->
         version
 
       _ ->
-        "–"
+        "?"
     end
   end
 
@@ -246,7 +244,7 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     <table class="w-full table-auto sticky top-0">
       <thead class="border-b border-b-white/5">
         <tr class="text-left">
-          <th class="pl-6">Tag/Attribute</th>
+          <th class="pl-6">Name</th>
           <th>Android Chrome</th>
           <th>iOS Safari</th>
           <th>Firefox</th>
@@ -254,15 +252,13 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
         </tr>
       </thead>
       <tbody>
-        <%= for key <- Map.keys(@data) do %>
+        <%= for key <- Enum.sort_by(Map.keys(@data), &String.downcase/1) do %>
           <tr>
-            <td class="pl-6"><%= html_main(@tag, key, @data[key]) %></td>
+            <td class="pl-6"><%= html_main(@primary, @tag, key, @data[key]) %></td>
             <td><%= html_browser_data("chrome_android", @data[key]) %></td>
             <td><%= html_browser_data("safari_ios", @data[key]) %></td>
             <td><%= html_browser_data("firefox", @data[key]) %></td>
             <td><%= html_links(@data[key]) %></td>
-            <%!-- <td><%= get_in(@data, ["releases", version, "engine"]) %> <%= get_in(@data, ["releases", version, "engine_version"]) %></td>
-            <td><%= get_in(@data, ["releases", version, "status"]) %></td> --%>
           </tr>
         <% end %>
       </tbody>

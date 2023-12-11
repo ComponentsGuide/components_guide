@@ -94,34 +94,41 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
 
       <%= if @state.primary === "html" do %>
         <h1 class="text-center">HTML</h1>
-        <Components.html html_data={@state.data["html"]} tag={@state.secondary} />
+        <Components.html_elements
+          primary="html"
+          html_data={@state.data["html"]["elements"]}
+          tag={@state.secondary}
+        />
         <details>
           <summary>HTML</summary>
           <pre><%= inspect(@state.data["html"], pretty: true) %></pre>
         </details>
       <% end %>
 
-      <%!-- <pre><%= inspect(Map.keys(@state.data), pretty: true) %></pre> --%>
-      <Components.html_element
-        title="<search>"
-        tag="search"
-        data={@state.data["html"]["elements"]["search"]}
-      />
-      <pre><%= inspect(Map.keys(@state.data["browsers"]), pretty: true) %></pre>
-      <pre><%= inspect(Map.keys(@state.data["html"]), pretty: true) %></pre>
-      <pre><%= inspect(Map.keys(@state.data["html"]["elements"]), pretty: true) %></pre>
-      <pre><%= inspect(@state.data["html"]["elements"]["search"], pretty: true) %></pre>
-      <pre><%= inspect(Map.keys(@state.data["html"]["global_attributes"]), pretty: true) %></pre>
-      <h2>HTTP</h2>
-      <pre><%= inspect(Map.keys(@state.data["http"]["headers"]), pretty: true) %></pre>
-      <pre><%= inspect(Map.keys(@state.data["http"]["status"]), pretty: true) %></pre>
-      <h2>CSS</h2>
-      <pre><%= inspect(Map.keys(@state.data["css"]), pretty: true) %></pre>
-      <h2>JavaScript</h2>
-      <pre><%= inspect(Map.keys(@state.data["javascript"]), pretty: true) %></pre>
-      <pre><%= inspect(Map.keys(@state.data["api"]), pretty: true) %></pre>
-      <h2>WebAssembly</h2>
-      <pre><%= inspect(Map.keys(@state.data["webassembly"]), pretty: true) %></pre>
+      <%= if @state.primary === "http-headers" do %>
+        <h1 class="text-center">HTTP Headers</h1>
+        <Components.html_elements
+          primary="http-headers"
+          html_data={@state.data["http"]["headers"]}
+          tag={@state.secondary}
+        />
+      <% end %>
+
+      <%= if @state.primary === nil do %>
+        <pre><%= inspect(Map.keys(@state.data["html"]["global_attributes"]), pretty: true) %></pre>
+        <h2>HTTP</h2>
+        <pre><%= inspect(Map.keys(@state.data["http"]["headers"]), pretty: true) %></pre>
+        <pre><%= inspect(@state.data["http"]["headers"]["Sec-CH-UA-Mobile"], pretty: true) %></pre>
+        <pre><%= inspect(Map.keys(@state.data["http"]["status"]), pretty: true) %></pre>
+        <pre><%= inspect(@state.data["http"]["status"]["404"], pretty: true) %></pre>
+        <h2>CSS</h2>
+        <pre><%= inspect(Map.keys(@state.data["css"]), pretty: true) %></pre>
+        <h2>JavaScript</h2>
+        <pre><%= inspect(Map.keys(@state.data["javascript"]), pretty: true) %></pre>
+        <pre><%= inspect(Map.keys(@state.data["api"]), pretty: true) %></pre>
+        <h2>WebAssembly</h2>
+        <pre><%= inspect(Map.keys(@state.data["webassembly"]), pretty: true) %></pre>
+      <% end %>
     <% end %>
 
     <div class="mt-16 text-center">
