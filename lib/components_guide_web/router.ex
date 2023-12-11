@@ -105,9 +105,11 @@ defmodule ComponentsGuideWeb.Router do
     live("/view-source", ViewSourceLive)
     live("/view-github-repo", ViewGithubRepoLive)
 
-    live("/latency-calculator", LatencyCalculatorLive)
     live("/latency-comparison", LatencyComparisonLive)
     live("/latency-comparison/:section", LatencyComparisonLive)
+    live("/latency-calculator", LatencyCalculatorLive)
+
+    live("/browser-compat", BrowserCompatLive)
 
     live("/wasm-inspector", WasmInspectorLive)
 
