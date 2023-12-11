@@ -114,15 +114,26 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
         />
       <% end %>
 
+      <%= if @state.primary === "css-at-rules" do %>
+        <h1 class="text-center">CSS At-Rules</h1>
+        <Components.html_elements
+          primary="css-at-rules"
+          html_data={@state.data["css"]["at-rules"]}
+          tag={@state.secondary}
+        />
+      <% end %>
+
       <%= if @state.primary === nil do %>
         <pre><%= inspect(Map.keys(@state.data["html"]["global_attributes"]), pretty: true) %></pre>
         <h2>HTTP</h2>
-        <pre><%= inspect(Map.keys(@state.data["http"]["headers"]), pretty: true) %></pre>
-        <pre><%= inspect(@state.data["http"]["headers"]["Sec-CH-UA-Mobile"], pretty: true) %></pre>
         <pre><%= inspect(Map.keys(@state.data["http"]["status"]), pretty: true) %></pre>
         <pre><%= inspect(@state.data["http"]["status"]["404"], pretty: true) %></pre>
         <h2>CSS</h2>
         <pre><%= inspect(Map.keys(@state.data["css"]), pretty: true) %></pre>
+        <pre><%= inspect(Map.keys(@state.data["css"]["properties"]), pretty: true) %></pre>
+        <pre><%= inspect(Map.keys(@state.data["css"]["selectors"]), pretty: true) %></pre>
+        <pre><%= inspect(Map.keys(@state.data["css"]["types"]), pretty: true) %></pre>
+        <pre><%= inspect(Map.keys(@state.data["css"]["at-rules"]), pretty: true) %></pre>
         <h2>JavaScript</h2>
         <pre><%= inspect(Map.keys(@state.data["javascript"]), pretty: true) %></pre>
         <pre><%= inspect(Map.keys(@state.data["api"]), pretty: true) %></pre>

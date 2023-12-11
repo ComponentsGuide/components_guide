@@ -134,11 +134,14 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
       <nav class="flex flex-col text-left bg-white/5">
         <%= for tag <- Enum.sort_by(Map.keys(@html_data), &String.downcase/1) do %>
           <.link
-            patch={~p"/browser-compat/#{assigns[:primary] || "html"}/#{tag}"}
+            patch={~p"/browser-compat/#{@primary}/#{tag}"}
             aria-current={if @tag === tag, do: "page", else: "false"}
             class="py-1 px-4 font-mono font-medium text-white aria-[current=page]:bg-blue-900 border-l-2 border-transparent aria-[current=page]:border-blue-500"
           >
-            <%= tag %>
+            <%= case @primary do
+              "css-at-rules" -> "@" <> tag
+              _ -> tag
+            end %>
           </.link>
         <% end %>
       </nav>
@@ -152,12 +155,14 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
   end
 
   defp html_main(primary, tag, key, map) do
-    text = case {primary, key} do
-      # "__compat" -> "<#{tag}>"
-      {_, "__compat"} -> tag
-      {"html", key} -> "[#{key}]"
-      {_, key} -> key
-    end
+    text =
+      case {primary, key} do
+        # "__compat" -> "<#{tag}>"
+        {"css-at-rules", "__compat"} -> "@#{tag}"
+        {_, "__compat"} -> tag
+        {"html", key} -> "[#{key}]"
+        {_, key} -> key
+      end
 
     compat =
       case map do
@@ -165,21 +170,24 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
         map -> map
       end
 
-    status = case compat do
-      %{"status" => %{
-        "deprecated" => deprecated?,
-        "experimental" => experimental?,
-        "standard_track" => standard_track?
-      }} ->
-        cond do
-          deprecated? -> "deprecated"
-          experimental? -> "experimental"
-          true -> ""
-        end
+    status =
+      case compat do
+        %{
+          "status" => %{
+            "deprecated" => deprecated?,
+            "experimental" => experimental?,
+            "standard_track" => standard_track?
+          }
+        } ->
+          cond do
+            deprecated? -> "deprecated"
+            experimental? -> "experimental"
+            true -> ""
+          end
 
-      _ ->
-        ""
-    end
+        _ ->
+          ""
+      end
 
     case status do
       "" ->
