@@ -9,24 +9,40 @@ function cssForFilter(id, filter) {
 }
 
 customElements.define('filter-items', class extends HTMLElement {
+  get inputEl() {
+    return this.querySelector("input[type=search]");
+  }
+
   connectedCallback() {
     console.log(this);
     const aborter = new AbortController();
     const signal = aborter.signal;
     const id = this.id || `filter-items-${crypto.randomUUID()}`;
 
-    const input = this.querySelector("input[type=search]");
-    console.log(input);
-
     const style = this.ownerDocument.createElement("style");
-    style.innerText = cssForFilter(id, "");
-    input.insertAdjacentElement("afterend", style);
 
-    this.addEventListener("input", ({ target }) => {
-      const filter = target.value.trim();
-      console.log(filter)
+    function update(inputEl) {
+      const filter = inputEl.value.trim();
       style.innerText = cssForFilter(id, filter);
+      inputEl.insertAdjacentElement("afterend", style);
+    }
+
+    this.addEventListener("input", ({ target: inputEl }) => {
+      if (inputEl.matches("input[type=search]")) {
+        update(inputEl)
+      }
     }, { signal });
+
+    requestAnimationFrame(() => {
+      update(this.inputEl);
+    });
+
+    // window.addEventListener("phx:page-loading-stop", () => {
+    //   const { inputEl } = this;
+    //   const filter = inputEl.value.trim();
+    //   style.innerText = cssForFilter(id, filter);
+    //   inputEl.insertAdjacentElement("afterend", style);
+    // }, { signal });
 
     this.id = id;
     this.aborter = aborter;

@@ -132,11 +132,13 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     ~H"""
     <div class="relative grid grid-cols-[max-content_auto] not-prose bg-white/5">
       <nav class="flex flex-col text-left bg-white/5">
-        <filter-items class="contents" id={@id <> "-filter"} phx-update="ignore">
+        <filter-items class="contents">
           <input
             type="search"
             placeholder="Filter"
             class="bg-black text-white border-0 px-4 font-mono"
+            id={@id <> "-search"}
+            phx-update="ignore"
           />
           <%= render_slot(@nav_items) %>
         </filter-items>
