@@ -128,6 +128,76 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     """
   end
 
+  def list_detail(assigns) do
+    ~H"""
+    <div class="relative grid grid-cols-[max-content_auto] not-prose bg-white/5">
+      <nav class="flex flex-col text-left bg-white/5">
+        <filter-items class="contents" id={@id <> "-filter"} phx-update="ignore">
+          <input
+            type="search"
+            placeholder="Filter"
+            class="bg-black text-white border-0 px-4 font-mono"
+          />
+          <%= render_slot(@nav_items) %>
+        </filter-items>
+      </nav>
+      <article class="">
+        <%= render_slot(@detail) %>
+      </article>
+    </div>
+    """
+  end
+
+  defp decorate_secondary(primary, secondary)
+  defp decorate_secondary("css-at-rules", secondary), do: "@" <> secondary
+  defp decorate_secondary("css-selectors", secondary), do: ":" <> secondary
+  defp decorate_secondary("css-types", secondary), do: secondary <> "()"
+  defp decorate_secondary(_, secondary), do: secondary
+
+  defp primary_to_path("css-" <> _), do: "css"
+  defp primary_to_path(primary), do: primary
+
+  def list_detail_nav_items(assigns) do
+    ~H"""
+    <%= for secondary <- Enum.sort_by(Map.keys(@data), &String.downcase/1), secondary = decorate_secondary(@primary, secondary) do %>
+      <.link
+        patch={~p"/browser-compat/#{primary_to_path(@primary)}/#{secondary}"}
+        aria-current={if @secondary === secondary, do: "page", else: "false"}
+        class="py-1 px-4 font-mono font-medium text-white aria-[current=page]:bg-blue-900 border-l-2 border-transparent aria-[current=page]:border-blue-500"
+        data-filterable={secondary}
+      >
+        <%= secondary %>
+      </.link>
+    <% end %>
+    """
+  end
+
+  def lookup_data("css-at-rules", "@" <> at_rule, data) when is_map_key(data, at_rule),
+    do: at_rule
+
+  def lookup_data("css-selectors", ":" <> selector, data) when is_map_key(data, selector),
+    do: selector
+
+  def lookup_data("css-properties", property, data) when is_map_key(data, property), do: property
+
+  def lookup_data("css-types", secondary, data) do
+    case String.replace_suffix(secondary, "()", "") do
+      ^secondary -> nil
+      type when is_map_key(data, type) -> type
+      _ -> nil
+    end
+  end
+
+  def lookup_data(_, _, _), do: nil
+
+  def detail_entry(assigns) do
+    ~H"""
+    <%= if secondary = lookup_data(@primary, @secondary, @data) do %>
+      <.html_entry primary={@primary} tag={secondary} data={@data[secondary]} />
+    <% end %>
+    """
+  end
+
   def html_elements(assigns) do
     ~H"""
     <div class="relative grid grid-cols-[max-content_auto] not-prose bg-white/5">
@@ -140,6 +210,8 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
           >
             <%= case @primary do
               "css-at-rules" -> "@" <> tag
+              "css-selectors" -> ":" <> tag
+              "css-types" -> tag <> "()"
               _ -> tag
             end %>
           </.link>

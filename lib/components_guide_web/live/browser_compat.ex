@@ -55,6 +55,12 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
 
   defp data_url, do: @data_url
 
+  defmacro extract(expr, result) do
+    quote do
+      with unquote(expr), do: unquote(result), else: (_ -> nil)
+    end
+  end
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -114,11 +120,90 @@ defmodule ComponentsGuideWeb.BrowserCompatLive do
         />
       <% end %>
 
+      <%= if @state.primary === "css" do %>
+        <h1 class="text-center">CSS</h1>
+        <Components.list_detail id="css">
+          <:nav_items>
+            <Components.list_detail_nav_items
+              primary="css-at-rules"
+              secondary={@state.secondary}
+              data={@state.data["css"]["at-rules"]}
+            />
+            <Components.list_detail_nav_items
+              primary="css-properties"
+              secondary={@state.secondary}
+              data={@state.data["css"]["properties"]}
+            />
+            <Components.list_detail_nav_items
+              primary="css-selectors"
+              secondary={@state.secondary}
+              data={@state.data["css"]["selectors"]}
+            />
+            <Components.list_detail_nav_items
+              primary="css-types"
+              secondary={@state.secondary}
+              data={@state.data["css"]["types"]}
+            />
+          </:nav_items>
+          <:detail>
+            <%= if @state.secondary do %>
+              <Components.detail_entry
+                primary="css-at-rules"
+                secondary={@state.secondary}
+                data={@state.data["css"]["at-rules"]}
+              />
+              <Components.detail_entry
+                primary="css-selectors"
+                secondary={@state.secondary}
+                data={@state.data["css"]["selectors"]}
+              />
+              <Components.detail_entry
+                primary="css-properties"
+                secondary={@state.secondary}
+                data={@state.data["css"]["properties"]}
+              />
+              <Components.detail_entry
+                primary="css-types"
+                secondary={@state.secondary}
+                data={@state.data["css"]["types"]}
+              />
+            <% end %>
+          </:detail>
+        </Components.list_detail>
+      <% end %>
+
       <%= if @state.primary === "css-at-rules" do %>
         <h1 class="text-center">CSS At-Rules</h1>
         <Components.html_elements
           primary="css-at-rules"
           html_data={@state.data["css"]["at-rules"]}
+          tag={@state.secondary}
+        />
+      <% end %>
+
+      <%= if @state.primary === "css-properties" do %>
+        <h1 class="text-center">CSS Properties</h1>
+        <Components.html_elements
+          primary="css-properties"
+          html_data={@state.data["css"]["properties"]}
+          tag={@state.secondary}
+        />
+      <% end %>
+
+      <%= if @state.primary === "css-selectors" do %>
+        <h1 class="text-center">CSS Selectors</h1>
+        <Components.html_elements
+          primary="css-selectors"
+          html_data={@state.data["css"]["selectors"]}
+          tag={@state.secondary}
+        />
+      <% end %>
+
+      <%= if @state.primary === "css-types" do %>
+        <h1 class="text-center">CSS Types</h1>
+        <Components.html_elements
+          primary="css-types"
+          html_data={@state.data["css"]["types"]}
           tag={@state.secondary}
         />
       <% end %>
