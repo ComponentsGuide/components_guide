@@ -31,18 +31,20 @@ Instead try `useSyncExternalStore`. Your breakpoints are very likely constant, s
 import { useSyncExternalStore } from "react";
 
 function makeUseMediaQuery(mediaQuery: string, getServerValue: () => boolean): () => boolean {
+  function subscribe(onStoreChange) {
+    const aborter = new AbortController();
+    // https://css-tricks.com/working-with-javascript-media-queries/
+    // All browsers support addEventListener instead of addListener today.
+    // https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList/change_event
+    window.matchMedia(mediaQuery).addEventListener("change", onStoreChange, { signal: aborter.signal });
+    return () => {
+      aborter.abort();
+    };
+  }
+
   return function useCustomMediaQuery() {
     return useSyncExternalStore(
-      onStoreChange => {
-        const aborter = new AbortController();
-        // https://css-tricks.com/working-with-javascript-media-queries/
-        // All browsers support addEventListener instead of addListener today.
-        // https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList/change_event
-        window.matchMedia(mediaQuery).addEventListener("change", onStoreChange, { signal: aborter.signal });
-        return () => {
-          aborter.abort();
-        };
-      },
+      subscribe,
       () => window.matchMedia(mediaQuery).matches,
       getServerValue
     );
