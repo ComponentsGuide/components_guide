@@ -1,4 +1,4 @@
-# Components.Guide
+# [components.guide](https://components.guide/)
 
 [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
