@@ -1,7 +1,7 @@
 defmodule ComponentsGuideWeb.BrowserCompatLive do
   use ComponentsGuideWeb,
       {:live_view,
-       container: {:div, class: "max-w-7xl mt-8 mx-auto prose md:prose-xl prose-invert pb-24"}}
+       container: {:div, class: "max-w-7xl mt-8 mx-auto prose lg:prose-xl prose-invert pb-24"}}
 
   alias ComponentsGuide.Fetch
   alias ComponentsGuideWeb.BrowserCompatComponents, as: Components

@@ -136,7 +136,7 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
           <input
             type="search"
             placeholder="Filter"
-            class="bg-black text-white border-0 px-4 font-mono"
+            class="bg-white/5 text-white border-0 border-b border-b-white/10 px-4 font-mono h-12"
             id={@id <> "-search"}
           />
           <phx-current-page class="contents">
@@ -326,7 +326,7 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     ~H"""
     <table class="w-full table-auto sticky top-0">
       <thead class="border-b border-b-white/5">
-        <tr class="text-left">
+        <tr class="text-left h-12">
           <th class="pl-6">Name</th>
           <th>Android Chrome</th>
           <th>iOS Safari</th>
