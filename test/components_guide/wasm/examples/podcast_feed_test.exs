@@ -23,13 +23,6 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
          Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
            1
        end},
-      {:datasource, :write_episode_author,
-       fn caller, id, write_at ->
-         s = "Some author"
-
-         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-           1
-       end},
       {:datasource, :write_episode_description,
        fn caller, id, write_at ->
          s = "Description for #{id + 1}"
@@ -78,10 +71,14 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     description = Instance.alloc_string(inst, "SOME DESCRIPTION")
     Instance.set_global(inst, :description, description)
 
+    author = Instance.alloc_string(inst, "Hall & Oates")
+    Instance.set_global(inst, :author, author)
+
     text_xml_func = Instance.capture(inst, String, :text_xml, 0)
     text_xml = text_xml_func.()
 
     # IO.puts(PodcastFeed.to_wat())
+    # IO.puts(text_xml)
 
     assert text_xml =~ ~S"""
            <?xml version="1.0" encoding="UTF-8"?>
@@ -91,6 +88,9 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
 
     assert "SOME DESCRIPTION" = xml_text_content(root, "/rss/channel/description[1]")
     # assert "SOME DESCRIPTION" = root["/rss/channel/description[1]"][:text]
+
+    # assert {} = xml_xpath(root, "/rss/channel/itunes:author[1]") |> hd()
+    assert "Hall & Oates" = xml_text_content(root, "/rss/channel/itunes:author[1]")
 
     [item1, item2] = xml_xpath(root, "//item")
     assert "1" = xml_text_content(item1, "//guid[@isPermaLink='false'][1]")
@@ -117,8 +117,19 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
   end
 
   defp xml_text_content(el) do
-    el |> :xmerl_xs.value_of() |> List.to_string()
+    :xmerl_lib.foldxml(&do_xml_text_content/2, [], el)
+    |> :lists.reverse()
+    |> List.to_string()
   end
+
+  require Record
+  Record.defrecord(:xmlText, Record.extract(:xmlText, from_lib: "xmerl/include/xmerl.hrl"))
+
+  defp do_xml_text_content(node, acc) when Record.is_record(node, :xmlText) do
+    [:xmerl_lib.flatten_text(xmlText(node, :value)) | acc]
+  end
+
+  defp do_xml_text_content(_, acc), do: acc
 
   @tag :skip
   test "output optimized wasm" do

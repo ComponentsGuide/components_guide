@@ -52,7 +52,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
     defw(get_episode_duration_seconds(episode_id: EpisodeID), I32)
     defw(write_episode_id(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_title(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
-    defw(write_episode_author(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    # defw(write_episode_author(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_description(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_link_url(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_mp3_url(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
@@ -100,31 +100,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
     # loop Episodes when episode_index <= episode_count do
     loop Episodes do
-      # _ = XML.build! :item do
-      #   element :guid, isPermaLink: "false" do
-      #     @bump_offset =
-      #       @bump_offset + typed_call(I32, :write_episode_id, [episode_index, @bump_offset])
-      #   end
-      # end
-
-      # XML.build! item: [
-      #   guid: {[isPermaLink: "false"], [
-      #     write_episode_data(:id, episode_index)
-      #   ]},
-      #   title: write_episode_data(:title, episode_index),
-      #   "itunes:title": write_episode_data(:title, episode_index)
-      # ]
-
       _ =
         build! do
-          # XML.build :item do
-          #   {:guid, isPermaLink: "false"} ->
-          #     write_episode_data(:id, episode_index)
-
-          #   :title ->
-          #     write_episode_data(:title, episode_index)
-          # end
-
           XML.open(:item)
           # XML.build :item do
 
