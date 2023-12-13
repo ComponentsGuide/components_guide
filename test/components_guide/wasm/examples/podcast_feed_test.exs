@@ -4,68 +4,68 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
   alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.PodcastFeed
 
+  defp wasm_imports do
+    [
+      {:datasource, :get_episodes_count, fn -> 2 end},
+      {:datasource, :write_episode_id,
+       fn caller, id, write_at ->
+         s = "#{id + 1}"
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end},
+      {:datasource, :get_episode_pub_date_utc, fn id -> 0 end},
+      {:datasource, :get_episode_duration_seconds, fn id -> 0 end},
+      {:datasource, :write_episode_title,
+       fn caller, id, write_at ->
+         s = "Episode #{id + 1}"
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end},
+      {:datasource, :write_episode_author,
+       fn caller, id, write_at ->
+         s = "Some author"
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end},
+      {:datasource, :write_episode_description,
+       fn caller, id, write_at ->
+         s = "Description for #{id + 1}"
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end},
+      {:datasource, :write_episode_link_url,
+       fn caller, id, write_at ->
+         s = ""
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end},
+      {:datasource, :write_episode_mp3_url,
+       fn caller, id, write_at ->
+         s = ""
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end},
+      {:datasource, :get_episode_mp3_byte_count, fn id -> 0 end},
+      {:datasource, :write_episode_content_html,
+       fn caller, id, write_at ->
+         s = ""
+
+         Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
+           1
+       end}
+    ]
+  end
+
   test "podcast xml feed rendering" do
     # IO.puts(PodcastFeed.to_wat())
 
-    inst =
-      Instance.run(
-        PodcastFeed,
-        [
-          {:datasource, :get_episodes_count, fn -> 2 end},
-          {:datasource, :write_episode_id,
-           fn caller, id, write_at ->
-             s = "#{id + 1}"
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end},
-          {:datasource, :get_episode_pub_date_utc, fn id -> 0 end},
-          {:datasource, :get_episode_duration_seconds, fn id -> 0 end},
-          {:datasource, :write_episode_title,
-           fn caller, id, write_at ->
-             s = "Episode #{id + 1}"
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end},
-          {:datasource, :write_episode_author,
-           fn caller, id, write_at ->
-             s = "Some author"
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end},
-          {:datasource, :write_episode_description,
-           fn caller, id, write_at ->
-             s = "Description for #{id + 1}"
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end},
-          {:datasource, :write_episode_link_url,
-           fn caller, id, write_at ->
-             s = ""
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end},
-          {:datasource, :write_episode_mp3_url,
-           fn caller, id, write_at ->
-             s = ""
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end},
-          {:datasource, :get_episode_mp3_byte_count, fn id -> 0 end},
-          {:datasource, :write_episode_content_html,
-           fn caller, id, write_at ->
-             s = ""
-
-             Instance.Caller.write_string_nul_terminated(caller, write_at, s) -
-               1
-           end}
-        ]
-      )
+    inst = Instance.run(PodcastFeed, wasm_imports())
 
     # {title_offset, title_max_bytes} = Instance.call(inst, :get_title_memory_range)
     # title = "SOME TITLE" |> &[&1, ?\0] |> List.to_string()
@@ -89,21 +89,21 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
 
     root = xml_parse(text_xml)
 
-    assert xml_select(root, "/rss/channel/description[1]", :text) == "SOME DESCRIPTION"
+    assert xml_text_content(root, "/rss/channel/description[1]") == "SOME DESCRIPTION"
     # assert root["/rss/channel/description[1]"][:text] == "SOME DESCRIPTION"
 
     found_items = xml_xpath(root, "//item")
     assert length(found_items) == 2
 
     [item1, item2] = found_items
-    assert xml_select(item1, "//guid[@isPermaLink='false'][1]", :text) == "1"
-    assert xml_select(item2, "//guid[@isPermaLink='false'][1]", :text) == "2"
-    assert xml_select(item1, "//title[1]", :text) == "Episode 1"
-    assert xml_select(item2, "//title[1]", :text) == "Episode 2"
-    assert xml_select(item1, "//itunes:title[1]", :text) == "Episode 1"
-    assert xml_select(item2, "//itunes:title[1]", :text) == "Episode 2"
-    assert xml_select(item1, "//description[1]", :text) == "Description for 1"
-    assert xml_select(item2, "//description[1]", :text) == "Description for 2"
+    assert "1" = xml_text_content(item1, "//guid[@isPermaLink='false'][1]")
+    assert "2" = xml_text_content(item2, "//guid[@isPermaLink='false'][1]")
+    assert "Episode 1" = xml_text_content(item1, "//title[1]")
+    assert "Episode 2" = xml_text_content(item2, "//title[1]")
+    assert "Episode 1" = xml_text_content(item1, "//itunes:title[1]")
+    assert "Episode 2" = xml_text_content(item2, "//itunes:title[1]")
+    assert "Description for 1" = xml_text_content(item1, "//description[1]")
+    assert "Description for 2" = xml_text_content(item2, "//description[1]")
   end
 
   defp xml_parse(xml) do
@@ -115,7 +115,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     :xmerl_xs.select(String.to_charlist(xpath), el)
   end
 
-  defp xml_select(el, xpath, :text) when is_binary(xpath) do
+  defp xml_text_content(el, xpath) when is_binary(xpath) do
     xml_xpath(el, xpath) |> hd() |> xml_text_content()
   end
 
