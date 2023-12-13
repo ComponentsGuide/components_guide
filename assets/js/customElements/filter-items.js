@@ -14,7 +14,6 @@ customElements.define('filter-items', class extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log(this);
     const aborter = new AbortController();
     const signal = aborter.signal;
     const id = this.id || `filter-items-${crypto.randomUUID()}`;

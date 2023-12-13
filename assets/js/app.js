@@ -11,6 +11,7 @@ import topbar from "../vendor/topbar";
 
 import "./customElements/enhanced-navigation";
 import "./customElements/filter-items";
+import "./customElements/phx-current-page";
 import "./customElements/wasm-simple-html";
 import "./customElements/wasm-chunked-html";
 import "./customElements/wasm-state-machine";
