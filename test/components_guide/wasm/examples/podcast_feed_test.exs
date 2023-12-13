@@ -92,10 +92,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     assert xml_text_content(root, "/rss/channel/description[1]") == "SOME DESCRIPTION"
     # assert root["/rss/channel/description[1]"][:text] == "SOME DESCRIPTION"
 
-    found_items = xml_xpath(root, "//item")
-    assert length(found_items) == 2
-
-    [item1, item2] = found_items
+    [item1, item2] = xml_xpath(root, "//item")
     assert "1" = xml_text_content(item1, "//guid[@isPermaLink='false'][1]")
     assert "2" = xml_text_content(item2, "//guid[@isPermaLink='false'][1]")
     assert "Episode 1" = xml_text_content(item1, "//title[1]")
