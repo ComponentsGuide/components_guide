@@ -27,7 +27,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   end
 
   defmodule EpisodeID do
-    def wasm_type(), do: Orb.I32.wasm_type()
+    defdelegate wasm_type, to: Orb.I32
   end
 
   # defwimport(populate_episode_at_index(episode_index: I32),
@@ -50,17 +50,18 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
     defw(get_episodes_count(), I32)
     defw(get_episode_pub_date_utc(episode_id: EpisodeID), I64)
     defw(get_episode_duration_seconds(episode_id: EpisodeID), I32)
-    defw(write_episode_id(episode_id: EpisodeID, write_ptr: I32), I32)
-    defw(write_episode_title(episode_id: EpisodeID, write_ptr: I32), I32)
-    defw(write_episode_author(episode_id: EpisodeID, write_ptr: I32), I32)
-    defw(write_episode_description(episode_id: EpisodeID, write_ptr: I32), I32)
-    defw(write_episode_link_url(episode_id: EpisodeID, write_ptr: I32), I32)
-    defw(write_episode_mp3_url(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_id(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    defw(write_episode_title(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    defw(write_episode_author(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    defw(write_episode_description(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    defw(write_episode_link_url(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    defw(write_episode_mp3_url(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(get_episode_mp3_byte_count(episode_id: EpisodeID), I32)
-    defw(write_episode_content_html(episode_id: EpisodeID, write_ptr: I32), I32)
+    defw(write_episode_content_html(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
 
     def write_episode_data(key, episode_index, write_ptr) do
       func_name = String.to_existing_atom("write_episode_#{key}")
+
       apply(__MODULE__, func_name, [
         episode_index,
         write_ptr
