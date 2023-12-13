@@ -2,11 +2,14 @@
 
 [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
-To start your Phoenix server:
+```sh
+mix deps.get
+cd assets && npm i
 
-  * Install dependencies with `mix deps.get`
-  * Install Node.js dependencies with `cd assets && npm install`
-  * Start Phoenix endpoint with `mix phx.server`
+make dev
+make test
+make e2e
+```
 
 Now you can visit [`localhost:4333`](http://localhost:4333) from your browser.
 
@@ -31,4 +34,4 @@ This work is licensed under a
 
 Guides to creating modern UIs with components.
 
-Covers React, TypeScript, Accessibility.
+Covers React, TypeScript, Accessibility, HTML, CSS, JavaScript, WebAssembly.
