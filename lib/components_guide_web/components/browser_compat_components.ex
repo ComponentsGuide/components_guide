@@ -326,7 +326,7 @@ defmodule ComponentsGuideWeb.BrowserCompatComponents do
     ~H"""
     <table class="w-full table-auto sticky top-0">
       <thead class="border-b border-b-white/5">
-        <tr class="text-left h-12">
+        <tr class="h-12 text-left [&_*]:font-semibold">
           <th class="pl-6">Name</th>
           <th>Android Chrome</th>
           <th>iOS Safari</th>
