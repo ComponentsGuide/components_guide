@@ -18,6 +18,10 @@ dev:
 test:
 	RUST_BACKTRACE=1 mix test --max-failures 1
 
+.PHONY: e2e
+e2e:
+	cd e2e && npx playwright test
+
 production_build:
 	MIX_ENV=prod mix production_build
 

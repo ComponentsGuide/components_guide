@@ -1,5 +1,7 @@
 import Config
 
+port = String.to_integer(System.get_env("PORT") || "4333")
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -7,7 +9,7 @@ import Config
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :components_guide, ComponentsGuideWeb.Endpoint,
-  http: [port: 4333],
+  http: [port: port],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
