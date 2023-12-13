@@ -89,8 +89,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
 
     root = xml_parse(text_xml)
 
-    assert xml_text_content(root, "/rss/channel/description[1]") == "SOME DESCRIPTION"
-    # assert root["/rss/channel/description[1]"][:text] == "SOME DESCRIPTION"
+    assert "SOME DESCRIPTION" = xml_text_content(root, "/rss/channel/description[1]")
+    # assert "SOME DESCRIPTION" = root["/rss/channel/description[1]"][:text]
 
     [item1, item2] = xml_xpath(root, "//item")
     assert "1" = xml_text_content(item1, "//guid[@isPermaLink='false'][1]")
