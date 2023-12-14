@@ -60,9 +60,6 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  alias __MODULE__.{CdataStart, CdataEnd}
-  alias __MODULE__.{BuildInnerStart, BuildInnerEnd}
-
   defmodule BuildToken do
     defstruct(position: :start, body: nil)
 
