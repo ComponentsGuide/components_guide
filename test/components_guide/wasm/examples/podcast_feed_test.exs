@@ -101,6 +101,9 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     assert "Episode 2" = xml_text_content(item2, "//itunes:title[1]")
     assert "Description for 1" = xml_text_content(item1, "//description[1]")
     assert "Description for 2" = xml_text_content(item2, "//description[1]")
+
+    # <enclosure url="${bunnyEpisodeURL(episodeID)}" length="${feedItem.mp3ByteCount}" type="audio/mpeg"/>
+    assert "Description for 2" = xml_xpath(item1, "//enclosure[1]")
   end
 
   defp xml_parse(xml) do
@@ -131,7 +134,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
 
   defp do_xml_text_content(_, acc), do: acc
 
-  @tag :skip
+  # @tag :skip
   test "output optimized wasm" do
     path_wasm = Path.join(__DIR__, "podcast_feed_xml.wasm")
     path_wat = Path.join(__DIR__, "podcast_feed_xml.wat")
@@ -142,10 +145,10 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     System.cmd("wasm-opt", [path_wasm, "-o", path_opt_wasm, "-O"])
 
     %{size: size} = File.stat!(path_wasm)
-    assert size == 2419
+    assert size == 2418
 
     %{size: size} = File.stat!(path_opt_wasm)
-    assert size == 1868
+    assert size == 1909
 
     {wat, 0} = System.cmd("wasm2wat", [path_wasm])
     File.write!(path_wat, wat)

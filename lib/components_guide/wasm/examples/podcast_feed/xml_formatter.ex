@@ -29,6 +29,13 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     ])
   end
 
+  def open_newline(tag, attributes \\ []) when is_atom(tag) do
+    Orb.InstructionSequence.new(:memory_effect, [
+      open(tag, attributes),
+      append!(ascii: ?\n)
+    ])
+  end
+
   def close_newline(tag) when is_atom(tag) do
     xml_close_newline(Orb.DSL.const(Atom.to_string(tag)))
   end

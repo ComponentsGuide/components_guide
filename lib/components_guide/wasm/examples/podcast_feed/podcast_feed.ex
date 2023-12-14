@@ -44,6 +44,12 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   # Global.import()
   # wasm_import(:datasource, populate_episode_at_index: Orb.DSL.funcp(name: :datasource_populate_episode, params: I32))
 
+  defmodule StdOut do
+    use Orb.Import
+
+    defw(flush(read_ptr: I32.UnsafePointer, byte_count: I32), nil)
+  end
+
   defmodule Datasource do
     use Orb.Import
 
@@ -53,6 +59,10 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
     defw(write_episode_id(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_title(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     # defw(write_episode_author(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
+    # TODO: what happens if it wants to write more than the memory available?
+    # Yet another reason to have arenas for title, description, etc.
+    # Or have to use a proper malloc approach.
+    # Or have to flush before each write, and rewind bump_offset to beginning.
     defw(write_episode_description(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_link_url(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
     defw(write_episode_mp3_url(episode_id: EpisodeID, write_ptr: I32.UnsafePointer), I32)
@@ -72,6 +82,10 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   importw(Datasource, :datasource)
 
   # SilverOrb.Arena.def(DatasourceArena, pages: 1)
+  # Used by url attribute in <enclosure url="…">
+  SilverOrb.Arena.def(WriteBuffer, pages: 1)
+  # Attributes must have <&" escaped.
+  SilverOrb.Arena.def(EscapeXMLBuffer, pages: byte_size("&amp;"))
 
   # There are a few ways to implement this:
   # 1. Pass every episode in as some sort of data structure. e.g.
@@ -134,7 +148,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
     build! do
       ~S[<?xml version="1.0" encoding="UTF-8"?>\n]
 
-      XML.open(:rss,
+      XML.open_newline(:rss,
         version: "2.0",
         "xmlns:itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
         "xmlns:googleplay": "http://www.google.com/schemas/play-podcasts/1.0",
@@ -146,7 +160,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
       # This then causes the module to clear its local memory, resetting the bump
       # offset to the very beginning again.
 
-      XML.open(:channel)
+      XML.open_newline(:channel)
       XML.element(:title, @title)
 
       XML.element(:description, @description)
