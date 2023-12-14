@@ -72,11 +72,11 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
 
     def inner_start() do
-      %__MODULE__{position: :inner_start, body: append!(string: ~S"<![CDATA[")}
+      %__MODULE__{position: :inner_start, body: append!(string: "<![CDATA[")}
     end
 
     def inner_finish() do
-      %__MODULE__{position: :inner_finish, body: append!(string: ~S"]]>")}
+      %__MODULE__{position: :inner_finish, body: append!(string: "]]>")}
     end
 
     defimpl Orb.ToWat do
