@@ -42,11 +42,6 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  def element(tag, child) when is_atom(tag) do
-    tag = Orb.DSL.const(Atom.to_string(tag))
-    xml_element(tag, child)
-  end
-
   defwi xml_element(tag: I32.String, child: I32.String), I32.String do
     build! do
       # "<" <> tag <> ">"
@@ -88,7 +83,9 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  defmacro build(tag, attributes \\ [], do: block) do
+  defmacro element(tag, attributes \\ [], content)
+
+  defmacro element(tag, attributes, do: block) do
     quote do
       [
         BuildToken.start(),
@@ -113,6 +110,15 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
         end
       end)
       |> :lists.reverse()
+    end
+  end
+
+  defmacro element(tag, _attributes, content) do
+    quote do
+      unquote(__MODULE__).xml_element(
+        Orb.DSL.const(Atom.to_string(unquote(tag))),
+        unquote(content)
+      )
     end
   end
 
