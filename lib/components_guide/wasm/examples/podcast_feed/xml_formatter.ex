@@ -60,22 +60,62 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
+  alias __MODULE__.{CdataStart, CdataEnd}
+  alias __MODULE__.{BuildInnerStart, BuildInnerEnd}
+
+  defmodule BuildToken do
+    defstruct(position: :start, body: nil)
+
+    def start() do
+      %__MODULE__{position: :start}
+    end
+
+    def finish() do
+      %__MODULE__{position: :finish}
+    end
+
+    def inner_start() do
+      %__MODULE__{position: :inner_start, body: append!(string: ~S"<![CDATA[")}
+    end
+
+    def inner_finish() do
+      %__MODULE__{position: :inner_finish, body: append!(string: ~S"]]>")}
+    end
+
+    defimpl Orb.ToWat do
+      def to_wat(%BuildToken{body: nil}, _), do: []
+
+      def to_wat(%BuildToken{body: body}, indent) do
+        Orb.ToWat.to_wat(body, indent)
+      end
+    end
+  end
+
   defmacro build(tag, attributes \\ [], do: block) do
     quote do
       [
+        BuildToken.start(),
         unquote(__MODULE__).open(unquote(tag), unquote(attributes)),
-        # append!(ascii: ?!),
-        # unquote_splicing(for item <- Orb.__get_block_items(block) do
-        #   case item do
-        #     6 -> 9
-        #   end
-        #   # item
-        # end),
-        append!(string: ~S"<![CDATA["),
+        BuildToken.inner_start(),
         unquote_splicing(Orb.__get_block_items(block)),
-        append!(string: ~S"]]>"),
-        Orb.Stack.drop(unquote(__MODULE__).close_newline(unquote(tag)))
+        BuildToken.inner_finish(),
+        Orb.Stack.drop(unquote(__MODULE__).close_newline(unquote(tag))),
+        BuildToken.finish()
       ]
+      |> List.flatten()
+      |> Enum.reduce([], fn x, acc ->
+        case {x, acc} do
+          {%BuildToken{position: :start}, [%BuildToken{position: :inner_start} | tail]} ->
+            tail
+
+          {%BuildToken{position: :inner_finish}, [%BuildToken{position: :finish} | tail]} ->
+            tail
+
+          _ ->
+            [x | acc]
+        end
+      end)
+      |> :lists.reverse()
     end
   end
 

@@ -102,32 +102,27 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
     loop Episodes do
       _ =
         build! do
-          XML.open(:item)
-          # XML.build :item do
+          XML.build :item do
+            XML.build :guid, isPermaLink: "false" do
+              write_episode_data(:id, episode_index)
+            end
 
-          XML.build :guid, isPermaLink: "false" do
-            write_episode_data(:id, episode_index)
+            XML.build :title do
+              write_episode_data(:title, episode_index)
+            end
+
+            XML.build :"itunes:title" do
+              write_episode_data(:title, episode_index)
+            end
+
+            XML.build :description do
+              write_episode_data(:description, episode_index)
+            end
+
+            XML.build :"itunes:subtitle" do
+              write_episode_data(:description, episode_index)
+            end
           end
-
-          XML.build :title do
-            write_episode_data(:title, episode_index)
-          end
-
-          XML.build :"itunes:title" do
-            write_episode_data(:title, episode_index)
-          end
-
-          XML.build :description do
-            write_episode_data(:description, episode_index)
-          end
-
-          XML.build :"itunes:subtitle" do
-            write_episode_data(:description, episode_index)
-          end
-
-          # end
-
-          XML.close_newline(:item)
         end
 
       episode_index = episode_index + 1

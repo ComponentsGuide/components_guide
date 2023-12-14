@@ -78,7 +78,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     text_xml = text_xml_func.()
 
     # IO.puts(PodcastFeed.to_wat())
-    # IO.puts(text_xml)
+    IO.puts(text_xml)
 
     assert text_xml =~ ~S"""
            <?xml version="1.0" encoding="UTF-8"?>

@@ -69,7 +69,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   def appended?(), do: Orb.DSL.typed_call(I32, :bump_written?, [])
 
   defmacro build!(do: block) do
-    items = build_block(block)
+    items = __build_block(block)
 
     quote do
       Orb.InstructionSequence.new(Orb.I32.String, [
@@ -80,7 +80,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     end
   end
 
-  def build_block(block) do
+  def __build_block(block) do
     items =
       List.wrap(
         case block do
@@ -337,7 +337,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   # defmacro sigil_E({:<<>>, line, pieces}, []) do
   #   dbg(pieces)
 
-  #   items = build_block(pieces)
+  #   items = __build_block(pieces)
 
   #   quote do
   #     [
@@ -355,8 +355,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       quote do
         Orb.IfElse.new(
           unquote(condition),
-          unquote(StringBuilder.build_block(when_true)),
-          unquote(StringBuilder.build_block(when_false))
+          unquote(StringBuilder.__build_block(when_true)),
+          unquote(StringBuilder.__build_block(when_false))
         )
       end
     end
@@ -365,7 +365,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       quote do
         Orb.IfElse.new(
           unquote(condition),
-          unquote(StringBuilder.build_block(when_true))
+          unquote(StringBuilder.__build_block(when_true))
         )
       end
     end
