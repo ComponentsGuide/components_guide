@@ -126,8 +126,6 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
         end
 
       episode_index = episode_index + 1
-      # assert!(episode_count === 1)
-      # assert!(episode_count === 0)
       Episodes.continue(if: episode_index < episode_count)
     end
   end
