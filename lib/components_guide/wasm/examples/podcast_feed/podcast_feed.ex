@@ -5,6 +5,8 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   use ComponentsGuide.Wasm.PodcastFeed.XMLFormatter, as: XML
   require SilverOrb.Arena
 
+  Memory.pages(10)
+
   SilverOrb.BumpAllocator.export_alloc()
 
   global :export_mutable do
@@ -81,11 +83,31 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
 
   importw(Datasource, :datasource)
 
+  # SilverOrb.defarena(WriteBuffer, pages: 1)
+
   # SilverOrb.Arena.def(DatasourceArena, pages: 1)
   # Used by url attribute in <enclosure url="…">
-  SilverOrb.Arena.def(WriteBuffer, pages: 1)
+  # SilverOrb.Arena.def(WriteBuffer, pages: 1)
   # Attributes must have <&" escaped.
-  SilverOrb.Arena.def(EscapeXMLBuffer, pages: byte_size("&amp;"))
+  # SilverOrb.Arena.def EscapeXMLBuffer, pages: byte_size("&quot;") do
+  #   defw escape_xml(str: I32.String), char: I32 do
+  #     loop EachChar do
+  #       I32.match char do
+  #         ?& ->
+  #           EscapeXMLBuffer.append_string("&amp;")
+
+  #         ?" ->
+  #           EscapeXMLBuffer.append_string("&quot;")
+
+  #         ?< ->
+  #           EscapeXMLBuffer.append_string("&lt;")
+
+  #         _ ->
+  #           EscapeXMLBuffer.append_u8(char)
+  #       end
+  #     end
+  #   end
+  # end
 
   # There are a few ways to implement this:
   # 1. Pass every episode in as some sort of data structure. e.g.

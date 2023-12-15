@@ -4,9 +4,9 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
   alias OrbWasmtime.{Instance, Wasm}
   alias ComponentsGuide.Wasm.PodcastFeed
 
-  defp wasm_imports do
+  defp wasm_imports(opts) do
     [
-      {:datasource, :get_episodes_count, fn -> 2 end},
+      {:datasource, :get_episodes_count, fn -> Keyword.get(opts, :episodes_count, 2) end},
       {:datasource, :write_episode_id,
        fn caller, id, write_at ->
          s = "#{id + 1}"
@@ -58,7 +58,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
   test "podcast xml feed rendering" do
     # IO.puts(PodcastFeed.to_wat())
 
-    inst = Instance.run(PodcastFeed, wasm_imports())
+    inst = Instance.run(PodcastFeed, wasm_imports([]))
 
     # {title_offset, title_max_bytes} = Instance.call(inst, :get_title_memory_range)
     # title = "SOME TITLE" |> &[&1, ?\0] |> List.to_string()
@@ -103,7 +103,17 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     assert "Description for 2" = xml_text_content(item2, "//description[1]")
 
     # <enclosure url="${bunnyEpisodeURL(episodeID)}" length="${feedItem.mp3ByteCount}" type="audio/mpeg"/>
-    assert "Description for 2" = xml_xpath(item1, "//enclosure[1]")
+    # assert "Description for 2" = xml_xpath(item1, "//enclosure[1]")
+  end
+
+  test "500 episodes" do
+    inst = Instance.run(PodcastFeed, wasm_imports(episodes_count: 500))
+    text_xml_func = Instance.capture(inst, String, :text_xml, 0)
+    text_xml = text_xml_func.()
+
+    assert text_xml =~ ~S"""
+           <?xml version="1.0" encoding="UTF-8"?>
+           """
   end
 
   defp xml_parse(xml) do

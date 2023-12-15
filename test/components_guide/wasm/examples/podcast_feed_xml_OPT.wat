@@ -411,7 +411,7 @@
     call 8
     call 7
     call 6)
-  (memory (;0;) 2)
+  (memory (;0;) 12)
   (global (;0;) (mut i32) (i32.const 65536))
   (global (;1;) (mut i32) (i32.const 0))
   (global (;2;) (mut i32) (i32.const 0))
