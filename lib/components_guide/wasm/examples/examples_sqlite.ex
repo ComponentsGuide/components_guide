@@ -23,20 +23,26 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
     #   ]
     # )
 
-    wasm_import(:sqlite3,
-        exec: Orb.DSL.funcp(name: :sqlite3_exec, params: I32.String, result: I32),
-        # exec: func sqlite3_exec(strptr: I32.String), I32,
-        prepare: Orb.DSL.funcp(name: :sqlite3_prepare, params: I32.String, result: I32)
-    )
+    defmodule Sqlite3Commands do
+      use Orb.Import
+
+      defw(exec(sql: I32.String), I32)
+      defw(prepare(sql: I32.String), I32)
+    end
+
+    importw(Sqlite3Commands, :sqlite3)
 
     wasm do
       func init() do
-        _ = sqlite3_exec(~S"CREATE TABLE heights(id INTEGER PRIMARY KEY AUTOINCREMENT, feet INT)")
+        _ =
+          Sqlite3Commands.exec(
+            ~S"CREATE TABLE heights(id INTEGER PRIMARY KEY AUTOINCREMENT, feet INT)"
+          )
       end
 
       func add_height(height: I32),
         i: I32 do
-        _ = sqlite3_exec(~S"INSERT INTO heights(feet) VALUES (99)")
+        _ = Sqlite3Commands.exec(~S"INSERT INTO heights(feet) VALUES (99)")
 
         # i = json!([i32: height])
         # _ sqlite3_mutate(~S"INSERT INTO heights(feet) values(?)", i)
@@ -46,7 +52,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
            I32,
            i: I32 do
         # _ sqlite3_prepare(~S"INSERT INTO heights(feet) values(99)")
-        sqlite3_exec(~S"SELECT COUNT(*) FROM heights")
+        Sqlite3Commands.exec(~S"SELECT COUNT(*) FROM heights")
       end
     end
 

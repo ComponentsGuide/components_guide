@@ -19,14 +19,18 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   #   defwp i32(x: F32, y: F32), F32, as: :log_i32
   # end
 
-  wasm_import(:math,
-    powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
-  )
+  defmodule Math do
+    use Orb.Import
 
-  wasm_import(:log,
-    i32: Orb.DSL.funcp(name: :log_i32, params: I32),
-    f32: Orb.DSL.funcp(name: :log_f32, params: F32)
-  )
+    defw(powf32(a: F32, b: F32), F32)
+  end
+
+  Orb.importw(Math, :math)
+
+  # wasm_import(:log,
+  #   i32: Orb.DSL.funcp(name: :log_i32, params: I32),
+  #   f32: Orb.DSL.funcp(name: :log_f32, params: F32)
+  # )
 
   # defw_import powf32(_: F32, _: F32), F32, to: :math, as: :powf32
   # Import.module :math do
@@ -36,11 +40,12 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
   wasm_mode(F32)
 
   defp powf32(a, b) do
-    Orb.DSL.typed_call(F32, :powf32, [a, b])
+    Math.powf32(a, b)
+    # Orb.DSL.typed_call(F32, :powf32, [a, b])
   end
 
   defwp lab_to_xyz_component(v: F32), F32, cubed: F32 do
-    cubed = typed_call(F32, :powf32, [v, 3.0])
+    cubed = Math.powf32(v, 3.0)
 
     if cubed > inline(do: @e), result: F32 do
       cubed
@@ -61,7 +66,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
 
   defwp xyz_to_lab_component(c: F32), F32 do
     if c > inline(do: @e), result: F32 do
-      powf32(c, 1.0 / 3.0)
+      Math.powf32(c, 1.0 / 3.0)
     else
       (inline(do: @k) * c + 16.0) / 116.0
     end
@@ -85,7 +90,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
 
   defwp linear_srgb_to_srgb_component(c: F32), F32 do
     if c > 0.0031308, result: F32 do
-      1.055 * typed_call(F32, :powf32, [c, 1.0 / 2.4]) - 0.055
+      1.055 * Math.powf32(c, 1.0 / 2.4) - 0.055
     else
       12.92 * c
     end
@@ -101,7 +106,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorConversion do
     if c < 0.04045, result: F32 do
       c / 12.92
     else
-      typed_call(F32, :powf32, [(c + 0.055) / 1.055, 2.4])
+      Math.powf32((c + 0.055) / 1.055, 2.4)
     end
   end
 

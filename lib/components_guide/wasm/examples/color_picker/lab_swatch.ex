@@ -14,9 +14,11 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   #   funcp :f32, format_f32(f: F32, ptr: I32), I32
   # end
 
-  wasm_import(:math,
-    powf32: Orb.DSL.funcp(name: :powf32, params: {F32, F32}, result: F32)
-  )
+  defmodule Math do
+    use Orb.Import
+
+    defw(powf32(a: F32, b: F32), F32)
+  end
 
   wasm_import(:format,
     f32: Orb.DSL.funcp(name: :format_f32, params: {F32, I32}, result: I32)
@@ -207,13 +209,14 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   defwp do_drag_knob(offset: F32) do
     # ~E(<circle data-drag-knob="" cx="<%= offset %>" cy="<%= offset %>" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n)
 
-    _ = build! do
-      ~S{<circle data-drag-knob="" cx="}
-      offset
-      ~S{" cy="}
-      offset
-      ~S{" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n}
-    end
+    _ =
+      build! do
+        ~S{<circle data-drag-knob="" cx="}
+        offset
+        ~S{" cy="}
+        offset
+        ~S{" r="0.05" fill="white" stroke="black" stroke-width="0.01" />\n}
+      end
   end
 
   defwp interpolate(t: F32, lowest: F32, highest: F32), F32 do

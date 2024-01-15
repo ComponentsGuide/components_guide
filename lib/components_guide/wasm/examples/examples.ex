@@ -107,16 +107,20 @@ defmodule ComponentsGuide.Wasm.Examples do
     # @readonly_start 0xFF
     @input_offset 1 * @page_size
 
-    wasm_import(:http,
-      get: Orb.DSL.funcp(name: :http_get, params: I32, result: I32)
-    )
+    defmodule Fetch do
+      use Orb.Import
+
+      defw(get(a: I32), I32)
+    end
+
+    importw(Fetch, :http)
 
     I32.export_global(:mutable, input_offset: @input_offset)
 
     wasm do
       func get_status(), I32 do
         # 500
-        typed_call(I32, :http_get, [0])
+        Fetch.get(0x0)
       end
     end
 
@@ -148,65 +152,55 @@ defmodule ComponentsGuide.Wasm.Examples do
   defmodule WebPageIntegrationTest do
     use Orb
 
-    wasm_import(:navigate,
-      visit: Orb.DSL.funcp(name: :visit, params: I32, result: I32)
-    )
+    defmodule Navigate do
+      use Orb.Import
 
-    wasm_import(:query,
-      get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
-      expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: {I32, I32})
-    )
+      defw(visit(url: I32.String), I32)
+    end
 
-    wasm do
-      func test_home_page(), I32 do
-        # imports.visit("/")
-        # imports.expect_by_role("link", "Home")
-        typed_call(I32, :visit, [const("/")])
-        typed_call(I32, :expect_by_role, [const("link"), const("Home")])
-      end
+    defmodule Query do
+      use Orb.Import
+
+      defw(get_by_role(role: I32.String, name: I32.String), I32)
+      defw(expect_by_role(role: I32.String, name: I32.String), I32)
+    end
+
+    importw(Navigate, :navigate)
+    importw(Query, :query)
+
+    defw test_home_page(), I32 do
+      Navigate.visit("/")
+      Query.expect_by_role("link", "Home")
     end
   end
 
   defmodule TailwindLike do
     use Orb
 
-    wasm_import(:navigate,
-      visit: Orb.DSL.funcp(name: :visit, params: I32, result: I32)
-    )
+    defw test_home_page(), I32.String do
+      # imports.visit("/")
+      # imports.expect_by_role("link", "Home")
+      ~S[<button class="text-lg">Click me</button>]
+      # _css = const_set_insert(:css, ~s[.text-lg{font-size: 125%}])
+      # css = const_list_append(:css, ~s[.text-lg{font-size: 125%}])
 
-    wasm_import(:query,
-      get_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32, result: I32),
-      expect_by_role: Orb.DSL.funcp(name: :get_by_role, params: I32)
-    )
-
-    wasm do
-      func test_home_page(), I32.String do
-        # imports.visit("/")
-        # imports.expect_by_role("link", "Home")
-        ~S[<button class="text-lg">Click me</button>]
-        # _css = const_set_insert(:css, ~s[.text-lg{font-size: 125%}])
-        # css = const_list_append(:css, ~s[.text-lg{font-size: 125%}])
-
-        # wind(~s[<button class="text-lg">Click me</button>])
-      end
+      # wind(~s[<button class="text-lg">Click me</button>])
     end
   end
 
   defmodule FormState do
     use Orb
 
-    wasm do
-      func on_input(input_name: I32, string_value: I32) do
-        # TODO: store string_value under key input_name
-        # TODO: add funcs like Keyword.put() to the LinkedLists wasm module
-      end
+    defw on_input(input_name: I32, string_value: I32) do
+      # TODO: store string_value under key input_name
+      # TODO: add funcs like Keyword.put() to the LinkedLists wasm module
+    end
 
-      func on_reset() do
-      end
+    defw on_reset() do
+    end
 
-      func to_urlencoded(), I32 do
-        -1
-      end
+    defw to_urlencoded(), I32 do
+      -1
     end
   end
 

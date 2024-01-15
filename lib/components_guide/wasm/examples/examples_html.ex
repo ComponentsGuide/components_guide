@@ -523,14 +523,6 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       form_element_list: 0x0
     )
 
-    # wasm_import(
-    #   log: [
-    #     int32: func(name: :log32, params: I32, result: I32)
-    #   ]
-    # )
-
-    wasm_import(:log, int32: Orb.DSL.funcp(name: :log32, params: I32, result: I32))
-
     wasm U32 do
       EscapeHTML.funcp(:escape)
 
