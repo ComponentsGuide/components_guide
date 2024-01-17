@@ -82,7 +82,7 @@ defmodule ComponentsGuide.Wasm.Examples.ColorPickerTest do
   end
 
   test "LabSwatch" do
-    # IO.puts(LabSwatch.to_wat())
+    IO.puts(LabSwatch.to_wat())
     # IO.inspect(LabSwatch.to_html())
     assert is_binary(LabSwatch.to_wasm())
 

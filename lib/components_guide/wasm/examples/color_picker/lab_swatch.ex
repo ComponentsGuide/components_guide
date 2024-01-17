@@ -14,11 +14,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   #   funcp :f32, format_f32(f: F32, ptr: I32), I32
   # end
 
-  defmodule Math do
-    use Orb.Import
-
-    defw(powf32(a: F32, b: F32), F32)
-  end
+  Orb.importw(ColorConversion.Math, :math)
 
   wasm_import(:format,
     f32: Orb.DSL.funcp(name: :format_f32, params: {F32, I32}, result: I32)

@@ -56,7 +56,7 @@ defmodule ComponentsGuide.Wasm.ExamplesTest do
       assert HTTPProxy.to_wat() =~
                ~S"""
                (module $HTTPProxy
-                 (import "http" "get" (func $http_get (param i32) (result i32)))
+                 (import "http" "get" (func $ComponentsGuide.Wasm.Examples.HTTPProxy.Fetch.get (param $a i32) (result i32)))
                  (global $input_offset (export "input_offset") (mut i32) (i32.const 65536))
                """
     end

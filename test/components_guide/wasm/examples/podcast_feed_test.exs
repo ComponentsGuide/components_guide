@@ -106,14 +106,18 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.Test do
     # assert "Description for 2" = xml_xpath(item1, "//enclosure[1]")
   end
 
-  test "500 episodes" do
-    inst = Instance.run(PodcastFeed, wasm_imports(episodes_count: 500))
+  test "12,000 episodes" do
+    inst = Instance.run(PodcastFeed, wasm_imports(episodes_count: 12_000))
     text_xml_func = Instance.capture(inst, String, :text_xml, 0)
     text_xml = text_xml_func.()
 
     assert text_xml =~ ~S"""
            <?xml version="1.0" encoding="UTF-8"?>
            """
+
+    root = xml_parse(text_xml)
+    items = xml_xpath(root, "//item")
+    assert 12_000 = length(items)
   end
 
   defp xml_parse(xml) do

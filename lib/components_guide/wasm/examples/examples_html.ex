@@ -293,7 +293,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
             ~S[<output class="flex p-4 bg-gray-800">]
 
           1 ->
-            call(:i32toa, @count)
+            typed_call(I32, :i32toa, [@count])
 
           2 ->
             ~S[</output>]

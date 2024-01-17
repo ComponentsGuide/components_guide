@@ -5,7 +5,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed do
   use ComponentsGuide.Wasm.PodcastFeed.XMLFormatter, as: XML
   require SilverOrb.Arena
 
-  Memory.pages(10)
+  Memory.pages(64)
 
   SilverOrb.BumpAllocator.export_alloc()
 
