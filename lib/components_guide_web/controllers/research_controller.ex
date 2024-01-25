@@ -24,31 +24,43 @@ defmodule ComponentsGuideWeb.ResearchController do
   end
 
   def show(conn, %{"section" => "dom-types"} = params) do
-    url = "https://cdn.jsdelivr.net/npm/typescript@4.9.5/lib/lib.dom.d.ts"
+    url = "https://cdn.jsdelivr.net/npm/typescript@5.3.3/lib/lib.dom.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
     results = process_typescript_source(source)
 
     query = Map.get(params, "q", "")
 
     conn
-    |> assign(:page_title, "Search DOM APIs via TypeScript’s build-in types")
+    |> assign(:page_title, "Search DOM types")
+    |> render("typescript.html", results: results, query: query)
+  end
+
+  def show(conn, %{"section" => "intl-types"} = params) do
+    url = "https://cdn.jsdelivr.net/npm/typescript@5.3.3/lib/lib.es2020.intl.d.ts"
+    {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
+    results = process_typescript_source(source)
+
+    query = Map.get(params, "q", "")
+
+    conn
+    |> assign(:page_title, "Search Intl types")
     |> render("typescript.html", results: results, query: query)
   end
 
   def show(conn, %{"section" => "css-types"} = params) do
-    url = "https://cdn.jsdelivr.net/npm/csstype@3.1.1/index.d.ts"
+    url = "https://cdn.jsdelivr.net/npm/csstype@3.1.3/index.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
     results = process_typescript_source(source)
 
     query = Map.get(params, "q", "")
 
     conn
-    |> assign(:page_title, "Search CSS properties via TypeScript’s build-in types")
+    |> assign(:page_title, "Search CSS types")
     |> render("typescript.html", results: results, query: query)
   end
 
   def show(conn, %{"section" => "react-types"} = params) do
-    url = "https://cdn.jsdelivr.net/npm/@types/react@18.0.28/index.d.ts"
+    url = "https://cdn.jsdelivr.net/npm/@types/react@18.2.48/index.d.ts"
     {:ok, source} = ComponentsGuide.Research.Source.text_at(url)
 
     query = Map.get(params, "q", "")
@@ -58,12 +70,10 @@ defmodule ComponentsGuideWeb.ResearchController do
       |> String.replace("declare namespace React {", "", global: false)
       |> String.replace("\n    ", "\n")
 
-    # |> String.trim_trailig("declare namespace React {")
-
     results = process_typescript_source(source)
 
     conn
-    |> assign(:page_title, "Search React’s APIs via TypeScript’s build-in types")
+    |> assign(:page_title, "Search React types")
     |> render("typescript.html", results: results, query: query)
   end
 
@@ -105,12 +115,12 @@ defmodule ComponentsGuideWeb.ResearchController do
   #   defp present_results(results) when is_binary(results) do
   #     results
   #   end
-  # 
+  #
   #   defp present_results(results) when is_list(results) do
   #     items =
   #       results
   #       |> Enum.map(fn result -> content_tag(:li, result) end)
-  # 
+  #
   #     content_tag(:ul, items)
   #   end
 
@@ -173,10 +183,10 @@ defmodule ComponentsGuideWeb.ResearchController do
   #     case Spec.search_for(:whatwg_html_spec, query) do
   #       [] ->
   #         []
-  # 
+  #
   #       :error ->
   #         []
-  # 
+  #
   #       results ->
   #         content_tag(:article, [
   #           content_tag(:h2, "HTML spec"),
