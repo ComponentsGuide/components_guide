@@ -2,6 +2,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   use Orb
   use SilverOrb.BumpAllocator
   use ComponentsGuide.Wasm.Examples.StringBuilder
+  alias ComponentsGuide.Wasm.Examples.StringBuilder
   alias ComponentsGuide.Wasm.Examples.ColorConversion
 
   # Import.funcp({:math, :powf32}, as: :powf32, params: {F32, F32}, result: F32)
@@ -15,10 +16,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   # end
 
   Orb.importw(ColorConversion.Math, :math)
-
-  wasm_import(:format,
-    f32: Orb.DSL.funcp(name: :format_f32, params: {F32, I32}, result: I32)
-  )
+  Orb.importw(StringBuilder.Format, :format)
 
   wasm_import(:log,
     i32: Orb.DSL.funcp(name: :log_i32, params: I32),
@@ -130,7 +128,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
       @a
       ~S{ }
       # append!(decimal_f32: @b)
-      append!(decimal_f32: global_get(:b))
+      append!(decimal_f32: Orb.Instruction.global_get(F32, :b))
       ~S{)}
     end
   end

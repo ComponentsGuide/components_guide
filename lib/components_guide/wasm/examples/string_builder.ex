@@ -5,6 +5,12 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   use SilverOrb.BumpAllocator
   use SilverOrb.Mem
 
+  defmodule Format do
+    use Orb.Import
+
+    defw f32(value: F32, str_ptr: I32.U8.UnsafePointer), I32
+  end
+
   I32.global(bump_write_level: 0)
 
   defmacro __using__(_) do
@@ -215,7 +221,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
     snippet do
       # call(:format_f32, f, @bump_offset) |> I32.add(@bump_offset)
       @bump_offset =
-        Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
+        Format.f32(f, @bump_offset) + @bump_offset
+        # Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
 
       # {:global_set, :bump_offset}
     end
