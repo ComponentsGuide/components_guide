@@ -21,13 +21,13 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
       import unquote(__MODULE__)
 
-      Orb.wasm do
+      Orb.Orb.__append_body do
         unquote(__MODULE__).funcp()
       end
     end
   end
 
-  wasm U32 do
+  Orb.__append_body U32 do
     func url_encoded_count(url_encoded: I32.U8.UnsafePointer), I32,
       char: I32.U8,
       count: I32,
@@ -174,7 +174,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
     end
   end
 
-  wasm U32 do
+  Orb.__append_body U32 do
     func url_encode_rfc3986(str_ptr: I32.String),
          I32.String,
          char: I32.U8,

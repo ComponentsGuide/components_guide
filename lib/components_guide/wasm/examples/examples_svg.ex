@@ -14,7 +14,7 @@ defmodule ComponentsGuide.Wasm.Examples.SVG do
 
     I32.global(body_chunk_index: 0)
 
-    wasm do
+    Orb.__append_body do
       HexConversion.funcp(:u32_to_hex_lower)
 
       func rewind do

@@ -32,7 +32,7 @@ defmodule ComponentsGuide.Wasm.Examples.Sqlite do
 
     importw(Sqlite3Commands, :sqlite3)
 
-    wasm do
+    Orb.__append_body do
       func init() do
         _ =
           Sqlite3Commands.exec(

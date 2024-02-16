@@ -16,9 +16,12 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
       path: 0
     )
 
-    wasm do
-      I32.attr_writer(:method, as: :set_method)
-      I32.attr_writer(:path, as: :set_path)
+    defw set_method(method: I32.UnsafePointer) do
+      @method = method
+    end
+
+    defw set_path(path: I32.UnsafePointer) do
+      @path = path
     end
 
     defw get_status(), I32 do
@@ -66,6 +69,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTTPServer do
             ~S"""
             <!doctype html>
             """
+
             ~S"<h1>Not found: "
             append!(string: @path)
             ~S"</h1>\n"

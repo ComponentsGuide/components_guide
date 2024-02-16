@@ -27,7 +27,7 @@ defmodule ComponentsGuide.Wasm.Examples do
 
       # Check equality to each weekday as a i32 e.g. `Mon\0`
       inline for {day_i32!, index!} <- Enum.with_index(@weekdays_i32, 1) do
-        wasm do
+        Orb.__append_body do
           if I32.eq(i, day_i32!), do: return(index!)
         end
       end
@@ -67,7 +67,7 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     I32.global(chunk1: 0, chunk2: 0)
 
-    wasm do
+    Orb.__append_body do
       func txt do
         @chunk1 = inline(do: @strings.text_plain.offset)
         @chunk2 = inline(do: @strings.charset_utf8.offset)
@@ -83,7 +83,7 @@ defmodule ComponentsGuide.Wasm.Examples do
         @chunk2 = inline(do: @strings.charset_utf8.offset)
       end
 
-      func wasm do
+      func Orb.__append_body() do
         @chunk1 = inline(do: @strings.application_wasm.offset)
         @chunk2 = 0x0
       end
@@ -117,7 +117,7 @@ defmodule ComponentsGuide.Wasm.Examples do
 
     I32.export_global(:mutable, input_offset: @input_offset)
 
-    wasm do
+    Orb.__append_body do
       func get_status(), I32 do
         # 500
         Fetch.get(0x0)

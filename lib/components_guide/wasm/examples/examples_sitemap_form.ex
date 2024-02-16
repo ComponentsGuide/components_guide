@@ -19,7 +19,7 @@ defmodule ComponentsGuide.Wasm.Examples.SitemapForm do
     data_url_encoded: URLEncoded
   )
 
-  wasm U32 do
+  Orb.__append_body U32 do
     func set_www_form_data(data_ptr: URLEncoded) do
       @data_url_encoded = data_ptr
     end

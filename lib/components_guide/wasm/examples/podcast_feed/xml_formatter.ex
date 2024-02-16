@@ -4,7 +4,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
   use ComponentsGuide.Wasm.Examples.StringBuilder
   # use URLEncoded
 
-  defwi xml_escape(str: I32.String), I32.String do
+  defw xml_escape(str: I32.String), I32.String do
     build! do
       ~S"<![CDATA["
       # ~S"<![CDATA["
@@ -40,7 +40,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     xml_close_newline(Orb.DSL.const(Atom.to_string(tag)))
   end
 
-  defwi xml_close_newline(tag: I32.String), I32.String do
+  defw xml_close_newline(tag: I32.String), I32.String do
     build! do
       # "</" <> tag <> ">"
       "</"
@@ -49,7 +49,7 @@ defmodule ComponentsGuide.Wasm.PodcastFeed.XMLFormatter do
     end
   end
 
-  defwi xml_element(tag: I32.String, child: I32.String), I32.String do
+  defw xml_element(tag: I32.String, child: I32.String), I32.String do
     build! do
       # "<" <> tag <> ">"
       ~S"<"

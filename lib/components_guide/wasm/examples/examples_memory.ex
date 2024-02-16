@@ -10,7 +10,7 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
 
         import Orb
 
-        wasm do
+        Orb.__append_body do
           unquote(__MODULE__).funcp(:cons)
           unquote(__MODULE__).funcp(:hd)
           unquote(__MODULE__).funcp(:tl)
@@ -24,8 +24,9 @@ defmodule ComponentsGuide.Wasm.Examples.Memory do
     # increase_memory pages: 2
     # @wasm_memory 2
 
-    wasm U32 do
-      func cons(hd: I32.UnsafePointer, tl: I32.UnsafePointer), I32.UnsafePointer, ptr: I32.UnsafePointer do
+    Orb.__append_body U32 do
+      func cons(hd: I32.UnsafePointer, tl: I32.UnsafePointer), I32.UnsafePointer,
+        ptr: I32.UnsafePointer do
         ptr = typed_call(I32.UnsafePointer, :bump_alloc, [8])
         ptr[at!: 0] = hd
         ptr[at!: 1] = tl

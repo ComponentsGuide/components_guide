@@ -18,10 +18,10 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   Orb.importw(ColorConversion.Math, :math)
   Orb.importw(StringBuilder.Format, :format)
 
-  wasm_import(:log,
-    i32: Orb.DSL.funcp(name: :log_i32, params: I32),
-    f32: Orb.DSL.funcp(name: :log_f32, params: F32)
-  )
+  # wasm_import(:log,
+  #   i32: Orb.DSL.funcp(name: :log_i32, params: I32),
+  #   f32: Orb.DSL.funcp(name: :log_f32, params: F32)
+  # )
 
   F32.export_global(:mutable, swatch_size: 120.0)
   F32.export_global(:mutable, quantization: 16.0)

@@ -18,7 +18,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       {?', ~C"&#39;"}
     ]
 
-    wasm U32 do
+    Orb.__append_body U32 do
       funcp append_char_html_escaped(char: I32.U8) do
         inline for {char_to_match!, chars_out!} <- @escaped_html_table do
           if I32.eq(char, char_to_match!) do
@@ -42,7 +42,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       quote do
         import unquote(__MODULE__)
 
-        Orb.wasm do
+        Orb.Orb.__append_body do
           unquote(__MODULE__).funcp()
         end
       end
@@ -63,7 +63,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       {?', ~C"&#39;"}
     ]
 
-    wasm U32 do
+    Orb.__append_body U32 do
       funcp escape(read_offset: I32.U8.UnsafePointer, write_offset: I32.U8.UnsafePointer),
             I32,
             char: I32.U8,
@@ -78,10 +78,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           read_offset = read_offset + 1
 
           inline for {char_to_match!, chars_out!} <- @escaped_html_table do
-            wasm do
+            Orb.__append_body do
               if I32.eq(char, char_to_match!) do
                 inline for char_out! <- chars_out! do
-                  wasm do
+                  Orb.__append_body do
                     write_offset[at!: bytes_written] = char_out!
                     bytes_written = bytes_written + 1
                   end
@@ -125,7 +125,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     I32.global(body_chunk_index: 0)
     I32.export_global(:mutable, request_body_write_offset: @request_body_write_offset)
 
-    wasm U32 do
+    Orb.__append_body U32 do
       func(get_request_body_write_offset(), I32, do: @request_body_write_offset)
 
       func GET do
@@ -240,7 +240,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       body_chunk_index: 0
     )
 
-    wasm do
+    Orb.__append_body do
       func(get_current(), I32, do: @count)
 
       func increment(), I32 do
@@ -266,7 +266,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
 
       #     end
       #
-      #     wasm do
+      #     Orb.__append_body do
       funcp i32toa(value: I32), I32, working_ptr: I32.U8.UnsafePointer, digit: I32 do
         # Max int is 4294967296 which has 10 digits. We add one for nul byte.
         # We “allocate” all 11 bytes upfront to make the algorithm easier.
@@ -342,7 +342,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
     I32.export_global(:mutable, step_count: 4)
     I32.global(step: 1)
 
-    wasm U32 do
+    Orb.__append_body U32 do
       func(get_current_step(), I32, do: @step)
 
       funcp _change_step(step: I32) do
@@ -425,7 +425,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       url_list: 0x0
     )
 
-    wasm U32 do
+    Orb.__append_body U32 do
       # EscapeHTML.funcp(escape, I32)
       # EscapeHTML.funcp escape(read_offset: I32, write_offset: I32), I32
       EscapeHTML.funcp(:escape)
@@ -523,7 +523,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       form_element_list: 0x0
     )
 
-    wasm U32 do
+    Orb.__append_body U32 do
       EscapeHTML.funcp(:escape)
 
       func add_textbox(name_ptr: I32.U8.UnsafePointer) do

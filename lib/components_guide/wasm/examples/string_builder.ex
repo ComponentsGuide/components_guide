@@ -8,7 +8,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
   defmodule Format do
     use Orb.Import
 
-    defw f32(value: F32, str_ptr: I32.U8.UnsafePointer), I32
+    defw(f32(value: F32, str_ptr: I32.U8.UnsafePointer), I32)
   end
 
   I32.global(bump_write_level: 0)
@@ -27,13 +27,13 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
       I32.global(bump_write_level: 0)
 
-      Orb.wasm do
+      Orb.Orb.__append_body do
         unquote(__MODULE__).funcp()
       end
     end
   end
 
-  wasm U32 do
+  Orb.__append_body U32 do
     funcp bump_write_start() do
       if I32.eqz(@bump_write_level) do
         @bump_mark = @bump_offset
@@ -222,7 +222,8 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
       # call(:format_f32, f, @bump_offset) |> I32.add(@bump_offset)
       @bump_offset =
         Format.f32(f, @bump_offset) + @bump_offset
-        # Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
+
+      # Orb.DSL.typed_call(I32, :format_f32, [f, @bump_offset]) |> Orb.I32.add(@bump_offset)
 
       # {:global_set, :bump_offset}
     end

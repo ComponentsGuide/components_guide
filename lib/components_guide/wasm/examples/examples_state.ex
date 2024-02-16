@@ -39,7 +39,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         # If current state is `_` i.e. being ignored.
         {:_, _, _} ->
           quote do
-            wasm do
+            Orb.__append_body do
               func unquote(Macro.escape(name)) do
                 transition_to(unquote(target))
                 # Orb.DSL.typed_call(nil, :transition_to, [unquote(target)])
@@ -54,7 +54,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
 
             # Module.register_attribute(__MODULE__, String.to_atom("func_#{unquote(name)}"), accumulate: true)
 
-            wasm do
+            Orb.__append_body do
               func unquote(Macro.escape(name)) do
                 Orb.IfElse.DSL.if I32.eq(
                                     Instruction.global_get(Orb.I32, :state),
@@ -149,7 +149,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
         end
 
       quote do
-        wasm do
+        Orb.__append_body do
           func unquote(name) do
             unquote(statements)
           end
@@ -309,7 +309,7 @@ defmodule ComponentsGuide.Wasm.Examples.State do
     defmodule Conditions do
       use Orb.Import
 
-      defw is_focused(), I32
+      defw(is_focused(), I32)
     end
 
     importw(Conditions, :conditions)
