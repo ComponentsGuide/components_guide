@@ -67,7 +67,9 @@ defmodule ComponentsGuideWeb.WasmController do
   @articles ["custom_elements"]
 
   def show(conn, %{"id" => article}) when article in @articles do
-    render(conn, article <> ".html")
+    render(conn, article <> ".html",
+      main_class: "max-w-2xl mt-16 mb-8 mx-auto prose md:prose-xl prose-invert"
+    )
   end
 
   def module(conn, %{"module" => name}) when is_map_key(@modules, name) do
