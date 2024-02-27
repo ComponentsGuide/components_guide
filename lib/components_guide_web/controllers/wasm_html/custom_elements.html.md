@@ -10,9 +10,11 @@ The element lets you use a WebAssembly instance that renders HTML. It loads your
 - a `to_html()` function that returns the memory offset to your built HTML. This will be called on each render.
 - an optional `free_all()` function that is called at the start of each render, used to free memory if you need.
 
-If your rendered HTML includes a `<button>` with a `data-action` attribute, then a click listener will be added. The value of this attribute if set to the name of an exported function, will be called every time the button is clicked. The HTML will also be re-rendered for you.
+Your WebAssembly instance can also hold internal state in its globals variables and in memory. This allows it to be stateful, rendering different HTML depending on the state.
 
-For example a `<button data-action="increment">Increment counter</button>` will call the `increment()` function you export, plus call your `to_html()` function, allowing you to re-render say a counter from `<output>1</output>` to `<output>2</output>`. Note: you must render the button each time: this allow you to change which buttons are available depending on your internal state.
+If your rendered HTML includes a `<button>` with a `data-action` attribute, then a click listener will be added. The value of this attribute if set to the name of an exported function, will be called every time the button is clicked. The HTML will also be re-rendered for you by calling `to_html()` again.
+
+For example a `<button data-action="increment">Increment counter</button>` will call the `increment()` function you export, plus call your `to_html()` function, allowing you to re-render say a counter from `<output>1</output>` to `<output>2</output>`. Note: you must render your buttons every time: this allow you to change which buttons are available depending on your internal state.
 
 ### Usage
 
@@ -66,9 +68,13 @@ async function initWasmHTML(el, wasmModulePromise) {
   memoryIO = new MemoryIO(instance.exports);
   const { to_html: toHTML, free_all: freeAll } = instance.exports;
 
+  // Used to render.
   function update() {
+    // Optionally free.
     freeAll?.apply();
+    // Read the current HTML.
     const html = memoryIO.readString(toHTML());
+    // Replace all HTML inside the custom element.
     el.innerHTML = html;
   }
 
@@ -83,6 +89,8 @@ customElements.define("wasm-html", WasmHTML);
 ```
 
 ## Event listeners
+
+These are some starter event listeners. Any DOM event is possible, it‘s up to you to decide which properties from the event you want and the convention for passing their data to your WebAssembly instance. Usually a specially named exported function makes sense.
 
 ```js
 function addEventListenersToWasmInstance(instance, update) {
@@ -131,6 +139,8 @@ function addEventListenersToWasmInstance(instance, update) {
 ```
 
 ## MemoryIO
+
+This helper class is used to read and write UTF-8 strings from a WebAssembly module’s main memory.
 
 ```js
 const utf8Encoder = new TextEncoder();
