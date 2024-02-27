@@ -68,7 +68,7 @@ defmodule ComponentsGuide.MixProject do
       {:redix, "~> 1.1"},
       {:benchee, "~> 1.0", only: :dev},
       {:orb, "~> 0.0.31"},
-      {:silver_orb, "~> 0.0.5"},
+      {:silver_orb, "~> 0.0.6"},
       # {:orb, path: "../../Collected/orb", override: true},
       # {:silver_orb, path: "../../Collected/silver_orb", override: true},
       # {:wasmex, "~> 0.8.3"},

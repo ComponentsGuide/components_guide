@@ -27,7 +27,7 @@ defmodule ComponentsGuide.Wasm.Examples.StringBuilder do
 
       I32.global(bump_write_level: 0)
 
-      Orb.Orb.__append_body do
+      Orb.__append_body do
         unquote(__MODULE__).funcp()
       end
     end

@@ -64,6 +64,12 @@ defmodule ComponentsGuideWeb.WasmController do
     render(conn, :index, assigns)
   end
 
+  @articles ["custom_elements"]
+
+  def show(conn, %{"id" => article}) when article in @articles do
+    render(conn, article <> ".html")
+  end
+
   def module(conn, %{"module" => name}) when is_map_key(@modules, name) do
     mod = @modules[name]
 

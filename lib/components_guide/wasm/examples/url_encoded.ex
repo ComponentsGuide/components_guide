@@ -21,7 +21,7 @@ defmodule ComponentsGuide.Wasm.Examples.URLEncoded do
 
       import unquote(__MODULE__)
 
-      Orb.Orb.__append_body do
+      Orb.__append_body do
         unquote(__MODULE__).funcp()
       end
     end

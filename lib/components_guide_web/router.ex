@@ -99,6 +99,7 @@ defmodule ComponentsGuideWeb.Router do
     get("/calendar", CalendarController, :index)
 
     get("/wasm", WasmController, :index)
+    get("/wasm/:id", WasmController, :show)
     get("/wasm/module/:module", WasmController, :module)
     live("/wasm/http-server", WasmHTTPServerLive)
 

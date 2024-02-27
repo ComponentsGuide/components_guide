@@ -70,7 +70,7 @@ defmodule ComponentsGuide.Wasm.Examples.Format do
 
     Memory.pages(2)
 
-    wasm F32 do
+    Orb.__append_body F32 do
       func format_f32(value: F32, str_ptr: I32.U8.UnsafePointer, precision: I32),
         digit: I32 do
         # TODO: handle -0

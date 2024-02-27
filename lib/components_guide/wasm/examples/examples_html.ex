@@ -42,7 +42,7 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
       quote do
         import unquote(__MODULE__)
 
-        Orb.Orb.__append_body do
+        Orb.__append_body do
           unquote(__MODULE__).funcp()
         end
       end
@@ -78,10 +78,10 @@ defmodule ComponentsGuide.Wasm.Examples.HTML do
           read_offset = read_offset + 1
 
           inline for {char_to_match!, chars_out!} <- @escaped_html_table do
-            Orb.__append_body do
+            wasm do
               if I32.eq(char, char_to_match!) do
                 inline for char_out! <- chars_out! do
-                  Orb.__append_body do
+                  wasm do
                     write_offset[at!: bytes_written] = char_out!
                     bytes_written = bytes_written + 1
                   end

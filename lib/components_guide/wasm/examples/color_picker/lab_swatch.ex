@@ -48,7 +48,7 @@ defmodule ComponentsGuide.Wasm.Examples.LabSwatch do
   #   @last_changed_component = @component_l
   # end
 
-  wasm F32 do
+  Orb.__append_body F32 do
     ColorConversion.funcp()
 
     func l_changed(new_value: F32) do
